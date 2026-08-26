@@ -29,7 +29,7 @@
     "input.foreground": "#bcc7d5",
     "input.border": "#3a76d6",
     "button.background": "#9f8ce9",
-    "button.foreground": "#bcc7d5",
+    "button.foreground": "#000000",
     "list.activeSelectionBackground": "#0c0c0e",
     "list.activeSelectionForeground": "#bcc7d5",
     "list.hoverBackground": "#050507",

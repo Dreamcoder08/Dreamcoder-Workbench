@@ -20,13 +20,19 @@ from dreamcoder_theme.design_system import (  # noqa: E402
     load_tokens,
 )
 from dreamcoder_theme.palette import ansi as terminal_ansi  # noqa: E402
-from dreamcoder_theme.palette import night_palette, validate_palette  # noqa: E402
+from dreamcoder_theme.palette import load_guardrails, night_palette, validate_palette  # noqa: E402
 from dreamcoder_theme.renderers_opencode import opencode_content  # noqa: E402
 
 FILES = [
     ROOT / "DreamcoderCodexApp/Dreamcoder.codex-theme.json",
     ROOT / "DreamcoderCodexApp/Dreamcoder-Light.codex-theme.json",
     ROOT / "DreamcoderCodexApp/Dreamcoder-Dark.codex-theme.json",
+]
+ANTIGRAVITY_FILES = [
+    ROOT / "DreamcoderAntigravity/Dreamcoder.json",
+    ROOT / "DreamcoderAntigravity/Dreamcoder-Dark.json",
+    ROOT / "DreamcoderAntigravity/Dreamcoder-Night.json",
+    ROOT / "DreamcoderAntigravity/Dreamcoder-Light.json",
 ]
 TOKEN_FILE = ROOT / "DreamcoderThemes/dreamcoder/tokens.json"
 TOKENS_SCHEMA_FILE = ROOT / "DreamcoderThemes/dreamcoder/tokens.schema.json"
@@ -281,7 +287,7 @@ def check_tokens():
     for mode, palette in tokens["modes"].items():
         bg = palette["bg"]
         require(HEX.match(bg), f"tokens:{mode}: invalid background")
-        # Dark mode intentionally uses pure OLED black (#000000) for contrast/battery.
+        # Dark's surface policy reserves pure black for the canvas.
         # Light/dusk must still avoid harsh pure black/white backgrounds.
         if mode != "dark":
             require(bg.lower() not in {"#000000", "#ffffff"}, f"tokens:{mode}: harsh background")
@@ -410,12 +416,43 @@ def check_night_coverage():
     require(not dupes, f"coverage: duplicate consumer IDs: {dupes}")
 
 
+def check_antigravity_files():
+    """Validate Antigravity's semantic button pair for every render profile."""
+    if not any(file.exists() for file in ANTIGRAVITY_FILES):
+        return
+    tokens = load_tokens(TOKEN_FILE)
+    guardrails = load_guardrails(TOKEN_FILE)
+    palettes = {
+        "Dreamcoder.json": tokens["modes"]["dark"],
+        "Dreamcoder-Dark.json": tokens["modes"]["dark"],
+        "Dreamcoder-Light.json": tokens["modes"]["light"],
+        "Dreamcoder-Night.json": night_palette(
+            tokens["modes"]["dark"], tokens["render_profiles"]["night"], guardrails
+        ),
+    }
+    for file in ANTIGRAVITY_FILES:
+        colors = _load_json(file)["colors"]
+        palette = palettes[file.name]
+        background = colors["button.background"]
+        foreground = colors["button.foreground"]
+        require(
+            background == palette["accent_2"],
+            f"{file}: button.background must resolve accent_2",
+        )
+        require(
+            foreground == palette["on_accent"],
+            f"{file}: button.foreground must resolve on_accent",
+        )
+        ratio = contrast(background, foreground)
+        require(ratio >= 4.5, f"{file}: button contrast {ratio:.2f} < 4.5")
+
+
 def check_theme_file(file, mode=None):
     if not file.exists():
         return
     theme = _load_json(file)["theme"]
     bg = theme["background"]
-    # Dark mode intentionally uses pure OLED black (#000000) for contrast/battery.
+    # Dark's surface policy reserves pure black for the canvas.
     # Light/dusk must still avoid harsh pure black/white backgrounds.
     if mode != "dark":
         require(
@@ -688,6 +725,7 @@ check_opencode_repo()
 check_design_system_contract()
 check_dual_gate_candidates()
 check_night_coverage()
+check_antigravity_files()
 for file in KITTY_FILES:
     check_kitty_colors(file)
 for file in STARSHIP_FILES:

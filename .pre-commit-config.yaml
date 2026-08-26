@@ -42,7 +42,7 @@ repos:
         name: Validate Dreamcoder theme tokens
         entry: env PYTHONPATH=src python scripts/verify-theme-health.py
         language: system
-        files: ^(themes/dreamcoder/.*\.json|scripts/verify-theme-health\.py)$
+        files: ^(DreamcoderThemes/dreamcoder/.*\.json|DreamcoderAntigravity/.*\.json|src/dreamcoder_theme/.*|scripts/(verify-theme-health|generate-dark-css)\.py)$
         pass_filenames: false
       - id: dreamcoder-preview-regenerate
         name: Regenerate theme preview

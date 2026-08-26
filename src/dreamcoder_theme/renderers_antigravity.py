@@ -42,7 +42,7 @@ def antigravity_content(c: dict[str, str]) -> str:
                 "input.foreground": c["text"],
                 "input.border": c["focus"],
                 "button.background": c["accent_2"],
-                "button.foreground": c["text"],
+                "button.foreground": c["on_accent"],
                 "list.activeSelectionBackground": c["surface1"],
                 "list.activeSelectionForeground": c["text"],
                 "list.hoverBackground": c["surface0"],
