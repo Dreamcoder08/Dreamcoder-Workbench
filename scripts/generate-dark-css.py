@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -20,6 +21,21 @@ def load_tokens(path: Path = TOKENS_FILE) -> dict[str, Any]:
         return json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         raise ValueError(f"cannot load canonical tokens from {path}: {exc}") from exc
+
+
+_HEX_TOKEN = re.compile(r"#[0-9a-fA-F]{3,8}\b")
+_DECIMAL_ZEROS = re.compile(r"(\.\d*?)0+")
+
+
+def _canonical(value: object) -> str:
+    """Canonical serialization: lowercase hex colors, trimmed decimal zeros."""
+    text = str(value)
+    text = _HEX_TOKEN.sub(lambda match: match.group(0).lower(), text)
+    previous = None
+    while previous != text:
+        previous = text
+        text = _DECIMAL_ZEROS.sub(r"\1", text)
+    return text
 
 
 def render_css(tokens: dict[str, Any]) -> str:
@@ -78,7 +94,7 @@ def render_css(tokens: dict[str, Any]) -> str:
         "/* Typography: use body 400, emphasis 500, headings 600; reserve uppercase tracking for labels. */",
         f"{surface_policy['selector']} {{",
     ]
-    lines.extend(f"  --dc-{name}: {value};" for name, value in variables)
+    lines.extend(f"  --dc-{name}: {_canonical(value)};" for name, value in variables)
     lines.extend(("}", ""))
     return "\n".join(lines)
 

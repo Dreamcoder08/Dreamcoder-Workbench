@@ -24,14 +24,14 @@ def test_css_exposes_canonical_dark_surfaces_aliases_and_guidance():
     assert ':root[data-theme="dark"] {' in css
     assert "--dc-bg: #000000;" in css
     assert "--dc-surface-scroll: #060608;" in css
-    assert "--dc-surface-3: #1E1E24;" in css
-    assert "--dc-border-subtle: #12121A;" in css
-    assert "--dc-border-medium: #1F1F2B;" in css
-    assert "--dc-text-primary: #E2E8F0;" in css
-    assert "--dc-text-secondary: #94A3B8;" in css
-    assert "--dc-text-muted: #64748B;" in css
-    assert "--dc-accent-brand: #6366F1;" in css
-    assert "--dc-error: #F87171;" in css
+    assert "--dc-surface-3: #1e1e24;" in css
+    assert "--dc-border-subtle: #12121a;" in css
+    assert "--dc-border-medium: #1f1f2b;" in css
+    assert "--dc-text-primary: #e2e8f0;" in css
+    assert "--dc-text-secondary: #94a3b8;" in css
+    assert "--dc-text-muted: #64748b;" in css
+    assert "--dc-accent-brand: #6366f1;" in css
+    assert "--dc-error: #f87171;" in css
     assert "--dc-glow-focus:" in css
     assert "--dc-font-weight-heading: 600;" in css
     assert "Scrollable workspaces and editors" in css
