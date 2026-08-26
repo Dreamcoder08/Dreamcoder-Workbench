@@ -63,15 +63,40 @@ _RENDERERS: dict[str, Renderer] = {
     "opencode_content": opencode_content,
 }
 
+# Precompiled at module level: every pattern is a static literal, so no
+# regex is ever built from dynamic (potentially user-controlled) input.
+_TMUX_FIELD_PATTERNS: dict[str, re.Pattern[str]] = {
+    "status-style.bg": re.compile(r'status-style "bg=([^,"]+)'),
+    "message-style.bg": re.compile(r'message-style "fg=[^,]+,bg=([^,"]+)'),
+    "status-left.text": re.compile(r'status-left "#\[fg=([^,\]]+),bold\]'),
+    "status-left.muted": re.compile(r'status-left ".*?#S\s+#\[fg=([^\]]+)\]'),
+    "window-status-current-style": re.compile(r'window-status-current-style "fg=([^,"]+)'),
+    "pane-active-border-style": re.compile(r'pane-active-border-style "fg=([^,"]+)'),
+    "window-status-bell-style": re.compile(r'window-status-bell-style "fg=[^,]+,bg=([^,"]+)'),
+    "success-colour": re.compile(r'@dreamcoder-success-colour "([^"]+)'),
+}
+
 
 def load_contract(path: Path) -> dict[str, Any]:
     """Load author-owned policy without resolving any user-home paths."""
-    return cast(dict[str, Any], json.loads(path.read_text(encoding="utf-8")))
+    try:
+        document = json.loads(path.read_text(encoding="utf-8"))
+    except OSError as exc:
+        raise RuntimeError(f"cannot read design-system contract {path}: {exc}") from exc
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f"invalid design-system contract {path}: {exc}") from exc
+    return cast(dict[str, Any], document)
 
 
 def load_tokens(path: Path) -> dict[str, Any]:
     """Load canonical tokens without generating or writing any output."""
-    return cast(dict[str, Any], json.loads(path.read_text(encoding="utf-8")))
+    try:
+        document = json.loads(path.read_text(encoding="utf-8"))
+    except OSError as exc:
+        raise RuntimeError(f"cannot read canonical tokens {path}: {exc}") from exc
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f"invalid canonical tokens {path}: {exc}") from exc
+    return cast(dict[str, Any], document)
 
 
 def resolve_role(
@@ -296,7 +321,10 @@ def _finding_sort_key(finding: Finding) -> tuple[str, str, str, str, str]:
 
 def _parse_renderer_output(target: str, content: str) -> dict[str, str]:  # noqa: PLR0912
     if target == "opencode":
-        parsed = json.loads(content)
+        try:
+            parsed = json.loads(content)
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"renderer {target!r} produced invalid JSON: {exc}") from exc
         return {f"theme.{key}": value for key, value in parsed["theme"].items()}
     if target == "kitty":
         return _space_assignments(content)
@@ -365,18 +393,8 @@ def _colon_assignments(content: str) -> dict[str, str]:
 
 def _tmux_fields(content: str) -> dict[str, str]:
     fields: dict[str, str] = {}
-    patterns = {
-        "status-style.bg": r'status-style "bg=([^,"]+)',
-        "message-style.bg": r'message-style "fg=[^,]+,bg=([^,"]+)',
-        "status-left.text": r'status-left "#\[fg=([^,\]]+),bold\]',
-        "status-left.muted": r'status-left ".*?#S\s+#\[fg=([^\]]+)\]',
-        "window-status-current-style": r'window-status-current-style "fg=([^,"]+)',
-        "pane-active-border-style": r'pane-active-border-style "fg=([^,"]+)',
-        "window-status-bell-style": r'window-status-bell-style "fg=[^,]+,bg=([^,"]+)',
-        "success-colour": r'@dreamcoder-success-colour "([^"]+)',
-    }
-    for name, pattern in patterns.items():
-        match = re.search(pattern, content)
+    for name, pattern in _TMUX_FIELD_PATTERNS.items():
+        match = pattern.search(content)
         if match:
             fields[name] = match.group(1)
     return fields

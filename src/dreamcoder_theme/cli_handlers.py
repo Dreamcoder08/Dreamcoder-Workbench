@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
 import os
 import subprocess
 import sys
@@ -307,6 +308,8 @@ def _restore_directory(
             child.unlink()
     for name, (kind, value) in captured.items():
         target = directory / name
+        if not name or Path(name).is_absolute() or ".." in Path(name).parts:
+            raise ValueError(f"unsafe restore entry name: {name!r}")
         if kind == "link":
             if target.is_symlink():
                 if os.readlink(target) == value:
@@ -462,14 +465,14 @@ def _regenerate_prior(paths: Any, prior_base: str, prior_profile: str) -> None:
     a safety net for deterministic repo artifacts and never masks the original
     failure (``write_if_changed`` skips identical content).
     """
-    try:
+    # Best-effort by contract: any regeneration failure must not mask the
+    # original activation error this rollback is recovering from.
+    with contextlib.suppress(Exception):
         prepared = sync.prepare(prior_base, prior_profile)
         sync.sync_active_targets(paths, prepared.active, prior_base, prior_profile)
         sync.sync_bat_theme_variants(paths, prepared.variants)
         if write_repo_enabled():
             sync.sync_repo_snippets(prepared.variants, prepared.active)
-    except Exception:
-        pass
 
 
 def _commit_activation(
