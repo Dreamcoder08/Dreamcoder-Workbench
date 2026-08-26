@@ -6,12 +6,12 @@ Generated from `DreamcoderThemes/dreamcoder/tokens.json`.
 
 Dreamcoder light themes follow a **cocoa/lúcuma** identity: warm parchment backgrounds, graphite-brown text, and restrained accents. Unlike generic light themes that jump from white to mid-gray surfaces, Dreamcoder uses a **flat surface ladder** (~10 luminance points between steps) so panels feel layered without looking muddy.
 
-**Dreamcoder Dark** uses an OLED-aware surface policy: a pure-black canvas, scroll-safe near-black functional surfaces, indigo brand accents, icy diagnostics, and pastel syntax colors. Surfaces ladder from the canvas to lighter panels and modal layers. The opencode theme keeps the main background as `none` so the terminal's semi-transparent background remains visible while panels and selections carry the layered surface system.
+**Dreamcoder Dark** reserves a pure-black canvas through `surface_policy`, with scroll-safe near-black functional surfaces, indigo brand accents, icy diagnostics, and pastel syntax colors. Surfaces ladder from the canvas to lighter panels and modal layers. The opencode theme keeps the main background as `none` so the terminal's semi-transparent background remains visible while panels and selections carry the layered surface system.
 
 Semantic tokens are intentionally distinct:
 
 - `comment` is a desaturated pastel syntax color, while `subtle` remains reserved for low-emphasis UI chrome.
-- Dark `accent` (pastel indigo), `accent_2` (soft violet), `error` (soft rose), and `warning` (pale gold) form the OLED signature.
+- Dark `accent` (pastel indigo), `accent_2` (soft violet), `error` (soft rose), and `warning` (pale gold) form the Dreamcoder Dark signature.
 - `accent` carries runtime CTAs and active chrome; the explicit `brand` alias preserves the requested indigo identity while `focus` remains a blue keyboard/input affordance.
 - `on_accent`, `on_error`, and `selection_bg`/`selection_fg` are explicit pairs validated in CI.
 ## Palette
@@ -290,7 +290,7 @@ Semantic tokens are intentionally distinct:
 
 ## Design notes
 
-- Dark mode uses a pure-black OLED canvas; light and dusk modes avoid pure black and pure white.
+- Dark mode uses a pure black canvas reserved by `surface_policy`; light and dusk modes avoid pure black and pure white.
 - Main text targets AAA (WCAG 2) and APCA Lc ≥ 75 for long coding sessions.
 - Cocoa/Lúcuma accents are identity colors in light; Dreamcoder Dark uses indigo, violet, icy blue, soft rose, and pale gold for dark-mode personality.
 - UI affordance tokens (`border_ui`, `border_hi`, `focus`) target at least 3:1 against the main background.

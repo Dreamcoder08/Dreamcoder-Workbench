@@ -41,7 +41,7 @@ After editing `tokens.json`:
 
 ```bash
 ./scripts/generate-palette-tokens.py       # sync palette_tokens.py + derived tokens
-python scripts/generate-dark-oled-css.py   # sync dark-black-oled.css variables
+python scripts/generate-dark-css.py        # sync dreamcoder-dark.css variables
 ./scripts/dreamcoder sync                  # propagate to all targets
 ./scripts/verify-theme-health.py           # WCAG + APCA gates (light and dark)
 ```
@@ -50,7 +50,7 @@ CI or local drift checks can use:
 
 ```bash
 python scripts/generate-palette-tokens.py --check
-python scripts/generate-dark-oled-css.py --check
+python scripts/generate-dark-css.py --check
 ```
 
 ## Quality gates
@@ -64,8 +64,8 @@ python scripts/generate-dark-oled-css.py --check
 - **brand alias** = indigo `#6366F1`; the runtime `accent` is a lighter accessible role where filled controls must pass the existing WCAG/APCA gates
 - **focus** = blue `#3B82F6`, kept distinct from brand and diagnostic colors
 - **border aliases** = `#12121A` (subtle) and `#1F1F2B` (medium); significant runtime borders remain brighter because the non-text contrast gate is not weakened
-- **generated CSS** = [`dark-black-oled.css`](../../DreamcoderThemes/dreamcoder/dark-black-oled.css), sourced only from `tokens.json`
-- **OLED compatibility name** = `dark-black-oled.css` and its `dark-black-oled` selector remain stable identifiers; OLED is a derived Dark surface policy, not a separate canonical mode
+- **generated CSS** = [`dreamcoder-dark.css`](../../DreamcoderThemes/dreamcoder/dreamcoder-dark.css), sourced only from `tokens.json`
+- **stable Dark identifiers** = `dreamcoder-dark.css` and `:root[data-theme="dark"]`; OLED compatibility naming is retired, and OLED behavior remains a surface policy of Dreamcoder Dark rather than a separate mode
 - **adaptive/matugen** may tint surfaces but identity tokens win per `CLAUDE.md`
 
 ## Adding new targets

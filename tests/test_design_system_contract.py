@@ -110,13 +110,13 @@ def test_six_target_three_mode_contract_passes(contract, tokens):
     assert evaluate_contract(contract, tokens) == []
 
 
-def test_contract_declares_checked_in_dark_oled_css_artifact(contract):
-    artifact = next(row for row in contract["artifacts"] if row["id"] == "dark-oled-css")
+def test_contract_declares_checked_in_dark_css_artifact(contract):
+    artifact = next(row for row in contract["artifacts"] if row["id"] == "dark-css")
 
     assert artifact["lifecycle"] == "checked-in"
     assert artifact["source"] == "DreamcoderThemes/dreamcoder/tokens.json"
-    assert artifact["generator"] == "python scripts/generate-dark-oled-css.py"
-    assert artifact["path"] == "DreamcoderThemes/dreamcoder/dark-black-oled.css"
+    assert artifact["generator"] == "python scripts/generate-dark-css.py"
+    assert artifact["path"] == "DreamcoderThemes/dreamcoder/dreamcoder-dark.css"
     assert artifact["validation"] == "exact-bytes"
 
 

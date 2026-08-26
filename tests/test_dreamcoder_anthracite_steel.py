@@ -7,13 +7,13 @@ TOKENS = ROOT / "DreamcoderThemes" / "dreamcoder" / "tokens.json"
 
 
 class DreamcoderDarkIdentityTest(unittest.TestCase):
-    """Verify Dark Black OLED identity and canonical runtime roles."""
+    """Verify Dreamcoder Dark identity and canonical runtime roles."""
 
     def setUp(self):
         tokens = json.loads(TOKENS.read_text())
         self.dark = tokens["modes"]["dark"]
 
-    def test_dark_mode_uses_black_oled_surface_ladder(self):
+    def test_dark_mode_uses_surface_policy_ladder(self):
         self.assertEqual(self.dark["name"], "Dreamcoder Dark")
         self.assertEqual(self.dark["bg"], "#000000")
         self.assertEqual(

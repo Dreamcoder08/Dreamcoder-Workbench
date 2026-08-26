@@ -161,7 +161,7 @@ flowchart LR
 
 Dreamcoder Workbench is not a neon rice. It is a workbench:
 
-- **Health first**: no pure black/white, strong contrast, low brightness
+- **Health first**: pure black is reserved for the Dreamcoder Dark canvas via `surface_policy`; functional and scrollable surfaces use near-black tones, while light and dusk avoid pure black and pure white
 - **Daily comfort**: larger typography, calm prompt density, automatic day-to-night transitions
 - **Identity second**: Cocoa/Lúcuma warmth, diagnostic cyan, editorial colors
 

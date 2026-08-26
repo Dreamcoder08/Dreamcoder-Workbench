@@ -58,13 +58,13 @@
         "light": {
           "allOf": [
             { "$ref": "#/$defs/palette" },
-            { "$ref": "#/$defs/non_oled_palette" }
+            { "$ref": "#/$defs/base_palette" }
           ]
         },
         "dusk": {
           "allOf": [
             { "$ref": "#/$defs/palette" },
-            { "$ref": "#/$defs/non_oled_palette" }
+            { "$ref": "#/$defs/base_palette" }
           ]
         }
       },
@@ -242,7 +242,7 @@
           },
           "additionalProperties": { "$ref": "#/$defs/color_value" }
         },
-        "non_oled_palette": {
+        "base_palette": {
           "not": {
             "anyOf": [
               { "required": ["aliases"] },
@@ -278,7 +278,7 @@
           "type": "object",
           "required": ["selector", "scroll_surface", "pure_black_policy"],
           "properties": {
-            "selector": { "const": ":root[data-theme=\"dark-black-oled\"]" },
+            "selector": { "const": ":root[data-theme=\"dark\"]" },
             "scroll_surface": { "const": "surface0" },
             "pure_black_policy": {
               "type": "object",

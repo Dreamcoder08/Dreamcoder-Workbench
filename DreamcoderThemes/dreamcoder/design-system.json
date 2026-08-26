@@ -501,15 +501,15 @@
   ],
   "artifacts": [
     {
-      "id": "dark-oled-css",
-      "owner": "scripts/generate-dark-oled-css.py::render_css",
+      "id": "dark-css",
+      "owner": "scripts/generate-dark-css.py::render_css",
       "lifecycle": "checked-in",
       "source": "DreamcoderThemes/dreamcoder/tokens.json",
-      "generator": "python scripts/generate-dark-oled-css.py",
-      "path": "DreamcoderThemes/dreamcoder/dark-black-oled.css",
+      "generator": "python scripts/generate-dark-css.py",
+      "path": "DreamcoderThemes/dreamcoder/dreamcoder-dark.css",
       "mode_policy": "fixed:dark",
       "discovery_root": "DreamcoderThemes/dreamcoder",
-      "pattern": "dark-black-oled.css",
+      "pattern": "dreamcoder-dark.css",
       "validation": "exact-bytes"
     },
     {

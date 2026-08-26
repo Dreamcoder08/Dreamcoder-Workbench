@@ -9,7 +9,7 @@ Dreamcoder Workbench is a personal developer-experience design system for Arch L
 Dreamcoder Workbench optimizes long coding sessions around three product principles:
 
 1. **Readability before decoration**: text, selections, borders, and diagnostics must survive real terminal/editor use.
-2. **Health-aware identity**: warm light mode, the derived Night render profile, OLED-conscious Dreamcoder Dark mode, and no harsh pure black/white primary backgrounds.
+2. **Health-aware identity**: Dreamcoder Dark reserves pure black for its canvas through `surface_policy`, functional and scrollable surfaces use near-black tones, and Light and Dusk avoid pure black and pure white; Night remains a derived Dark render profile.
 3. **Operational resilience**: ML4W/Gentleman updates are expected; Dreamcoder Workbench must be repairable, auditable, and regenerable.
 
 The system competes as a **developer OS design system**, not as a web component library. Its peers are theme ecosystems and workstation shells; its inspiration for rigor is Material, Carbon, Spectrum, and Fluent.

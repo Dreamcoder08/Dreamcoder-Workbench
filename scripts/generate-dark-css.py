@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the Dark Black OLED CSS variables from canonical Dreamcoder tokens."""
+"""Generate the Dreamcoder Dark CSS variables from canonical Dreamcoder tokens."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent
 TOKENS_FILE = ROOT / "DreamcoderThemes" / "dreamcoder" / "tokens.json"
-OUTPUT = ROOT / "DreamcoderThemes" / "dreamcoder" / "dark-black-oled.css"
+OUTPUT = ROOT / "DreamcoderThemes" / "dreamcoder" / "dreamcoder-dark.css"
 
 
 def load_tokens(path: Path = TOKENS_FILE) -> dict[str, Any]:
@@ -23,7 +23,7 @@ def load_tokens(path: Path = TOKENS_FILE) -> dict[str, Any]:
 
 
 def render_css(tokens: dict[str, Any]) -> str:
-    """Render deterministic CSS from the canonical dark mode and OLED metadata."""
+    """Render deterministic CSS from the canonical dark mode and surface policy."""
     dark = tokens["modes"]["dark"]
     aliases = dark["aliases"]
     effects = dark["effects"]
@@ -73,7 +73,7 @@ def render_css(tokens: dict[str, Any]) -> str:
     )
 
     lines = [
-        "/* AUTO-GENERATED from tokens.json. Run: python scripts/generate-dark-oled-css.py */",
+        "/* AUTO-GENERATED from tokens.json. Run: python scripts/generate-dark-css.py */",
         "/* Scrollable workspaces and editors use --dc-surface-scroll to avoid pure-black smear. */",
         "/* Typography: use body 400, emphasis 500, headings 600; reserve uppercase tracking for labels. */",
         f"{surface_policy['selector']} {{",
@@ -94,7 +94,7 @@ def drift_message(source: Path, output: Path) -> str:
     return (
         "GENERATED_DRIFT: canonical source="
         f"{_display_path(source)} generated path={_display_path(output)} "
-        "regeneration command=python scripts/generate-dark-oled-css.py"
+        "regeneration command=python scripts/generate-dark-css.py"
     )
 
 
