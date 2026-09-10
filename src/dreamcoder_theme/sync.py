@@ -54,6 +54,7 @@ from .renderers import (
     zellij_content,
     zsh_syntax_content,
 )
+from .renderers_orca import sync_orca_theme
 from .settings import (
     ROOT,
     VALID_RENDER_PROFILES,
@@ -1087,6 +1088,15 @@ def main() -> None:
     if not valid_starship(paths.starship):
         raise SystemExit(f"Generated Starship config is invalid: {paths.starship}")
     print_summary(prepared.mode, paths, changed, repo_changes)
+
+    # Best-effort, outside the 33-consumer coverage contract: Orca has no
+    # Night profile of its own and lives entirely in the user's live
+    # settings file, so a failure here must never abort the rest of sync.
+    try:
+        orca_status = sync_orca_theme(prepared.active)
+    except OSError as exc:
+        orca_status = f"skipped-error: {exc}"
+    print(f"Orca terminal theme: {orca_status}")
 
 
 if __name__ == "__main__":
