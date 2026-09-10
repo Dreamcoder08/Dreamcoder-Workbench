@@ -12,6 +12,13 @@ byte-identical to exactly one canonical mode variant, and that all of them
 agree on the same mode. opencode's active target uses a different adapter
 path (TransparentOpenCodeAdapter, no checked-in mode-suffixed repository
 variant) and is intentionally not covered here.
+
+Antigravity's unsuffixed Dreamcoder.json is NOT part of that group: unlike
+the others, sync.py pins its active write to the Dark palette always
+(verify-theme-health.py's check_antigravity_files requires
+button.background/foreground to resolve Dark's accent_2/on_accent
+regardless of the live active mode), so it is covered by its own
+always-Dark test below instead of the flexible group-consistency check.
 """
 
 from __future__ import annotations
@@ -36,7 +43,6 @@ ROOT = Path(__file__).resolve().parents[1]
 # renderer actually invoked by ./scripts/dreamcoder sync.
 _ACTIVE_MIRROR_TARGETS = (
     ("starship", "DreamcoderShell/.config/starship.toml", starship_content),
-    ("antigravity", "DreamcoderAntigravity/Dreamcoder.json", antigravity_content),
     ("pi_theme", "DreamcoderPi/.pi/agent/themes/dreamcoder.json", pi_theme_content),
     ("codex_app", "DreamcoderCodexApp/Dreamcoder.codex-theme.json", opencode_content),
     ("codex_theme", "DreamcoderCodexCLI/Dreamcoder.tmTheme", codex_tmtheme_content),
@@ -76,4 +82,14 @@ def test_active_mirrors_all_agree_on_the_same_mode() -> None:
         f"active mirror targets disagree on identity: {identities} — this is "
         f"exactly the defect class where one target (e.g. starship.toml) "
         f"silently reverts while the rest stay on the prior mode"
+    )
+
+
+def test_antigravity_active_file_is_always_pinned_dark() -> None:
+    content = (ROOT / "DreamcoderAntigravity/Dreamcoder.json").read_text(encoding="utf-8")
+    assert content.rstrip("\n") == antigravity_content(VARIANTS["dark"]).rstrip("\n"), (
+        "DreamcoderAntigravity/Dreamcoder.json must always render the Dark "
+        "palette regardless of the live active mode (verify-theme-health.py "
+        "requires button.background/foreground to resolve Dark's "
+        "accent_2/on_accent)"
     )

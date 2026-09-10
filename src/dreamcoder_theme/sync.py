@@ -559,11 +559,14 @@ VARIANT_REGISTRY: list[tuple[Path, dict[str, str], Callable[..., str], Path | No
         ROOT / "DreamcoderPi/.pi/agent/themes/dreamcoder.json",
     ),
     # -- Antigravity --
+    # active_path is None here: the unsuffixed Dreamcoder.json is pinned to
+    # the Dark button palette (see the "Non-uniform entries" section below),
+    # not the live active mode like other consumers' active files.
     (
         ROOT / "DreamcoderAntigravity",
         {k: f"Dreamcoder-{v.title()}.json" for k, v in D.items()},
         antigravity_content,
-        ROOT / "DreamcoderAntigravity/Dreamcoder.json",
+        None,
     ),
     # -- theme_dir entries (DreamcoderThemes/dreamcoder) --
     (
@@ -686,6 +689,16 @@ def sync_repo_snippets(variants: dict[str, dict[str, str]], active: dict[str, st
             repo_changes.append(write_if_changed(active_path, builder(active)))
 
     # ---- Non-uniform entries (explicit calls) ----
+
+    # Antigravity active file: button.background/foreground must always
+    # resolve Dark's accent_2/on_accent (verify-theme-health.py
+    # check_antigravity_files), independent of the currently active mode.
+    repo_changes.append(
+        write_if_changed(
+            ROOT / "DreamcoderAntigravity/Dreamcoder.json",
+            antigravity_content(variants["dark"]),
+        )
+    )
 
     # Kitty UI active file (variants handled by VARIANT_REGISTRY above)
     repo_changes.append(
