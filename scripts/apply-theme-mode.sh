@@ -197,17 +197,17 @@ if command -v tmux >/dev/null 2>&1; then
     dark)
       KANAGAWA_VARIANT="dragon"
       # Dreamcoder Dark palette — source: tokens.json modes.dark.{text,accent,error,...}
-      tmux set-option -g @ukiyo-color-text "#E6EDF3" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-bg-bar "#0D121A" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-bg-pane "#070A13" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-accent "#A5C7E8" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-info "#7CB3D9" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-notice "#8FAFCB" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-muted "#A8B5C2" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-error "#E69AA4" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-alert "#D9B36C" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-highlight "#A5C7E8" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-selection "#202A35" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-text "#E6E6E6" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-bg-bar "#0D0D0F" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-bg-pane "#0B0B0B" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-accent "#A5B4FC" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-info "#7DD3FC" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-notice "#C7C7C7" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-muted "#C7C7C7" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-error "#FB8585" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-alert "#FBBF24" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-highlight "#3B82F6" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-selection "#3A3A3A" 2>/dev/null || true
       # Swap plugin color order: fg=bg_bar (oscuro) sobre bg=color vibrante
       tmux set-option -g @ukiyo-git-colors "accent bg_bar" 2>/dev/null || true
       tmux set-option -g @ukiyo-cpu-usage-colors "notice bg_bar" 2>/dev/null || true
@@ -217,17 +217,17 @@ if command -v tmux >/dev/null 2>&1; then
       KANAGAWA_VARIANT="dragon"
       # Dreamcoder Night profile — derived from Dreamcoder Dark in tokens.json modes.dark
       # via the canonical night transform (brightness 0.86 / saturation 0.72).
-      tmux set-option -g @ukiyo-color-text "#beccd8" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-bg-bar "#0d1015" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-bg-pane "#07090f" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-accent "#95b5d5" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-info "#66aac6" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-notice "#7997b1" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-muted "#8f9ca8" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-error "#d28c96" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-alert "#bd9b5b" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-highlight "#95b5d5" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-selection "#1e242b" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-text "#c6c6c6" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-bg-bar "#0b0b0d" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-bg-pane "#090909" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-accent "#a4afee" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-info "#62b9e2" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-notice "#ababab" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-muted "#ababab" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-error "#e88484" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-alert "#d1a126" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-highlight "#3a76d6" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-selection "#323232" 2>/dev/null || true
       # Swap plugin color order (same as dark: fg=bg_bar sobre bg=color)
       tmux set-option -g @ukiyo-git-colors "accent bg_bar" 2>/dev/null || true
       tmux set-option -g @ukiyo-cpu-usage-colors "notice bg_bar" 2>/dev/null || true
@@ -257,8 +257,7 @@ fi
 # --- Herdr: switch config symlink + reload ---
 HERDR_SCRIPT="${DREAMCODER_DOTS_DIR}/scripts/herdr-theme-switch.sh"
 if [[ -f "${HERDR_SCRIPT}" ]]; then
-  bash "${HERDR_SCRIPT}" "${MODE}"
-  printf '  herdr theme switched to %s mode\n' "${MODE}"
+  bash "${HERDR_SCRIPT}" "${VARIANT}"
 fi
 # --- /Herdr ---
 

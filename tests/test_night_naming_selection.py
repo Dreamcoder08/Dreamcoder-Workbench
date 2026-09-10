@@ -229,8 +229,8 @@ def test_apply_theme_script_has_no_standard_dark_night_leak() -> None:
     assert 'VARIANT="${MODE}"' in script
     assert '[[ "${PROFILE}" == "night" ]] && VARIANT="night"' in script
     # The night Kanagawa palette is distinct from the standard dark palette.
-    assert '@ukiyo-color-text "#beccd8"' in script
-    assert '@ukiyo-color-text "#E6EDF3"' in script
+    assert '@ukiyo-color-text "#c6c6c6"' in script
+    assert '@ukiyo-color-text "#E6E6E6"' in script
 
 
 def test_coverage_night_artifacts_all_distinct_from_dark() -> None:

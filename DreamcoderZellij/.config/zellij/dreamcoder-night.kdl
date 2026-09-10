@@ -4,7 +4,7 @@
 themes {
     dreamcoder-night {
         bg "#000000"
-        fg "#bcc7d5"
+        fg "#c6c6c6"
         black "#000000"
         red "#e88484"
         green "#43b48b"
@@ -12,25 +12,25 @@ themes {
         blue "#62b9e2"
         magenta "#b98beb"
         cyan "#62b9e2"
-        white "#bcc7d5"
+        white "#c6c6c6"
         orange "#d1a126"
-        gray "#8a96a7"
+        gray "#ababab"
 
         // UI elements
-        border "#6d7788"
+        border "#5c5c5c"
         border_active "#a4afee"
-        border_unfocused "#6d7788"
+        border_unfocused "#5c5c5c"
 
         // Tab bar
-        tab_bar_bg "#0c0c0e"
-        tab_active_bg "#6d7788"
+        tab_bar_bg "#0b0b0d"
+        tab_active_bg "#5c5c5c"
         tab_active_fg "#a4afee"
-        tab_inactive_bg "#0c0c0e"
-        tab_inactive_fg "#8a96a7"
+        tab_inactive_bg "#0b0b0d"
+        tab_inactive_fg "#ababab"
 
         // Pane frames
-        pane_frame_bg "#0c0c0e"
-        pane_frame_fg "#6d7788"
+        pane_frame_bg "#0b0b0d"
+        pane_frame_fg "#5c5c5c"
 
         // Selection
         selection_bg "#a4afee"

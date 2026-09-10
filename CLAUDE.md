@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-DreamcoderDots is the personal Arch Linux dotfiles repo for the **Dreamcoder**
+Dreamcoder Workbench is the personal Arch Linux dotfiles repo for the **Dreamcoder**
 identity.
 
 ## Project overview
@@ -47,16 +47,17 @@ Canonical palettes (see `DreamcoderThemes/dreamcoder/tokens.json`):
 
 ```txt
 bg          #000000
-text        #E2E8F0
+text        #E6E6E6
 accent      #A5B4FC
-accent_2    #C4B5FD
+accent_2    #D4B5FD
 error       #FB8585
 focus       #3B82F6
 opacity     0.76
 ```
 
-Dark, Light, and Dusk are the only canonical modes. Night is a derived render
-profile of Dark, and OLED behavior is defined by `modes.dark.surface_policy`.
+Dark and Light are the user-facing modes. Night is a derived render profile of
+Dark; legacy Dusk remains a compatibility token set, and OLED behavior is defined
+by `modes.dark.surface_policy`.
 
 **Light — Cocoa/Lúcuma**
 

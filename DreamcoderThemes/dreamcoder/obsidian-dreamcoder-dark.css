@@ -7,82 +7,82 @@
 .theme-dark {
   /* Base — raw palette colors for backgrounds and surfaces */
   --background-primary: #000000;
-  --background-primary-alt: #060608;
-  --background-secondary: #060608;
-  --background-secondary-alt: #0D0D11;
-  --background-modifier-border: #68788F;
-  --background-modifier-border-hover: #68788F;
-  --background-modifier-form-field: #060608;
+  --background-primary-alt: #0B0B0B;
+  --background-secondary: #0B0B0B;
+  --background-secondary-alt: #0D0D0F;
+  --background-modifier-border: #6B6B6B;
+  --background-modifier-border-hover: #767676;
+  --background-modifier-form-field: #0B0B0B;
   --background-modifier-success: #0d3526;
   --background-modifier-error: #3f2121;
-  --background-modifier-message: #0D0D11;
+  --background-modifier-message: #0D0D0F;
 
   /* Text — guarded against background for accessibility */
-  --text-normal: #E2E8F0;
-  --text-muted: #94A3B8;
-  --text-faint: #8795AA;
+  --text-normal: #E6E6E6;
+  --text-muted: #C7C7C7;
+  --text-faint: #A7A7A7;
   --text-accent: #A5B4FC;
-  --text-accent-hover: #C4B5FD;
+  --text-accent-hover: #D4B5FD;
   --text-error: #FB8585;
   --text-warning: #FBBF24;
   --text-success: #34D399;
-  --text-selection: #16161D;
+  --text-selection: #3A3A3A;
   --text-on-accent: #000000;
 
   /* Interactive */
-  --interactive-normal: #0D0D11;
-  --interactive-hover: #22222D;
+  --interactive-normal: #0D0D0F;
+  --interactive-hover: #3A3A3A;
   --interactive-accent: #A5B4FC;
-  --interactive-accent-hover: #C4B5FD;
+  --interactive-accent-hover: #D4B5FD;
   --interactive-success: #34D399;
 
   /* Scrollbar */
   --scrollbar-bg: transparent;
-  --scrollbar-thumb-bg: #68788F;
-  --scrollbar-active-thumb-bg: #68788F;
+  --scrollbar-thumb-bg: #6B6B6B;
+  --scrollbar-active-thumb-bg: #767676;
 
   /* Code — syntax highlighting colors */
-  --code-normal: #E2E8F0;
-  --code-comment: #C0B5C0;
-  --code-punctuation: #94A3B8;
+  --code-normal: #E6E6E6;
+  --code-comment: #D0D0D0;
+  --code-punctuation: #C7C7C7;
   --code-keyword: #A5B4FC;
-  --code-operator: #C4B5FD;
-  --code-function: #C4B5FD;
+  --code-operator: #D4B5FD;
+  --code-function: #D4B5FD;
   --code-string: #34D399;
   --code-number: #D8B4FE;
   --code-tag: #A5B4FC;
   --code-important: #FB8585;
-  --code-background: #060608;
+  --code-background: #0B0B0B;
 
   /* Heading */
-  --h1-color: #F1F5F9;
-  --h2-color: #F1F5F9;
-  --h3-color: #C4B5FD;
+  --h1-color: #F5F5F5;
+  --h2-color: #F5F5F5;
+  --h3-color: #D4B5FD;
   --h4-color: #7DD3FC;
-  --h5-color: #94A3B8;
-  --h6-color: #8795AA;
+  --h5-color: #C7C7C7;
+  --h6-color: #A7A7A7;
 
   /* Link */
   --link-color: #A5B4FC;
-  --link-color-hover: #C4B5FD;
+  --link-color-hover: #D4B5FD;
   --link-external-color: #7DD3FC;
-  --link-external-color-hover: #C4B5FD;
+  --link-external-color-hover: #D4B5FD;
 
   /* Checkbox */
   --checkbox-color: #A5B4FC;
-  --checkbox-color-hover: #C4B5FD;
-  --checkbox-border-color: #68788F;
+  --checkbox-color-hover: #D4B5FD;
+  --checkbox-border-color: #6B6B6B;
   --checkbox-mark-color: #000000;
 
   /* Table */
-  --table-header-background: #0D0D11;
-  --table-header-background-hover: #16161D;
-  --table-row-background-hover: #060608;
-  --table-border-color: #68788F;
+  --table-header-background: #0D0D0F;
+  --table-header-background-hover: #1F1F1F;
+  --table-row-background-hover: #0B0B0B;
+  --table-border-color: #6B6B6B;
 
   /* Graph */
-  --graph-line: #68788F;
-  --graph-node: #94A3B8;
+  --graph-line: #6B6B6B;
+  --graph-node: #C7C7C7;
   --graph-node-focused: #A5B4FC;
   --graph-node-tag: #7DD3FC;
   --graph-node-attachment: #34D399;
@@ -114,30 +114,30 @@ blockquote {
 .is-selected .search-result-file-matched-text,
 mark {
   background-color: #212432 !important;
-  color: #E2E8F0 !important;
+  color: #E6E6E6 !important;
 }
 
 /* Active line in edit mode */
 .cm-active {
-  background-color: #060608 !important;
+  background-color: #0B0B0B !important;
 }
 
 /* Selection */
 ::selection {
-  background-color: #070709 !important;
+  background-color: #070708 !important;
 }
 
 /* Tooltip */
 .tooltip {
-  background-color: #0D0D11 !important;
-  color: #E2E8F0 !important;
+  background-color: #0D0D0F !important;
+  color: #E6E6E6 !important;
 }
 
 /* Menu */
 .menu {
-  background-color: #060608 !important;
+  background-color: #0B0B0B !important;
 }
 
 .menu-item:hover {
-  background-color: #0D0D11 !important;
+  background-color: #0D0D0F !important;
 }

@@ -142,9 +142,9 @@ class PiThemeGenerationTest(unittest.TestCase):
             theme = json.loads(theme_path.read_text())["theme"]
 
             self.assertEqual(theme["background"], "none")
-            self.assertEqual(theme["backgroundPanel"], "#0D0D11")
+            self.assertEqual(theme["backgroundPanel"], "#0D0D0F")
             self.assertEqual(theme["primary"], "#A5B4FC")
-            self.assertEqual(theme["secondary"], "#C4B5FD")
+            self.assertEqual(theme["secondary"], "#D4B5FD")
 
     def test_selects_dreamcoder_theme_without_overwriting_existing_pi_settings(self):
         with tempfile.TemporaryDirectory() as tmpdir:

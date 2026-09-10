@@ -7,20 +7,20 @@ gui:
       - "#A5B4FC" # accent
       - "bold"
     inactiveBorderColor:
-      - "#68788F" # border
+      - "#6B6B6B" # border
     searchingActiveBorderColor:
-      - "#C4B5FD" # accent-2
+      - "#D4B5FD" # accent-2
       - "bold"
     optionsTextColor:
       - "#7DD3FC" # diagnostic
     selectedLineBgColor:
-      - "#16161D" # selection
+      - "#3A3A3A" # selection
     inactiveViewSelectedLineBgColor:
-      - "#16161D" # surface-2
+      - "#1F1F1F" # surface-2
     cherryPickedCommitFgColor:
       - "#7DD3FC"
     cherryPickedCommitBgColor:
-      - "#C4B5FD"
+      - "#D4B5FD"
     markedBaseCommitFgColor:
       - "#7DD3FC"
     markedBaseCommitBgColor:
@@ -28,10 +28,10 @@ gui:
     unstagedChangesColor:
       - "#FB8585" # error
     defaultFgColor:
-      - "#E2E8F0" # text
+      - "#E6E6E6" # text
   authorColors:
         "#A5B4FC": "#000000"
-        "#C4B5FD": "#000000"
+        "#D4B5FD": "#000000"
         "#7DD3FC": "#000000"
         "#34D399": "#000000"
         "#D8B4FE": "#000000"
@@ -51,6 +51,6 @@ git:
   skipHookPrefix: WIP
   autoFetch: true
   autoRefresh: true
-  branchLogCmd: "git log --graph --pretty=format:'%C(#A5B4FC)%h%Creset -%C(#C4B5FD)%d%Creset %s %C(#C0B5C0)(%cr) %C(#7DD3FC)<%an>%Creset' --date=relative"
+  branchLogCmd: "git log --graph --pretty=format:'%C(#A5B4FC)%h%Creset -%C(#D4B5FD)%d%Creset %s %C(#D0D0D0)(%cr) %C(#7DD3FC)<%an>%Creset' --date=relative"
 update:
   method: never

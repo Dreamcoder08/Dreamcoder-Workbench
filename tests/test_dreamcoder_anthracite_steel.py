@@ -18,9 +18,9 @@ class DreamcoderDarkIdentityTest(unittest.TestCase):
         self.assertEqual(self.dark["bg"], "#000000")
         self.assertEqual(
             [self.dark[f"surface{index}"] for index in range(4)],
-            ["#060608", "#0D0D11", "#16161D", "#1E1E24"],
+            ["#0B0B0B", "#0D0D0F", "#1F1F1F", "#2E2E2E"],
         )
-        self.assertEqual(self.dark["hover"], "#22222D")
+        self.assertEqual(self.dark["hover"], "#3A3A3A")
 
     def test_dark_mode_has_accessible_runtime_semantics(self):
         self.assertEqual(self.dark["accent"], "#A5B4FC")
@@ -32,9 +32,9 @@ class DreamcoderDarkIdentityTest(unittest.TestCase):
     def test_dark_mode_keeps_requested_oled_aliases(self):
         aliases = self.dark["aliases"]
         self.assertEqual(aliases["brand"], "#6366F1")
-        self.assertEqual(aliases["text_muted"], "#64748B")
-        self.assertEqual(aliases["border_subtle"], "#12121A")
-        self.assertEqual(aliases["border_medium"], "#1F1F2B")
+        self.assertEqual(aliases["text_muted"], "#A7A7A7")
+        self.assertEqual(aliases["border_subtle"], "#1F1F1F")
+        self.assertEqual(aliases["border_medium"], "#3A3A3A")
         self.assertEqual(aliases["error_requested"], "#F87171")
 
     def test_dark_mode_owns_its_oled_surface_policy(self):

@@ -7,19 +7,19 @@
 
 :root {
   --dreamcoder-bg: #000000;
-  --dreamcoder-surface: #060608;
-  --dreamcoder-surface-1: #0D0D11;
-  --dreamcoder-text: #E2E8F0;
-  --dreamcoder-text-dim: #94A3B8;
+  --dreamcoder-surface: #0B0B0B;
+  --dreamcoder-surface-1: #0D0D0F;
+  --dreamcoder-text: #E6E6E6;
+  --dreamcoder-text-dim: #C7C7C7;
   --dreamcoder-accent: #A5B4FC;
-  --dreamcoder-accent-2: #C4B5FD;
-  --dreamcoder-border: #68788F;
-  --dreamcoder-border-ui: #68788F;
+  --dreamcoder-accent-2: #D4B5FD;
+  --dreamcoder-border: #6B6B6B;
+  --dreamcoder-border-ui: #767676;
   --dreamcoder-error: #FB8585;
   --dreamcoder-warning: #FBBF24;
   --dreamcoder-sage: #34D399;
-  --dreamcoder-input-bg: #060608;
-  --dreamcoder-toolbar-bg: #060608;
+  --dreamcoder-input-bg: #0B0B0B;
+  --dreamcoder-toolbar-bg: #0B0B0B;
   --dreamcoder-hover: #191b26;
   --dreamcoder-active: #292d3f;
 }

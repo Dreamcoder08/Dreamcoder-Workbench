@@ -21,35 +21,35 @@ Semantic tokens are intentionally distinct:
 | Role | Color |
 | --- | --- |
 | `bg` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#000000'></span> `#000000` |
-| `bg_soft` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#060608'></span> `#060608` |
-| `surface0` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#060608'></span> `#060608` |
-| `surface1` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#0D0D11'></span> `#0D0D11` |
-| `surface2` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#16161D'></span> `#16161D` |
-| `surface3` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#1E1E24'></span> `#1E1E24` |
-| `text` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#E2E8F0'></span> `#E2E8F0` |
-| `text_heading` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#F1F5F9'></span> `#F1F5F9` |
-| `muted` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#94A3B8'></span> `#94A3B8` |
-| `subtle` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#8795AA'></span> `#8795AA` |
-| `comment` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#C0B5C0'></span> `#C0B5C0` |
+| `bg_soft` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#0B0B0B'></span> `#0B0B0B` |
+| `surface0` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#0B0B0B'></span> `#0B0B0B` |
+| `surface1` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#0D0D0F'></span> `#0D0D0F` |
+| `surface2` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#1F1F1F'></span> `#1F1F1F` |
+| `surface3` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#2E2E2E'></span> `#2E2E2E` |
+| `text` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#E6E6E6'></span> `#E6E6E6` |
+| `text_heading` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#F5F5F5'></span> `#F5F5F5` |
+| `muted` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#C7C7C7'></span> `#C7C7C7` |
+| `subtle` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#A7A7A7'></span> `#A7A7A7` |
+| `comment` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#D0D0D0'></span> `#D0D0D0` |
 | `accent` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#A5B4FC'></span> `#A5B4FC` |
-| `accent_2` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#C4B5FD'></span> `#C4B5FD` |
+| `accent_2` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#D4B5FD'></span> `#D4B5FD` |
 | `diagnostic` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#7DD3FC'></span> `#7DD3FC` |
 | `sage` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#34D399'></span> `#34D399` |
 | `success` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#34D399'></span> `#34D399` |
 | `info` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#7DD3FC'></span> `#7DD3FC` |
-| `lavender` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#C4B5FD'></span> `#C4B5FD` |
+| `lavender` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#D4B5FD'></span> `#D4B5FD` |
 | `mauve` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#D8B4FE'></span> `#D8B4FE` |
 | `error` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#FB8585'></span> `#FB8585` |
 | `warning` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#FBBF24'></span> `#FBBF24` |
 | `on_accent` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#000000'></span> `#000000` |
 | `on_error` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#000000'></span> `#000000` |
 | `link` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#A5B4FC'></span> `#A5B4FC` |
-| `link_hover` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#C4B5FD'></span> `#C4B5FD` |
-| `selection_bg` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#16161D'></span> `#16161D` |
-| `selection_fg` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#E2E8F0'></span> `#E2E8F0` |
-| `border` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#68788F'></span> `#68788F` |
-| `border_ui` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#68788F'></span> `#68788F` |
-| `border_hi` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#94A3B8'></span> `#94A3B8` |
+| `link_hover` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#D4B5FD'></span> `#D4B5FD` |
+| `selection_bg` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#3A3A3A'></span> `#3A3A3A` |
+| `selection_fg` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#E6E6E6'></span> `#E6E6E6` |
+| `border` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#6B6B6B'></span> `#6B6B6B` |
+| `border_ui` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#767676'></span> `#767676` |
+| `border_hi` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#A7A7A7'></span> `#A7A7A7` |
 | `focus` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#3B82F6'></span> `#3B82F6` |
 
 ### Dreamcoder Light
@@ -130,11 +130,11 @@ Semantic tokens are intentionally distinct:
 
 | Token | Ratio vs bg | Target |
 | --- | ---: | --- |
-| `text` | 17.03:1 | AAA |
-| `muted` | 8.19:1 | AA |
-| `comment` | 10.61:1 | AA |
+| `text` | 16.83:1 | AAA |
+| `muted` | 12.42:1 | AA |
+| `comment` | 13.62:1 | AA |
 | `accent` | 10.53:1 | AA |
-| `accent_2` | 11.38:1 | AA |
+| `accent_2` | 11.83:1 | AA |
 | `diagnostic` | 12.60:1 | AA |
 | `sage` | 10.92:1 | AA |
 | `error` | 8.80:1 | AA |
@@ -144,24 +144,24 @@ Semantic tokens are intentionally distinct:
 
 | Token | Lc vs bg | Target |
 | --- | ---: | --- |
-| `text` | 92.5 | ≥75 (body) |
-| `muted` | 51.7 | ≥75 (FAIL) |
-| `comment` | 64.2 | ≥75 (FAIL) |
+| `text` | 91.7 | ≥75 (body) |
+| `muted` | 72.7 | ≥75 (FAIL) |
+| `comment` | 78.1 | ≥75 (body) |
 | `accent` | 63.8 | ≥75 (FAIL) |
-| `accent_2` | 67.9 | ≥75 (FAIL) |
+| `accent_2` | 70.0 | ≥75 (FAIL) |
 | `diagnostic` | 73.7 | ≥75 (FAIL) |
 | `sage` | 66.2 | ≥75 (FAIL) |
 | `error` | 55.4 | ≥75 (FAIL) |
 | `warning` | 73.7 | ≥75 (FAIL) |
-| `border_ui` | 30.5 | ≥60 (FAIL) |
+| `border_ui` | 30.1 | ≥60 (FAIL) |
 | `focus` | 37.8 | ≥60 (FAIL) |
 
 ### Dreamcoder Dark UI affordance contrast
 
 | Token | Ratio vs bg | Target |
 | --- | ---: | --- |
-| `border_ui` | 4.67:1 | PASS |
-| `border_hi` | 8.19:1 | PASS |
+| `border_ui` | 4.62:1 | PASS |
+| `border_hi` | 8.73:1 | PASS |
 | `focus` | 5.71:1 | PASS |
 
 ### Dreamcoder Light contrast (WCAG 2)
@@ -244,11 +244,11 @@ Semantic tokens are intentionally distinct:
 
 | Token | Ratio vs bg | Target |
 | --- | ---: | --- |
-| `text` | 12.27:1 | AAA |
-| `muted` | 7.00:1 | AA |
-| `comment` | 7.86:1 | AA |
+| `text` | 12.29:1 | AAA |
+| `muted` | 9.14:1 | AA |
+| `comment` | 10.02:1 | AA |
 | `accent` | 9.95:1 | AA |
-| `accent_2` | 7.40:1 | AA |
+| `accent_2` | 7.87:1 | AA |
 | `diagnostic` | 9.56:1 | AA |
 | `sage` | 8.14:1 | AA |
 | `error` | 8.06:1 | AA |
@@ -258,24 +258,24 @@ Semantic tokens are intentionally distinct:
 
 | Token | Lc vs bg | Target |
 | --- | ---: | --- |
-| `text` | 72.0 | ≥75 (FAIL) |
-| `muted` | 45.1 | ≥75 (FAIL) |
-| `comment` | 49.9 | ≥75 (FAIL) |
+| `text` | 72.1 | ≥75 (FAIL) |
+| `muted` | 56.8 | ≥75 (FAIL) |
+| `comment` | 61.2 | ≥75 (FAIL) |
 | `accent` | 60.9 | ≥75 (FAIL) |
-| `accent_2` | 47.5 | ≥75 (FAIL) |
+| `accent_2` | 50.1 | ≥75 (FAIL) |
 | `diagnostic` | 59.1 | ≥75 (FAIL) |
 | `sage` | 51.8 | ≥75 (FAIL) |
 | `error` | 51.4 | ≥75 (FAIL) |
 | `warning` | 55.4 | ≥75 (FAIL) |
-| `border_ui` | 30.3 | ≥60 (FAIL) |
+| `border_ui` | 31.5 | ≥60 (FAIL) |
 | `focus` | 31.3 | ≥60 (FAIL) |
 
 ### Night (render profile derived from Dreamcoder Dark) UI affordance contrast
 
 | Token | Ratio vs bg | Target |
 | --- | ---: | --- |
-| `border_ui` | 4.64:1 | PASS |
-| `border_hi` | 7.00:1 | PASS |
+| `border_ui` | 4.82:1 | PASS |
+| `border_hi` | 7.01:1 | PASS |
 | `focus` | 4.74:1 | PASS |
 
 ## Usage

@@ -1,29 +1,29 @@
 /* Dreamcoder color layer for Waybar. */
 @define-color bg #000000;
-@define-color bg-soft #050507;
-@define-color surface #050507;
-@define-color surface-2 #141418;
-@define-color surface-3 #1b1b1e;
-@define-color text #bcc7d5;
-@define-color text-heading #c6d3df;
-@define-color muted #8a96a7;
-@define-color subtle #8c94a4;
-@define-color comment #a69ba6;
-@define-color border #6d7788;
-@define-color border-ui #6d7788;
+@define-color bg-soft #090909;
+@define-color surface #090909;
+@define-color surface-2 #1b1b1b;
+@define-color surface-3 #282828;
+@define-color text #c6c6c6;
+@define-color text-heading #d3d3d3;
+@define-color muted #ababab;
+@define-color subtle #959595;
+@define-color comment #b3b3b3;
+@define-color border #5c5c5c;
+@define-color border-ui #797979;
 @define-color focus #3a76d6;
 @define-color accent #a4afee;
-@define-color accent-2 #9f8ce9;
+@define-color accent-2 #b48ce9;
 @define-color diagnostic #62b9e2;
-@define-color lavender #9f8ce9;
+@define-color lavender #b48ce9;
 @define-color error #e88484;
 @define-color success #43b48b;
 @define-color warning #d1a126;
 @define-color link #a4afee;
-@define-color link-hover #9f8ce9;
+@define-color link-hover #b48ce9;
 
 window#waybar {
-  background: rgba(12, 12, 14, 0.92);
+  background: rgba(11, 11, 13, 0.92);
   color: @text;
   border-bottom: 1px solid alpha(@accent, 0.26);
 }
@@ -47,7 +47,7 @@ window#waybar {
 #cpu,
 #memory,
 #tray {
-  background: rgba(188, 199, 213, 0.08);
+  background: rgba(198, 198, 198, 0.08);
   color: @text;
   border: 1px solid alpha(@border-ui, 0.78);
 }
