@@ -41,6 +41,41 @@ _REPO_PATH_ENV: tuple[tuple[str, str], ...] = (
 )
 
 
+# Every other individually-named override env var settings.theme_paths()
+# recognizes. Its config_home-relative fallback for these IS covered by the
+# XDG_CONFIG_HOME/HOME monkeypatch below, but only if the ambient shell
+# hasn't independently exported the override itself — os.environ.get(name,
+# fallback) always prefers a set override over an isolated fallback. A
+# fish/zsh profile commonly exports STARSHIP_CONFIG, which previously let
+# this fixture's activation calls write straight through the real
+# ~/.config/starship.toml symlink into the checked-in repo file on any
+# machine where that export exists. Clear all of them defensively so this
+# isolation doesn't depend on what happens to be unset in the developer's
+# shell.
+_UNSCOPED_OVERRIDE_ENV: tuple[str, ...] = (
+    "KITTY_COLORS",
+    "KITTY_CONFIG",
+    "KITTY_DREAMCODER_UI",
+    "GHOSTTY_THEME",
+    "GHOSTTY_CONFIG",
+    "STARSHIP_CONFIG",
+    "TMUX_THEME",
+    "ZELLIJ_CONFIG",
+    "WARP_THEME",
+    "WARP_SETTINGS",
+    "OPENCODE_THEME",
+    "OPENCODE_TUI",
+    "CODEX_THEME",
+    "CODEX_CONFIG",
+    "CODEX_HOME",
+    "PI_THEME",
+    "PI_SETTINGS",
+    "PI_AGENT_DIR",
+    "DREAMCODER_TOKENS",
+    "BAT_THEME_DIR",
+)
+
+
 @pytest.fixture
 def theme_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """Isolate the full activation surface under a temp config home."""
@@ -54,6 +89,8 @@ def theme_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     monkeypatch.delenv("DREAMCODER_THEME_MODE", raising=False)
     monkeypatch.delenv("DREAMCODER_SYNC_DONE", raising=False)
     monkeypatch.delenv("DREAMCODER_WALLPAPER", raising=False)
+    for env_name in _UNSCOPED_OVERRIDE_ENV:
+        monkeypatch.delenv(env_name, raising=False)
     cfg = tmp_path / ".config"
     for env_name, rel in _REPO_PATH_ENV:
         monkeypatch.setenv(env_name, str(cfg / rel))
