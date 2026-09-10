@@ -9,7 +9,11 @@ from types import ModuleType
 
 import pytest
 
-from dreamcoder_theme.herdr_contract import HERDR_073_PROFILE, HERDR_080_PROFILE
+from dreamcoder_theme.herdr_contract import (
+    HERDR_073_PROFILE,
+    HERDR_080_PROFILE,
+    HERDR_082_PROFILE,
+)
 from dreamcoder_theme.palette_tokens import VARIANTS
 from dreamcoder_theme.renderers_herdr import herdr_content
 
@@ -26,7 +30,7 @@ def _load_verifier() -> ModuleType:
 
 
 def _install_layout(module: ModuleType, root: Path) -> None:
-    for profile in (HERDR_073_PROFILE, HERDR_080_PROFILE):
+    for profile in (HERDR_073_PROFILE, HERDR_080_PROFILE, HERDR_082_PROFILE):
         base = root / "DreamcoderHerdr/.config/herdr/dreamcoder" / profile.evidence.version
         base.mkdir(parents=True)
         (base / "config.dark.toml").write_text(herdr_content(profile, "dark", VARIANTS["dark"]))

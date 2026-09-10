@@ -16,7 +16,7 @@ from unittest import mock
 
 import pytest
 
-from dreamcoder_theme import control
+from dreamcoder_theme import cli_handlers, control
 from dreamcoder_theme.settings import theme_paths
 from dreamcoder_theme.settings_store import settings_get
 
@@ -310,6 +310,43 @@ def test_reload_failure_restores_lazygit_active_and_live_symlink(theme_home: Pat
 # ---------------------------------------------------------------------------
 # R7: generic settings interface stays available
 # ---------------------------------------------------------------------------
+
+
+def test_transaction_snapshots_herdr_config_path_override(
+    theme_home: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    override = theme_home / "custom/herdr.toml"
+    monkeypatch.setenv("HERDR_CONFIG_PATH", str(override))
+
+    assert override in cli_handlers._mutable_paths(theme_paths())
+
+
+def test_reload_failure_restores_herdr_override_selector(
+    theme_home: Path, monkeypatch: pytest.MonkeyPatch, capsys
+) -> None:
+    override = theme_home / "custom/herdr.toml"
+    override.parent.mkdir(parents=True)
+    old_target = theme_home / "old.toml"
+    new_target = theme_home / "new.toml"
+    old_target.write_text("# old\n")
+    new_target.write_text("# new\n")
+    os.symlink(old_target, override)
+    monkeypatch.setenv("HERDR_CONFIG_PATH", str(override))
+
+    def fail_after_switch(_base: str, _profile: str) -> None:
+        override.unlink()
+        os.symlink(new_target, override)
+        raise RuntimeError("injected Herdr reload failure")
+
+    with mock.patch(
+        "dreamcoder_theme.cli_handlers.run_reload_adapter", side_effect=fail_after_switch
+    ):
+        rc = control.main(["theme", "apply", "light", "--json"])
+    payload = json.loads(capsys.readouterr().out)
+
+    assert rc == 1
+    assert payload["rollback_state"] == "restored"
+    assert Path(os.readlink(override)) == old_target
 
 
 def test_generic_settings_interface_keeps_working(theme_home: Path, capsys) -> None:

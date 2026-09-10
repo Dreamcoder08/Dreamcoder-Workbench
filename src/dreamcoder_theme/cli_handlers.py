@@ -322,6 +322,19 @@ def _restore_directory(
             target.write_bytes(value)
 
 
+def _herdr_active_config_path(config_home: Path) -> Path:
+    """Resolve the Herdr active-config path for rollback snapshotting only.
+
+    Mirrors ``herdr_activation.resolve_herdr_target``'s precedence without its
+    activation-time safety gate: an already-symlinked active config is a valid
+    rollback target here, not a rejected activation source.
+    """
+    override = os.environ.get("HERDR_CONFIG_PATH")
+    if override:
+        return Path(override)
+    return config_home / "herdr" / "config.toml"
+
+
 def _mutable_paths(paths: Any) -> list[Path]:
     """Every mutable active path + selector file the activation can touch.
 
@@ -379,7 +392,7 @@ def _mutable_paths(paths: Any) -> list[Path]:
         config_home / "git/delta-dreamcoder.gitconfig",
         config_home / "lazygit/config.yml",
         config_home / "hypr/dreamcoder-colors.lua",
-        paths.herdr_selector,
+        _herdr_active_config_path(config_home),
         cache_home / "dreamcoder/cursor-cli.env",
     ]
     if write_repo_enabled():

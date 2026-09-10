@@ -1,0 +1,34 @@
+# Managed by Dreamcoder; repository variant only.
+[theme]
+name = "catppuccin"
+
+[theme.custom]
+accent = "#a4afee"
+panel_bg = "#000000"
+surface0 = "#090909"
+surface1 = "#0b0b0d"
+surface_dim = "#090909"
+overlay0 = "#797979"
+overlay1 = "#959595"
+text = "#c6c6c6"
+subtext0 = "#ababab"
+mauve = "#b98beb"
+green = "#43b48b"
+yellow = "#d1a126"
+red = "#e88484"
+blue = "#62b9e2"
+teal = "#3a76d6"
+peach = "#b48ce9"
+sidebar_bg = "#000000"
+active_row_bg = "#090909"
+selection_bg = "#323232"
+
+[ui]
+accent = "#6FA0AF"
+pane_scrollbars = false
+
+[keys]
+prefix = "ctrl+a"
+previous_agent = "prefix+alt+k"
+next_agent = "prefix+alt+j"
+focus_agent = "prefix+ctrl+1..9"

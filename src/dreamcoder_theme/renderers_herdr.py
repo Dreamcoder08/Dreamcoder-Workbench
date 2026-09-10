@@ -7,10 +7,8 @@ import re
 from .herdr_contract import HerdrProfile
 
 _HEX_COLOR = re.compile(r"#[0-9a-fA-F]{6}\Z")
-_UI_FIELD_RHS = {
-    "accent": '"#6FA0AF"',
-    "pane_scrollbars": "false",
-}
+_PALETTE_UI_FIELDS: dict[str, str] = {}
+_UI_FIELD_RHS = {"pane_scrollbars": "false", "accent": '"#6FA0AF"'}
 _KEYS_LINES = (
     'prefix = "ctrl+a"',
     'previous_agent = "prefix+alt+k"',
@@ -35,6 +33,11 @@ _TOKEN_MAPPING = (
     ("teal", "focus"),
     ("peach", "accent_2"),
 )
+_OPTIONAL_TOKEN_MAPPING = (
+    ("sidebar_bg", "bg"),
+    ("active_row_bg", "surface0"),
+    ("selection_bg", "selection"),
+)
 
 
 class HerdrContractUnavailableError(RuntimeError):
@@ -57,11 +60,14 @@ def herdr_content(profile: HerdrProfile, mode: str, palette: dict[str, str]) -> 
         raise HerdrContractUnavailableError("Herdr profile does not allow theme.name")
 
     custom_lines: list[str] = []
-    for field, token in _TOKEN_MAPPING:
-        if field not in evidence.allowed_custom_fields:
-            raise HerdrContractUnavailableError(
-                f"Herdr profile does not allow theme.custom.{field}"
-            )
+    mappings = _TOKEN_MAPPING + tuple(
+        mapping
+        for mapping in _OPTIONAL_TOKEN_MAPPING
+        if mapping[0] in evidence.allowed_custom_fields
+    )
+    if {field for field, _token in mappings} != set(evidence.allowed_custom_fields):
+        raise HerdrContractUnavailableError("Herdr profile requests unsupported custom fields")
+    for field, token in mappings:
         color = palette.get(token)
         if not isinstance(color, str) or _HEX_COLOR.fullmatch(color) is None:
             raise HerdrContractUnavailableError(
@@ -69,9 +75,16 @@ def herdr_content(profile: HerdrProfile, mode: str, palette: dict[str, str]) -> 
             )
         custom_lines.append(f'{field} = "{color}"')
 
+    base_theme = (
+        evidence.light_base_theme_name
+        if mode == "light" and evidence.light_base_theme_name
+        else evidence.base_theme_name
+    )
+
     ui_lines: list[str] = []
     for field in evidence.allowed_ui_fields:
-        rhs = _UI_FIELD_RHS.get(field)
+        mapped_token = _PALETTE_UI_FIELDS.get(field)
+        rhs = f'"{palette[mapped_token]}"' if mapped_token is not None else _UI_FIELD_RHS.get(field)
         if rhs is None:
             raise HerdrContractUnavailableError(
                 f"Herdr profile requests unsupported [ui] field {field!r}"
@@ -82,7 +95,7 @@ def herdr_content(profile: HerdrProfile, mode: str, palette: dict[str, str]) -> 
         (
             "# Managed by Dreamcoder; repository variant only.",
             "[theme]",
-            f'name = "{evidence.base_theme_name}"',
+            f'name = "{base_theme}"',
             "",
             "[theme.custom]",
             *custom_lines,
@@ -103,8 +116,8 @@ def herdr_token_mapping() -> tuple[tuple[str, str], ...]:
 
 
 def herdr_ui_field_rhs() -> dict[str, str]:
-    """Expose the evidence-bound [ui] field right-hand sides for tests."""
-    return dict(_UI_FIELD_RHS)
+    """Expose static RHS values and palette token references for tests."""
+    return {**_UI_FIELD_RHS, **_PALETTE_UI_FIELDS}
 
 
 from .herdr_contract import HERDR_073_PROFILE  # noqa: E402

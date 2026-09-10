@@ -1,24 +1,17 @@
 #!/usr/bin/env bash
-# Switch Herdr theme between dreamcoder dark/light variants
+# Select a version-matched generated Herdr theme without replacing regular configs.
 set -euo pipefail
 
 MODE="${1:-dark}"
-CONFIG_DIR="${HOME}/.config/herdr"
+DOTS_DIR="${DREAMCODER_DOTS_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
 
 case "${MODE}" in
-dark)
-  ln -sf config.dark.toml "${CONFIG_DIR}/config.toml"
-  ;;
-light)
-  ln -sf config.light.toml "${CONFIG_DIR}/config.toml"
-  ;;
+dark | light | night) ;;
 *)
-  echo "Usage: $0 {dark|light}" >&2
-  exit 1
+  printf 'Usage: %s {dark|light|night}\n' "$0" >&2
+  exit 2
   ;;
 esac
 
-# Reload running Herdr server if active
-if command -v herdr &>/dev/null; then
-  herdr server reload-config 2>/dev/null || true
-fi
+PYTHONPATH="${DOTS_DIR}/src${PYTHONPATH:+:${PYTHONPATH}}" \
+  python3 -m dreamcoder_theme.herdr_activation "${MODE}"

@@ -10,6 +10,7 @@ import pytest
 from dreamcoder_theme.herdr_contract import (
     HERDR_073_PROFILE,
     HERDR_080_PROFILE,
+    HERDR_082_PROFILE,
     ContractEvidence,
     ContractStatus,
     detect_profile,
@@ -50,6 +51,15 @@ def test_production_080_profile_is_complete_and_version_bound() -> None:
     assert detect_profile("herdr 0.8.1").status is ContractStatus.UNSUPPORTED_CONTRACT
 
 
+def test_source_derived_082_profile_is_complete_and_version_bound() -> None:
+    assert HERDR_082_PROFILE.is_complete
+    assert HERDR_082_PROFILE.evidence.source_sha256 == (
+        "9d7bdfdb391d12112e7d4eb1bd3895e50bdb6556255ef75e634094a969684e2d"
+    )
+    assert detect_profile("herdr 0.8.2").profile is HERDR_082_PROFILE
+    assert detect_profile("herdr 0.8.3").status is ContractStatus.UNSUPPORTED_CONTRACT
+
+
 def test_073_and_080_profiles_select_their_own_exact_versions() -> None:
     assert detect_profile("herdr 0.7.3").profile is HERDR_073_PROFILE
     assert detect_profile("herdr 0.8.0").profile is HERDR_080_PROFILE
@@ -75,6 +85,28 @@ def test_absent_unknown_and_malformed_runtime_evidence_is_not_supported(
 ) -> None:
     selection = detect_profile(version_output, profiles=())
     assert selection.status is expected
+
+
+@pytest.mark.parametrize(
+    "version_output",
+    (
+        "herdr 0.8.2-rc1",
+        "herdr 0.8.2+build.7",
+        "herdr 0.8.2unexpected",
+        "wrapper: herdr 0.8.2",
+        "herdr 0.8.2 extra",
+    ),
+)
+def test_version_output_suffixes_and_embedding_fail_closed(version_output: str) -> None:
+    assert detect_profile(version_output).status is ContractStatus.UNSUPPORTED_CONTRACT
+
+
+@pytest.mark.parametrize(
+    "version_output",
+    ("herdr 0.8.2", "  HERDR 0.8.2  ", "\therdr\t0.8.2\n"),
+)
+def test_exact_version_output_allows_case_and_surrounding_whitespace(version_output: str) -> None:
+    assert detect_profile(version_output).profile is HERDR_082_PROFILE
 
 
 def test_rejected_version_fixture_cannot_enable_an_unsupported_runtime() -> None:

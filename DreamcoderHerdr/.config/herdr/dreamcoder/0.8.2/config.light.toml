@@ -1,0 +1,34 @@
+# Managed by Dreamcoder; repository variant only.
+[theme]
+name = "catppuccin-latte"
+
+[theme.custom]
+accent = "#824f16"
+panel_bg = "#f3eadc"
+surface0 = "#fff7ea"
+surface1 = "#decbb1"
+surface_dim = "#e6d7c4"
+overlay0 = "#66513b"
+overlay1 = "#554638"
+text = "#17120d"
+subtext0 = "#352e22"
+mauve = "#7d3e64"
+green = "#315b31"
+yellow = "#654300"
+red = "#842f24"
+blue = "#0d4a68"
+teal = "#0f6570"
+peach = "#a7471c"
+sidebar_bg = "#f3eadc"
+active_row_bg = "#fff7ea"
+selection_bg = "#decbb1"
+
+[ui]
+accent = "#6FA0AF"
+pane_scrollbars = false
+
+[keys]
+prefix = "ctrl+a"
+previous_agent = "prefix+alt+k"
+next_agent = "prefix+alt+j"
+focus_agent = "prefix+ctrl+1..9"

@@ -82,6 +82,7 @@ ignore = [
 "src/dreamcoder_theme/renderers_starship.py" = ["RUF001"]
 "src/dreamcoder_theme/sync.py" = ["PLC0415"]
 "src/dreamcoder_theme/renderers_extra_nvim_lsp.py" = ["PLR0913"]
+"src/dreamcoder_theme/herdr_activation.py" = ["PLR0911"]
 
 [tool.ruff.format]
 quote-style = "double"

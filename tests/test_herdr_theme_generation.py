@@ -8,7 +8,11 @@ from pathlib import Path
 import pytest
 
 from dreamcoder_theme import sync
-from dreamcoder_theme.herdr_contract import HERDR_073_PROFILE, HERDR_080_PROFILE
+from dreamcoder_theme.herdr_contract import (
+    HERDR_073_PROFILE,
+    HERDR_080_PROFILE,
+    HERDR_082_PROFILE,
+)
 from dreamcoder_theme.palette_tokens import VARIANTS
 from dreamcoder_theme.renderers_herdr import (
     HerdrContractUnavailableError,
@@ -70,7 +74,10 @@ def test_herdr_080_renders_pane_scrollbars_false_for_every_mode(mode: str) -> No
     assert set(parsed["theme"]["custom"]) == EXPECTED_CUSTOM_FIELDS
     for field, token in herdr_token_mapping():
         assert parsed["theme"]["custom"][field] == VARIANTS[mode][token]
-    assert parsed["ui"] == {"accent": "#6FA0AF", "pane_scrollbars": False}
+    assert parsed["ui"] == {
+        "accent": "#6FA0AF",
+        "pane_scrollbars": False,
+    }
     assert parsed["ui"]["pane_scrollbars"] is False
     assert parsed["keys"] == {
         "prefix": "ctrl+a",
@@ -89,6 +96,19 @@ def test_herdr_080_light_renders_dreamcoder_light() -> None:
     assert parsed["theme"]["custom"]["panel_bg"] == VARIANTS["light"]["bg"] == "#f3eadc"
     assert parsed["theme"]["custom"]["text"] == VARIANTS["light"]["text"]
     assert parsed["theme"]["custom"]["surface1"] == VARIANTS["light"]["surface1"]
+    assert parsed["ui"]["accent"] == "#6FA0AF"
+
+
+@pytest.mark.parametrize("mode", ("dark", "light", "night"))
+def test_herdr_082_uses_mode_aware_base_and_sidebar_tokens(mode: str) -> None:
+    palette = VARIANTS["dark"] if mode == "night" else VARIANTS[mode]
+    parsed = tomllib.loads(herdr_content(HERDR_082_PROFILE, mode, palette))
+
+    expected_base = "catppuccin-latte" if mode == "light" else "catppuccin"
+    assert parsed["theme"]["name"] == expected_base
+    assert parsed["theme"]["custom"]["sidebar_bg"] == palette["bg"]
+    assert parsed["theme"]["custom"]["active_row_bg"] == palette["surface0"]
+    assert parsed["theme"]["custom"]["selection_bg"] == palette["selection"]
 
 
 def test_herdr_080_variants_are_byte_stable_and_matching_in_structure() -> None:
@@ -99,7 +119,10 @@ def test_herdr_080_variants_are_byte_stable_and_matching_in_structure() -> None:
     assert light == herdr_content(HERDR_080_PROFILE, "light", VARIANTS["light"])
     dark_toml, light_toml = tomllib.loads(dark), tomllib.loads(light)
     assert set(dark_toml["theme"]["custom"]) == set(light_toml["theme"]["custom"])
-    assert dark_toml["ui"] == light_toml["ui"]
+    assert dark_toml["ui"]["pane_scrollbars"] is False
+    assert light_toml["ui"]["pane_scrollbars"] is False
+    assert dark_toml["ui"]["accent"] == "#6FA0AF"
+    assert light_toml["ui"]["accent"] == "#6FA0AF"
     assert dark_toml["keys"] == light_toml["keys"]
     assert dark != light
 
@@ -112,7 +135,8 @@ def test_herdr_variants_are_byte_stable_and_have_matching_structure() -> None:
     assert light == herdr_content(HERDR_073_PROFILE, "light", VARIANTS["light"])
     dark_toml, light_toml = tomllib.loads(dark), tomllib.loads(light)
     assert set(dark_toml["theme"]["custom"]) == set(light_toml["theme"]["custom"])
-    assert dark_toml["ui"] == light_toml["ui"]
+    assert dark_toml["ui"]["accent"] == "#6FA0AF"
+    assert light_toml["ui"]["accent"] == "#6FA0AF"
     assert dark_toml["keys"] == light_toml["keys"]
     assert dark != light
 
@@ -134,16 +158,21 @@ def test_repository_sync_writes_only_versioned_variants(
     changes = sync.sync_herdr_repo_variants({"dark": VARIANTS["dark"], "light": VARIANTS["light"]})
     base_073 = tmp_path / "DreamcoderHerdr/.config/herdr/dreamcoder/0.7.3"
     base_080 = tmp_path / "DreamcoderHerdr/.config/herdr/dreamcoder/0.8.0"
+    base_082 = tmp_path / "DreamcoderHerdr/.config/herdr/dreamcoder/0.8.2"
 
-    assert changes == [True, True, True, True]
+    assert changes == [True, True, True, True, True, True]
     assert (base_073 / "config.dark.toml").is_file()
     assert (base_073 / "config.light.toml").is_file()
     assert (base_080 / "config.dark.toml").is_file()
     assert (base_080 / "config.light.toml").is_file()
+    assert (base_082 / "config.dark.toml").is_file()
+    assert (base_082 / "config.light.toml").is_file()
     assert selector.read_text() == "onboarding = false\n"
     assert sync.sync_herdr_repo_variants(
         {"dark": VARIANTS["dark"], "light": VARIANTS["light"]}
     ) == [
+        False,
+        False,
         False,
         False,
         False,
@@ -153,7 +182,8 @@ def test_repository_sync_writes_only_versioned_variants(
 
 def test_checked_in_repository_variants_match_the_renderer() -> None:
     repo = Path(__file__).parents[1]
-    for profile in (HERDR_073_PROFILE, HERDR_080_PROFILE):
+    night = sync.prepare("dark", "standard").variants["night"]
+    for profile in (HERDR_073_PROFILE, HERDR_080_PROFILE, HERDR_082_PROFILE):
         base = repo / "DreamcoderHerdr/.config/herdr/dreamcoder" / profile.evidence.version
 
         assert (base / "config.dark.toml").read_text() == herdr_content(
@@ -162,6 +192,7 @@ def test_checked_in_repository_variants_match_the_renderer() -> None:
         assert (base / "config.light.toml").read_text() == herdr_content(
             profile, "light", VARIANTS["light"]
         )
+        assert (base / "config.night.toml").read_text() == herdr_content(profile, "night", night)
 
 
 def test_unsupported_profile_produces_no_repository_files(

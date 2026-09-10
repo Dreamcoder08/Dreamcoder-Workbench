@@ -24,7 +24,8 @@ configuration.
 | Profile | Version | Validation | Reload | Config path | Notes |
 | --- | --- | --- | --- | --- | --- |
 | `herdr-0.7.3` | 0.7.3 | `herdr config check` | `herdr server reload-config` | `~/.config/herdr/config.toml` | Pre-existing supported profile |
-| `herdr-0.8.0` | 0.8.0 | `herdr config check` | `herdr server reload-config` | `~/.config/herdr/config.toml` (overridable by `HERDR_CONFIG_PATH`) | Added; see evidence below |
+| `herdr-0.8.0` | 0.8.0 | `herdr config check` | `herdr server reload-config` | `~/.config/herdr/config.toml` (overridable by `HERDR_CONFIG_PATH`) | Installed-binary evidence |
+| `herdr-0.8.2` | 0.8.2 | Source-derived | `herdr server reload-config` | XDG config path (overridable by `HERDR_CONFIG_PATH`) | Public upstream source; no local runtime observation |
 
 ### Herdr 0.8.0 installed-binary evidence
 
@@ -42,6 +43,15 @@ The 0.8.0 variant reuses the previously evidenced theme and keys structure and
 adds only the observed 0.8.0 deltas: `[ui] pane_scrollbars = false` and the
 binary identity above.
 
+### Herdr 0.8.2 source-derived evidence
+
+The `herdr-0.8.2` profile is grounded in the official `v0.8.2` source at commit
+`9eb521456ac0d19d3ab3d9d7cea3cca10baa8a4c`; it is not a claim about an
+observed local runtime. The source establishes `catppuccin-latte` as the light
+base and the custom `sidebar_bg`, `active_row_bg`, and `selection_bg` tokens.
+See the complete hashes and procedural boundaries in
+[`herdr-contract-evidence.md`](../src/dreamcoder_theme/herdr-contract-evidence.md).
+
 ## Generated repository variants
 
 Versioned variants are generated from the Dreamcoder Workbench canonical tokens
@@ -52,13 +62,20 @@ drift is detectable:
 DreamcoderHerdr/.config/herdr/dreamcoder/
   0.7.3/config.dark.toml
   0.7.3/config.light.toml
+  0.7.3/config.night.toml
   0.8.0/config.dark.toml
   0.8.0/config.light.toml
+  0.8.0/config.night.toml
+  0.8.2/config.dark.toml
+  0.8.2/config.light.toml
+  0.8.2/config.night.toml
 ```
 
 - Each variant carries the header `# Managed by Dreamcoder; repository variant only.`
 - Light renders Dreamcoder Light; dark renders Dreamcoder dark.
 - The 0.8.0 variants include `pane_scrollbars = false`.
+- The 0.8.2 Light variant uses `catppuccin-latte`; all 0.8.2 variants explicitly
+  map sidebar, active-row, and navigation-selection backgrounds.
 - Active/live configuration (`~/.config/herdr/config.toml`, or whatever
   `HERDR_CONFIG_PATH` points to) stays out of git. The repository only ever
   ships static, versioned variants.
@@ -92,12 +109,21 @@ safely.
 
 ## Live switching
 
-The existing `scripts/herdr-theme-switch.sh` symlinks a repository variant into
-the live `~/.config/herdr/config.toml` and reloads a running server. That
-switcher operates on live user configuration by design and is not part of the
-repository-owned sync surface; operators can alternatively point
-`HERDR_CONFIG_PATH` at any checked-in versioned variant for validation or
-temporary use.
+`scripts/herdr-theme-switch.sh` detects the exact installed Herdr version, selects
+the matching generated dark, light, or night variant, and requests a live config
+reload. It resolves the selector from `HERDR_CONFIG_PATH` first, then
+`XDG_CONFIG_HOME`, then `~/.config/herdr/config.toml`.
+
+The switcher only manages absent selectors or existing symlinks. It refuses to
+replace a regular `config.toml`, because that file may contain personalized
+settings. To opt in, preserve that file elsewhere and explicitly replace it with
+a symlink before switching. An unsupported or missing executable also leaves the
+selector unchanged and makes activation fail rather than claiming success.
+
+A typed `server_not_running` response means the generated variant was selected
+and reload is deferred until Herdr starts. Only an `applied` result counts as a
+completed live reload. `partial`, `failed`, malformed responses, and other errors
+restore the previous selector and fail the enclosing Dreamcoder transaction.
 
 ## Development workflow scripts
 

@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any
 
-_VERSION_OUTPUT = re.compile(r"\bherdr\s+(\d+\.\d+\.\d+)\b", re.IGNORECASE)
+_VERSION_OUTPUT = re.compile(r"herdr[ \t]+(\d+\.\d+\.\d+)", re.IGNORECASE)
 _SHA256 = re.compile(r"[0-9a-f]{64}\Z")
 
 
@@ -66,6 +66,7 @@ class ContractEvidence:
     server_applicability: ProcedureEvidence
     reload: ProcedureEvidence
     restoration: ProcedureEvidence
+    light_base_theme_name: str | None = None
 
     @classmethod
     def from_mapping(cls, mapping: Mapping[str, Any]) -> ContractEvidence:
@@ -105,6 +106,11 @@ class ContractEvidence:
             ),
             reload=ProcedureEvidence.from_mapping(mapping.get("reload")),
             restoration=ProcedureEvidence.from_mapping(mapping.get("restoration")),
+            light_base_theme_name=(
+                mapping.get("light_base_theme_name")
+                if isinstance(mapping.get("light_base_theme_name"), str)
+                else None
+            ),
         )
 
     @property
@@ -243,7 +249,54 @@ HERDR_080_EVIDENCE = ContractEvidence(
     restoration=ProcedureEvidence(available=True, unambiguous=True),
 )
 HERDR_080_PROFILE = HerdrProfile(evidence=HERDR_080_EVIDENCE)
-SUPPORTED_PROFILES = (HERDR_073_PROFILE, HERDR_080_PROFILE)
+
+# Herdr v0.8.2 source-derived evidence. The official v0.8.2 tag peels to
+# 9eb521456ac0d19d3ab3d9d7cea3cca10baa8a4c. source_sha256 is the SHA-256 of
+# src/config/theme.rs at that commit; see herdr-contract-evidence.md.
+HERDR_082_EVIDENCE = ContractEvidence(
+    profile_id="herdr-0.8.2",
+    executable="herdr",
+    version="0.8.2",
+    source_identity=(
+        "Herdr v0.8.2 official source commit "
+        "9eb521456ac0d19d3ab3d9d7cea3cca10baa8a4c; src/config/theme.rs"
+    ),
+    source_sha256="9d7bdfdb391d12112e7d4eb1bd3895e50bdb6556255ef75e634094a969684e2d",
+    default_config_path="<XDG_CONFIG_HOME>/herdr/config.toml",
+    config_path_environment="HERDR_CONFIG_PATH",
+    color_representation="hex (#RRGGBB)",
+    base_theme_name="catppuccin",
+    light_base_theme_name="catppuccin-latte",
+    allowed_theme_fields=("name",),
+    allowed_custom_fields=(
+        "accent",
+        "panel_bg",
+        "sidebar_bg",
+        "active_row_bg",
+        "selection_bg",
+        "surface0",
+        "surface1",
+        "surface_dim",
+        "overlay0",
+        "overlay1",
+        "text",
+        "subtext0",
+        "mauve",
+        "green",
+        "yellow",
+        "red",
+        "blue",
+        "teal",
+        "peach",
+    ),
+    allowed_ui_fields=("accent", "pane_scrollbars"),
+    candidate_validation=ProcedureEvidence(available=True, unambiguous=True),
+    server_applicability=ProcedureEvidence(available=True, unambiguous=True),
+    reload=ProcedureEvidence(available=True, unambiguous=True, observable=True),
+    restoration=ProcedureEvidence(available=True, unambiguous=True),
+)
+HERDR_082_PROFILE = HerdrProfile(evidence=HERDR_082_EVIDENCE)
+SUPPORTED_PROFILES = (HERDR_073_PROFILE, HERDR_080_PROFILE, HERDR_082_PROFILE)
 
 
 def detect_profile(
@@ -253,7 +306,7 @@ def detect_profile(
     if version_output is None:
         return ProfileSelection(status=ContractStatus.SKIPPED_NOT_INSTALLED)
 
-    match = _VERSION_OUTPUT.search(version_output)
+    match = _VERSION_OUTPUT.fullmatch(version_output.strip())
     if match is None:
         return ProfileSelection(status=ContractStatus.UNSUPPORTED_CONTRACT)
 
