@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import inspect
 import json
 from pathlib import Path
 from typing import Any
@@ -479,3 +480,52 @@ def test_kitty_ui_active_write_does_not_corrupt_symlinked_sibling(
         "writing the active (dark) file must not corrupt the light sibling "
         "it used to be symlinked to"
     )
+
+
+# ---------------------------------------------------------------------------
+# Systematic symlink-safety guard for every active_path repo write
+# ---------------------------------------------------------------------------
+
+
+def test_write_active_repo_file_unlinks_a_stale_symlink(tmp_path: Path) -> None:
+    """The shared guard every VARIANT_REGISTRY active_path write goes
+    through: a pre-existing symlink at the target must never let the write
+    land on a sibling file instead of its own path."""
+    sibling = tmp_path / "dreamcoder-light.json"
+    sibling.write_text("light content\n")
+    target = tmp_path / "dreamcoder.json"
+    target.symlink_to("dreamcoder-light.json")
+
+    changed = sync.write_active_repo_file(target, "dark content\n")
+
+    assert changed is True
+    assert not target.is_symlink()
+    assert target.read_text() == "dark content\n"
+    assert sibling.read_text() == "light content\n", (
+        "writing the active file must not corrupt the sibling it used to be symlinked to"
+    )
+
+
+def test_write_active_repo_file_matches_write_if_changed_for_regular_files(
+    tmp_path: Path,
+) -> None:
+    """No symlink involved: behavior is identical to write_if_changed."""
+    target = tmp_path / "plain.json"
+    assert sync.write_active_repo_file(target, "content\n") is True
+    assert sync.write_active_repo_file(target, "content\n") is False
+    assert sync.write_active_repo_file(target, "new content\n") is True
+    assert target.read_text() == "new content\n"
+
+
+def test_variant_registry_active_paths_use_the_symlink_safe_writer() -> None:
+    """Every VARIANT_REGISTRY entry with a real active_path (pi_theme,
+    codex_app, codex_theme, bat_theme as of this writing) must go through
+    write_active_repo_file, not the raw write_if_changed a stale symlink
+    at that path would silently write through. A source-level check
+    instead of exercising sync_repo_snippets against real ROOT-relative
+    paths, since VARIANT_REGISTRY bakes in absolute paths from the actual
+    repository at import time and cannot be safely redirected to a
+    tmp_path in-process."""
+    source = inspect.getsource(sync.sync_repo_snippets)
+    assert "write_active_repo_file(active_path" in source
+    assert sum(1 for _, _, _, ap in sync.VARIANT_REGISTRY if ap is not None) >= 1

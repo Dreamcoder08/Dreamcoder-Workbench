@@ -680,6 +680,25 @@ def sync_herdr_repo_variants(
     return changes
 
 
+def write_active_repo_file(path: Path, content: str) -> bool:
+    """write_if_changed for a repository-tracked "active" mirror.
+
+    Unlike a live ~/.config target, this path must always be an
+    independent file: an external mode selector, prior manual edit, or a
+    stale artifact from an older sync can leave it as a symlink to one of
+    its own -dark/-light/-night siblings, and write_if_changed follows
+    symlinks — so writing the current active mode's content here would
+    silently overwrite whichever sibling the symlink happened to point
+    to (exactly the DreamcoderKitty/dreamcoder-ui.conf corruption fixed
+    earlier). Unlink first so every active_path write in this module goes
+    through the same guard instead of being patched one consumer at a
+    time as each is discovered.
+    """
+    if path.is_symlink():
+        path.unlink()
+    return write_if_changed(path, content)
+
+
 def sync_repo_snippets(variants: dict[str, dict[str, str]], active: dict[str, str]) -> list[bool]:
     repo_changes: list[bool] = []
 
@@ -687,7 +706,7 @@ def sync_repo_snippets(variants: dict[str, dict[str, str]], active: dict[str, st
     for base, names, builder, active_path in VARIANT_REGISTRY:
         repo_changes += write_variant_files(base, names, builder, variants)
         if active_path is not None:
-            repo_changes.append(write_if_changed(active_path, builder(active)))
+            repo_changes.append(write_active_repo_file(active_path, builder(active)))
 
     # ---- Non-uniform entries (explicit calls) ----
 
@@ -695,7 +714,7 @@ def sync_repo_snippets(variants: dict[str, dict[str, str]], active: dict[str, st
     # resolve Dark's accent_2/on_accent (verify-theme-health.py
     # check_antigravity_files), independent of the currently active mode.
     repo_changes.append(
-        write_if_changed(
+        write_active_repo_file(
             ROOT / "DreamcoderAntigravity/Dreamcoder.json",
             antigravity_content(variants["dark"]),
         )
@@ -709,11 +728,11 @@ def sync_repo_snippets(variants: dict[str, dict[str, str]], active: dict[str, st
     kitty_ui_active_path = ROOT / "DreamcoderKitty/.config/kitty/dreamcoder-ui.conf"
     if kitty_ui_active_path.is_symlink():
         kitty_ui_active_path.unlink()
-    repo_changes.append(write_if_changed(kitty_ui_active_path, kitty_ui_content(active)))
+    repo_changes.append(write_active_repo_file(kitty_ui_active_path, kitty_ui_content(active)))
 
     # Opencode dotfile (transparent_background=True)
     repo_changes.append(
-        write_if_changed(
+        write_active_repo_file(
             ROOT / ".opencode/themes/dreamcoder.json",
             opencode_content(active, transparent_background=True),
         )
@@ -721,19 +740,19 @@ def sync_repo_snippets(variants: dict[str, dict[str, str]], active: dict[str, st
 
     # Hyprland — per-mode + active
     repo_changes.append(
-        write_if_changed(
+        write_active_repo_file(
             ROOT / "DreamcoderThemes/dreamcoder/hyprland-dark.conf",
             hypr_content(variants["dark"]),
         )
     )
     repo_changes.append(
-        write_if_changed(
+        write_active_repo_file(
             ROOT / "DreamcoderThemes/dreamcoder/hyprland-light.conf",
             hypr_content(variants["light"]),
         )
     )
     repo_changes.append(
-        write_if_changed(
+        write_active_repo_file(
             ROOT / "DreamcoderThemes/dreamcoder/hyprland-night.conf",
             hypr_content(variants["night"]),
         )
@@ -753,19 +772,19 @@ def sync_repo_snippets(variants: dict[str, dict[str, str]], active: dict[str, st
 
     # Waybar — per-mode + active
     repo_changes.append(
-        write_if_changed(
+        write_active_repo_file(
             ROOT / "DreamcoderThemes/dreamcoder/waybar-dark.css",
             waybar_content(variants["dark"]),
         )
     )
     repo_changes.append(
-        write_if_changed(
+        write_active_repo_file(
             ROOT / "DreamcoderThemes/dreamcoder/waybar-light.css",
             waybar_content(variants["light"]),
         )
     )
     repo_changes.append(
-        write_if_changed(
+        write_active_repo_file(
             ROOT / "DreamcoderThemes/dreamcoder/waybar-night.css",
             waybar_content(variants["night"]),
         )
@@ -773,19 +792,19 @@ def sync_repo_snippets(variants: dict[str, dict[str, str]], active: dict[str, st
 
     # Rofi — per-mode + active
     repo_changes.append(
-        write_if_changed(
+        write_active_repo_file(
             ROOT / "DreamcoderThemes/dreamcoder/rofi-dark.rasi",
             rofi_content(variants["dark"]),
         )
     )
     repo_changes.append(
-        write_if_changed(
+        write_active_repo_file(
             ROOT / "DreamcoderThemes/dreamcoder/rofi-light.rasi",
             rofi_content(variants["light"]),
         )
     )
     repo_changes.append(
-        write_if_changed(
+        write_active_repo_file(
             ROOT / "DreamcoderThemes/dreamcoder/rofi-night.rasi",
             rofi_content(variants["night"]),
         )
@@ -793,13 +812,17 @@ def sync_repo_snippets(variants: dict[str, dict[str, str]], active: dict[str, st
 
     # Desktop/WM active files (no suffix — tracks current mode)
     repo_changes.append(
-        write_if_changed(ROOT / "DreamcoderThemes/dreamcoder/hyprland.conf", hypr_content(active))
+        write_active_repo_file(
+            ROOT / "DreamcoderThemes/dreamcoder/hyprland.conf", hypr_content(active)
+        )
     )
     repo_changes.append(
-        write_if_changed(ROOT / "DreamcoderThemes/dreamcoder/waybar.css", waybar_content(active))
+        write_active_repo_file(
+            ROOT / "DreamcoderThemes/dreamcoder/waybar.css", waybar_content(active)
+        )
     )
     repo_changes.append(
-        write_if_changed(ROOT / "DreamcoderThemes/dreamcoder/rofi.rasi", rofi_content(active))
+        write_active_repo_file(ROOT / "DreamcoderThemes/dreamcoder/rofi.rasi", rofi_content(active))
     )
 
     # Repo-root active files — the tracked copies users install to apps that
@@ -809,29 +832,37 @@ def sync_repo_snippets(variants: dict[str, dict[str, str]], active: dict[str, st
     # writing them here too keeps repo-only generation from leaving the two
     # active sets out of sync.
     repo_changes += [
-        write_if_changed(
+        write_active_repo_file(
             ROOT / "DreamcoderThemes/zsh-syntax-highlighting-dreamcoder.zsh",
             zsh_syntax_content(active),
         ),
-        write_if_changed(
+        write_active_repo_file(
             ROOT / "DreamcoderThemes/ls-colors-dreamcoder.sh", ls_colors_content(active)
         ),
-        write_if_changed(ROOT / "DreamcoderThemes/bat-dreamcoder.sh", bat_content(active)),
-        write_if_changed(
+        write_active_repo_file(ROOT / "DreamcoderThemes/bat-dreamcoder.sh", bat_content(active)),
+        write_active_repo_file(
             ROOT / "DreamcoderThemes/delta-dreamcoder.gitconfig", delta_content(active)
         ),
-        write_if_changed(ROOT / "DreamcoderThemes/fzf-dreamcoder.sh", fzf_content(active)),
-        write_if_changed(ROOT / "DreamcoderThemes/btop-dreamcoder.theme", btop_content(active)),
-        write_if_changed(ROOT / "DreamcoderThemes/dunst-dreamcoder.conf", dunst_content(active)),
-        write_if_changed(ROOT / "DreamcoderThemes/firefox-dreamcoder.css", firefox_content(active)),
-        write_if_changed(
+        write_active_repo_file(ROOT / "DreamcoderThemes/fzf-dreamcoder.sh", fzf_content(active)),
+        write_active_repo_file(
+            ROOT / "DreamcoderThemes/btop-dreamcoder.theme", btop_content(active)
+        ),
+        write_active_repo_file(
+            ROOT / "DreamcoderThemes/dunst-dreamcoder.conf", dunst_content(active)
+        ),
+        write_active_repo_file(
+            ROOT / "DreamcoderThemes/firefox-dreamcoder.css", firefox_content(active)
+        ),
+        write_active_repo_file(
             ROOT / "DreamcoderThemes/obsidian-dreamcoder.css", obsidian_content(active)
         ),
-        write_if_changed(ROOT / "DreamcoderThemes/cava-dreamcoder.config", cava_content(active)),
-        write_if_changed(ROOT / "DreamcoderThemes/hyprland.conf", hypr_content(active)),
-        write_if_changed(ROOT / "DreamcoderThemes/waybar.css", waybar_content(active)),
-        write_if_changed(ROOT / "DreamcoderThemes/rofi.rasi", rofi_content(active)),
-        write_if_changed(
+        write_active_repo_file(
+            ROOT / "DreamcoderThemes/cava-dreamcoder.config", cava_content(active)
+        ),
+        write_active_repo_file(ROOT / "DreamcoderThemes/hyprland.conf", hypr_content(active)),
+        write_active_repo_file(ROOT / "DreamcoderThemes/waybar.css", waybar_content(active)),
+        write_active_repo_file(ROOT / "DreamcoderThemes/rofi.rasi", rofi_content(active)),
+        write_active_repo_file(
             ROOT / "DreamcoderLazygit/.config/lazygit/config.yml", lazygit_content(active)
         ),
     ]
@@ -839,7 +870,7 @@ def sync_repo_snippets(variants: dict[str, dict[str, str]], active: dict[str, st
     # Zellij — the consumed palette artifact is generated here (design §5
     # row 13); the active selector is patched by update_zellij_config.
     repo_changes.append(
-        write_if_changed(
+        write_active_repo_file(
             ROOT / "DreamcoderZellij/.config/zellij/dreamcoder-night.kdl",
             zellij_content(variants["night"], "dreamcoder-night"),
         )
@@ -850,7 +881,7 @@ def sync_repo_snippets(variants: dict[str, dict[str, str]], active: dict[str, st
 
     # README
     repo_changes.append(
-        write_if_changed(ROOT / "DreamcoderThemes/dreamcoder/README.md", readme_content())
+        write_active_repo_file(ROOT / "DreamcoderThemes/dreamcoder/README.md", readme_content())
     )
 
     # Nvim variant files
