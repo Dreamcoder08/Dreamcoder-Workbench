@@ -780,3 +780,45 @@ def _raise_after_first_call():
         raise OSError("injected restore failure")
 
     return wrapper
+
+
+# ---------------------------------------------------------------------------
+# CLI exit code: precondition-failed must not abort the caller's `set -e`
+# theme-mode script (scripts/apply-theme-mode.sh) just because Herdr isn't
+# the one pinned-supported version.
+# ---------------------------------------------------------------------------
+
+
+def _result(status: str, message: str = "") -> activation.ActivationResult:
+    return activation.ActivationResult(
+        status=status,  # type: ignore[arg-type]
+        stage="version",  # type: ignore[arg-type]
+        mode="dark",
+        reload="not-requested",  # type: ignore[arg-type]
+        restoration="not-required",  # type: ignore[arg-type]
+        backup_path=None,
+        target=None,
+        message=message or f"status={status}",
+    )
+
+
+def test_main_exits_zero_on_precondition_failed(monkeypatch, capsys) -> None:
+    monkeypatch.setattr(
+        activation, "activate_herdr", lambda *a, **k: _result("precondition-failed")
+    )
+    assert activation.main(["dark"]) == 0
+    assert "status=precondition-failed" in capsys.readouterr().err
+
+
+def test_main_exits_zero_on_applied(monkeypatch, capsys) -> None:
+    monkeypatch.setattr(activation, "activate_herdr", lambda *a, **k: _result("applied"))
+    assert activation.main(["dark"]) == 0
+
+
+@pytest.mark.parametrize(
+    "status", ["backup-failed", "write-failed", "reload-failed-restored", "restore-failed"]
+)
+def test_main_exits_one_on_real_mutation_failures(monkeypatch, capsys, status: str) -> None:
+    monkeypatch.setattr(activation, "activate_herdr", lambda *a, **k: _result(status))
+    assert activation.main(["dark"]) == 1
+    assert f"status={status}" in capsys.readouterr().err

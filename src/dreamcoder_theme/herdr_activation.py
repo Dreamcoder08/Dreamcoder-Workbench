@@ -490,7 +490,16 @@ def main(argv: list[str] | None = None) -> int:
     print(asdict(result))
     if not result.succeeded:
         print(result.message, file=sys.stderr)
-    return 0 if result.succeeded else 1
+    if result.succeeded or result.status == "precondition-failed":
+        # precondition-failed means no mutation was attempted (wrong Herdr
+        # version, missing binary, invalid source) — there is nothing to
+        # roll back and nothing broke. Exit 0 so callers under `set -e`
+        # (scripts/apply-theme-mode.sh) don't abort mode-switching for
+        # every other target just because this optional integration
+        # doesn't apply in the current environment. A real mutation
+        # failure (backup/write/reload/restore) still exits 1.
+        return 0
+    return 1
 
 
 if __name__ == "__main__":
