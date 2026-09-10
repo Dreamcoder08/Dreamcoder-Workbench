@@ -448,3 +448,34 @@ def test_variant_registry_write_order_deterministic(variants, active) -> None:
     assert reg_idx == len(registry_bases), (
         f"Only {reg_idx}/{len(registry_bases)} registry entries called in order"
     )
+
+
+# ---------------------------------------------------------------------------
+# Symlink active-file corruption regression
+# ---------------------------------------------------------------------------
+
+
+def test_kitty_ui_active_write_does_not_corrupt_symlinked_sibling(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, variants, active
+) -> None:
+    """An external mode selector can leave dreamcoder-ui.conf as a symlink to
+    one of the -dark/-light/-night siblings. Writing the active (dark) file
+    through that symlink must never overwrite the sibling's own content."""
+    monkeypatch.setattr(sync, "ROOT", tmp_path)
+    kitty_dir = tmp_path / "DreamcoderKitty/.config/kitty"
+    kitty_dir.mkdir(parents=True)
+
+    light_path = kitty_dir / "dreamcoder-ui-light.conf"
+    light_content = sync.kitty_ui_content(V["light"])
+    light_path.write_text(light_content)
+    active_path = kitty_dir / "dreamcoder-ui.conf"
+    active_path.symlink_to("dreamcoder-ui-light.conf")
+
+    sync.sync_repo_snippets(variants, active)
+
+    assert not active_path.is_symlink(), "active file must become its own regular file"
+    assert active_path.read_text().rstrip("\n") == sync.kitty_ui_content(V["dark"]).rstrip("\n")
+    assert light_path.read_text() == light_content, (
+        "writing the active (dark) file must not corrupt the light sibling "
+        "it used to be symlinked to"
+    )

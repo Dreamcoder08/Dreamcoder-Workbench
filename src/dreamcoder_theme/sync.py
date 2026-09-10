@@ -700,12 +700,15 @@ def sync_repo_snippets(variants: dict[str, dict[str, str]], active: dict[str, st
         )
     )
 
-    # Kitty UI active file (variants handled by VARIANT_REGISTRY above)
-    repo_changes.append(
-        write_if_changed(
-            ROOT / "DreamcoderKitty/.config/kitty/dreamcoder-ui.conf", kitty_ui_content(active)
-        )
-    )
+    # Kitty UI active file (variants handled by VARIANT_REGISTRY above).
+    # This path can be left as a symlink to one of the -dark/-light/-night
+    # siblings by an external mode selector; write_if_changed would follow
+    # that symlink and overwrite the sibling's own content instead of this
+    # file's, so unlink it first to guarantee an independent write target.
+    kitty_ui_active_path = ROOT / "DreamcoderKitty/.config/kitty/dreamcoder-ui.conf"
+    if kitty_ui_active_path.is_symlink():
+        kitty_ui_active_path.unlink()
+    repo_changes.append(write_if_changed(kitty_ui_active_path, kitty_ui_content(active)))
 
     # Opencode dotfile (transparent_background=True)
     repo_changes.append(
