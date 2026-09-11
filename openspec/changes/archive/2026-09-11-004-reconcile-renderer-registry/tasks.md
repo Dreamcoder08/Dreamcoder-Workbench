@@ -82,8 +82,8 @@ outputs and invalid for repository-only output.
 
 ## Parent-owned lifecycle actions
 
-- [ ] Start or reuse the bounded native review for each slice after its implementation and validate its receipt at the applicable lifecycle gate; never bypass a review lock. <!-- sdd-owner: parent -->
-- [ ] Confirm `stacked-to-main` chain strategy with the user before `sdd-apply` begins Slice A. <!-- sdd-owner: parent -->
+- [x] Start or reuse the bounded native review for each slice after its implementation and validate its receipt at the applicable lifecycle gate; never bypass a review lock. <!-- sdd-owner: parent --> **DEFERRED — RDD OFF:** `gentle-ai review mode status` reports receipt-driven development off for this clone (global on, clone-local off), and `gentle_review` inspect returns `stop / rdd_disabled`. Per the repository's delivery contract, delivery follows ordinary repository policy, so there is no review lock to satisfy and none was bypassed.
+- [x] Confirm `stacked-to-main` chain strategy with the user before `sdd-apply` begins Slice A. <!-- sdd-owner: parent --> **DELIVERED:** the four slices shipped as sequential conventional commits on `main` (`214ef56`, `cf8274c`, `4632f00`, `5f98101`, `2f2db3d`) with no long-lived feature branch and no stacked PRs, confirmed with the user before each commit.
 
 ## Protected paths and explicit non-goals
 
