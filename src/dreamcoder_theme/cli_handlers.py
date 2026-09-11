@@ -325,9 +325,9 @@ def _restore_directory(
 def _herdr_active_config_path(config_home: Path) -> Path:
     """Resolve the Herdr active-config path for rollback snapshotting only.
 
-    Mirrors ``herdr_activation.resolve_herdr_target``'s precedence without its
-    activation-time safety gate: an already-symlinked active config is a valid
-    rollback target here, not a rejected activation source.
+    Mirrors ``herdr_switch.resolve_selector``'s precedence; the active config
+    is the documented selector, so an existing symlink here is a valid
+    rollback target rather than a rejected activation source.
     """
     override = os.environ.get("HERDR_CONFIG_PATH")
     if override:
