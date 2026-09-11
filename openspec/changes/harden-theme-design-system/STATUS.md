@@ -15,9 +15,13 @@ Status: **open — mostly delivered** (updated 2026-09-11).
 
 ## Remaining (8)
 
-- Remove `continue-on-error: true` from the theme-health step in `.github/workflows/theme-validation.yml`.
+- ~~Remove `continue-on-error: true` from the theme-health step~~ **verified already satisfied**
+  (2026-09-11): no `continue-on-error` remains in any workflow, so the theme-health step at
+  `.github/workflows/theme-validation.yml:48` is blocking.
 - Correct `.pre-commit-config.yaml` path filters to cover `DreamcoderThemes/dreamcoder/`, the schemas,
-  the generator, and the six-target files.
+  the generator, and the six-target files (the `dreamcoder-theme-validate` filter already covers
+  `DreamcoderThemes/dreamcoder/.*\.json` and `src/dreamcoder_theme/.*`; the six-target paths are the
+  gap to confirm).
 - Document the inventory, layered provenance rules, state/contrast matrix, regeneration command, and
   OpenCode lifecycle.
 - Integration assertions for CI wiring and pre-commit path coverage.
