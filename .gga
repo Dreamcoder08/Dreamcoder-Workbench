@@ -1,7 +1,18 @@
 # Gentleman Guardian Angel Configuration
 
-PROVIDER="codex"
+PROVIDER="kilo"
 FILE_PATTERNS="*.sh,*.zsh,*.bash,.zshrc,.bashrc,.bash_profile,.tmux.conf"
 EXCLUDE_PATTERNS="*.log,*.bak,node_modules,target,.git"
 RULES_FILE="AGENTS.md"
 STRICT_MODE="false"
+
+# Provider notes (2026-09-11):
+#   codex   -> "You've hit your usage limit ... try again at Sep 14th, 2026 11:27 PM"
+#   claude  -> "You've hit your weekly limit ... resets Sep 13, 5pm (America/Lima)"
+#   opencode-> "The usage limit has been reached"
+#   gemini  -> requires a trusted workspace (GEMINI_CLI_TRUST_WORKSPACE=true)
+#   kilo    -> works today (routes to DeepSeek); verified with `gga run`
+# STRICT_MODE="false" keeps this gate advisory: a provider hiccup or an ambiguous
+# reply never blocks a commit. Setting it to "true" makes gga block whenever the
+# reply lacks exactly one "STATUS: PASSED|FAILED" line, which the kilo default
+# model does not always emit.
