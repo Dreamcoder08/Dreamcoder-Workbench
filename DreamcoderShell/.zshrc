@@ -40,8 +40,3 @@ command -v starship >/dev/null 2>&1 || { [[ -f "${HOME}/.p10k.zsh" ]] && source 
 [[ -f "${HOME}/.cargo/env" ]] && source "${HOME}/.cargo/env"
 [[ "${DREAMCODER_FASTFETCH_ON_START:-0}" == "1" ]] && command -v fastfetch >/dev/null 2>&1 && fastfetch
 unset _dc_mode _dc_theme_dir shell_dir group file plugin
-
-# ── SDD Profile Aliases ───────────────────────────────────────────
-alias sdd-gpt='"${HOME}/.pi/gentle-ai/sdd-swap" chatgpt'
-alias sdd-deepseek='"${HOME}/.pi/gentle-ai/sdd-swap" deepseek'
-alias sdd-status='"${HOME}/.pi/gentle-ai/sdd-swap" status'
