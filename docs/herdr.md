@@ -109,10 +109,20 @@ safely.
 
 ## Live switching
 
-`scripts/herdr-theme-switch.sh` detects the exact installed Herdr version, selects
+`scripts/herdr-theme-switch.sh` detects the installed Herdr version, selects
 the matching generated dark, light, or night variant, and requests a live config
 reload. It resolves the selector from `HERDR_CONFIG_PATH` first, then
 `XDG_CONFIG_HOME`, then `~/.config/herdr/config.toml`.
+
+The switcher deploys the selected variant as `config.<mode>.toml` next to the
+selector and points `config.toml` at it, so Herdr's own writes never touch the
+checked-in repository variants. Top-level scalar keys already present in the
+deployed copy (for example `onboarding`) are preserved across switches.
+
+When the installed version is newer than every complete checked-in profile, the
+switcher uses the newest generated variant as a compatibility fallback, but only
+after `herdr config check` (with `HERDR_CONFIG_PATH` pointed at that variant)
+accepts it. An older or unrecognised version leaves the selector unchanged.
 
 The switcher only manages absent selectors or existing symlinks. It refuses to
 replace a regular `config.toml`, because that file may contain personalized
