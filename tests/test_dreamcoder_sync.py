@@ -464,6 +464,11 @@ def test_kitty_ui_active_write_does_not_corrupt_symlinked_sibling(
     through that symlink must never overwrite the sibling's own content."""
     monkeypatch.setattr(sync, "ROOT", tmp_path)
     kitty_dir = tmp_path / "DreamcoderKitty/.config/kitty"
+    # VARIANT_REGISTRY bakes absolute repo paths in at import time, so the
+    # declarative loop would write the real checked-in active mirrors even
+    # with ROOT redirected; empty it so this test only exercises the
+    # explicit kitty_ui write under the temporary root.
+    monkeypatch.setattr(sync, "VARIANT_REGISTRY", [])
     kitty_dir.mkdir(parents=True)
 
     light_path = kitty_dir / "dreamcoder-ui-light.conf"
