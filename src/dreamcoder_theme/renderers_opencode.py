@@ -238,7 +238,7 @@ REGISTRATIONS: tuple[RendererRegistration, ...] = (
             renderer=RendererStrategy.TRANSPARENT_OPENCODE,
             active=ActiveStrategy.RESOLVED_ACTIVE_PATH,
             repository=RepositoryStrategy.NO_VARIANTS,
-            mutation=MutationStrategy.WRITE_IF_CHANGED,
+            mutation=MutationStrategy.SYMLINK_SAFE_ACTIVE_WRITE,
         ),
         summary_label="OpenCode transparent theme",
     ),

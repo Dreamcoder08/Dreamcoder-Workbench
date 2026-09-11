@@ -80,6 +80,7 @@ class ActiveStrategy(StrEnum):
 
     NO_ACTIVE_OUTPUT = "no_active_output"
     RESOLVED_ACTIVE_PATH = "resolved_active_path"
+    PINNED_ACTIVE_PATH = "pinned_active_path"
     REPOSITORY_ONLY = "repository_only"
 
 
@@ -95,6 +96,7 @@ class MutationStrategy(StrEnum):
     """The commit-phase writer/selector strategy for the consumer."""
 
     WRITE_IF_CHANGED = "write_if_changed"
+    SYMLINK_SAFE_ACTIVE_WRITE = "symlink_safe_active_write"
     PROFILE_AWARE_SELECTOR = "profile_aware_selector"
     ACTIVE_ONLY_BRIDGE = "active_only_bridge"
     REPOSITORY_VARIANT_WRITER = "repository_variant_writer"

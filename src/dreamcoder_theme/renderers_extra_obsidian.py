@@ -180,7 +180,7 @@ REGISTRATIONS: tuple[RendererRegistration, ...] = (
             renderer=RendererStrategy.DIRECT_CONTENT,
             active=ActiveStrategy.RESOLVED_ACTIVE_PATH,
             repository=RepositoryStrategy.MODE_VARIANTS,
-            mutation=MutationStrategy.WRITE_IF_CHANGED,
+            mutation=MutationStrategy.SYMLINK_SAFE_ACTIVE_WRITE,
         ),
         summary_label="Obsidian theme",
     ),

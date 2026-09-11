@@ -366,7 +366,7 @@ REGISTRATIONS: tuple[RendererRegistration, ...] = (
             renderer=RendererStrategy.DIRECT_CONTENT,
             active=ActiveStrategy.RESOLVED_ACTIVE_PATH,
             repository=RepositoryStrategy.MODE_VARIANTS,
-            mutation=MutationStrategy.WRITE_IF_CHANGED,
+            mutation=MutationStrategy.SYMLINK_SAFE_ACTIVE_WRITE,
         ),
         summary_label="Hyprland main colors",
     ),
@@ -375,12 +375,21 @@ REGISTRATIONS: tuple[RendererRegistration, ...] = (
         renderer=hypr_colors_lua_content,
         contract_version=1,
         modes=frozenset({"dark", "light", "night"}),
-        output_kind="active",
+        # Verified against live sync.py (not the prior "active"/NO_VARIANTS/
+        # ACTIVE_ONLY_BRIDGE declaration): sync_active_targets() writes the
+        # live ~/.config/hypr/colors.lua active file via plain
+        # write_if_changed(paths.hypr_colors_lua, ...), AND
+        # sync_repo_snippets() separately writes MODE_VARIANTS repo snippets
+        # via write_variant_files() — never write_active_repo_file(). Both
+        # writers use bare write_if_changed, so mutation stays
+        # WRITE_IF_CHANGED (this consumer is correctly absent from the
+        # Slice B SYMLINK_SAFE_ACTIVE_WRITE sweep).
+        output_kind="active-and-repository",
         sync=SyncDefinition(
             renderer=RendererStrategy.DIRECT_CONTENT,
             active=ActiveStrategy.RESOLVED_ACTIVE_PATH,
-            repository=RepositoryStrategy.NO_VARIANTS,
-            mutation=MutationStrategy.ACTIVE_ONLY_BRIDGE,
+            repository=RepositoryStrategy.MODE_VARIANTS,
+            mutation=MutationStrategy.WRITE_IF_CHANGED,
         ),
         summary_label="Hyprland Lua colors",
     ),
@@ -389,12 +398,16 @@ REGISTRATIONS: tuple[RendererRegistration, ...] = (
         renderer=hypr_colors_conf_content,
         contract_version=1,
         modes=frozenset({"dark", "light", "night"}),
-        output_kind="active",
+        # See hypr_colors_lua comment above — identical verified shape:
+        # live active write (sync_active_targets -> paths.hypr_colors_conf)
+        # plus repo MODE_VARIANTS snippets (sync_repo_snippets), both via
+        # bare write_if_changed, never write_active_repo_file().
+        output_kind="active-and-repository",
         sync=SyncDefinition(
             renderer=RendererStrategy.DIRECT_CONTENT,
             active=ActiveStrategy.RESOLVED_ACTIVE_PATH,
-            repository=RepositoryStrategy.NO_VARIANTS,
-            mutation=MutationStrategy.ACTIVE_ONLY_BRIDGE,
+            repository=RepositoryStrategy.MODE_VARIANTS,
+            mutation=MutationStrategy.WRITE_IF_CHANGED,
         ),
         summary_label="Hyprland conf colors",
     ),
@@ -408,7 +421,7 @@ REGISTRATIONS: tuple[RendererRegistration, ...] = (
             renderer=RendererStrategy.DIRECT_CONTENT,
             active=ActiveStrategy.RESOLVED_ACTIVE_PATH,
             repository=RepositoryStrategy.MODE_VARIANTS,
-            mutation=MutationStrategy.WRITE_IF_CHANGED,
+            mutation=MutationStrategy.SYMLINK_SAFE_ACTIVE_WRITE,
         ),
         summary_label="Waybar CSS",
     ),
@@ -436,7 +449,7 @@ REGISTRATIONS: tuple[RendererRegistration, ...] = (
             renderer=RendererStrategy.DIRECT_CONTENT,
             active=ActiveStrategy.RESOLVED_ACTIVE_PATH,
             repository=RepositoryStrategy.MODE_VARIANTS,
-            mutation=MutationStrategy.WRITE_IF_CHANGED,
+            mutation=MutationStrategy.SYMLINK_SAFE_ACTIVE_WRITE,
         ),
         summary_label="Rofi theme",
     ),

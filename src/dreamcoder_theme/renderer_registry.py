@@ -129,7 +129,7 @@ EXPECTED_CONSUMER_IDS: frozenset[str] = frozenset(
 # --- Ownership rules (check 4): output_kind -> (allowed active, allowed repository)
 _OWNERSHIP_RULES: dict[str, tuple[frozenset[ActiveStrategy], frozenset[RepositoryStrategy]]] = {
     "active": (
-        frozenset({ActiveStrategy.RESOLVED_ACTIVE_PATH}),
+        frozenset({ActiveStrategy.RESOLVED_ACTIVE_PATH, ActiveStrategy.PINNED_ACTIVE_PATH}),
         frozenset({RepositoryStrategy.NO_VARIANTS}),
     ),
     "repository": (
@@ -137,7 +137,7 @@ _OWNERSHIP_RULES: dict[str, tuple[frozenset[ActiveStrategy], frozenset[Repositor
         frozenset({RepositoryStrategy.MODE_VARIANTS, RepositoryStrategy.VERSIONED_VARIANTS}),
     ),
     "active-and-repository": (
-        frozenset({ActiveStrategy.RESOLVED_ACTIVE_PATH}),
+        frozenset({ActiveStrategy.RESOLVED_ACTIVE_PATH, ActiveStrategy.PINNED_ACTIVE_PATH}),
         frozenset({RepositoryStrategy.MODE_VARIANTS, RepositoryStrategy.VERSIONED_VARIANTS}),
     ),
 }
@@ -200,6 +200,14 @@ def _check_strategy_compatibility(reg: RendererRegistration, problems: list[str]
         problems.append(
             f"consumer '{reg.consumer_id}' strategy conflict: profile-aware selector "
             f"requires active output, got {reg.output_kind!r}"
+        )
+    if (
+        reg.sync.mutation == MutationStrategy.SYMLINK_SAFE_ACTIVE_WRITE
+        and reg.output_kind == "repository"
+    ):
+        problems.append(
+            f"consumer '{reg.consumer_id}' strategy conflict: symlink-safe active write "
+            "requires an active output, got 'repository'"
         )
     if reg.sync.mutation == MutationStrategy.ACTIVE_ONLY_BRIDGE:
         if reg.output_kind != "active":

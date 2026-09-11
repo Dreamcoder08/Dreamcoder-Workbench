@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from .renderers_opencode import opencode_tokens
+from .renderers_opencode import opencode_content, opencode_tokens
 
 
 def codex_tmtheme_content(c: dict[str, str]) -> str:
@@ -65,7 +65,7 @@ from .renderer_contract import (  # noqa: E402
 REGISTRATIONS: tuple[RendererRegistration, ...] = (
     RendererRegistration(
         consumer_id="codex_app",
-        renderer=codex_tmtheme_content,
+        renderer=opencode_content,
         contract_version=1,
         modes=frozenset({"dark", "light", "night"}),
         output_kind="active-and-repository",
@@ -73,7 +73,7 @@ REGISTRATIONS: tuple[RendererRegistration, ...] = (
             renderer=RendererStrategy.DIRECT_CONTENT,
             active=ActiveStrategy.RESOLVED_ACTIVE_PATH,
             repository=RepositoryStrategy.MODE_VARIANTS,
-            mutation=MutationStrategy.WRITE_IF_CHANGED,
+            mutation=MutationStrategy.SYMLINK_SAFE_ACTIVE_WRITE,
         ),
         summary_label="Codex App JSON theme",
     ),
@@ -87,7 +87,7 @@ REGISTRATIONS: tuple[RendererRegistration, ...] = (
             renderer=RendererStrategy.DIRECT_CONTENT,
             active=ActiveStrategy.RESOLVED_ACTIVE_PATH,
             repository=RepositoryStrategy.MODE_VARIANTS,
-            mutation=MutationStrategy.WRITE_IF_CHANGED,
+            mutation=MutationStrategy.SYMLINK_SAFE_ACTIVE_WRITE,
         ),
         summary_label="Codex CLI TextMate theme",
     ),
@@ -101,7 +101,7 @@ REGISTRATIONS: tuple[RendererRegistration, ...] = (
             renderer=RendererStrategy.DIRECT_CONTENT,
             active=ActiveStrategy.RESOLVED_ACTIVE_PATH,
             repository=RepositoryStrategy.MODE_VARIANTS,
-            mutation=MutationStrategy.WRITE_IF_CHANGED,
+            mutation=MutationStrategy.SYMLINK_SAFE_ACTIVE_WRITE,
         ),
         summary_label="Bat TextMate theme",
     ),

@@ -34,7 +34,13 @@ from dreamcoder_theme.renderer_registry import (
     REGISTRATIONS,
     validate_registry,
 )
+from dreamcoder_theme.renderers_codex import REGISTRATIONS as CODEX_REGISTRATIONS
+from dreamcoder_theme.renderers_codex import codex_tmtheme_content
+from dreamcoder_theme.renderers_hypr_waybar_rofi import (
+    REGISTRATIONS as HYPR_WAYBAR_ROFI_REGISTRATIONS,
+)
 from dreamcoder_theme.renderers_kitty import kitty_content
+from dreamcoder_theme.renderers_opencode import opencode_content
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DARK = dict(VARIANTS["dark"])
@@ -205,3 +211,165 @@ class TestDiscoveryPurity:
 
         assert problems == []
         assert before == after
+
+
+class TestSliceBMutationStrategies:
+    """reconcile-renderer-registry Slice B: safe active repository writes."""
+
+    def test_pinned_active_path_is_accepted_for_active_output(self) -> None:
+        sync = SyncDefinition(
+            renderer=RendererStrategy.DIRECT_CONTENT,
+            active=ActiveStrategy.PINNED_ACTIVE_PATH,
+            repository=RepositoryStrategy.NO_VARIANTS,
+            mutation=MutationStrategy.WRITE_IF_CHANGED,
+        )
+        problems = validate_registry((make_registration(output_kind="active", sync=sync),))
+        assert not any("ownership" in problem for problem in problems)
+
+    def test_pinned_active_path_is_accepted_for_active_and_repository_output(self) -> None:
+        sync = SyncDefinition(
+            renderer=RendererStrategy.DIRECT_CONTENT,
+            active=ActiveStrategy.PINNED_ACTIVE_PATH,
+            repository=RepositoryStrategy.MODE_VARIANTS,
+            mutation=MutationStrategy.WRITE_IF_CHANGED,
+        )
+        problems = validate_registry(
+            (make_registration(output_kind="active-and-repository", sync=sync),)
+        )
+        assert not any("ownership" in problem for problem in problems)
+
+    def test_pinned_active_path_is_rejected_for_repository_output(self) -> None:
+        sync = SyncDefinition(
+            renderer=RendererStrategy.DIRECT_CONTENT,
+            active=ActiveStrategy.PINNED_ACTIVE_PATH,
+            repository=RepositoryStrategy.MODE_VARIANTS,
+            mutation=MutationStrategy.REPOSITORY_VARIANT_WRITER,
+        )
+        problems = validate_registry((make_registration(output_kind="repository", sync=sync),))
+        assert any(
+            "ownership" in problem and "pinned_active_path" in problem for problem in problems
+        )
+
+    def test_symlink_safe_active_write_is_accepted_for_active_output(self) -> None:
+        sync = SyncDefinition(
+            renderer=RendererStrategy.DIRECT_CONTENT,
+            active=ActiveStrategy.RESOLVED_ACTIVE_PATH,
+            repository=RepositoryStrategy.NO_VARIANTS,
+            mutation=MutationStrategy.SYMLINK_SAFE_ACTIVE_WRITE,
+        )
+        problems = validate_registry((make_registration(output_kind="active", sync=sync),))
+        assert not any("symlink-safe active write" in problem for problem in problems)
+
+    def test_symlink_safe_active_write_is_accepted_for_active_and_repository_output(self) -> None:
+        sync = SyncDefinition(
+            renderer=RendererStrategy.DIRECT_CONTENT,
+            active=ActiveStrategy.RESOLVED_ACTIVE_PATH,
+            repository=RepositoryStrategy.MODE_VARIANTS,
+            mutation=MutationStrategy.SYMLINK_SAFE_ACTIVE_WRITE,
+        )
+        problems = validate_registry(
+            (make_registration(output_kind="active-and-repository", sync=sync),)
+        )
+        assert not any("symlink-safe active write" in problem for problem in problems)
+
+    def test_symlink_safe_active_write_is_rejected_for_repository_output(self) -> None:
+        sync = SyncDefinition(
+            renderer=RendererStrategy.DIRECT_CONTENT,
+            active=ActiveStrategy.NO_ACTIVE_OUTPUT,
+            repository=RepositoryStrategy.MODE_VARIANTS,
+            mutation=MutationStrategy.SYMLINK_SAFE_ACTIVE_WRITE,
+        )
+        problems = validate_registry((make_registration(output_kind="repository", sync=sync),))
+        assert any(
+            "strategy conflict: symlink-safe active write requires an active output, got 'repository'"
+            in problem
+            for problem in problems
+        )
+
+    def test_opencode_declares_an_active_only_mirror(self) -> None:
+        opencode = next(
+            registration for registration in REGISTRATIONS if registration.consumer_id == "opencode"
+        )
+        assert opencode.output_kind == "active"
+        assert opencode.sync.active == ActiveStrategy.RESOLVED_ACTIVE_PATH
+        assert opencode.sync.repository == RepositoryStrategy.NO_VARIANTS
+        assert opencode.sync.mutation == MutationStrategy.SYMLINK_SAFE_ACTIVE_WRITE
+
+    def test_symlink_safe_active_write_set_matches_write_active_repo_file_consumers(self) -> None:
+        expected = {
+            "antigravity",
+            "codex_app",
+            "codex_theme",
+            "bat_theme",
+            "pi_theme",
+            "kitty_ui",
+            "opencode",
+            "hyprland",
+            "waybar",
+            "rofi",
+            "zsh_syntax",
+            "ls_colors",
+            "fzf",
+            "bat",
+            "delta",
+            "btop",
+            "dunst",
+            "cava",
+            "firefox",
+            "obsidian",
+            "lazygit",
+        }
+        actual = {
+            registration.consumer_id
+            for registration in REGISTRATIONS
+            if registration.sync.mutation == MutationStrategy.SYMLINK_SAFE_ACTIVE_WRITE
+        }
+        assert actual == expected
+
+    def test_non_symlink_safe_consumers_keep_write_if_changed(self) -> None:
+        by_id = {registration.consumer_id: registration for registration in REGISTRATIONS}
+        for consumer_id in ("kitty", "tmux", "starship", "nvim"):
+            assert by_id[consumer_id].sync.mutation == MutationStrategy.WRITE_IF_CHANGED
+
+
+class TestSliceARegistrationFixes:
+    """reconcile-renderer-registry Slice A: codex_app renderer + hypr_colors_lua/conf ownership."""
+
+    def _reg(self, registrations: tuple, consumer_id: str) -> RendererRegistration:
+        return next(r for r in registrations if r.consumer_id == consumer_id)
+
+    def test_codex_app_renderer_matches_sync_pys_real_generator(self) -> None:
+        reg = self._reg(CODEX_REGISTRATIONS, "codex_app")
+        assert reg.renderer is opencode_content
+        assert reg.renderer is not None
+
+    def test_codex_app_renderer_is_not_codex_tmtheme_content(self) -> None:
+        reg = self._reg(CODEX_REGISTRATIONS, "codex_app")
+        assert reg.renderer is not codex_tmtheme_content
+
+    def test_codex_app_output_kind_and_strategies_unchanged(self) -> None:
+        reg = self._reg(CODEX_REGISTRATIONS, "codex_app")
+        assert reg.output_kind == "active-and-repository"
+        assert reg.sync.active == ActiveStrategy.RESOLVED_ACTIVE_PATH
+        assert reg.sync.repository == RepositoryStrategy.MODE_VARIANTS
+
+    def test_hypr_colors_lua_declares_active_and_repository_output(self) -> None:
+        # Verified against live sync.py: sync_active_targets() writes the
+        # live ~/.config/hypr/colors.lua active file via write_if_changed,
+        # and sync_repo_snippets() separately writes MODE_VARIANTS repo
+        # snippets via write_variant_files() (never write_active_repo_file).
+        reg = self._reg(HYPR_WAYBAR_ROFI_REGISTRATIONS, "hypr_colors_lua")
+        assert reg.output_kind == "active-and-repository"
+        assert reg.sync.active == ActiveStrategy.RESOLVED_ACTIVE_PATH
+        assert reg.sync.repository == RepositoryStrategy.MODE_VARIANTS
+        assert reg.sync.mutation == MutationStrategy.WRITE_IF_CHANGED
+
+    def test_hypr_colors_conf_declares_active_and_repository_output(self) -> None:
+        reg = self._reg(HYPR_WAYBAR_ROFI_REGISTRATIONS, "hypr_colors_conf")
+        assert reg.output_kind == "active-and-repository"
+        assert reg.sync.active == ActiveStrategy.RESOLVED_ACTIVE_PATH
+        assert reg.sync.repository == RepositoryStrategy.MODE_VARIANTS
+        assert reg.sync.mutation == MutationStrategy.WRITE_IF_CHANGED
+
+    def test_full_registry_still_validates_clean_after_slice_a_fixes(self) -> None:
+        assert validate_registry(REGISTRATIONS) == []
