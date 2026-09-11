@@ -106,6 +106,13 @@ print(json.loads(p.read_text()).get("theme", "unset"))
     warn 'timer inactive'
   fi
 
+  printf 'Git integrity: '
+  if git -C "${DREAMCODER_DOTS_DIR}" fsck --full --no-progress --no-dangling >/dev/null 2>&1; then
+    ok 'object store consistent'
+  else
+    fail 'git fsck reported object-store errors (run: git fsck --full)'
+  fi
+
   "${DREAMCODER_DOTS_DIR}/.venv/bin/python3" "${DREAMCODER_DOTS_DIR}/scripts/verify-theme-health.py"
   exit 0
 fi

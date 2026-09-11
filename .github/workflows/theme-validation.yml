@@ -54,4 +54,15 @@ jobs:
         run: |
           git diff --exit-code docs/generated/dreamcoder-theme-preview.md || (echo "::error::Theme preview not regenerated" && exit 1)
 
+  integrity:
+    name: Git object store integrity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Verify object store
+        run: git fsck --full --no-progress --no-dangling
+
   # publish job removed — use Release workflow for PyPI publishing
