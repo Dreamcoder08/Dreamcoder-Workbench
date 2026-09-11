@@ -1,6 +1,6 @@
 {
   "terminal": {
-    "default_mode": "light"
+    "default_mode": "dark"
   },
   "theme": {
     "render_profile": "standard"
