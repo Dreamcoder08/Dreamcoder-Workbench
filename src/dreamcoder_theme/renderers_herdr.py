@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 
-from .herdr_contract import HerdrProfile
+from .herdr_contract import SUPPORTED_PROFILES, HerdrProfile
 
 _HEX_COLOR = re.compile(r"#[0-9a-fA-F]{6}\Z")
 _PALETTE_UI_FIELDS: dict[str, str] = {}
@@ -120,7 +120,6 @@ def herdr_ui_field_rhs() -> dict[str, str]:
     return {**_UI_FIELD_RHS, **_PALETTE_UI_FIELDS}
 
 
-from .herdr_contract import HERDR_073_PROFILE  # noqa: E402
 from .renderer_adapters import VersionedHerdrAdapter  # noqa: E402
 from .renderer_contract import (  # noqa: E402
     ActiveStrategy,
@@ -131,10 +130,21 @@ from .renderer_contract import (  # noqa: E402
     SyncDefinition,
 )
 
+# The registry intentionally retains one entry per consumer even though
+# sync_herdr_repo_variants() generates every complete supported profile. It is
+# a conformance layer, so bind one live representative and describe the full
+# profile set instead of hardcoding one historical version.
+_REPRESENTATIVE_PROFILE = next(
+    profile for profile in SUPPORTED_PROFILES if profile and profile.is_complete
+)
+_SUPPORTED_PROFILE_VERSIONS = ", ".join(
+    profile.evidence.version for profile in SUPPORTED_PROFILES if profile and profile.is_complete
+)
+
 REGISTRATIONS: tuple[RendererRegistration, ...] = (
     RendererRegistration(
         consumer_id="herdr",
-        renderer=VersionedHerdrAdapter(HERDR_073_PROFILE, "dark"),
+        renderer=VersionedHerdrAdapter(_REPRESENTATIVE_PROFILE, "dark"),
         contract_version=1,
         modes=frozenset({"dark", "light", "night"}),
         output_kind="repository",
@@ -144,6 +154,6 @@ REGISTRATIONS: tuple[RendererRegistration, ...] = (
             repository=RepositoryStrategy.VERSIONED_VARIANTS,
             mutation=MutationStrategy.REPOSITORY_VARIANT_WRITER,
         ),
-        summary_label="Herdr repository profiles",
+        summary_label=f"Herdr repository profiles ({_SUPPORTED_PROFILE_VERSIONS})",
     ),
 )

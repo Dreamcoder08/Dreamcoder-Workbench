@@ -11,12 +11,17 @@ from dreamcoder_theme.herdr_contract import (
     HERDR_073_PROFILE,
     HERDR_080_PROFILE,
     HERDR_082_PROFILE,
+    SUPPORTED_PROFILES,
     ContractEvidence,
     ContractStatus,
     detect_profile,
     profile_from_evidence,
 )
-from dreamcoder_theme.renderers_herdr import HerdrContractUnavailableError, herdr_content
+from dreamcoder_theme.renderers_herdr import (
+    REGISTRATIONS,
+    HerdrContractUnavailableError,
+    herdr_content,
+)
 
 FIXTURES = Path(__file__).parent / "fixtures" / "herdr"
 
@@ -140,3 +145,16 @@ def test_incomplete_profile_cannot_render() -> None:
 
     with pytest.raises(HerdrContractUnavailableError, match="complete profile"):
         herdr_content(incomplete, "dark", {"accent": "#abcdef"})
+
+
+def test_registry_summary_label_tracks_live_supported_profiles() -> None:
+    herdr = next(
+        registration for registration in REGISTRATIONS if registration.consumer_id == "herdr"
+    )
+    versions = ", ".join(
+        profile.evidence.version
+        for profile in SUPPORTED_PROFILES
+        if profile and profile.is_complete
+    )
+
+    assert herdr.summary_label == f"Herdr repository profiles ({versions})"
