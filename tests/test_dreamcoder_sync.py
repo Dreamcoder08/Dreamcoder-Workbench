@@ -456,6 +456,21 @@ def test_variant_registry_write_order_deterministic(variants, active) -> None:
 # ---------------------------------------------------------------------------
 
 
+def test_zellij_repository_dark_and_light_match_canonical_tokens(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, variants, active
+) -> None:
+    """Repository Zellij variants must match the canonical dark/light renderings."""
+    monkeypatch.setattr(sync, "ROOT", tmp_path)
+    monkeypatch.setattr(sync, "VARIANT_REGISTRY", [])
+
+    sync.sync_repo_snippets(variants, active)
+
+    zellij_dir = tmp_path / "DreamcoderZellij/.config/zellij"
+    for mode in ("dark", "light"):
+        path = zellij_dir / f"dreamcoder-{mode}.kdl"
+        assert path.read_text() == sync.zellij_content(V[mode], f"dreamcoder-{mode}")
+
+
 def test_kitty_ui_active_write_does_not_corrupt_symlinked_sibling(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, variants, active
 ) -> None:

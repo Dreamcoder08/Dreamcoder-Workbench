@@ -871,6 +871,18 @@ def sync_repo_snippets(variants: dict[str, dict[str, str]], active: dict[str, st
     # row 13); the active selector is patched by update_zellij_config.
     repo_changes.append(
         write_active_repo_file(
+            ROOT / "DreamcoderZellij/.config/zellij/dreamcoder-dark.kdl",
+            zellij_content(variants["dark"], "dreamcoder-dark"),
+        )
+    )
+    repo_changes.append(
+        write_active_repo_file(
+            ROOT / "DreamcoderZellij/.config/zellij/dreamcoder-light.kdl",
+            zellij_content(variants["light"], "dreamcoder-light"),
+        )
+    )
+    repo_changes.append(
+        write_active_repo_file(
             ROOT / "DreamcoderZellij/.config/zellij/dreamcoder-night.kdl",
             zellij_content(variants["night"], "dreamcoder-night"),
         )

@@ -1,36 +1,36 @@
-// Dreamcoder Light Theme for Zellij
+// Dreamcoder Light — Zellij theme (dreamcoder-light)
 // Auto-generated from tokens.json — do not edit manually
 
 themes {
     dreamcoder-light {
         bg "#f3eadc"
         fg "#17120d"
-        black "#17120d"
-        red "#b85c2a"
-        green "#5a7a4c"
-        yellow "#824f16"
-        blue "#3a7bc8"
-        magenta "#7a5c85"
-        cyan "#3a7bc8"
-        white "#f3eadc"
-        orange "#824f16"
-        gray "#8a7e72"
+        black "#f3eadc"
+        red "#842f24"
+        green "#315b31"
+        yellow "#654300"
+        blue "#0d4a68"
+        magenta "#7d3e64"
+        cyan "#0d4a68"
+        white "#17120d"
+        orange "#654300"
+        gray "#352e22"
 
         // UI elements
-        border "#d9cfc0"
+        border "#8a7358"
         border_active "#824f16"
-        border_unfocused "#d9cfc0"
+        border_unfocused "#8a7358"
 
         // Tab bar
-        tab_bar_bg "#e8dfd0"
-        tab_active_bg "#d9cfc0"
+        tab_bar_bg "#decbb1"
+        tab_active_bg "#8a7358"
         tab_active_fg "#824f16"
-        tab_inactive_bg "#e8dfd0"
-        tab_inactive_fg "#8a7e72"
+        tab_inactive_bg "#decbb1"
+        tab_inactive_fg "#352e22"
 
         // Pane frames
-        pane_frame_bg "#e8dfd0"
-        pane_frame_fg "#d9cfc0"
+        pane_frame_bg "#decbb1"
+        pane_frame_fg "#8a7358"
 
         // Selection
         selection_bg "#824f16"
