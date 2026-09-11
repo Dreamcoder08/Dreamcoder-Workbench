@@ -1,130 +1,180 @@
 ```yaml
 schema: gentle-ai.verify-result/v1
-evidence_revision: sha256:23689b388fce1d723945e375a1333e398767c24483e870d8d6d66e226667572b
+evidence_revision: sha256:01f99ea58853d4a0eea130e3a3b120cbf4e0d73925e03ad80a383ead767bed2d
 verdict: fail
-blockers: 1
-critical_findings: 1
-requirements: 6/7
-scenarios: 6/7
-test_command: DREAMCODER_THEME_MODE=dark PYTHONPATH=src python -m pytest tests/ -v
+blockers: 2
+critical_findings: 2
+requirements: 5/7
+scenarios: 5/7
+test_command: python -m pytest tests/ -v --tb=short
 test_exit_code: 0
-test_output_hash: sha256:188d6c40674050d905233477233045d496b91340f53a2abba9e870d70b281325
-build_command: DREAMCODER_THEME_MODE=dark PYTHONPATH=src python scripts/verify-theme-health.py
-build_exit_code: 0
-build_output_hash: sha256:3c7e2daebe1d283e4238be33a3693302681d5bdc2e0fce3640459e2bdbb21898
+test_output_hash: sha256:96cf844bca9ec89190ba8af4480d8b8f26228875bdcd4a45c40730f7a4836c05
+build_command: pip install -e ".[dev]"
+build_exit_code: 1
+build_output_hash: sha256:63ab696cba23f5e07e140bdc644077e7223cc906255e724909d9d29810bef5fc
 ```
+
+`evidence_revision` is `sha256` over the sorted `git hash-object` blob ids of 42 files at the verified working tree (`HEAD = ea96b7051d646f9ef6b3fb3637d9defc21896362`): the change's 5 planning/apply artifacts, `DreamcoderThemes/dreamcoder/tokens.json` + `tokens.schema.json`, `src/dreamcoder_theme/palette_tokens.py`, `scripts/verify-theme-health.py`, `tests/test_active_mirror_identity_consistency.py`, `tests/test_night_palette.py`, `CLAUDE.md`, and the 30 checked-in active mirror/selector files listed by the guard test. Every `*_hash` below is `sha256` of real captured stdout+stderr from this pass; none are fabricated. Logs: `/tmp/sdd-rev3/*.log`.
 
 ## Verification Report
 
 **Change**: refresh-dreamcoder-dark-contrast
-**Version**: N/A
-**Mode**: Standard (no strict TDD)
-**Pass**: RE-VERIFICATION (2nd pass) — supersedes the prior FAIL verdict below with an independently re-checked outcome. **The prior CRITICAL finding is NOT resolved in the current working tree**, so this pass's verdict remains **FAIL**, unchanged from the first pass, despite `apply-progress.md`'s "Orchestrator follow-up" section claiming the fix was applied and confirmed.
+**Version**: N/A (single spec delta, no prior version)
+**Mode**: Standard — Strict TDD is **not** active (`openspec/config.yaml`: `testing.strict_tdd: false`, `apply.tdd: false`; `apply-progress.md` declares standard mode, no `TDD Cycle Evidence` table required)
+**Pass**: RE-VERIFICATION (4th pass) — supersedes the prior report body, which had a stale front-matter (`verdict: fail`) contradicting its own trailing "PASS (third pass)" section. This pass re-runs the change's declared commands against HEAD and re-checks every requirement/scenario from scratch.
 
-### What changed since the prior verify pass
+### Answer to the assigned question: is the prior CRITICAL blocker resolved, still present, or superseded?
 
-`apply-progress.md`'s "Orchestrator follow-up" section (added 2026-09-08 23:19:37) claims `DreamcoderShell/.config/starship.toml` was re-regenerated under `DREAMCODER_THEME_MODE=dark PYTHONPATH=src ./scripts/dreamcoder sync`, producing "a clean 8-line hex-only substitution ... matching every other consumer target and no longer reverting `c7fd1dd`."
+**Resolved, and superseded by a structurally guarded fix — but the change still cannot be verified as delivered.**
 
-**Independent re-check finds this claim does not hold for the current working tree.** `git diff DreamcoderShell/.config/starship.toml` right now shows the exact same class of defect as the original CRITICAL finding: a full Dark→Light identity swap (header `# Dreamcoder Dark` → `# Dreamcoder Light`; `bg` `#000000`→`#f3eadc`; every other palette key replaced with Light/Cocoa values), not an 8-line hex-only diff. `stat` shows the file's mtime (23:23:08) is **later** than both `apply-progress.md`'s last edit (23:19:37) documenting the fix and `tokens.json`/`CLAUDE.md` (23:08:10), and this session's ambient shell still carries `DREAMCODER_THEME_MODE=light`. This is consistent with a *subsequent, unscoped* `./scripts/dreamcoder sync` invocation (run after the documented fix, without the `dark` override) having reintroduced the exact same regression a second time — not with the fix never having worked. Root cause of that later invocation could not be determined from repository evidence alone (no test/build command in this repo's own pytest suite invokes the real `sync_active_targets()` against live repo paths), but the practical effect is that **the working tree, as of this verification, still contains the CRITICAL defect**.
+- **Not present.** The prior CRITICAL was `DreamcoderShell/.config/starship.toml` carrying the Light identity while every other active mirror stayed Dark, with no test asserting that file's byte identity. At HEAD all **27/27 active mirrors render byte-identical to the Light variant** and agree on one mode (`light`); `starship.toml` (`sha256:93f971c4ad02eef751a3e169f5f8e4a796c0910310bdeb8a90d610e174553b1e`) is byte-exact to `starship_content(VARIANTS["light"])`, last touched by `5a2b7ba` ("refresh checked-in active artifacts for Light mode"). The single-target divergence no longer exists anywhere in the repo.
+- **Superseded by guard.** `cdf80aa` extended `tests/test_active_mirror_identity_consistency.py` from 5 to all **27** active mirrors plus the Ghostty/Zellij/Fastfetch selectors (30 tests). I falsification-checked it twice with real writes to the historical defect file and restored it byte-exactly afterwards (`git checkout`, hash re-verified):
+  - starship reverted to the **Dark** identity while the group is Light → `test_active_mirrors_all_agree_on_the_same_mode` and `test_mode_selectors_agree_with_active_mirrors` **FAIL**, printing the full 27-entry identity map.
+  - starship rendered with an **unknown** drift (one extra comment line) → additionally the per-target test **FAILS** with `DreamcoderShell/.config/starship.toml does not byte-match either the Dark or Light rendered variant for consumer 'starship'`.
+  The guard is therefore non-vacuous for the exact defect class that recurred three times previously.
+- **However, "resolved" here means the active identity moved to Light repo-wide** (`5a2b7ba`, 30 files), not that the Dark identity this change targeted was restored. Re-checking each requirement against HEAD (below) shows the change's own spec literals were never committed: `git log -S '#CBD5E1' -- DreamcoderThemes/dreamcoder/tokens.json` is **empty** and `git grep` finds neither `#CBD5E1` nor `#E2E8F0` anywhere in the tracked tree outside the change's own artifacts. Requirements 1 and 7 are therefore **not** satisfied at HEAD, which is why this pass's verdict is `fail` with two new blockers — not the old one.
 
-### Completeness
+### Structured Status / Action Context
+
+| Field | Value |
+| --- | --- |
+| `artifactStore` | `openspec` (authoritative, repo-local; not the `resolve-via-engram` carve-out) |
+| `changeRoot` | `openspec/changes/refresh-dreamcoder-dark-contrast` (all 5 artifacts present: proposal/specs/design/tasks/apply-progress = `done`) |
+| `verify` dependency (native) | `blocked` — `blockedReasons: ["failed verification evidence is incomplete; rerun SDD verification"]`, i.e. the engine is gated on fresh verification evidence, which is what this pass produces |
+| `archive` dependency (native) | `blocked` |
+| `nextRecommended` | `apply` |
+| `taskProgress` (native) | 12 total / 11 complete / 1 pending — the engine counted the `sdd-owner: parent` row as implementation work (see WARNING 2) |
+| `actionContext.mode` | `repo-local` |
+| `actionContext.workspaceRoot` | `/home/dreamcoder08/Documents/PROYECTOS/dreamcoder-dots` |
+| `actionContext.allowedEditRoots` | `[/home/dreamcoder08/Documents/PROYECTOS/dreamcoder-dots]` |
+| Runtime attempt | `gentle-ai sdd-attempt acquire` → `{"state":"proceed","token":"sha256:f8346550f43b48c7bec4fc249d77b3599e497986144e95dffdfc07e54539d08a"}` (`--max-attempts 2 --max-changed-lines 1`); settled as `failed` after this pass — see Runtime Attempt Accounting |
+
+Every file inspected or written this pass is inside `workspaceRoot` and inside `allowedEditRoots`. Scope is proven; no out-of-root evidence was needed.
+
+### Task Completion
 
 | Metric | Value |
-|--------|-------|
-| Tasks total (implementation-owned) | 11 |
-| Tasks complete | 11 |
-| Tasks incomplete | 0 |
-| Parent-owned lifecycle item | 1 (unchecked, correctly out of scope for apply/verify) |
+| --- | --- |
+| Implementation-owned tasks | 11 (`tasks.md` `^- \[x\]` count: 11) |
+| Implementation tasks complete | 11 |
+| Unchecked implementation tasks (`^\s*- \[ \]`) | **0** |
+| Deferred parent-owned rows | 1, unchecked |
 
-### Build & Tests Execution
+The only unchecked line is `tasks.md:52`, exact text:
 
-**Build (theme health gate)**: PASSED
 ```text
-$ DREAMCODER_THEME_MODE=dark PYTHONPATH=src python scripts/verify-theme-health.py
-✓ Dreamcoder theme health guardrails passed
+- [ ] Start or reuse the bounded native review for this change after implementation and validate its receipt at the applicable lifecycle gate; never bypass a review lock. <!-- sdd-owner: parent -->
 ```
-Output byte-identical (same hash) to the prior verify pass's build evidence.
 
-**Drift check**: not independently re-run this pass (unchanged since prior pass; no `tokens.json`/`palette_tokens.py` edits occurred between passes).
+It is `sdd-owner: parent` (supported, terminal marker) → `deferredParentActions`, **not** an implementation blocker under the status contract. No unchecked implementation task lines remain.
 
-**Tests**: 609 passed / 0 failed / 0 skipped
-```text
-$ DREAMCODER_THEME_MODE=dark PYTHONPATH=src python -m pytest tests/ -v
-609 passed, 2 warnings in 15.91s
-```
-Same two pre-existing, unrelated warnings as the prior pass (palette-divergence fixture warning in `test_dreamcoder_sync.py`; pytest class-scoped-fixture deprecation notice). **Note**: passing pytest does not, and did not previously, cover `starship.toml`'s literal byte content — no test in this repository asserts that file's rendered identity, which is exactly why this regression is invisible to the automated suite and only surfaces via direct `git diff` inspection of the named consumer target.
+### Commands Run (this pass, verbatim, real output hashes)
 
-**Coverage**: Not requested/not applicable to this values-only token change.
+| # | Command | Exit | Evidence |
+| --- | --- | --- | --- |
+| 1 | `pip install -e ".[dev]"` (declared `verify.build_command`) | **1** | output hash `sha256:63ab696cba23f5e07e140bdc644077e7223cc906255e724909d9d29810bef5fc` — blocked by this machine's global pip shim: `⚠️  pip está bloqueado. Usá uv add / uv sync / uv run / uvx.` Not a project defect; the same command cannot be executed on this host as written |
+| 1b | `uv sync --extra dev` (host-sanctioned equivalent) | 0 | output hash `sha256:d3fda1e8908b04e856c25fec545284a7ad1752d9fb6626ef6c433f007ad2eca6` — `Resolved 34 packages / Checked 32 packages` |
+| 2 | `python -m pytest tests/ -v --tb=short` (declared `verify.test_command`, ambient `DREAMCODER_THEME_MODE=light`) | 0 | `680 passed, 2 warnings in 15.92s`; output hash `sha256:96cf844bca9ec89190ba8af4480d8b8f26228875bdcd4a45c40730f7a4836c05` |
+| 3 | `DREAMCODER_THEME_MODE=dark python -m pytest tests/ -v --tb=short` | 0 | `680 passed, 2 warnings in 18.19s`; output hash `sha256:e138315e0e266a573c9e4cb4c0a7748861b173e8352bec20e6c97242914d51c0` |
+| 4 | `python scripts/verify-theme-health.py` (dual WCAG/APCA gate) | 0 | `✓ Dreamcoder theme health guardrails passed`; output hash `sha256:3c7e2daebe1d283e4238be33a3693302681d5bdc2e0fce3640459e2bdbb21898` |
+| 5 | `DREAMCODER_THEME_MODE=dark python scripts/verify-theme-health.py` | 0 | byte-identical output, same hash `sha256:3c7e2dae…` (mode-independent) |
+| 6 | `python scripts/generate-palette-tokens.py --check` | 0 | `✓ Generated tokens synchronized: src/dreamcoder_theme/palette_tokens.py`; output hash `sha256:9000f47d122f3ed064bc8f6cb3431a21b9a770719f5836f0cd09cdfbeca8ab69` |
+| 7 | `python -m pytest tests/test_active_mirror_identity_consistency.py -v` | 0 | `30 passed in 0.15s`; output hash `sha256:cfaeb619626183d6935743ad6631b650b8a505afab7de90e3ef44d4228e75b5f` |
+| 8 | `python -m pytest tests/test_night_palette.py -v` | 0 | `18 passed in 0.10s` (includes `night["text"] == night["on_surface"]`); output hash `sha256:a25c7504121ecf667e2216559688103a1e5df4d165ebe0dcb91135b140247cf3` |
+| 9 | falsification: starship → Dark identity, then `pytest … -q` | 1 (expected) | 2 FAILED (`all_agree_on_the_same_mode`, `mode_selectors_agree_with_active_mirrors`) with full identity map; hash `sha256:2ac0d515293fc5bb8ac653a98e4ff26fb953ced5505725d0646d7a83228a6e82` |
+| 10 | falsification: starship → Light + 1 unknown line, then `pytest … -q` | 1 (expected) | 3 FAILED (per-target `starship`, agreement, selectors); hash `sha256:cb4e939694851fcadfe6bbb81d55cc98203cd3be8f794a7f27588762d4ea0821` |
 
-### Re-checked: other declared "active" mode-aware consumer targets
+**Suite hygiene (the historical failure mode):** 30/30 mirror+selector file hashes were captured before and after run #2 and compared — **byte-identical**, and `git status --porcelain --untracked-files=all` after the full suite shows only the unrelated `M .pi/gentle-ai/sdd-preflight.json`. The suite no longer writes through this machine's `STARSHIP_CONFIG=/home/dreamcoder08/.config/starship.toml` symlink into the repo (fixture fix `e2c5135`, now guarded by the clearing of `STARSHIP_CONFIG` in `tests/test_cli_theme_activation.py`).
 
-Per this re-verification's explicit instruction, every other mode-conditional "active" mirror file (as opposed to explicit `-dark`/`-light`/`-night` suffixed variants, which are immune since they are not mode-conditional) was independently re-diffed and inspected for the same ambient-env-leak failure mode:
+### Active Mirror / Selector Identity (independent, not just the test's own report)
 
-| Target | Background/identity check | Result |
-|---|---|---|
-| `.opencode/themes/dreamcoder.json` | No Light marker (`#f3eadc`/`#17120d`) found; diff is hex-only (35 lines) | ✅ Dark, hex-only |
-| `DreamcoderAntigravity/Dreamcoder.json` | `editor.background` / `statusBar.background` = `#000000`; diff limited to `#E2E8F0`→`#CBD5E1` and `#C4B5FD`→`#D4B5FD` substitutions | ✅ Dark, hex-only |
-| `DreamcoderPi/.pi/agent/themes/dreamcoder.json` | `cocoa` (accent_2 role) `#C4B5FD`→`#D4B5FD`; no background swap; derived-accent syntax tweaks are expected downstream re-renders | ✅ Dark, hex-only |
-| `DreamcoderCodexApp/Dreamcoder.codex-theme.json` | `dreamBackground`/`background` = `#000000`; diff limited to the two changed roles plus their downstream-derived shade tweaks | ✅ Dark, hex-only |
-| `DreamcoderCodexCLI/Dreamcoder.tmTheme` | `background` = `#000000`; diff is the same 6-line hex substitution as `DreamcoderBat` (shared `codex_tmtheme_content()` renderer) | ✅ Dark, hex-only |
-| `DreamcoderBat/.config/bat/themes/Dreamcoder.tmTheme` | `background` = `#000000`; 6-line hex substitution | ✅ Dark, hex-only |
-| `DreamcoderShell/.config/starship.toml` | Header reads "Dreamcoder **Light**"; `bg`=`#f3eadc`; full identity swap | ❌ **STILL BROKEN — CRITICAL** |
-
-Additionally swept every other mode-conditional "active" file in the repo (kitty, kitty-ui, ghostty active theme, tmux, lazygit, zellij config, waybar.css, rofi.rasi, hyprland.conf, dunst, firefox, fzf, ls-colors, obsidian, zsh-syntax-highlighting, ghostty config) for the same `#f3eadc`/`#17120d`/"Light" markers: **none found**. `starship.toml` is confirmed as the sole currently-affected consumer target.
+| Check | Result |
+| --- | --- |
+| 27 active mirrors vs both canonical variants | `{'light': 27}` — 26 Light + `starship` Light; **no `unknown`, no split** |
+| `_agreed_mode()` | `light` |
+| Ghostty selector | `theme = dreamcoder` (legacy name = standard light) |
+| Zellij selector | `theme "dreamcoder-light"` |
+| Fastfetch selector | `terminal.default_mode = light` |
+| Antigravity pinned-Dark file | Passes `test_antigravity_active_file_is_always_pinned_dark` (health gate requires it) |
 
 ### Spec Compliance Matrix
 
-| Requirement | Scenario | Test / Evidence | Result |
-|---|---|---|---|
-| Dark text and mirror literals are updated | Text and heading tokens match their mirrors | `git diff tokens.json` re-confirmed: `text`/`prompt_text`/`on_surface`/`selection_fg`=`#CBD5E1`, `text_heading`=`#E2E8F0`; `modes.light`/`modes.dusk`/`surface_policy` byte-identical (independently diffed via Python JSON comparison) | ✅ COMPLIANT |
-| Accent hue separation widens via accent_2 | accent_2 and its mirrors widen without touching accent | `git diff tokens.json` re-confirmed: `accent_2`/`prompt_accent_2`/`lavender`/`link_hover`=`#D4B5FD`, `accent` unchanged; independently recomputed via `colorsys`: accent hue ≈229.66°, accent_2 hue ≈265.83°, separation ≈36.18° (≥32° floor met) | ✅ COMPLIANT (same non-blocking WARNING as before: no automated regression test enforces the ≥32° threshold) |
-| WCAG contrast floor and preferred band | Body, heading, and selection text clear their floors | `scripts/verify-theme-health.py` passed, zero errors | ✅ COMPLIANT |
-| APCA dual gate remains independently blocking | Health check enforces APCA after the value change | `scripts/verify-theme-health.py` passed, zero errors | ✅ COMPLIANT |
-| Unaffected modes and surface policy stay untouched | Other modes and surface policy are unchanged | Independent JSON comparison: `modes.light`, `modes.dusk`, `modes.dark.surface_policy` all `True` (identical); `tokens.schema.json` zero diff | ✅ COMPLIANT |
-| Night profile re-derives automatically | Night regenerates from the new Dark base | `tests/test_night_palette.py` passed (incl. `night["text"] == night["on_surface"]`); `verify-theme-health.py` Night gate passed | ✅ COMPLIANT |
-| Consumer regeneration and test suite | Sync and tests confirm a scoped, valid change | `pytest` 609/609 passed — **but** "diffs limited to the nine changed keys' hex substitutions" is **still violated**: `starship.toml` currently shows a full identity swap | ❌ FAILING (unchanged from prior pass) |
+| Requirement | Scenario | Evidence this pass | Result |
+| --- | --- | --- | --- |
+| 1. Dark text and mirror literals are updated | Text and heading tokens match their mirrors | HEAD `modes.dark`: `text`/`prompt_text`/`on_surface`/`selection_fg` = `#E6E6E6` (**lockstep holds**), `text_heading` = `#F5F5F5`. Spec requires `#CBD5E1` / `#E2E8F0`. `#CBD5E1` never existed in `tokens.json` history; neither hex exists anywhere in the tracked tree | ❌ **FAIL** (mirror lockstep ✅, literal MUST ✗) |
+| 2. Accent hue separation widens via accent_2 | accent_2 and its mirrors widen without touching accent | `accent` = `#A5B4FC` (unchanged), `accent_2`/`prompt_accent_2`/`lavender`/`link_hover` = `#D4B5FD`; independently recomputed HSL separation **36.18°** ≥ 32°; both indigo/violet | ✅ COMPLIANT (unguarded — WARNING 1) |
+| 3. WCAG contrast floor and preferred band | Body, heading, and selection text clear their floors | `scripts/verify-theme-health.py` exit 0, zero errors | ✅ COMPLIANT |
+| 4. APCA dual gate remains independently blocking | Health check enforces APCA after the value change | Same gate: all named APCA floors (`minimum_apca_body_dark`, `_quiet`, `_ui_dark`, `_heading_dark`, `_on_accent`) pass, exit 0 | ✅ COMPLIANT |
+| 5. Unaffected modes and surface policy stay untouched | Other modes and surface policy are unchanged | HEAD vs landing-commit parent (`c0503f6^`) JSON deep-compare: `modes.light` **identical**, `modes.dusk` **identical**, `modes.dark.surface_policy` **identical**, `guardrails` **identical**; `tokens.schema.json` untouched by `c0503f6` (empty `--name-only`) | ✅ COMPLIANT |
+| 6. Night profile re-derives automatically | Night regenerates from the new Dark base | `tests/test_night_palette.py`: 18 passed incl. `night["text"] == night["on_surface"]`; health gate Night checks pass | ✅ COMPLIANT |
+| 7. Consumer regeneration and test suite | Sync and tests confirm a scoped, valid change | `pytest` 680/680 pass ✅; **but** the landed commit changed **33** `modes.dark` keys — **24 outside** the spec's 9-key edit set (`aliases, bg_soft, border, border_hi, border_ui, comment, disabled, hover, inactive_border, module_rgba, muted, panel_rgba, pressed, prompt_muted, prompt_surface0-2, selection, selection_bg, subtle, surface0-3`) — so "diffs limited to the nine changed keys' hex substitutions" is not what landed; `tasks.md`'s protected path "MUST NOT modify … any token not explicitly listed in the 9-key edit set" is violated at HEAD | ❌ **FAIL** (diff-scope clause) |
 
-**Compliance summary**: 6/7 scenarios fully compliant, 1/7 still FAILING — identical outcome to the prior verify pass.
+**Compliance summary**: 5/7 requirements and 5/7 scenarios compliant. No structural or schema change occurred (`tokens.schema.json` zero diff; all deltas are value-only hex substitutions), which is the mitigating half of Requirement 7.
 
-### Correctness (Static Evidence)
+### Forensics: what actually landed
 
-| Requirement | Status | Notes |
-|---|---|---|
-| Exactly 9 literal keys edited in `modes.dark` | ✅ Implemented | Re-confirmed: `git diff` shows precisely 9 value-only hunks |
-| `CLAUDE.md` doc sync | ✅ Implemented | Re-confirmed: `text`→`#CBD5E1`, `accent_2`→`#D4B5FD` |
-| `modes.light`/`modes.dusk`/`surface_policy`/`tokens.schema.json` untouched | ✅ Implemented | Re-confirmed byte-identical |
-| `palette_tokens.py` regenerated, zero drift | ✅ Implemented | Unchanged since prior pass |
-| 6 named "active" consumer targets (opencode/Antigravity/Pi/CodexApp/CodexCLI/Bat) regenerate with hex-only diffs | ✅ Implemented | Independently re-checked this pass, see table above |
-| `starship.toml` regenerates with hex-only diff | ❌ Still violated | Full Dark→Light identity swap present in the current working tree, reverting commit `c7fd1dd` |
+| Fact | Evidence |
+| --- | --- |
+| Landing commit | `c0503f6` (2026-09-10) is the only commit that adds this change's 5 artifacts **and** edits `modes.dark` in the same commit (100 files, +2498/−1730) |
+| Values in that commit | `git show c0503f6 -- tokens.json`: `text #E2E8F0 → #E6E6E6`, `text_heading #F1F5F9 → #F5F5F5`, `accent_2 #C4B5FD → #D4B5FD` — i.e. it landed the spec's intent for `accent_2` but **different literals** for the text family, plus the 24 extra keys |
+| Authored (non-regenerated) surface in that commit | `CLAUDE.md`, `scripts/apply-theme-mode.sh`, `src/dreamcoder_theme/palette_tokens.py`, 5 existing test modules + new `tests/test_dark_neutral_palette.py`, and the 6 change artifacts |
+| `CLAUDE.md` (task 1.3) | Dark snippet now reads `text #E6E6E6`, `accent_2 #D4B5FD` — consistent with HEAD, not with the spec's `#CBD5E1` |
+| Later commits affecting this change's surface | `5a2b7ba` (all active artifacts → Light, 30 files), `cdf80aa` (guard → 27 mirrors + selectors, +118/−34), `e2c5135` (fixture fix), `e53f20c` (verify-report root-cause note) |
+| `apply-progress.md` accuracy | Its 9-key table (`#CBD5E1`/`#E2E8F0`) describes the working tree as it existed on 2026-09-08/09, **not** the committed state; its "12/12" header counts the parent-owned row |
 
-### Design Coherence
+### Review Workload / PR Boundary
 
-Unchanged from the prior pass — values-only edit discipline followed everywhere except the recurring `starship.toml` regeneration side effect, which is a pipeline/environment hazard (ambient `DREAMCODER_THEME_MODE`), not a hand-edit.
+- `tasks.md` forecast: `single-pr`, "400-line budget risk: Low", ~11 authored lines, regenerated artifacts excluded, "Chained PRs recommended: No".
+- Actual landing commit `c0503f6`: **100 files, +2498/−1730**, including authored code (`scripts/apply-theme-mode.sh`) and a new 104-line test module that the forecast never mentioned. Mechanical regeneration explains the bulk, but the authored boundary was exceeded and the change's declared single-slice scope ("values-only, no renderer/writer/schema/guardrail code changes") was not respected by the commit that carries its artifacts.
+- No `size:exception` was recorded anywhere, and no chain strategy was set — so the deviation is undocumented rather than approved. Reported as WARNING 3; not by itself a correctness blocker.
+
+### Strict TDD Compliance
+
+Not active (config `strict_tdd: false`, `apply-progress.md` standard mode). No `TDD Cycle Evidence` table is required and none is asserted. Note for the record: the only test work shipped *after* the change (`cdf80aa`, `e2c5135`) is post-hoc regression coverage, not TDD evidence for this change's tasks.
+
+### Assertion Quality (for the regression guard this change is now judged by)
+
+`tests/test_active_mirror_identity_consistency.py` is byte-equality against rendered canonical variants — no tautologies, no type-only or smoke-only assertions, no implementation-detail CSS assertions. It is falsifiable and was falsified twice this pass (commands #9/#10), failing loudly and naming the file. The two unit tests that this change's value edits forced to change (`test_pi_theme_generation.py`, `test_dark_css.py`) were updated to the landed values, not weakened.
 
 ### Issues Found
 
-**CRITICAL**:
-1. **`DreamcoderShell/.config/starship.toml` regression is still present, and recurred after being reported fixed.** `apply-progress.md`'s "Orchestrator follow-up" section documents re-running `DREAMCODER_THEME_MODE=dark PYTHONPATH=src ./scripts/dreamcoder sync` and confirms an 8-line hex-only diff at that time. Independent re-verification now (mtime 23:23:08, after the 23:19:37 fix note) finds the file back in a full Dark→Light identity swap, identical in nature to the original CRITICAL finding: header "Dreamcoder Dark"→"Dreamcoder Light", `bg` `#000000`→`#f3eadc`, all other palette keys replaced. This still directly contradicts the proposal's success criterion ("diffs limited to the expected hex substitutions ... no unrelated file changes") and still silently reverts commit `c7fd1dd`. **This blocks archive.** Because the defect recurred after an apparently-successful fix and re-verification, a one-time re-run is not sufficient assurance this pass; the underlying hazard (ambient `DREAMCODER_THEME_MODE=light` in this sandbox, combined with at least one code path that invokes `./scripts/dreamcoder sync` — or equivalent per-target regeneration — without an explicit mode override between the fix and this re-verification) needs to be either eliminated or the file's Dark identity needs to be confirmed immediately before archive, not just at some earlier point in the session.
+**CRITICAL**
 
-**WARNING** (unchanged from prior pass, still non-blocking):
-1. No automated regression test enforces the "`accent`/`accent_2` hue separation ≥32°" requirement. Independently reconfirmed today: separation ≈36.18°, factually compliant but unguarded against regression.
-2. `apply-progress.md`'s task-count header ("12/12") vs. an independent recount of `tasks.md` (11 implementation-owned checkboxes) — cosmetic mismatch, no work is actually incomplete.
+1. **Requirement 1's literal MUSTs are not satisfied at HEAD; the spec is stale against the landed values.** Spec: `text`(+`prompt_text`/`on_surface`/`selection_fg`) `MUST` equal `#CBD5E1` and `text_heading` `MUST` equal `#E2E8F0`. HEAD: `#E6E6E6` / `#F5F5F5`. `#CBD5E1` and `#E2E8F0` appear nowhere in the tracked tree outside this change's own artifacts, and `git log -S '#CBD5E1' -- tokens.json` is empty. Archiving now would fold a canonical spec whose normative values contradict the shipped palette. **This blocks archive.** Resolution is a scope decision, not a code fix: either amend `specs/theme-tokens/spec.md` (and `apply-progress.md`) to the landed values with the elevated-surface rationale from `c0503f6`, or restore the spec literals and re-run the gates.
 
-**SUGGESTION**:
-1. Consider adding the bespoke base-mode literal-equality assertion for the mirror-lockstep rule, as `design.md` itself proposes.
-2. Consider adding a numeric hue-separation assertion (`>= 32`) for `accent`/`accent_2`.
-3. **New this pass**: consider adding a lightweight repository-level regression test (or a pre-archive gate) that asserts `DreamcoderShell/.config/starship.toml` (and any other mode-conditional "active" mirror file) contains no Light-identity markers when the canonical active theme is Dark — this is precisely the class of defect that recurred silently between two verify passes with nothing in the automated suite able to catch it.
+2. **The landed commit exceeded this change's declared protected scope.** `c0503f6` changed **33** `modes.dark` keys; **24** are outside the explicit 9-key edit set that `tasks.md` marks "MUST NOT modify". Consequently Requirement 7's scenario ("diffs limited to the nine changed keys' hex substitutions") is not what shipped, even though every delta is value-only and the gates pass at the new values. **This blocks archive** until the extra edits are either brought under this change's spec (documented) or attributed to a separate change.
+
+**WARNING**
+
+1. No automated test enforces "`accent`/`accent_2` HSL hue separation ≥ 32°". Verified manually at 36.18°; factually compliant, unguarded (unchanged from the prior report).
+2. Native status counts the `sdd-owner: parent` checkbox in `taskProgress` (12 total / 1 pending) rather than `deferredParentActions`; the change's task artifact marks it parent-owned and it is **not** implementation work. Independent recount: 11 implementation checkboxes, all checked, 0 unchecked.
+3. The landing commit's 100-file / ~4.2k-line boundary contradicts the forecast's `single-pr` "Low risk / ~11 authored lines" and no `size:exception` was recorded.
+4. This report's predecessor was internally contradictory (front-matter `verdict: fail` while its body ended "PASS (third pass)"), and it asserted `#CBD5E1` values that were never committed. Machine-parsed verdict fields and prose must agree.
+5. Context, not a violation: HEAD's active identity is **Light** (`5a2b7ba`), so the nine Dark substitutions this change targeted are no longer observable in the active consumer targets at all.
+
+**SUGGESTION**
+
+1. Add the numeric hue-separation assertion (`>= 32`) for `accent`/`accent_2`.
+2. Add a guard for Requirement 1's mirror-lockstep rule at the *token/unit* level (the new guard covers rendered mirrors, not the `tokens.json` literals).
+3. If the neutral-hierarchy rebalance is intended to stay, record it in a dedicated OpenSpec change (or amend this one) with the 24 extra keys and their contrast rationale, so the archived spec matches the shipped palette.
 
 ### Verdict
 
-**PASS, with an open unresolved-cause risk called out below** (re-verified 2026-09-10, third pass)
+**FAIL — re-verified 2026-09-10-style content, this pass: 4th, at HEAD `ea96b70`.**
 
-Reason: All 9 target `tokens.json` literal values and their mirrors, `CLAUDE.md`, the WCAG/APCA dual gate, the full test suite, protected-region isolation, and all 7 named "active" consumer targets — including `DreamcoderShell/.config/starship.toml` — are independently re-confirmed correct as of this pass, under `DREAMCODER_THEME_MODE=dark PYTHONPATH=src`:
+The single blocker the prior report named is **gone and is now structurally guarded** (`starship.toml` byte-exact Light, 27/27 mirrors consistent, 30-test exhaustive guard falsification-verified). But the change as specified cannot be verified as delivered against HEAD: Requirement 1's normative literals were never committed and Requirement 7's nine-key diff scope was exceeded by 24 keys in the commit that carries this change's artifacts. Both are CRITICAL archive blockers.
 
-- `verify-theme-health.py`: PASSED (WCAG/APCA dual gate, zero errors).
-- `pytest tests/ -q`: the only failure is `test_herdr_theme_generation.py::test_checked_in_repository_variants_match_the_renderer`, which asserts against the untracked `DreamcoderHerdr/.../0.8.2/` variant that belongs to the separate, still-in-progress `implement-herdr-dreamcoder-themes` change (unrelated to this change's 9-key scope; not part of this commit).
-- `git diff DreamcoderShell/.config/starship.toml`: 10 lines, hex-only substitutions, header reads "Dreamcoder Dark", `bg = "#000000"`.
+**Archive is not ready.** The verify dependency remains gated on fresh passing evidence; the two blockers above require either a spec/apply-progress reconciliation to the landed values or a revert to the specified ones. I did not archive anything and did not modify any file other than this report. No child subagents were launched.
 
-**Open risk at the time this pass was written, resolved same-day**: `starship.toml` was independently found reverted to Light a **third** time during this same session, including once while the invoking shell's own `DREAMCODER_THEME_MODE` was already `dark` — ruling out simple ambient-env leakage as the sole cause. `dreamcoder-theme-auto.timer`/`.service` and Orca's automation surface were both investigated and ruled out with direct evidence (journalctl showed no invocation in the affected window; Orca's `orca-data.json` does not track this repo and has zero automations configured).
+### Runtime Attempt Accounting
 
-**Root cause found and fixed** (commit `e2c5135`, later the same day): bisecting the full `pytest tests/` run by file, then by fixture, isolated the trigger to `tests/test_cli_theme_activation.py`'s `theme_home` fixture. It monkeypatches `HOME`/`XDG_CONFIG_HOME` to a temp directory but never clears `STARSHIP_CONFIG`. This machine's fish shell exports `STARSHIP_CONFIG=$HOME/.config/starship.toml` (itself a symlink into `DreamcoderShell/.config/starship.toml`), and `settings.theme_paths()` prefers a set override over the isolated fallback — so every `theme apply light`/`night` call inside that test file's own suite wrote real Light content straight through the symlink into the checked-in repo file, on this machine only. Confirmed by reproducing the exact failure with `STARSHIP_CONFIG` set and the fixture unpatched, then proving it stops once the fixture clears it (and, defensively, every other individually-named override env var `theme_paths()` recognizes). `tests/test_active_mirror_identity_consistency.py` now guards the regression class itself (SUGGESTION #3 below is no longer outstanding).
+The bounded attempt for this pass was acquired as `proceed` and settled with `verdict`-aligned evidence, but the ledger reports a budget overrun that now needs a maintainer decision:
+
+| Field | Value |
+| --- | --- |
+| Objective | generation 2, `work_unit: reverify-mirror-identity`, `evidence_goal: mirror-identity-consistency-and-full-suite-green`, `max_changed_lines: 1` (explicit) |
+| Attempt 2 (this pass) | `outcome: failed`, `changed_lines: 211`, `evidence_revision: sha256:01f99ea58853d4a0eea130e3a3b120cbf4e0d73925e03ad80a383ead767bed2d`, `harness_disposition: reused`, `changed_line_budget_exceeded: true` |
+| Attempt 1 (original apply) | `work_unit: token-edit-and-regen`, `outcome: passed`, `changed_lines: 1604`, `changed_line_budget_exceeded: true` (independent evidence for WARNING 3) |
+| Settle response | `{"state":"blocked","reason":"maintainer_decision"}` — the next attempt on this objective needs a maintainer reset; **no reset was attempted** (reset requires an explicit maintainer scope decision and is never automatic) |
+
+The 1-line acquisition budget was the tool's minimum and was unrealistic for a verify pass that must rewrite `verify-report.md` (211 changed lines, all inside `allowedEditRoots`). This is an accounting/objective-scoping issue, not a product finding: it does not change the verdict above. The parent/orchestrator must obtain a maintainer decision before another runtime-bearing attempt on this objective.
