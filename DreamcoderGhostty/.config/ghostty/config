@@ -20,7 +20,7 @@ font-feature = -calt, -liga, -dlig
 # └──────────────────────────────────────────────────────────────────────────────┘
 
 # Dual-mode: auto-switches with system light/dark via theme files
-theme = dreamcoder-dark
+theme = dreamcoder
 palette-generate = true
 
 
