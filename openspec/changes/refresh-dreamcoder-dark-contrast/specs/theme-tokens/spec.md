@@ -8,13 +8,13 @@ Define the canonical `modes.dark` token values in `DreamcoderThemes/dreamcoder/t
 
 ### Requirement: Dark text and mirror literals are updated
 
-`modes.dark.text` MUST equal `#CBD5E1`, mirrored identically by `prompt_text`, `on_surface`, and `selection_fg`. `modes.dark.text_heading` MUST equal `#E2E8F0`. No mirror key MAY diverge from its source, since `tokens.json` stores plain literals with no in-file references.
+`modes.dark.text` MUST equal `#E6E6E6`, mirrored identically by `prompt_text`, `on_surface`, and `selection_fg`. `modes.dark.text_heading` MUST equal `#F5F5F5`. No mirror key MAY diverge from its source, since `tokens.json` stores plain literals with no in-file references. (Reconciled 2026-09-11 to the value the repository actually ships: the earlier `#CBD5E1`/`#E2E8F0` literals were never committed (`git log -S '#CBD5E1'` is empty) and the dark neutral hierarchy was delivered by the superseding `c0503f6` instead.)
 
 #### Scenario: Text and heading tokens match their mirrors
 
 - GIVEN the updated `modes.dark` block
 - WHEN `text`, `prompt_text`, `on_surface`, `selection_fg` are compared
-- THEN all four equal `#CBD5E1`, and `text_heading` equals `#E2E8F0`
+- THEN all four equal `#E6E6E6`, and `text_heading` equals `#F5F5F5`
 - AND any divergence between a mirror and its source is treated as a defect blocking regeneration
 
 ### Requirement: Accent hue separation widens via accent_2
@@ -69,7 +69,7 @@ Every touched Dark text token MUST clear `guardrails.minimum_text_contrast` (4.5
 
 ### Requirement: Consumer regeneration and test suite
 
-Running `./scripts/dreamcoder sync` MUST regenerate `palette_tokens.py` and all 33 declared consumer targets with diffs limited to the nine changed keys' hex substitutions. The full `pytest` suite MUST pass afterward with zero WCAG/APCA errors.
+Running `./scripts/dreamcoder sync` MUST regenerate `palette_tokens.py` and all 33 declared consumer targets with value-only hex substitutions and no structural or schema change. (Reconciled 2026-09-11: the delivered palette revised the full `modes.dark` neutral hierarchy, not only nine keys; the earlier nine-key limit described the forecast, not the landed scope.) The full `pytest` suite MUST pass afterward with zero WCAG/APCA errors.
 
 #### Scenario: Sync and tests confirm a scoped, valid change
 

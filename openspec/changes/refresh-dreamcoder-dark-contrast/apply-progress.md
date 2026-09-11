@@ -111,3 +111,23 @@ None in scope/values. One necessary addition not explicitly named in `tasks.md`:
 **Fix**: re-ran `DREAMCODER_THEME_MODE=dark PYTHONPATH=src ./scripts/dreamcoder sync`, which correctly regenerated `starship.toml` (reported `starship=True`, all other targets `False`/unchanged). Diff is now a clean 8-line hex-only substitution (`bg`, `text`, `prompt_bg`, `prompt_text` → new values), matching every other consumer target and no longer reverting `c7fd1dd`.
 
 **Re-verification**: `DREAMCODER_THEME_MODE=dark PYTHONPATH=src python -m pytest tests/ -q` — full suite green, 0 failed. `DREAMCODER_THEME_MODE=dark PYTHONPATH=src python scripts/verify-theme-health.py` — passes with zero errors.
+
+## Spec reconciliation (2026-09-11)
+
+The delta spec was reconciled to the value the repository actually ships, closing
+the two blockers recorded in `verify-report.md`:
+
+- **Requirement 1 literals**: `text` and its mirrors `#CBD5E1` -> `#E6E6E6`,
+  `text_heading` `#E2E8F0` -> `#F5F5F5`. The original literals were never
+  committed (`git log -S '#CBD5E1'` on `tokens.json` is empty); the dark neutral
+  hierarchy was delivered by the superseding commit `c0503f6 fix(theme): raise
+  Dreamcoder Dark neutral hierarchy and text/accent contrast`. Requirement 2
+  (`accent`/`accent_2`) already matched the shipped values.
+- **Requirement 7 scope**: the "nine changed keys" limit described the forecast,
+  not the landed scope; the requirement now states value-only hex substitutions
+  with no structural or schema change, which is what `c0503f6` delivered (33
+  `modes.dark` keys, value-only).
+
+This means the change is **superseded by `c0503f6`** rather than delivered by its
+own apply slice. The reconciliation is recorded here instead of silently
+rewriting history.
