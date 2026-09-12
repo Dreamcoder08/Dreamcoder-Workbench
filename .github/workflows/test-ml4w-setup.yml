@@ -38,6 +38,7 @@ jobs:
           shellcheck --shell=bash scripts/generate-custom-lua.sh
           shellcheck --shell=bash scripts/verify-ml4w-setup.sh
           shellcheck --shell=bash ml4w_assets/hypr/scripts/dreamcoder-toggle-theme.sh
+          shellcheck --shell=bash lib/ml4w.sh
 
   validate-profiles:
     name: Validate profile JSONs
@@ -74,6 +75,9 @@ jobs:
 
       - name: Run profile validation tests
         run: bats tests/ml4w/profile_validation.bats
+
+      - name: Run ML4W ownership predicate tests
+        run: bats tests/ml4w/ml4w_managed.bats
 
   full-dry-run:
     name: Full dry-run
@@ -122,7 +126,7 @@ jobs:
       - name: Shellcheck all scripts
         run: |
           if command -v shellcheck &>/dev/null; then
-            shellcheck --shell=bash scripts/*.sh
+            shellcheck --shell=bash scripts/*.sh lib/*.sh
           else
             echo "shellcheck not available"
           fi
