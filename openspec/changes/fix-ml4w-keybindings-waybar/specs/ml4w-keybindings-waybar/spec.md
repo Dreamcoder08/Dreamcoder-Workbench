@@ -70,8 +70,13 @@ Complete the ML4W integration in Dreamcoder-dots by adding standard Hyprland key
 
 - Include `hyprland/workspaces` with `window-rewrite` for app icon display
 - Workspace buttons show active app names/classes
-- Active workspace highlighted with Dreamcoder accent color, delivered through the
-  `colors.css` import chain described in FR2.4
+- Active workspace highlighted with Dreamcoder accent color. (Reconciled 2026-09-11:
+  the `#workspaces button.active` accent rule ships in the engine-generated
+  `DreamcoderThemes/dreamcoder/waybar-{dark,light,night}.css`. The
+  `DreamcoderWaybar/.config/waybar/style.css` template carries a `.active` rule
+  without the accent color and imports only the variable-only `colors.css`, so the
+  accent highlight is **not reachable through the live ML4W chain as shipped** —
+  wiring that import is a documented, open gap, not a delivered behavior.)
 
 **FR2.3 — Standard Modules**
 
