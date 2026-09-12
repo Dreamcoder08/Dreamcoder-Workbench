@@ -72,7 +72,7 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
   --profile)
     shift
-    if [[ -z "$1" ]]; then
+    if [[ -z "${1:-}" ]]; then
       die "--profile requires a non-empty profile name"
     fi
     PROFILE_NAME="$1"

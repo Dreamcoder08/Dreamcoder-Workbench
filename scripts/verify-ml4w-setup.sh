@@ -61,6 +61,9 @@ while [[ $# -gt 0 ]]; do
   --help | -h) usage ;;
   --profile)
     shift
+    if [[ -z "${1:-}" ]]; then
+      die "--profile requires a non-empty profile name"
+    fi
     PROFILE_NAME="$1"
     ;;
   *) die "Unknown option: $1" ;;
