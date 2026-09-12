@@ -1,17 +1,28 @@
-# Status: fix-ml4w-keybindings-waybar (waybar delivered, keybindings not)
+# Status: fix-ml4w-keybindings-waybar (delivered, one item unverified)
 
-Status: **open — partially delivered** (updated 2026-09-11).
+Status: **open — effectively delivered** (updated 2026-09-11).
 
-`tasks.md` uses a non-checkbox `T1..` format, so progress is not reported as a checkbox ratio. The
-findings below come from the repository, not from the task list.
+The proposal's premise — "only 3–19 keybindings, zero CTRL+SUPER, no Waybar
+config" — is stale. Both deliverables are in the repository.
 
-## Delivered
+## Delivered (verified 2026-09-11)
 
-- `DreamcoderWaybar/.config/waybar/config.jsonc` — the Waybar configuration the proposal said was
-  missing entirely.
+- **Keybindings expanded.** `DreamcoderProfiles/dreamcoder/default.json` carries
+  **56** bindings and `asus-vivobook15.json` carries **70**, against the
+  proposal's "50+ bindings / zero CTRL+SUPER" goal. Modifier sets present in both:
+  `SUPER`, `SUPER+SHIFT`, `SUPER+CTRL`, `SUPER+CTRL+SHIFT`, `SUPER+ALT`, and a
+  bare `PRINT`. `SUPER+CTRL` shortcuts number five per profile.
+- **Waybar configuration.** `DreamcoderWaybar/.config/waybar/config.jsonc`
+  exists; the proposal said the repository had CSS files only.
 
-## Not delivered
+> Correction: an earlier revision of this note claimed the keybindings were not
+> delivered because it counted the two keys of the `keybindings` object
+> (`super_mod`, `bindings`) instead of the `bindings` array. The array holds 56
+> and 70 entries.
 
-- The ML4W keybindings expansion. `DreamcoderProfiles/dreamcoder/default.json` still carries only
-  **2** keybindings, against the proposal's "50+ bindings / zero CTRL+SUPER" goal.
-- Verification of `generate-custom-lua.sh` against current ML4W Lua conventions.
+## Remaining
+
+- Confirm `scripts/generate-custom-lua.sh` still matches current ML4W Lua
+  conventions (the proposal's item 5). Not independently verified here.
+- `tasks.md` uses a non-checkbox `T1..` format, so it does not report a progress
+  ratio; the evidence above comes from the repository.
