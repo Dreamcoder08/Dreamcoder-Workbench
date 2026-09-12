@@ -389,7 +389,12 @@ def test_load_variants_merges_tokens(tmp_path):
     tokens_file = tmp_path / "tokens.json"
     tokens_file.write_text(__import__("json").dumps(tokens))
 
-    result = load_variants(V, tokens_file)
+    # The sentinel differs from the default on purpose, so the override is
+    # observable. load_variants warns by contract whenever a tokens-file
+    # value overrides a default, so assert that warning rather than leak it
+    # into every suite summary as unhandled noise.
+    with pytest.warns(UserWarning, match="palette divergence"):
+        result = load_variants(V, tokens_file)
     assert result["dark"]["bg"] == "#000001"
     assert result["light"]["bg"] == V["light"]["bg"]
     assert "prompt_bg" in result["dark"]
