@@ -29,6 +29,7 @@ set -euo pipefail
 
 # ── configuration ───────────────────────────────────────────────────────────
 DREAMCODER_DOTS_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+[[ -f "${DREAMCODER_DOTS_DIR}/lib/ml4w.sh" ]] && source "${DREAMCODER_DOTS_DIR}/lib/ml4w.sh"
 ASSETS_DIR="${DREAMCODER_DOTS_DIR}/ml4w_assets"
 GENERATOR="${DREAMCODER_DOTS_DIR}/scripts/generate-custom-lua.sh"
 ML4W_HOOKS="${DREAMCODER_DOTS_DIR}/scripts/apply-ml4w-hooks.sh"
@@ -185,8 +186,8 @@ else
 fi
 
 # ML4W environment checks
-check "Hyprland config is symlinked (ML4W)" test -L "${HOME}/.config/hypr/hyprland.conf"
-check "Waybar config is symlinked (ML4W)" test -L "${HOME}/.config/waybar/config.jsonc"
+check "Hyprland config is ML4W-managed" hyprland_is_ml4w_managed
+check "Waybar config is ML4W-managed" waybar_is_ml4w_managed
 
 # Hyprland running check
 if command -v hyprctl >/dev/null; then

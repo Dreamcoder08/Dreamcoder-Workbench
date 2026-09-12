@@ -20,6 +20,7 @@ set -euo pipefail
 
 # ── configuration ─────────────────────────────────────────────────────────────
 DREAMCODER_DOTS_DIR="${DREAMCODER_DOTS_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
+[[ -f "${DREAMCODER_DOTS_DIR}/lib/ml4w.sh" ]] && source "${DREAMCODER_DOTS_DIR}/lib/ml4w.sh"
 QUIET=false
 PROFILE_NAME=""
 EXIT_CODE=0
@@ -102,8 +103,6 @@ fi
 title "2. Dotfiles symlinks"
 
 SYMLINKS=(
-  "${HOME}/.config/hypr/hyprland.conf:Hyprland main config → ML4W managed"
-  "${HOME}/.config/waybar/config.jsonc:Waybar config → ML4W managed"
   "${HOME}/.config/rofi/config.rasi:Rofi config → ML4W managed"
   "${HOME}/.config/wlogout/layout:Wlogout layout → ML4W managed"
   "${HOME}/.config/swaync/config.json:Swaync config → ML4W managed"
@@ -121,6 +120,22 @@ for entry in "${SYMLINKS[@]}"; do
     fail "${label} — NOT FOUND"
   fi
 done
+
+# Hyprland and Waybar are asserted as ML4W-managed rather than as symlinks:
+# current ML4W keeps ~/.config/hypr and ~/.config/waybar as real directories
+# backed by its own dotfiles repository, and only older ML4W symlinks the
+# individual config files.
+if hyprland_is_ml4w_managed; then
+  ok "Hyprland config → ML4W managed"
+else
+  fail "Hyprland config → ML4W managed (neither ML4W layout found)"
+fi
+
+if waybar_is_ml4w_managed; then
+  ok "Waybar config → ML4W managed"
+else
+  fail "Waybar config → ML4W managed (neither ML4W layout found)"
+fi
 
 # ── 3. Colour file symlinks ══════════════════════════════════════════════════
 title "3. Colour file chain"
