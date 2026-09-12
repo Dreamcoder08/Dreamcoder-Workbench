@@ -38,8 +38,8 @@ rules:
     tdd: false
     test_command: python -m pytest tests/ -v
   verify:
-    test_command: python -m pytest tests/ -v --tb=short
-    build_command: pip install -e ".[dev]"
+    test_command: uv run pytest tests/ -v --tb=short
+    build_command: uv sync --all-extras
     coverage_threshold: 40
   archive:
     - Warn before merging destructive deltas
