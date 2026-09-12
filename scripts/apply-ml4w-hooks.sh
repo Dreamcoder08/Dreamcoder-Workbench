@@ -9,7 +9,10 @@ HOOK="${DREAMCODER_DOTS_DIR}/scripts/wallpaper-hook.sh \"\$wallpaper\" > /dev/nu
 BLOCK="\"${DREAMCODER_DOTS_DIR}/scripts/wallpaper-hook.sh\" \"\$used_wallpaper\""
 
 if [[ -f "${WAYPAPER_CONFIG}" ]] && ! grep -q 'wallpaper-hook.sh' "${WAYPAPER_CONFIG}"; then
-  sed -i "s|^post_command = \(.*\)|post_command = \1; ${HOOK}|" "${WAYPAPER_CONFIG}"
+  # `&` in a sed replacement expands to the whole match, and the hook text
+  # contains `2>&1`; unescaped it corrupts the line by re-inserting the match.
+  HOOK_SED="${HOOK//&/\\&}"
+  sed -i "s|^post_command = \(.*\)|post_command = \1; ${HOOK_SED}|" "${WAYPAPER_CONFIG}"
 fi
 
 if [[ -f "${ML4W_WALLPAPER_SCRIPT}" ]] && ! grep -q 'wallpaper-hook.sh' "${ML4W_WALLPAPER_SCRIPT}"; then
