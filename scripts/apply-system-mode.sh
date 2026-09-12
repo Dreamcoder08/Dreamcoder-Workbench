@@ -14,6 +14,9 @@ set_gtk_key() {
     local file="${1}" key="${2}" value="${3}"
     mkdir -p "$(dirname "${file}")"
     [[ -f "${file}" ]] || printf '[Settings]\n' >"${file}"
+    # Rewriting an unchanged value still bumps the mtime, which fires ML4W's
+    # settings.ini watcher and re-runs matugen over Dreamcoder's colours.
+    grep -q "^${key}=${value}$" "${file}" && return 0
     if grep -q "^${key}=" "${file}"; then
         sed -i "s/^${key}=.*/${key}=${value}/" "${file}"
     else
