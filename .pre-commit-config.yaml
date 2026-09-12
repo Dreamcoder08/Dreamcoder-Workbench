@@ -52,9 +52,9 @@ repos:
         pass_filenames: false
       - id: dreamcoder-preview-regenerate
         name: Regenerate theme preview
-        entry: python scripts/generate-theme-preview.py && git diff --quiet --exit-code docs/dreamcoder-theme-preview.md
+        entry: python scripts/generate-theme-preview.py && git diff --quiet --exit-code docs/generated/dreamcoder-theme-preview.md
         language: system
-        files: ^themes/dreamcoder/.*\.json$
+        files: ^(DreamcoderThemes/dreamcoder/.*\.json|src/dreamcoder_theme/.*|scripts/generate-theme-preview\.py)$
         pass_filenames: false
       - id: ml4w-profile-validate
         name: Validate ML4W profile JSON files
