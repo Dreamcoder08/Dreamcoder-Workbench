@@ -15,7 +15,7 @@ context: |
   Testing: pytest 9.0 (Python), go test (Go), bats (shell scripts)
   Style: Ruff lint+format (py311, line-length 100), mypy strict, ShellCheck, pre-commit
   Conventions: Identity-first theme (Dreamcoder Ember Noir / Cocoa), WCAG/APCA guardrails,
-    canonical tokens in themes/dreamcoder/tokens.json, sync.py orchestrates rendering
+    canonical tokens in DreamcoderThemes/dreamcoder/tokens.json, sync.py orchestrates rendering
 
 rules:
   proposal:
