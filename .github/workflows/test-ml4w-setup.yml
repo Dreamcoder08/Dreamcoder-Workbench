@@ -27,7 +27,7 @@ jobs:
     name: Lint shell scripts
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install shellcheck
         run: sudo apt-get install -y shellcheck
@@ -44,7 +44,7 @@ jobs:
     name: Validate profile JSONs
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install dependencies
         run: |
@@ -59,7 +59,7 @@ jobs:
     name: BATS tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install dependencies
         run: |
@@ -67,23 +67,16 @@ jobs:
           sudo apt-get install -y jq bats
           # luac may not be available on Ubuntu CI — that's fine, tests handle it
 
-      - name: Run generate-custom-lua tests
-        run: bats tests/ml4w/generate_custom_lua.bats
-
-      - name: Run setup-hyprland tests
-        run: bats tests/ml4w/setup_hyprland.bats
-
-      - name: Run profile validation tests
-        run: bats tests/ml4w/profile_validation.bats
-
-      - name: Run ML4W ownership predicate tests
-        run: bats tests/ml4w/ml4w_managed.bats
+      # Run the whole directory, not an enumerated file list: naming each
+      # file means a new test file silently never executes in CI.
+      - name: Run ML4W bats suite
+        run: bats tests/ml4w/
 
   full-dry-run:
     name: Full dry-run
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install dependencies
         run: sudo apt-get install -y jq
@@ -111,7 +104,7 @@ jobs:
     name: Renderer and theme health
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install Python dependencies
         run: |
