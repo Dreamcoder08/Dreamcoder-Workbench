@@ -28,7 +28,7 @@ repos:
     hooks:
       - id: shellcheck
         args: ["--shell=bash", "--severity=warning"]
-        files: ^scripts/
+        files: ^(scripts|lib)/
 
   - repo: local
     hooks:

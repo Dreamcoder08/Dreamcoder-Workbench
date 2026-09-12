@@ -67,5 +67,5 @@ testing:
     linter: ruff check src/ tests/
     type_checker: mypy src/
     formatter: ruff format src/ tests/
-    shell_lint: shellcheck --shell=bash scripts/*.sh
+    shell_lint: shellcheck --shell=bash scripts/*.sh lib/*.sh
     pre_commit: pre-commit run --all-files

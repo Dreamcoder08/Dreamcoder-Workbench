@@ -4,6 +4,9 @@ set -euo pipefail
 
 safe_source() {
     local file="$1"
+    # safe_source takes an arbitrary caller-supplied path, so there is no
+    # static target to follow; the directive records that intent.
+    # shellcheck source=/dev/null
     [[ -f "${file}" ]] && source "${file}" || true
 }
 
