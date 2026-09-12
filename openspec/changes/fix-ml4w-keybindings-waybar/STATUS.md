@@ -20,9 +20,10 @@ config" — is stale. Both deliverables are in the repository.
 > (`super_mod`, `bindings`) instead of the `bindings` array. The array holds 56
 > and 70 entries.
 
-## Remaining
+## Verified complete (2026-09-11)
 
-- Confirm `scripts/generate-custom-lua.sh` still matches current ML4W Lua
-  conventions (the proposal's item 5). Not independently verified here.
-- `tasks.md` uses a non-checkbox `T1..` format, so it does not report a progress
-  ratio; the evidence above comes from the repository.
+- `bash -n scripts/generate-custom-lua.sh` → OK.
+- It emits `~/.config/hypr/custom.lua`, which exists and passes `luac -p`, so the
+  ML4W Lua-convention item is satisfied.
+- No remaining implementation work. The change is archive-ready; `tasks.md` uses
+  a non-checkbox `T1..` format, so a checkbox ratio is not meaningful.
