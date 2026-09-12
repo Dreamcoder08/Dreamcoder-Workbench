@@ -1,0 +1,23 @@
+/* Dreamcoder Waybar override for the active ML4W theme.
+ *
+ * Installed as themes<cfg>/<style>/style-custom.css by lib/waybar.sh. ML4W's
+ * launch.sh prefers that file over the theme's own style.css, which makes it the
+ * only integration point that survives ML4W updates; a root-level
+ * ~/.config/waybar/style.css is never read.
+ *
+ * Why this file exists: ML4W's theme CSS never styles the active workspace
+ * button, so the Dreamcoder accent never reached the live chain. `@primary` is
+ * the live colour-bridge value that the theme engine maps Dreamcoder's `accent`
+ * onto (see _map_dc_to_material), so the rule is added without redefining any
+ * colour and without replacing ML4W's layout.
+ *
+ * The @import pulls the theme's own style.css because this file replaces it in
+ * the chain. The generated DreamcoderThemes/dreamcoder/waybar-{mode}.css layer is
+ * deliberately NOT imported: it redefines `error` and `surface` with values that
+ * differ from the live bridge.
+ */
+@import url("style.css");
+
+#workspaces button.active {
+    color: @primary;
+}

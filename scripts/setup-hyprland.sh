@@ -30,6 +30,7 @@ set -euo pipefail
 # ── configuration ───────────────────────────────────────────────────────────
 DREAMCODER_DOTS_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 [[ -f "${DREAMCODER_DOTS_DIR}/lib/ml4w.sh" ]] && source "${DREAMCODER_DOTS_DIR}/lib/ml4w.sh"
+[[ -f "${DREAMCODER_DOTS_DIR}/lib/waybar.sh" ]] && source "${DREAMCODER_DOTS_DIR}/lib/waybar.sh"
 ASSETS_DIR="${DREAMCODER_DOTS_DIR}/ml4w_assets"
 GENERATOR="${DREAMCODER_DOTS_DIR}/scripts/generate-custom-lua.sh"
 ML4W_HOOKS="${DREAMCODER_DOTS_DIR}/scripts/apply-ml4w-hooks.sh"
@@ -281,6 +282,14 @@ elif [[ -f "${KEYBIND_VARIANT}" ]] && grep -q "CONTRACT: This file only defines 
   info "Installed keybindings selector + dreamcoder.lua variant"
 else
   warn "Keybindings variant missing or malformed: ${KEYBIND_VARIANT}"
+fi
+
+# ML4W's launch.sh prefers style-custom.css in the selected style theme dir.
+# Optional: a machine without the ML4W selector must not fail setup.
+if $DRY_RUN; then
+  step "Would install Waybar accent override (style-custom.css)"
+else
+  install_waybar_override "${DREAMCODER_DOTS_DIR}" || true
 fi
 
 # ── 4. Install dreamcoder-toggle-theme.sh ─────────────────────────────────

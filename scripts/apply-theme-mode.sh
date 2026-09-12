@@ -5,6 +5,7 @@ source "${DREAMCODER_DOTS_DIR:-$(cd "$(dirname "$0")/.." && pwd)}/lib/logging.sh
 source "${DREAMCODER_DOTS_DIR}/lib/env.sh"
 source "${DREAMCODER_DOTS_DIR}/lib/checks.sh"
 source "${DREAMCODER_DOTS_DIR}/lib/hyprland.sh"
+[[ -f "${DREAMCODER_DOTS_DIR}/lib/waybar.sh" ]] && source "${DREAMCODER_DOTS_DIR}/lib/waybar.sh"
 
 ensure_dots_dir
 
@@ -154,6 +155,9 @@ fi
 # above (or, when invoked by the control transaction, in that caller). This
 # section is purely the post-validation system/reload surface.
 signal_kitty
+# Refresh the Waybar accent override before Waybar restarts; machines without
+# the ML4W selector must not break the mode switch.
+install_waybar_override "${DREAMCODER_DOTS_DIR}" || true
 restart_waybar
 
 # --- tmux integration: propagate theme to running sessions ---
