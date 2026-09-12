@@ -53,7 +53,8 @@ class TestFunctionRendererConformance:
 
 class TestAdaptersUseTheSinglePort:
     @pytest.fixture(scope="class")
-    def adapters(self):
+    @classmethod
+    def adapters(cls):
         from dreamcoder_theme.herdr_contract import SUPPORTED_PROFILES  # noqa: PLC0415
         from dreamcoder_theme.renderer_adapters import (  # noqa: PLC0415
             NamedZellijAdapter,
