@@ -2,53 +2,42 @@
 
 ## Task Breakdown
 
-### T1: Update `default.json` Profile
-
-- **Estimate**: 30 min
-- **Dependencies**: None
-- **Description**: Add 30+ standard ML4W keybindings to `DreamcoderProfiles/dreamcoder/default.json`
-- **Acceptance**: `validate-ml4w-profiles.py` passes, 40+ bindings total
-- **Files**: `DreamcoderProfiles/dreamcoder/default.json`
-
-### T2: Update `asus-vivobook15.json` Profile
-
-- **Estimate**: 15 min
-- **Dependencies**: T1 (copy bindings)
-- **Description**: Add same ML4W keybindings to `DreamcoderProfiles/dreamcoder/asus-vivobook15.json`, preserving laptop-specific bindings (brightness, volume, media, keyboard backlight)
-- **Acceptance**: `validate-ml4w-profiles.py` passes, 50+ bindings total
-- **Files**: `DreamcoderProfiles/dreamcoder/asus-vivobook15.json`
-
-### T3: Create Waybar Config
-
-- **Estimate**: 20 min
-- **Dependencies**: None
-- **Description**: Create `DreamcoderWaybar/.config/waybar/config.jsonc` with taskbar + standard modules + Dreamcoder CSS import
-- **Acceptance**: Valid JSONC, contains `hyprland/workspaces` module, references Dreamcoder CSS
-- **Files**: `DreamcoderWaybar/.config/waybar/config.jsonc`
-
-### T4: Create Waybar Style
-
-- **Estimate**: 10 min
-- **Dependencies**: T3
-- **Description**: Create `DreamcoderWaybar/.config/waybar/style.css` with layout-only rules (spacing, padding, fonts) and `@import` of Dreamcoder colors CSS
-- **Acceptance**: Valid CSS, no color definitions (colors via import only)
-- **Files**: `DreamcoderWaybar/.config/waybar/style.css`
-
-### T5: Validate & Generate
-
-- **Estimate**: 10 min
-- **Dependencies**: T1, T2
-- **Description**: Run `validate-ml4w-profiles.py` and `generate-custom-lua.sh` to verify profiles produce valid Lua
-- **Acceptance**: Both scripts exit 0, Lua output syntactically valid
-- **Files**: `scripts/validate-ml4w-profiles.py`, `scripts/generate-custom-lua.sh`
-
-### T6: Integration Test
-
-- **Estimate**: 15 min
-- **Dependencies**: T1–T5
-- **Description**: Verify end-to-end: profile JSON → validation → Lua generation → Waybar config loads
-- **Acceptance**: All checks pass, no errors
-- **Files**: All modified/created files
+- [x] T1: Update `default.json` Profile
+  - **Estimate**: 30 min
+  - **Dependencies**: None
+  - **Description**: Add 30+ standard ML4W keybindings to `DreamcoderProfiles/dreamcoder/default.json`
+  - **Acceptance**: `validate-ml4w-profiles.py` passes, 40+ bindings total
+  - **Files**: `DreamcoderProfiles/dreamcoder/default.json`
+- [x] T2: Update `asus-vivobook15.json` Profile
+  - **Estimate**: 15 min
+  - **Dependencies**: T1 (copy bindings)
+  - **Description**: Add same ML4W keybindings to `DreamcoderProfiles/dreamcoder/asus-vivobook15.json`, preserving laptop-specific bindings (brightness, volume, media, keyboard backlight)
+  - **Acceptance**: `validate-ml4w-profiles.py` passes, 50+ bindings total
+  - **Files**: `DreamcoderProfiles/dreamcoder/asus-vivobook15.json`
+- [x] T3: Create Waybar Config
+  - **Estimate**: 20 min
+  - **Dependencies**: None
+  - **Description**: Create `DreamcoderWaybar/.config/waybar/config.jsonc` with taskbar + standard modules + Dreamcoder CSS import
+  - **Acceptance**: Valid JSONC, contains `hyprland/workspaces` module, references Dreamcoder CSS
+  - **Files**: `DreamcoderWaybar/.config/waybar/config.jsonc`
+- [x] T4: Create Waybar Style
+  - **Estimate**: 10 min
+  - **Dependencies**: T3
+  - **Description**: Create `DreamcoderWaybar/.config/waybar/style.css` with layout-only rules (spacing, padding, fonts) and `@import` of Dreamcoder colors CSS
+  - **Acceptance**: Valid CSS, no color definitions (colors via import only)
+  - **Files**: `DreamcoderWaybar/.config/waybar/style.css`
+- [x] T5: Validate & Generate
+  - **Estimate**: 10 min
+  - **Dependencies**: T1, T2
+  - **Description**: Run `validate-ml4w-profiles.py` and `generate-custom-lua.sh` to verify profiles produce valid Lua
+  - **Acceptance**: Both scripts exit 0, Lua output syntactically valid
+  - **Files**: `scripts/validate-ml4w-profiles.py`, `scripts/generate-custom-lua.sh`
+- [x] T6: Integration Test
+  - **Estimate**: 15 min
+  - **Dependencies**: T1–T5
+  - **Description**: Verify end-to-end: profile JSON → validation → Lua generation → Waybar config loads
+  - **Acceptance**: All checks pass, no errors
+  - **Files**: All modified/created files
 
 ## Execution Order
 
@@ -66,8 +55,8 @@ T3 ──→ T4 ────────────↗
 
 ## Execution Log (2026-08-03) — Root cause fix applied
 
-The profile JSONs (T1/T2) were already populated (default: 55 binds, asus:
-69 binds including the full F1-F12 multimedia row), but the bindings were
+The profile JSONs (T1/T2) were already populated (default: 56 binds, asus:
+70 binds including the full F1-F12 multimedia row), but the bindings were
 NEVER being applied to the running system. Two compounding bugs:
 
 1. **Wrong profile auto-detection** — `generate-custom-lua.sh` and
@@ -160,7 +149,7 @@ togglefloating/togglesplit/movefocus/movewindow` commands to native `hl.dsp.*`
 dispatchers (`hl.dsp.focus({workspace=N})`, `hl.dsp.window.move(...)`,
 `hl.dsp.window.close()`, etc.). Other commands keep `hl.dsp.exec_cmd()`.
 
-Verified: custom.lua regenerated (69 binds), Lua syntax valid, `hl.dsp.focus
+Verified: custom.lua regenerated (70 binds), Lua syntax valid, `hl.dsp.focus
 ({workspace=N})` switches workspaces via CLI, 106 binds / 0 duplicates after
 reload, bats 34/34 (new test asserts no `hyprctl dispatch workspace` remains
 in generated output).
@@ -186,6 +175,7 @@ value (field 'mouse_bind')`. The BTN_SIDE/BTN_EXTRA mouse binds used
 `hl.mouse_bind(...)`, which does not exist in the Hyprland Lua API.
 
 Fix:
+
 - Generator: `hl.mouse_bind` removed. Mouse binds are now regular `hl.bind()`
   with the button in the key string and `mouse = true` as a flag (the same
   pattern ML4W uses for `mouse:272` drag/resize).
@@ -196,3 +186,14 @@ Fix:
 
 Verified: mouse:275/276 registered, 118 binds, 0 real duplicates, bats 34/34,
 profiles clean.
+
+## Native Status
+
+Task checkboxes were added on 2026-09-11 so the native status engine can count
+6/6; earlier revisions of this file used a non-checkbox `T1..` format, which
+made the engine report `taskProgress 0/0` and `verify: blocked`.
+
+The profile counts quoted in the Execution Log were corrected in place to the
+measured truth (default 56, asus 70). The live `hyprctl binds` counts quoted
+inside the dated log entries are observations from those passes (106 at the
+time, 119 now) and are not profile counts.
