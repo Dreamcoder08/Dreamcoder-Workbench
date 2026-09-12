@@ -4,9 +4,11 @@ set -euo pipefail
 source "${DREAMCODER_DOTS_DIR:-$(cd "$(dirname "$0")/.." && pwd)}/lib/env.sh"
 ensure_dots_dir
 WAYPAPER_CONFIG="${WAYPAPER_CONFIG:-${HOME}/.config/waypaper/config.ini}"
-ML4W_WALLPAPER_SCRIPT="${ML4W_WALLPAPER_SCRIPT:-${HOME}/.config/hypr/scripts/wallpaper.sh}"
+# Current ML4W runs ~/.config/ml4w/scripts/ml4w-wallpaper with $IMAGE_PATH; an older release symlinked ~/.config/hypr/scripts/wallpaper.sh and used $used_wallpaper. Both overridable.
+ML4W_WALLPAPER_SCRIPT="${ML4W_WALLPAPER_SCRIPT:-${HOME}/.config/ml4w/scripts/ml4w-wallpaper}"
+ML4W_WALLPAPER_VAR="${ML4W_WALLPAPER_VAR:-IMAGE_PATH}"
 HOOK="${DREAMCODER_DOTS_DIR}/scripts/wallpaper-hook.sh \"\$wallpaper\" > /dev/null 2>&1"
-BLOCK="\"${DREAMCODER_DOTS_DIR}/scripts/wallpaper-hook.sh\" \"\$used_wallpaper\""
+BLOCK="\"${DREAMCODER_DOTS_DIR}/scripts/wallpaper-hook.sh\" \"\$${ML4W_WALLPAPER_VAR}\""
 
 if [[ -f "${WAYPAPER_CONFIG}" ]] && ! grep -q 'wallpaper-hook.sh' "${WAYPAPER_CONFIG}"; then
   # `&` in a sed replacement expands to the whole match, and the hook text

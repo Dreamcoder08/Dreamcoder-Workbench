@@ -61,3 +61,23 @@ count_in_post_command() {
     # The corrupt form repeats the original assignment inside the line.
     [ "$(count_in_post_command 'ml4w-wallpaper')" -eq 1 ]
 }
+
+@test "apply-ml4w-hooks: the appended block reads the live runner's variable" {
+    run_hooks
+    grep -q 'wallpaper-hook.sh" "\$IMAGE_PATH"' "${ML4W_WALLPAPER_SCRIPT}"
+}
+
+@test "apply-ml4w-hooks: the older layout's variable is reachable by override" {
+    WAYPAPER_CONFIG="${WAYPAPER_CONFIG}" \
+        ML4W_WALLPAPER_SCRIPT="${ML4W_WALLPAPER_SCRIPT}" \
+        ML4W_WALLPAPER_VAR="used_wallpaper" \
+        DREAMCODER_DOTS_DIR="${TEST_DIR}" \
+        bash "${DREAMCODER_DOTS_DIR}/scripts/apply-ml4w-hooks.sh"
+    grep -q 'wallpaper-hook.sh" "\$used_wallpaper"' "${ML4W_WALLPAPER_SCRIPT}"
+}
+
+@test "apply-ml4w-hooks: the default target is the current ML4W runner" {
+    # Without an override the script must default to the layout current ML4W
+    # ships, not the release that symlinked hypr/scripts/wallpaper.sh.
+    grep -q 'ml4w/scripts/ml4w-wallpaper' "${DREAMCODER_DOTS_DIR}/scripts/apply-ml4w-hooks.sh"
+}
