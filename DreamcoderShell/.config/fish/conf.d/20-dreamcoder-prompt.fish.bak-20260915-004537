@@ -8,7 +8,7 @@ if status is-interactive
     function fish_prompt
         set -l cache "$HOME/.cache/dreamcoder/cursor-cli.env"
         if test -f "$cache"
-            set -l cached (grep DREAMCODER_THEME_MODE "$cache" | cut -d= -f2 | string replace -a '"' '')
+            set -l cached (grep DREAMCODER_THEME_MODE "$cache" | cut -d= -f2 | tr -d \")
             if test -n "$cached" -a "$cached" != "$DREAMCODER_THEME_MODE"
                 set -gx DREAMCODER_THEME_MODE "$cached"
                 set -l td "$DREAMCODER_DOTS_DIR/themes/dreamcoder"
@@ -32,14 +32,6 @@ if status is-interactive
                 end
             end
         end
-
-        set -l git_root (command git rev-parse --show-toplevel 2>/dev/null)
-        if test (count $git_root) -gt 0; and test "$git_root[1]" = "$HOME"
-            set -gx STARSHIP_CONFIG "$HOME/.config/starship-home.toml"
-        else
-            set -gx STARSHIP_CONFIG "$HOME/.config/starship.toml"
-        end
-
         _dreamcoder_starship_prompt
     end
 end

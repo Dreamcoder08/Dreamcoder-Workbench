@@ -57,7 +57,7 @@ agent_mode_codebase_context_auto_indexing = true
 input_mode = "waterfall"
 
 [appearance.window]
-zoom_level = 70
+zoom_level = 80
 override_opacity = 96
 
 [appearance.themes]
