@@ -83,7 +83,8 @@ def ls_colors_content(c: dict[str, str]) -> str:
         "di": _fg(g("accent")),
         "ex": _fg(g("accent_2")),
         "ln": _fg(g("diagnostic")),
-        "or": f"{_bg(c['warning'])};{_fg(g('text'))}",
+        # Broken links invert onto the warning swatch: base bg text keeps AA.
+        "or": f"{_bg(c['warning'])};{_fg(bg)}",
         "so": _fg(g("sage")),
         "pi": _fg(g("warning")),
         "bd": _fg(g("error")),
@@ -92,7 +93,7 @@ def ls_colors_content(c: dict[str, str]) -> str:
         "sg": f"{_bg(bg)};{_fg(g('accent_2'))}",
         "tw": f"{_fg(g('accent'))};{_bg(c['surface0'])}",
         "ow": f"{_fg(g('accent'))};{_bg(c['surface0'])}",
-        "st": f"{_fg(g('accent'))};{_bg(c['surface1'])}",
+        "st": f"{_fg(g('accent'))};{_bg(c['surface0'])}",
     }
     groups = {
         _fg(g("lavender")): [
