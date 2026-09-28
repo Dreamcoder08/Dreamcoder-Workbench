@@ -203,3 +203,13 @@ injected into ML4W-owned files.
 
 T8 live apply (parent). Pending user decisions: SUPER+SHIFT+arrows
 overlap (resize vs move), the pre-existing kanagawa bridge test, push/PR of the branch.
+
+## Live evidence (T8, 2026-09-28)
+
+- `./scripts/apply-ml4w-hooks.sh`: listener hooked (markers present) and restarted.
+- Dark → Light toggle through the listener: final waybar/hypr colours carry the
+  Dreamcoder light palette; `verify-ml4w-setup.sh` 20 passed / 0 failed.
+- Also fixed during this pass: `b9f8c50` theme_mode() falls back to the persisted
+  live mode; `bd8e5b5` fish starts in the persisted mode; `4b04f3e` ls colours `or`/`st`
+  lifted to WCAG AA with a 4.5:1 gate.
+- Follow-up feature: `odd/tasks/remove-night-profile.md` (user decision: Light + Dark only).
