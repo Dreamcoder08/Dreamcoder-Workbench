@@ -25,8 +25,6 @@ Generated from current machine state and Control Center contracts.
 │   Active machine profile name.             │
 │ motion.active            = balanced   │
 │   Active motion preset. (battery, balanced,│
-│ theme.render_profile     = standard   │
-│   Theme rendering profile (standard or nigh│
 ├─────────────────────────────────────────────┤
 │ Apply: dreamcoder tui set <key> <value>     │
 │ Safe: add --dry-run --json before applying  │

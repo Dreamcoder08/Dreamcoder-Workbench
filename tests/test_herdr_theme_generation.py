@@ -100,9 +100,9 @@ def test_herdr_080_light_renders_dreamcoder_light() -> None:
     assert parsed["ui"]["accent"] == "#6FA0AF"
 
 
-@pytest.mark.parametrize("mode", ("dark", "light", "night"))
+@pytest.mark.parametrize("mode", ("dark", "light"))
 def test_herdr_082_uses_mode_aware_base_and_sidebar_tokens(mode: str) -> None:
-    palette = VARIANTS["dark"] if mode == "night" else VARIANTS[mode]
+    palette = VARIANTS[mode]
     parsed = tomllib.loads(herdr_content(HERDR_082_PROFILE, mode, palette))
 
     expected_base = "catppuccin-latte" if mode == "light" else "catppuccin"
@@ -142,9 +142,9 @@ def test_herdr_variants_are_byte_stable_and_have_matching_structure() -> None:
     assert dark != light
 
 
-@pytest.mark.parametrize("mode", ("dusk", "invalid"))
+@pytest.mark.parametrize("mode", ("dusk", "night", "invalid"))
 def test_herdr_rejects_non_static_modes(mode: str) -> None:
-    with pytest.raises(HerdrModeError, match="only dark, light, and night"):
+    with pytest.raises(HerdrModeError, match="only dark and light"):
         herdr_content(HERDR_073_PROFILE, mode, VARIANTS["dark"])
 
 
@@ -180,7 +180,6 @@ def test_repository_sync_writes_only_versioned_variants(
 
 def test_checked_in_repository_variants_match_the_renderer() -> None:
     repo = Path(__file__).parents[1]
-    night = sync.prepare("dark", "standard").variants["night"]
     for profile in (HERDR_073_PROFILE, HERDR_080_PROFILE, HERDR_082_PROFILE, HERDR_091_PROFILE):
         base = repo / "DreamcoderHerdr/.config/herdr/dreamcoder" / profile.evidence.version
 
@@ -190,7 +189,6 @@ def test_checked_in_repository_variants_match_the_renderer() -> None:
         assert (base / "config.light.toml").read_text() == herdr_content(
             profile, "light", VARIANTS["light"]
         )
-        assert (base / "config.night.toml").read_text() == herdr_content(profile, "night", night)
 
 
 def test_unsupported_profile_produces_no_repository_files(

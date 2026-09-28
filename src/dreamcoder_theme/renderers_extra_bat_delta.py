@@ -8,10 +8,7 @@ from .palette import detect_mode, guard, mix
 def bat_content(c: dict[str, str]) -> str:
     """Return a Bat theme config snippet with modern defaults."""
     mode_name = detect_mode(c)
-    # The Night snippet selects the Night TextMate sibling (design §5 row
-    # 17): the derived palette name is the deterministic profile signal
-    # because the format embeds the theme name.
-    theme = f"Dreamcoder-{'Night' if 'Night' in c.get('name', '') else mode_name.title()}"
+    theme = f"Dreamcoder-{mode_name.title()}"
     return (
         "#!/usr/bin/env bash\n"
         "# Sourced snippet: never set shell options here.\n"
@@ -41,11 +38,7 @@ def delta_content(c: dict[str, str]) -> str:
         minus_bg = mix(c["error"], bg, 0.85)
         hunk_bg = mix(c["muted"], bg, 0.85)
 
-    # Syntax highlighting theme: the Night snippet selects the Night
-    # TextMate sibling (design §5 row 18) — the format embeds the name.
-    syntax_theme = (
-        "Dreamcoder-Night" if "Night" in c.get("name", "") else f"Dreamcoder-{mode.title()}"
-    )
+    syntax_theme = f"Dreamcoder-{mode.title()}"
 
     return f"""# ========================================================
 # {c["name"]} — Git Delta theme
@@ -110,7 +103,7 @@ REGISTRATIONS: tuple[RendererRegistration, ...] = (
         consumer_id="bat",
         renderer=bat_content,
         contract_version=1,
-        modes=frozenset({"dark", "light", "night"}),
+        modes=frozenset({"dark", "light"}),
         output_kind="active-and-repository",
         sync=SyncDefinition(
             renderer=RendererStrategy.DIRECT_CONTENT,
@@ -124,7 +117,7 @@ REGISTRATIONS: tuple[RendererRegistration, ...] = (
         consumer_id="delta",
         renderer=delta_content,
         contract_version=1,
-        modes=frozenset({"dark", "light", "night"}),
+        modes=frozenset({"dark", "light"}),
         output_kind="active-and-repository",
         sync=SyncDefinition(
             renderer=RendererStrategy.DIRECT_CONTENT,

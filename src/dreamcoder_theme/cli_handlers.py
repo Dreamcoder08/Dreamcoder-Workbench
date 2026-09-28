@@ -249,12 +249,8 @@ def handle_backup(args: argparse.Namespace) -> int:
 # Theme activation transaction (design §7/§8, R4/R7; tasks 5.3/5.5)
 # ---------------------------------------------------------------------------
 
-# User choice -> (base mode, render profile) per design §7 table.
-THEME_CHOICES: dict[str, tuple[str, str]] = {
-    "light": ("light", "standard"),
-    "dark": ("dark", "standard"),
-    "night": ("dark", "night"),
-}
+# Activatable theme modes (design §7 table): Dreamcoder Light and Dark.
+THEME_CHOICES: tuple[str, ...] = ("light", "dark")
 
 
 class ThemeActivationError(RuntimeError):
@@ -411,18 +407,14 @@ def _mutable_paths(paths: Any) -> list[Path]:
     return mutable
 
 
-def _bridge_variant(base: str, profile: str) -> str:
-    return "night" if profile == "night" else base
-
-
-def _flip_bridge_symlinks(paths: Any, base: str, profile: str) -> None:
+def _flip_bridge_symlinks(paths: Any, base: str) -> None:
     """Select the correct variant target for matugen bridge symlinks (design §6).
 
     Only flips paths that are already symlinks — regular files are written
     directly by the sync writers. The activation transaction snapshots these
     before the flip, so a rollback restores the prior link targets exactly.
     """
-    variant = _bridge_variant(base, profile)
+    variant = base
     bridges = [
         (paths.waybar_matugen, f"colors-{variant}.css"),
         (paths.rofi_matugen, f"colors-{variant}.rasi"),
@@ -437,7 +429,7 @@ def _flip_bridge_symlinks(paths: Any, base: str, profile: str) -> None:
             os.symlink(target, link)
 
 
-def run_reload_adapter(base: str, profile: str) -> None:
+def run_reload_adapter(base: str) -> None:
     """Invoke the bounded post-validation system/reload adapter (design §7).
 
     ``scripts/apply-theme-mode.sh`` owns the system-mode, symlink, and reload
@@ -453,12 +445,11 @@ def run_reload_adapter(base: str, profile: str) -> None:
     env.update(
         {
             "DREAMCODER_THEME_MODE": base,
-            "DREAMCODER_THEME_PROFILE": profile,
             "DREAMCODER_SYNC_DONE": "1",
         }
     )
     proc = subprocess.run(
-        [str(script), base, env.get("DREAMCODER_WALLPAPER", ""), profile],
+        [str(script), base, env.get("DREAMCODER_WALLPAPER", "")],
         env=env,
         text=True,
         stdout=subprocess.PIPE,
@@ -471,8 +462,8 @@ def run_reload_adapter(base: str, profile: str) -> None:
         )
 
 
-def _regenerate_prior(paths: Any, prior_base: str, prior_profile: str) -> None:
-    """Best-effort regeneration of the prior profile after a rollback.
+def _regenerate_prior(paths: Any, prior_base: str) -> None:
+    """Best-effort regeneration of the prior mode after a rollback.
 
     Snapshots already restore every mutable path byte-for-byte; regeneration is
     a safety net for deterministic repo artifacts and never masks the original
@@ -481,8 +472,8 @@ def _regenerate_prior(paths: Any, prior_base: str, prior_profile: str) -> None:
     # Best-effort by contract: any regeneration failure must not mask the
     # original activation error this rollback is recovering from.
     with contextlib.suppress(Exception):
-        prepared = sync.prepare(prior_base, prior_profile)
-        sync.sync_active_targets(paths, prepared.active, prior_base, prior_profile)
+        prepared = sync.prepare(prior_base)
+        sync.sync_active_targets(paths, prepared.active, prior_base)
         sync.sync_bat_theme_variants(paths, prepared.variants)
         if write_repo_enabled():
             sync.sync_repo_snippets(prepared.variants, prepared.active)
@@ -492,7 +483,6 @@ def _commit_activation(
     paths: Any,
     prepared: sync.PreparedSync,
     base: str,
-    profile: str,
     changed: dict[str, bool],
 ) -> None:
     """Commit one prepared activation: persist, flip bridges, write, validate.
@@ -501,16 +491,14 @@ def _commit_activation(
     (write failure, invalid post-write selector, blocking reload failure)
     triggers a full snapshot rollback in the caller.
     """
-    # 4. Persist settings before applying the base mode (R7: light/dark
-    #    explicitly persist standard and exit Night).
+    # 4. Persist settings before applying the base mode (R7).
     set_nested_setting("terminal.default_mode", base)
-    set_nested_setting("theme.render_profile", profile)
     # 5. Flip matugen bridge symlinks to the target variant before the writers
-    #    run (design §6: "select colors-night.css before commit").
-    _flip_bridge_symlinks(paths, base, profile)
+    #    run (design §6).
+    _flip_bridge_symlinks(paths, base)
     # 6. Commit variants, active files, and selectors. write_if_changed()
     #    semantics are preserved — each entry reports bool changed.
-    changed.update(sync.sync_active_targets(paths, prepared.active, base, profile))
+    changed.update(sync.sync_active_targets(paths, prepared.active, base))
     bat_changes = sync.sync_bat_theme_variants(paths, prepared.variants)
     if write_repo_enabled():
         repo_changes = sync.sync_repo_snippets(prepared.variants, prepared.active)
@@ -521,31 +509,30 @@ def _commit_activation(
         raise ThemeActivationError(f"Generated Starship config is invalid: {paths.starship}")
     # 8. Bounded system/reload adapter; a blocking reload failure rolls back.
     if os.environ.get("DREAMCODER_SYNC_DONE") != "1":
-        run_reload_adapter(base, profile)
+        run_reload_adapter(base)
 
 
-def apply_theme(base: str, profile: str, choice: str, as_json: bool) -> int:
-    """Activate a (base, profile) pair as one transaction (design §7/§8).
+def apply_theme(base: str, as_json: bool) -> int:
+    """Activate a Light/Dark base mode as one transaction (design §7/§8).
 
     Order: prepare+validate (zero writes) -> snapshot every mutable active path
     + selector file + settings -> persist settings -> flip bridge symlinks ->
     commit variants/active files/selectors -> post-write validation -> bounded
     system/reload adapter. Any exception, invalid post-write selector, blocking
     reload failure, or incomplete coverage restores snapshots and prior settings
-    and regenerates the prior profile before returning non-zero.
+    and regenerates the prior mode before returning non-zero.
     """
     paths = theme_paths()
     # 1. Prepare + validate: a failed gate exits before any persistence, write,
     #    symlink change, cleanup, system-mode change, or reload (R4/R8).
     try:
-        prepared = sync.prepare(base, profile)
+        prepared = sync.prepare(base)
     except sync.ThemeGateError as exc:
         if as_json:
             emit(
                 {
-                    "requested": choice,
+                    "requested": base,
                     "effective_base": base,
-                    "effective_profile": profile,
                     "coverage": "0/0",
                     "changed": {},
                     "rollback_state": "rejected",
@@ -559,9 +546,7 @@ def apply_theme(base: str, profile: str, choice: str, as_json: bool) -> int:
 
     # 2. Prior persisted state (the rollback target).
     prior_base = settings_get("terminal.default_mode")
-    prior_profile = settings_get("theme.render_profile")
     prior_base = prior_base if prior_base in {"light", "dark"} else "light"
-    prior_profile = prior_profile if prior_profile in {"standard", "night"} else "standard"
 
     # 3. Snapshot every mutable active path + selector file BEFORE the first
     #    mutation (design §4: "snapshot settings and every mutable active path").
@@ -585,19 +570,17 @@ def apply_theme(base: str, profile: str, choice: str, as_json: bool) -> int:
     rollback_state = "none"
     changed: dict[str, bool] = {}
     try:
-        _commit_activation(paths, prepared, base, profile, changed)
+        _commit_activation(paths, prepared, base, changed)
     except Exception as exc:
         rollback_state = "restored"
         _restore_snapshots(snapshots, dir_captures)
         set_nested_setting("terminal.default_mode", prior_base)
-        set_nested_setting("theme.render_profile", prior_profile)
-        _regenerate_prior(paths, prior_base, prior_profile)
+        _regenerate_prior(paths, prior_base)
         if as_json:
             emit(
                 {
-                    "requested": choice,
+                    "requested": base,
                     "effective_base": prior_base,
-                    "effective_profile": prior_profile,
                     "coverage": f"{len(prepared.coverage)}/{len(prepared.coverage)}",
                     "changed": {},
                     "rollback_state": rollback_state,
@@ -611,9 +594,8 @@ def apply_theme(base: str, profile: str, choice: str, as_json: bool) -> int:
         return 1
 
     status = {
-        "requested": choice,
+        "requested": base,
         "effective_base": base,
-        "effective_profile": profile,
         "coverage": f"{len(prepared.coverage)}/{len(prepared.coverage)}",
         "changed": changed,
         "rollback_state": rollback_state,
@@ -632,8 +614,7 @@ def _restore_snapshots(
 
 
 def handle_theme(args: argparse.Namespace) -> int:
-    """Activate a theme base mode + render profile (design §7)."""
-    if args.theme_cmd != "apply":
+    """Activate the Dreamcoder Light or Dark theme (design §7)."""
+    if args.theme_cmd != "apply" or args.choice not in THEME_CHOICES:
         return 2
-    base, profile = THEME_CHOICES[args.choice]
-    return apply_theme(base, profile, args.choice, args.json)
+    return apply_theme(args.choice, args.json)

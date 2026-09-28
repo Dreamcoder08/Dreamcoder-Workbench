@@ -7,8 +7,6 @@ import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from .settings_store import settings_get
-
 ROOT = Path(__file__).resolve().parents[2]
 PI_THEME_SCHEMA = (
     "https://raw.githubusercontent.com/earendil-works/pi/main/"
@@ -106,61 +104,6 @@ def theme_mode() -> str:
     if mode not in {"dark", "light"}:
         raise SystemExit("DREAMCODER_THEME_MODE must be 'dark' or 'light'")
     return mode
-
-
-VALID_RENDER_PROFILES = frozenset({"standard", "night"})
-
-
-def render_profile() -> str:
-    """Resolve the effective rendering profile (design §3, R6).
-
-    Precedence:
-      1. ``DREAMCODER_THEME_PROFILE`` — process-only override for isolated
-         generation and tests; it never mutates the persisted setting.
-      2. Persisted ``settings_get("theme.render_profile")``.
-      3. Schema default ``standard`` when absent.
-
-    Invalid values fail closed instead of being interpreted as a runtime
-    profile (R6 scenario "Invalid profile value is rejected").
-    """
-    env_profile = os.environ.get("DREAMCODER_THEME_PROFILE")
-    if env_profile is not None:
-        profile = env_profile.lower()
-        if profile not in VALID_RENDER_PROFILES:
-            raise SystemExit(
-                f"DREAMCODER_THEME_PROFILE must be 'standard' or 'night' (got '{env_profile}')"
-            )
-        return profile
-    persisted = settings_get("theme.render_profile")
-    if persisted is not None:
-        if not isinstance(persisted, str) or persisted not in VALID_RENDER_PROFILES:
-            raise SystemExit(
-                f"persisted theme.render_profile={persisted!r} is invalid; "
-                "expected 'standard' or 'night'"
-            )
-        return persisted
-    return "standard"
-
-
-def effective_base_mode(mode: str | None = None, profile: str | None = None) -> str:
-    """Resolve the base mode together with the render profile (ADR-003).
-
-    Enforces ``profile == night -> mode == dark``: Night always derives from
-    the Dreamcoder Dark base. A conflicting invocation such as
-    ``DREAMCODER_THEME_MODE=light`` + ``DREAMCODER_THEME_PROFILE=night`` fails
-    with an actionable error instead of choosing Dusk or silently coercing
-    output (design §3). ``theme_mode()`` remains the Light/Dark base authority
-    and never accepts Night as a base mode.
-    """
-    base = theme_mode() if mode is None else mode
-    resolved_profile = render_profile() if profile is None else profile
-    if resolved_profile == "night" and base != "dark":
-        raise SystemExit(
-            f"render profile 'night' requires base mode 'dark' (got '{base}'): "
-            "Night always derives from the Dreamcoder Dark base; "
-            "set DREAMCODER_THEME_MODE=dark or run the 'night' activation."
-        )
-    return base
 
 
 def theme_paths() -> ThemePaths:

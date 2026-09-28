@@ -1,8 +1,7 @@
 """Canonical loader tests (task 2.5): thresholds come from tokens, never code.
 
-`load_guardrails()` and `load_render_profile()` read the canonical Night
-parameters and guardrail floors from `tokens.json` and fail closed when a
-required key is missing — no policy literals are permitted on the runtime path
+`load_guardrails()` reads the canonical guardrail floors from `tokens.json`
+and fails closed when a required key is missing — no policy literals are permitted on the runtime path
 (ADR-002, R2/R3).
 """
 
@@ -14,8 +13,6 @@ import pytest
 from dreamcoder_theme._math import apca_lc
 from dreamcoder_theme.palette import (
     load_guardrails,
-    load_render_profile,
-    night_palette,
     validate_palette,
 )
 
@@ -85,44 +82,8 @@ def test_gate_uses_loaded_threshold_not_a_literal(tmp_path):
     tokens["guardrails"]["minimum_apca_quiet"] = 55
     g = load_guardrails(_write_tokens(tmp_path, tokens))
     pal = dict(tokens["modes"]["dark"])
-    errors = validate_palette(pal, g, profile="standard", mode="dark")
+    errors = validate_palette(pal, g, mode="dark")
     quiet_errors = [e for e in errors if "class=quiet" in e and "minimum_apca_quiet" in e]
     assert quiet_errors, "quiet floor change was not picked up from loaded tokens"
     assert "=55" in quiet_errors[0]
     assert abs(apca_lc(pal["subtle"], pal["bg"])) < 55
-
-
-def test_load_render_profile_returns_canonical_night_parameters():
-    params = load_render_profile(THEME_ROOT / "tokens.json")
-    assert params == {
-        "brightness_factor": 0.86,
-        "saturation_factor": 0.72,
-        "maximum_corrective_delta": 0.12,
-        "corrective_step": 0.02,
-    }
-
-
-def test_load_render_profile_fails_when_profile_missing(tmp_path):
-    tokens = _tokens()
-    del tokens["render_profiles"]["night"]
-    with pytest.raises(ValueError, match="render profile 'night' missing"):
-        load_render_profile(_write_tokens(tmp_path, tokens))
-
-
-def test_load_render_profile_fails_on_invalid_bounds(tmp_path):
-    tokens = _tokens()
-    tokens["render_profiles"]["night"]["corrective_step"] = 0.2  # > maximum_corrective_delta 0.12
-    with pytest.raises(ValueError, match="corrective_step"):
-        load_render_profile(_write_tokens(tmp_path, tokens))
-
-
-def test_night_transform_uses_loaded_profile_parameters(tmp_path):
-    """A canonical brightness change must change the derived palette (no literals)."""
-    tokens = _tokens()
-    tokens["render_profiles"]["night"]["brightness_factor"] = 0.9
-    params = load_render_profile(_write_tokens(tmp_path, tokens))
-    g = load_guardrails(THEME_ROOT / "tokens.json")
-    base = dict(tokens["modes"]["dark"])
-    night_0_86 = night_palette(base, load_render_profile(THEME_ROOT / "tokens.json"), g)
-    night_0_90 = night_palette(base, params, g)
-    assert night_0_90["surface1"] != night_0_86["surface1"]

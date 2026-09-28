@@ -360,7 +360,7 @@ REGISTRATIONS: tuple[RendererRegistration, ...] = (
         consumer_id="hyprland",
         renderer=hypr_content,
         contract_version=1,
-        modes=frozenset({"dark", "light", "night"}),
+        modes=frozenset({"dark", "light"}),
         output_kind="active-and-repository",
         sync=SyncDefinition(
             renderer=RendererStrategy.DIRECT_CONTENT,
@@ -374,7 +374,7 @@ REGISTRATIONS: tuple[RendererRegistration, ...] = (
         consumer_id="hypr_colors_lua",
         renderer=hypr_colors_lua_content,
         contract_version=1,
-        modes=frozenset({"dark", "light", "night"}),
+        modes=frozenset({"dark", "light"}),
         # Verified against live sync.py (not the prior "active"/NO_VARIANTS/
         # ACTIVE_ONLY_BRIDGE declaration): sync_active_targets() writes the
         # live ~/.config/hypr/colors.lua active file via plain
@@ -397,7 +397,7 @@ REGISTRATIONS: tuple[RendererRegistration, ...] = (
         consumer_id="hypr_colors_conf",
         renderer=hypr_colors_conf_content,
         contract_version=1,
-        modes=frozenset({"dark", "light", "night"}),
+        modes=frozenset({"dark", "light"}),
         # See hypr_colors_lua comment above — identical verified shape:
         # live active write (sync_active_targets -> paths.hypr_colors_conf)
         # plus repo MODE_VARIANTS snippets (sync_repo_snippets), both via
@@ -415,7 +415,7 @@ REGISTRATIONS: tuple[RendererRegistration, ...] = (
         consumer_id="waybar",
         renderer=waybar_content,
         contract_version=1,
-        modes=frozenset({"dark", "light", "night"}),
+        modes=frozenset({"dark", "light"}),
         output_kind="active-and-repository",
         sync=SyncDefinition(
             renderer=RendererStrategy.DIRECT_CONTENT,
@@ -429,7 +429,7 @@ REGISTRATIONS: tuple[RendererRegistration, ...] = (
         consumer_id="waybar_matugen",
         renderer=waybar_matugen_content,
         contract_version=1,
-        modes=frozenset({"dark", "light", "night"}),
+        modes=frozenset({"dark", "light"}),
         output_kind="active",
         sync=SyncDefinition(
             renderer=RendererStrategy.DIRECT_CONTENT,
@@ -443,7 +443,7 @@ REGISTRATIONS: tuple[RendererRegistration, ...] = (
         consumer_id="rofi",
         renderer=rofi_content,
         contract_version=1,
-        modes=frozenset({"dark", "light", "night"}),
+        modes=frozenset({"dark", "light"}),
         output_kind="active-and-repository",
         sync=SyncDefinition(
             renderer=RendererStrategy.DIRECT_CONTENT,
@@ -457,7 +457,7 @@ REGISTRATIONS: tuple[RendererRegistration, ...] = (
         consumer_id="rofi_matugen",
         renderer=rofi_matugen_content,
         contract_version=1,
-        modes=frozenset({"dark", "light", "night"}),
+        modes=frozenset({"dark", "light"}),
         output_kind="active",
         sync=SyncDefinition(
             renderer=RendererStrategy.DIRECT_CONTENT,

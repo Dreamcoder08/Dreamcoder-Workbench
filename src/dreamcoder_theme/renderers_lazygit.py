@@ -1,6 +1,6 @@
 """Lazygit theme renderer for Dreamcoder.
 
-Generates full ``config.yml`` files (active + ``config.{dark,light,night}.yml``
+Generates full ``config.yml`` files (active + ``config.{dark,light}.yml``
 variants) from the canonical palette tokens. Non-color behavior is preserved
 verbatim from the previous static config; only colors are derived from tokens,
 so there is no duplicated per-mode hardcoded palette anywhere.
@@ -16,8 +16,7 @@ def _delta_syntax_theme(c: dict[str, str]) -> str:
 
     The Dreamcoder ``*-light`` TextMate theme does not exist, so Lazygit's
     embedded Delta renderer must use installed valid Catppuccin themes:
-    Latte for light, Mocha for dark and the Night derivation (ADR-003 keeps
-    Night dark semantics, so ``details`` stays ``darker``).
+    Latte for light and Mocha for dark.
     """
     return "Catppuccin Latte" if detect_mode(c) == "light" else "Catppuccin Mocha"
 
@@ -118,7 +117,7 @@ REGISTRATIONS: tuple[RendererRegistration, ...] = (
         consumer_id="lazygit",
         renderer=lazygit_content,
         contract_version=1,
-        modes=frozenset({"dark", "light", "night"}),
+        modes=frozenset({"dark", "light"}),
         output_kind="active-and-repository",
         sync=SyncDefinition(
             renderer=RendererStrategy.DIRECT_CONTENT,

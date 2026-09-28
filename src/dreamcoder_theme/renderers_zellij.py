@@ -13,8 +13,8 @@ def zellij_content(c: dict[str, str], theme_name: str) -> str:
     """Render a Zellij KDL theme block from a palette dictionary.
 
     ``theme_name`` is the named theme key emitted inside ``themes { }`` (for
-    example ``dreamcoder-night``); colors are derived from the (transformed)
-    palette, never hand-tuned (ADR-003/ADR-004).
+    example ``dreamcoder-dark``); colors are derived from the palette, never
+    hand-tuned (ADR-004).
     """
     return f"""// {c.get("name", "Dreamcoder")} — Zellij theme ({theme_name})
 // Auto-generated from tokens.json — do not edit manually
@@ -73,7 +73,7 @@ REGISTRATIONS: tuple[RendererRegistration, ...] = (
         consumer_id="zellij",
         renderer=NamedZellijAdapter("dreamcoder"),
         contract_version=1,
-        modes=frozenset({"dark", "light", "night"}),
+        modes=frozenset({"dark", "light"}),
         output_kind="active-and-repository",
         sync=SyncDefinition(
             renderer=RendererStrategy.NAMED_ZELLIJ,

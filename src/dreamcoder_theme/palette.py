@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import math
 import re
 import subprocess
 import warnings
@@ -32,9 +31,7 @@ __all__ = [
     "guard",
     "hex_to_rgb",
     "load_guardrails",
-    "load_render_profile",
     "mix",
-    "night_palette",
     "rel_luminance",
     "rgb_to_hex",
     "surface_guard",
@@ -206,7 +203,7 @@ def make_guard(palette: dict[str, str], minimum: float = 3.0) -> Callable[[str],
 # Declarative APCA pair classes (ADR-002).
 #
 # Each class names its token pairs and the guardrail keys that own the
-# threshold — light/dusk floor and dark/night floor. No numeric policy
+# threshold — light/dusk floor and dark floor. No numeric policy
 # literals are allowed here; a missing guardrail key fails validation.
 # ------------------------------------------------------------------
 _APCA_PAIR_CLASSES: tuple[tuple[str, tuple[tuple[str, str], ...], str, str], ...] = (
@@ -263,7 +260,6 @@ def validate_palette(
     palette: dict[str, str],
     guardrails: dict[str, float] | None = None,
     *,
-    profile: str = "standard",
     mode: str | None = None,
 ) -> list[str]:
     """Return stable validation errors for a mode palette.
@@ -273,13 +269,12 @@ def validate_palette(
     failure on the other. Thresholds are resolved from ``guardrails`` by
     key; APCA thresholds must be present or validation fails closed.
 
-    ``profile`` is the rendering profile (``standard`` today; ``night``
-    arrives with the transform). ``mode`` defaults to the palette-derived
-    base mode (``dark`` for ``details=darker``, otherwise ``light``).
+    ``mode`` defaults to the palette-derived base mode (``dark`` for
+    ``details=darker``, otherwise ``light``).
 
     Metric diagnostics use the stable shape::
 
-        {metric} fail: mode={mode} profile={profile} pair={fg}/{bg} \
+        {metric} fail: mode={mode} pair={fg}/{bg} \
             measured={value} guardrail={key}={threshold}
     """
     g = guardrails or {}
@@ -292,14 +287,14 @@ def validate_palette(
 
     def wcag_diag(fg_key: str, bg_key: str, measured: float, key: str, threshold: float) -> str:
         return (
-            f"WCAG fail: mode={effective_mode} profile={profile} "
+            f"WCAG fail: mode={effective_mode} "
             f"pair={fg_key}/{bg_key} measured={measured:.2f} "
             f"guardrail={key}={threshold}"
         )
 
     def apca_diag(cls: str, fg_key: str, bg_key: str, lc: float, key: str, threshold: float) -> str:
         return (
-            f"APCA fail: mode={effective_mode} profile={profile} "
+            f"APCA fail: mode={effective_mode} "
             f"pair={fg_key}/{bg_key} class={cls} measured={abs(lc):.1f} "
             f"guardrail={key}={threshold}"
         )
@@ -377,28 +372,7 @@ def validate_palette(
     return errors
 
 
-# ---------------------------------------------------------------------------
-# Canonical Night/Dim rendering profile (Phase 2; ADR-003).
-#
-# The transform is a deterministic brightness/saturation reduction of the
-# Dreamcoder Dark palette. All parameters come from the canonical token
-# contract (render_profiles.night) — never policy literals — and the bounded
-# corrective pass restores a floor without weakening any threshold or
-# brightening background/surface roles. Failure after the bound is reported by
-# the caller's validate_palette() gate (fail closed, no standard-dark fallback).
-# ---------------------------------------------------------------------------
-
-_NIGHT_PROFILE_KEYS = (
-    "brightness_factor",
-    "saturation_factor",
-    "maximum_corrective_delta",
-    "corrective_step",
-)
-
-_HEX_RE = re.compile(r"^#[0-9a-fA-F]{6}$")
-_RGBA_RE = re.compile(r"^rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*([^)]+)\)$")
-
-# Guardrail keys validate_palette() / night_palette() resolve; a missing key
+# Guardrail keys validate_palette() resolves; a missing key
 # fails closed so thresholds always originate in the canonical token file.
 _REQUIRED_GUARDRAIL_KEYS = (
     "minimum_text_contrast",
@@ -422,27 +396,6 @@ def _require_guardrails(guardrails: dict[str, float]) -> None:
         raise ValueError(f"missing required guardrails: {', '.join(missing)}")
 
 
-def _validate_profile_parameters(params: dict[str, float]) -> None:
-    """Fail closed when render-profile parameters violate the canonical bounds."""
-    if set(params) != set(_NIGHT_PROFILE_KEYS):
-        raise ValueError(
-            "night profile parameters must contain exactly "
-            f"{sorted(_NIGHT_PROFILE_KEYS)}, got {sorted(params)}"
-        )
-    brightness = params["brightness_factor"]
-    saturation = params["saturation_factor"]
-    max_delta = params["maximum_corrective_delta"]
-    step = params["corrective_step"]
-    if not (0 < brightness <= 1):
-        raise ValueError("brightness_factor must be in (0, 1]")
-    if not (0 < saturation <= 1):
-        raise ValueError("saturation_factor must be in (0, 1]")
-    if not (0 <= max_delta <= 0.20):
-        raise ValueError("maximum_corrective_delta must be in [0, 0.20]")
-    if not (0 < step <= max_delta):
-        raise ValueError("corrective_step must be in (0, maximum_corrective_delta]")
-
-
 def load_guardrails(tokens_file: Path) -> dict[str, float]:
     """Load numeric guardrails from the canonical token file, failing closed.
 
@@ -460,282 +413,3 @@ def load_guardrails(tokens_file: Path) -> dict[str, float]:
     numeric = {k: float(v) for k, v in guardrails.items() if isinstance(v, (int, float))}
     _require_guardrails(numeric)
     return numeric
-
-
-def load_render_profile(tokens_file: Path, name: str = "night") -> dict[str, float]:
-    """Load canonical render-profile parameters, failing closed on absence."""
-    if not tokens_file.is_file():
-        raise ValueError(f"tokens file not found: {tokens_file}")
-    try:
-        tokens = json.loads(tokens_file.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError) as exc:
-        raise ValueError(f"invalid tokens file: {tokens_file}") from exc
-    profile = tokens.get("render_profiles", {}).get(name)
-    if not isinstance(profile, dict):
-        raise ValueError(f"render profile {name!r} missing from tokens")
-    params = {k: float(v) for k, v in profile.items() if isinstance(v, (int, float))}
-    _validate_profile_parameters(params)
-    return params
-
-
-def _hsl_from_rgb(r: int, g: int, b: int) -> tuple[float, float, float]:
-    rn, gn, bn = r / 255, g / 255, b / 255
-    mx, mn = max(rn, gn, bn), min(rn, gn, bn)
-    lightness = (mx + mn) / 2
-    delta = mx - mn
-    if delta == 0:
-        return 0.0, 0.0, lightness
-    saturation = delta / (1 - abs(2 * lightness - 1))
-    if mx == rn:
-        hue = 60 * (((gn - bn) / delta) % 6)
-    elif mx == gn:
-        hue = 60 * ((bn - rn) / delta + 2)
-    else:
-        hue = 60 * ((rn - gn) / delta + 4)
-    return hue, saturation, lightness
-
-
-def _rgb_from_hsl(hue: float, saturation: float, lightness: float) -> tuple[int, int, int]:
-    chroma = (1 - abs(2 * lightness - 1)) * saturation
-    x = chroma * (1 - abs((hue / 60) % 2 - 1))
-    m = lightness - chroma / 2
-    if hue < 60:
-        r1, g1, b1 = chroma, x, 0.0
-    elif hue < 120:
-        r1, g1, b1 = x, chroma, 0.0
-    elif hue < 180:
-        r1, g1, b1 = 0.0, chroma, x
-    elif hue < 240:
-        r1, g1, b1 = 0.0, x, chroma
-    elif hue < 300:
-        r1, g1, b1 = x, 0.0, chroma
-    else:
-        r1, g1, b1 = chroma, 0.0, x
-    # Deterministic nearest-integer rounding for byte-identical output.
-    r = round((r1 + m) * 255)
-    g = round((g1 + m) * 255)
-    b = round((b1 + m) * 255)
-    return max(0, min(255, r)), max(0, min(255, g)), max(0, min(255, b))
-
-
-def _transform_hex(value: str, params: dict[str, float]) -> str:
-    hue, saturation, lightness = _hsl_from_rgb(*hex_to_rgb(value))
-    rgb = _rgb_from_hsl(
-        hue,
-        saturation * params["saturation_factor"],
-        lightness * params["brightness_factor"],
-    )
-    return rgb_to_hex(rgb).lower()
-
-
-def _transform_rgba(value: str, params: dict[str, float]) -> str:
-    match = _RGBA_RE.match(value)
-    if match is None:  # defensive: non-color metadata handled by caller
-        return value
-    r, g, b, alpha = int(match.group(1)), int(match.group(2)), int(match.group(3)), match.group(4)
-    hue, saturation, lightness = _hsl_from_rgb(r, g, b)
-    nr, ng, nb = _rgb_from_hsl(
-        hue,
-        saturation * params["saturation_factor"],
-        lightness * params["brightness_factor"],
-    )
-    return f"rgba({nr}, {ng}, {nb}, {alpha})"
-
-
-def _alias_groups(base: dict[str, str]) -> dict[str, list[str]]:
-    """Map every shared color value to its sorted key list (metadata excluded).
-
-    Members of one group share a color identity (e.g. ``selection ==
-    selection_bg``) and must stay byte-identical after the transform,
-    preventing independent rounding or correction drift. Incidental equalities
-    that mix roles (e.g. ``bg == on_accent``) are grouped here but the
-    corrective pass never propagates onto background/surface roles.
-    """
-    groups: dict[str, list[str]] = {}
-    for key, value in base.items():
-        if key in ("name", "details"):
-            continue
-        if not (_HEX_RE.match(value) or _RGBA_RE.match(value)):
-            continue
-        groups.setdefault(value.lower(), []).append(key)
-    return {value: sorted(keys) for value, keys in groups.items() if len(keys) > 1}
-
-
-# Background/surface roles that correction must never touch or brighten: the
-# on-accent pair's background is the semantic ``accent`` color, NOT one of
-# these roles, so the bounded pass may adjust it to restore the on-accent floor.
-_SURFACE_ROLES = frozenset(
-    {
-        "bg",
-        "bg_soft",
-        "surface0",
-        "surface1",
-        "surface2",
-        "surface3",
-        "selection",
-        "selection_bg",
-        "hover",
-        "pressed",
-        "prompt_bg",
-        "prompt_surface0",
-        "prompt_surface1",
-        "prompt_surface2",
-    }
-)
-
-
-def _move_toward_endpoint(out: dict[str, str], token: str, pair_other: str, step: float) -> str:
-    """Move ``token`` lightness one bounded step toward its pair's contrast
-    endpoint (dark-on-light darkens, light-on-dark lightens), preserving hue
-    and the already-reduced saturation."""
-    hue, saturation, lightness = _hsl_from_rgb(*hex_to_rgb(out[token]))
-    if rel_luminance(out[token]) < rel_luminance(out[pair_other]):
-        lightness = max(0.0, lightness - step)
-    else:
-        lightness = min(1.0, lightness + step)
-    return rgb_to_hex(_rgb_from_hsl(hue, saturation, lightness)).lower()
-
-
-def _apply_with_aliases(
-    out: dict[str, str], token: str, value: str, members_of: dict[str, list[str]]
-) -> None:
-    """Write a corrected value to the token and its alias-group members, never
-    onto background/surface roles (which keep their pure-transform value)."""
-    for member in members_of.get(token, [token]):
-        if member in _SURFACE_ROLES:
-            continue
-        out[member] = value
-
-
-def _corrective_pass(
-    out: dict[str, str],
-    guardrails: dict[str, float],
-    params: dict[str, float],
-    effective_mode: str,
-    groups: dict[str, list[str]],
-) -> None:
-    """Bounded lightness correction for failing declared pairs (in place).
-
-    Each step moves a failing foreground's lightness toward its pair's
-    contrast-safe endpoint (polarity-aware) while preserving hue and the
-    already-reduced saturation. Total movement per token is structurally
-    capped at ``maximum_corrective_delta``. Background/surface roles are never
-    brightened; thresholds are never weakened. The on-accent pair is the one
-    case whose foreground is pinned at a near-extreme (even pure black on the
-    accent cannot reach its floor), so its semantic ``accent`` pair-background
-    -- not a surface role -- receives the bounded adjustment instead; the
-    corrected value propagates through alias groups so semantic relationships
-    stay exact (``selection == selection_bg`` etc.).
-    """
-    max_delta = params["maximum_corrective_delta"]
-    step = params["corrective_step"]
-    if max_delta <= 0 or step <= 0:
-        return
-    text_min = guardrails["minimum_text_contrast"]
-    # Alias-group membership per token: aliases share one value, so they
-    # share one corrective budget and step at most once per sweep (otherwise
-    # e.g. subtle/disabled would double-step the shared value and break the
-    # maximum_corrective_delta cap).
-    members_of: dict[str, list[str]] = {}
-    group_of: dict[str, str] = {}
-    for keys in groups.values():
-        for member in keys:
-            members_of[member] = keys
-            group_of[member] = keys[0]
-
-    def rep(token: str) -> str:
-        return group_of.get(token, token)
-
-    moved: dict[str, float] = {}
-    max_sweeps = math.ceil(max_delta / step)
-    for _ in range(max_sweeps):
-        touched = False
-        stepped: set[str] = set()
-        for cls, pairs, light_key, dark_key in _APCA_PAIR_CLASSES:
-            floor_key = light_key if effective_mode in ("light", "dusk") else dark_key
-            floor = guardrails[floor_key]
-            for fg_key, bg_key in pairs:
-                if fg_key not in out or bg_key not in out:
-                    continue
-                fg, bg = out[fg_key], out[bg_key]
-                if abs(apca_lc(fg, bg)) >= floor and contrast(fg, bg) >= text_min:
-                    continue
-                if bg_key not in _SURFACE_ROLES:
-                    # On-accent: the pair background is the semantic accent
-                    # color (pinned foreground cannot reach the floor); adjust
-                    # the background, bounded, to restore the floor.
-                    target, other = bg_key, fg_key
-                else:
-                    target, other = fg_key, bg_key
-                target_rep = rep(target)
-                if target_rep in stepped:
-                    continue
-                remaining = max_delta - moved.get(target_rep, 0.0)
-                if remaining <= 0:
-                    continue
-                old_lightness = _hsl_from_rgb(*hex_to_rgb(out[target]))[2]
-                corrected = _move_toward_endpoint(out, target, other, min(step, remaining))
-                stepped.add(target_rep)
-                if corrected == out[target]:
-                    continue  # clamped at the endpoint; stop stepping it
-                new_lightness = _hsl_from_rgb(*hex_to_rgb(corrected))[2]
-                moved[target_rep] = moved.get(target_rep, 0.0) + abs(new_lightness - old_lightness)
-                _apply_with_aliases(out, target, corrected, members_of)
-                touched = True
-        if not touched:
-            return
-
-
-def night_palette(
-    base: dict[str, str],
-    profile_parameters: dict[str, float],
-    guardrails: dict[str, float],
-) -> dict[str, str]:
-    """Derive the deterministic Night palette from the dark base (ADR-003).
-
-    Steps (design §2): copy the input (never mutate), set the derived display
-    name while ``details`` stays ``darker``, reduce HSL lightness/saturation
-    with deterministic integer-rounded RGB (lowercase hex), preserve ``rgba()``
-    alpha exactly, re-establish input aliases, apply the bounded corrective
-    pass to declared foreground tokens, and reject newly introduced pure
-    black/white on functional roles. Canonical canvas and on-color roles
-    explicitly authored as black remain black under Dark's surface policy.
-
-    Parameters and guardrails are canonical (``load_render_profile`` /
-    ``load_guardrails``); invalid values fail closed with ``ValueError`` and
-    never fall back to the standard dark palette.
-    """
-    _validate_profile_parameters(profile_parameters)
-    _require_guardrails(guardrails)
-    palette_base = {key: value for key, value in base.items() if isinstance(value, str)}
-    groups = _alias_groups(palette_base)
-
-    out = dict(palette_base)
-    out["name"] = f"{palette_base.get('name', 'Dreamcoder Dark')} Night"
-    # details intentionally untouched: the transform keeps dark semantics.
-
-    for key, value in palette_base.items():
-        if _HEX_RE.match(value):
-            out[key] = _transform_hex(value, profile_parameters)
-        elif _RGBA_RE.match(value):
-            out[key] = _transform_rgba(value, profile_parameters)
-
-    # Re-establish exact aliases (pure transform keeps equal inputs equal, but
-    # the corrective pass below must propagate to every member of an alias
-    # group, so the groups are shared between both stages).
-    for _value, keys in groups.items():
-        first = keys[0]
-        for member in keys[1:]:
-            out[member] = out[first]
-
-    effective_mode = detect_mode(out)
-    _corrective_pass(out, guardrails, profile_parameters, effective_mode, groups)
-
-    for key, value in out.items():
-        is_pure = _HEX_RE.match(value) and value.lower() in ("#000000", "#ffffff")
-        policy_black_roles = {"bg", "prompt_bg", "on_accent", "on_error", "on_focus"}
-        preserves_authored_extreme = key in policy_black_roles and palette_base.get(key) == value
-        if is_pure and not preserves_authored_extreme:
-            raise ValueError(f"night transform produced pure {value} for functional role {key}")
-
-    return out

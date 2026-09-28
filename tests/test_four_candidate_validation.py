@@ -1,10 +1,9 @@
-"""Four-candidate deterministic validation tests (task 2.6).
+"""Deterministic candidate validation tests (task 2.6).
 
-The dual gate (ADR-002) is exercised against the four deterministic
-candidates: standard Light, standard Dark, design-system Dusk, and the derived
-Night palette (adaptive disabled for the gate — candidates are built directly
-from the canonical token modes, never through ``adaptive_palette``). All four
-must pass both the WCAG 2.2 and APCA floors. Per-class at-floor passes and
+The dual gate (ADR-002) is exercised against the deterministic candidates:
+Light, Dark, and design-system Dusk (adaptive disabled for the gate —
+candidates are built directly from the canonical token modes, never through
+``adaptive_palette``). All must pass both the WCAG 2.2 and APCA floors. Per-class at-floor passes and
 just-below-floor failures are asserted for Heading (Lc 60 light / 45 dark),
 Body (75 light / 50 dark), Quiet (44), UI (60 light / 28 dark), and On-accent
 (60), using the mode-aware floor keys.
@@ -18,8 +17,6 @@ import pytest
 from dreamcoder_theme._math import apca_lc, contrast
 from dreamcoder_theme.palette import (
     load_guardrails,
-    load_render_profile,
-    night_palette,
     validate_palette,
 )
 
@@ -60,30 +57,16 @@ def _nearest_gray(
 
 
 # ---------------------------------------------------------------------------
-# Four deterministic candidates
+# Deterministic candidates
 # ---------------------------------------------------------------------------
 
 
-def test_four_candidates_all_pass_the_dual_gate():
+def test_candidates_all_pass_the_dual_gate():
     tokens = _tokens()
     g = _guardrails()
-    params = load_render_profile(THEME_ROOT / "tokens.json")
     for mode in ("light", "dark", "dusk"):
-        errors = validate_palette(dict(tokens["modes"][mode]), g, profile="standard", mode=mode)
-        assert errors == [], f"standard:{mode} gate failures: {errors}"
-    night = night_palette(dict(tokens["modes"]["dark"]), params, g)
-    errors = validate_palette(night, g, profile="night", mode="dark")
-    assert errors == [], f"derived:night gate failures: {errors}"
-
-
-def test_night_candidate_is_deterministic():
-    tokens = _tokens()
-    params = load_render_profile(THEME_ROOT / "tokens.json")
-    base = dict(tokens["modes"]["dark"])
-    first = night_palette(base, params, _guardrails())
-    second = night_palette(base, params, _guardrails())
-    assert first == second
-    assert validate_palette(first, _guardrails(), profile="night", mode="dark") == []
+        errors = validate_palette(dict(tokens["modes"][mode]), g, mode=mode)
+        assert errors == [], f"{mode} gate failures: {errors}"
 
 
 def test_candidates_use_canonical_palettes_not_adaptive_output():
@@ -114,7 +97,7 @@ def _assert_class_floor(mode: str, fg_key: str, floor_key: str, pair_bg: str | N
     assert above_lc >= floor and above_wcag >= 4.5
     pal_above = dict(pal)
     pal_above[fg_key] = above
-    errors = validate_palette(pal_above, g, profile="standard", mode=mode)
+    errors = validate_palette(pal_above, g, mode=mode)
     assert not [e for e in errors if f"{fg_key}/{pair_bg or 'bg'}" in e], (
         f"{mode}.{fg_key} at-floor {above} (Lc {above_lc:.1f} >= {floor}) should pass"
     )
@@ -123,7 +106,7 @@ def _assert_class_floor(mode: str, fg_key: str, floor_key: str, pair_bg: str | N
     assert below_lc < floor
     pal_below = dict(pal)
     pal_below[fg_key] = below
-    errors = validate_palette(pal_below, g, profile="standard", mode=mode)
+    errors = validate_palette(pal_below, g, mode=mode)
     apca_errors = [e for e in errors if "APCA fail" in e and f"pair={fg_key}/" in e]
     assert apca_errors, (
         f"{mode}.{fg_key} just-below {below} (Lc {below_lc:.1f} < {floor}) must block"

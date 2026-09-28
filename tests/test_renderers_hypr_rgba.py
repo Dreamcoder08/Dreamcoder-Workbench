@@ -21,7 +21,7 @@ class RgbaToArgbTest(unittest.TestCase):
         # 3-digit channels must be clamped to 2 hex digits, not padded.
         self.assertEqual(_rgba_to_argb("rgba(138, 115, 88, 0.93)"), "rgba(8a7358ed)")
 
-    def test_night_inactive_border(self) -> None:
+    def test_muted_translucent_border(self) -> None:
         self.assertEqual(_rgba_to_argb("rgba(167, 148, 122, 0.87)"), "rgba(a7947ade)")
 
     def test_all_channels_large(self) -> None:

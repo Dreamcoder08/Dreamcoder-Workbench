@@ -21,11 +21,7 @@ def starship_content(c: dict[str, str]) -> str:
     diag = c["diagnostic"]
     lavender_col = c["lavender"]
     mauve_col = c["mauve"]
-    # The named Night sibling must never reference a standard-dark palette
-    # section (design §5 row 11): the derived name is the deterministic
-    # profile signal because the format embeds the palette identity.
-    is_night = "Night" in c.get("name", "")
-    palette_id = "dreamcoder-night" if is_night else "dreamcoder"
+    palette_id = "dreamcoder"
 
     return f'''# ========================================================
 # {c["name"]} — Starship prompt
@@ -191,7 +187,7 @@ REGISTRATIONS: tuple[RendererRegistration, ...] = (
         consumer_id="starship",
         renderer=starship_content,
         contract_version=1,
-        modes=frozenset({"dark", "light", "night"}),
+        modes=frozenset({"dark", "light"}),
         output_kind="active-and-repository",
         sync=SyncDefinition(
             renderer=RendererStrategy.DIRECT_CONTENT,

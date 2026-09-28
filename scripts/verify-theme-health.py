@@ -20,7 +20,7 @@ from dreamcoder_theme.design_system import (  # noqa: E402
     load_tokens,
 )
 from dreamcoder_theme.palette import ansi as terminal_ansi  # noqa: E402
-from dreamcoder_theme.palette import load_guardrails, night_palette, validate_palette  # noqa: E402
+from dreamcoder_theme.palette import validate_palette  # noqa: E402
 from dreamcoder_theme.renderers_opencode import opencode_content  # noqa: E402
 
 FILES = [
@@ -31,7 +31,6 @@ FILES = [
 ANTIGRAVITY_FILES = [
     ROOT / "DreamcoderAntigravity/Dreamcoder.json",
     ROOT / "DreamcoderAntigravity/Dreamcoder-Dark.json",
-    ROOT / "DreamcoderAntigravity/Dreamcoder-Night.json",
     ROOT / "DreamcoderAntigravity/Dreamcoder-Light.json",
 ]
 TOKEN_FILE = ROOT / "DreamcoderThemes/dreamcoder/tokens.json"
@@ -376,10 +375,8 @@ def check_tokens():
 
 
 def check_dual_gate_candidates():
-    """Validate the package dual gate on all four deterministic candidates:
-    standard Light, standard Dark, design-system Dusk, and derived Night
-    (Night = night_palette of canonical dark with canonical render_profiles,
-    wallpaper adaptation disabled for the gate). Any dual-gate error blocks."""
+    """Validate the package dual gate on all three deterministic candidates:
+    Light, Dark, and design-system Dusk. Any dual-gate error blocks."""
     tokens = load_tokens(TOKEN_FILE)
     # float() narrows the comprehension to dict[str, float] (mirrors
     # palette.load_guardrails), satisfying the dict-invariance typing.
@@ -389,24 +386,18 @@ def check_dual_gate_candidates():
         }
     except (TypeError, ValueError) as error:
         raise SystemExit(f"invalid numeric guardrail: {error}") from error
-    night_params = tokens.get("render_profiles", {}).get("night")
-    require(
-        isinstance(night_params, dict),
-        "tokens: render_profiles.night missing (canonical Night parameters required)",
-    )
     candidates = [
         ("light", tokens["modes"]["light"], "light"),
         ("dark", tokens["modes"]["dark"], "dark"),
         ("dusk", tokens["modes"]["dusk"], "dusk"),
-        ("night", night_palette(tokens["modes"]["dark"], night_params, guardrails), "dark"),
     ]
     for label, palette, mode in candidates:
-        errors = validate_palette(palette, guardrails, profile=label, mode=mode)
+        errors = validate_palette(palette, guardrails, mode=mode)
         require(not errors, f"dual gate {label}:\n" + "\n".join(errors))
 
 
-def check_night_coverage():
-    """Fail when the sync 33-consumer Night coverage declaration is missing,
+def check_coverage_declaration():
+    """Fail when the sync 33-consumer coverage declaration is missing,
     duplicated, or not exactly the design matrix's 33 IDs."""
     from dreamcoder_theme.sync import COVERAGE
 
@@ -417,18 +408,14 @@ def check_night_coverage():
 
 
 def check_antigravity_files():
-    """Validate Antigravity's semantic button pair for every render profile."""
+    """Validate Antigravity's semantic button pair for every mode file."""
     if not any(file.exists() for file in ANTIGRAVITY_FILES):
         return
     tokens = load_tokens(TOKEN_FILE)
-    guardrails = load_guardrails(TOKEN_FILE)
     palettes = {
         "Dreamcoder.json": tokens["modes"]["dark"],
         "Dreamcoder-Dark.json": tokens["modes"]["dark"],
         "Dreamcoder-Light.json": tokens["modes"]["light"],
-        "Dreamcoder-Night.json": night_palette(
-            tokens["modes"]["dark"], tokens["render_profiles"]["night"], guardrails
-        ),
     }
     for file in ANTIGRAVITY_FILES:
         colors = _load_json(file)["colors"]
@@ -573,17 +560,6 @@ def _health_findings():
                 for mode in ("dark", "light", "dusk")
                 if mode in tokens["modes"]
             }
-            guardrails = {
-                key: float(value)
-                for key, value in tokens["guardrails"].items()
-                if isinstance(value, int | float)
-            }
-            expected_by_mode["night"] = opencode_content(
-                night_palette(
-                    tokens["modes"]["dark"], tokens["render_profiles"]["night"], guardrails
-                ),
-                transparent_background=True,
-            )
             if actual not in set(expected_by_mode.values()):
                 findings.append(
                     "STALE_ARTIFACT: .opencode/themes/dreamcoder.json "
@@ -724,7 +700,7 @@ for file in CODEX_CLI_FILES:
 check_opencode_repo()
 check_design_system_contract()
 check_dual_gate_candidates()
-check_night_coverage()
+check_coverage_declaration()
 check_antigravity_files()
 for file in KITTY_FILES:
     check_kitty_colors(file)

@@ -285,7 +285,7 @@ def doctor_checks() -> list[HealthCheck]:
         timer_status = "ok" if result.returncode == 0 and timer_detail == "active" else "warn"
     checks.append(
         HealthCheck(
-            name="day/night timer",
+            name="light/dark timer",
             status=timer_status,
             detail=timer_detail,
             repair="systemctl --user enable --now dreamcoder-theme-auto.timer",

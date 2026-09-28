@@ -6,9 +6,8 @@ import json
 
 
 def antigravity_content(c: dict[str, str]) -> str:
-    # Night must be classified dark WITHOUT depending on the word "Dark" in
-    # the derived name (design §5 row 10): the transformed palette keeps
-    # dark semantics in ``details``, which is the reliable signal.
+    # Classify by ``details`` rather than the display name: it is the
+    # reliable dark/light signal carried by every palette.
     theme_type = "dark" if c.get("details", "darker") != "lighter" else "light"
     return json.dumps(
         {
@@ -116,7 +115,7 @@ REGISTRATIONS: tuple[RendererRegistration, ...] = (
         consumer_id="antigravity",
         renderer=antigravity_content,
         contract_version=1,
-        modes=frozenset({"dark", "light", "night"}),
+        modes=frozenset({"dark", "light"}),
         output_kind="active-and-repository",
         sync=SyncDefinition(
             renderer=RendererStrategy.DIRECT_CONTENT,

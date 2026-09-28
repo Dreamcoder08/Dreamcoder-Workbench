@@ -49,11 +49,11 @@ class HerdrModeError(Exception):
 
 
 def herdr_content(profile: HerdrProfile, mode: str, palette: dict[str, str]) -> str:
-    """Render one static Light, Dark, or Night variant without touching active configuration."""
+    """Render one static Light or Dark variant without touching active configuration."""
     if not profile.is_complete:
         raise HerdrContractUnavailableError("Herdr color rendering requires a complete profile")
-    if mode not in {"dark", "light", "night"}:
-        raise HerdrModeError("Herdr supports only dark, light, and night variants")
+    if mode not in {"dark", "light"}:
+        raise HerdrModeError("Herdr supports only dark and light variants")
 
     evidence = profile.evidence
     if "name" not in evidence.allowed_theme_fields:
@@ -146,7 +146,7 @@ REGISTRATIONS: tuple[RendererRegistration, ...] = (
         consumer_id="herdr",
         renderer=VersionedHerdrAdapter(_REPRESENTATIVE_PROFILE, "dark"),
         contract_version=1,
-        modes=frozenset({"dark", "light", "night"}),
+        modes=frozenset({"dark", "light"}),
         output_kind="repository",
         sync=SyncDefinition(
             renderer=RendererStrategy.VERSIONED_HERDR,

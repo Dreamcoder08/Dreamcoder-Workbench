@@ -3,7 +3,7 @@
 Covers the token-driven Lazygit integration: every mode variant parses as valid
 YAML, theme/author/branch-log colors come from the canonical tokens (never a
 duplicated per-mode palette), the Delta syntax theme stays valid per mode
-(Catppuccin Latte light / Mocha dark+night), non-color Lazygit behavior is
+(Catppuccin Latte light / Mocha dark), non-color Lazygit behavior is
 preserved, and the registry registration is consistent with the engine.
 """
 
@@ -16,7 +16,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from dreamcoder_theme.palette import detect_mode, load_render_profile, night_palette
+from dreamcoder_theme.palette import detect_mode
 from dreamcoder_theme.palette_tokens import VARIANTS
 from dreamcoder_theme.renderer_registry import REGISTRATIONS
 from dreamcoder_theme.renderers_lazygit import lazygit_content
@@ -26,18 +26,10 @@ TOKENS_FILE = ROOT / "DreamcoderThemes" / "dreamcoder" / "tokens.json"
 TOKENS = json.loads(TOKENS_FILE.read_text())
 
 
-def _night() -> dict[str, str]:
-    params = load_render_profile(TOKENS_FILE)
-    guardrails = {
-        k: float(v) for k, v in TOKENS["guardrails"].items() if isinstance(v, (int, float))
-    }
-    return night_palette(dict(VARIANTS["dark"]), params, guardrails)
+VARIANTS_BY_MODE = {"dark": VARIANTS["dark"], "light": VARIANTS["light"]}
 
 
-VARIANTS_BY_MODE = {"dark": VARIANTS["dark"], "light": VARIANTS["light"], "night": _night()}
-
-
-@pytest.fixture(params=["dark", "light", "night"])
+@pytest.fixture(params=["dark", "light"])
 def mode(request: pytest.FixtureRequest) -> str:
     return request.param
 
@@ -63,7 +55,6 @@ class TestVariantParsing:
             ROOT / "DreamcoderLazygit/.config/lazygit/config.yml",
             ROOT / "DreamcoderLazygit/.config/lazygit/config.dark.yml",
             ROOT / "DreamcoderLazygit/.config/lazygit/config.light.yml",
-            ROOT / "DreamcoderLazygit/.config/lazygit/config.night.yml",
         ):
             assert path.is_file(), f"missing generated artifact {path}"
             assert _parse(path.read_text())["gui"]["theme"]
@@ -124,17 +115,10 @@ class TestDeltaSyntaxTheme:
         cmd = _parse(lazygit_content(VARIANTS["dark"]))["git"]["diffRenderers"][0]["command"]
         assert 'delta --syntax-theme "Catppuccin Mocha" --paging=never' in cmd
 
-    def test_night_keeps_dark_theme(self) -> None:
-        cmd = _parse(lazygit_content(VARIANTS_BY_MODE["night"]))["git"]["diffRenderers"][0][
-            "command"
-        ]
-        assert 'delta --syntax-theme "Catppuccin Mocha" --paging=never' in cmd
-
     def test_installed_catppuccin_themes_are_used(self) -> None:
         # The chosen themes must match the machine-installed set (Latte/Mocha).
         assert detect_mode(VARIANTS["light"]) == "light"
         assert detect_mode(VARIANTS["dark"]) == "dark"
-        assert detect_mode(VARIANTS_BY_MODE["night"]) == "dark"  # Night keeps dark semantics
 
 
 class TestNonColorBehaviorPreserved:
@@ -169,13 +153,13 @@ class TestRegistryRegistration:
         regs = {r.consumer_id: r for r in REGISTRATIONS}
         assert "lazygit" in regs
         reg = regs["lazygit"]
-        assert reg.modes == frozenset({"dark", "light", "night"})
+        assert reg.modes == frozenset({"dark", "light"})
         assert reg.output_kind == "active-and-repository"
         assert reg.sync.repository.value == "mode_variants"
         assert reg.sync.active.value == "resolved_active_path"
 
     def test_renderer_conforms_for_all_modes(self) -> None:
         regs = {r.consumer_id: r for r in REGISTRATIONS}
-        for mode in ("dark", "light", "night"):
+        for mode in ("dark", "light"):
             result = regs["lazygit"].renderer(VARIANTS_BY_MODE[mode])
             assert type(result) is str and len(result) > 0

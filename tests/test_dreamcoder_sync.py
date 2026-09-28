@@ -11,7 +11,7 @@ from unittest import mock
 import pytest
 
 from dreamcoder_theme import sync
-from dreamcoder_theme.palette import load_render_profile, load_variants, night_palette
+from dreamcoder_theme.palette import load_variants
 from dreamcoder_theme.palette_tokens import VARIANTS as V
 from dreamcoder_theme.settings import ThemePaths
 
@@ -138,13 +138,9 @@ def active() -> dict[str, str]:
 
 @pytest.fixture
 def variants() -> dict[str, dict[str, str]]:
-    tokens_file = ROOT / "DreamcoderThemes" / "dreamcoder" / "tokens.json"
-    params = load_render_profile(tokens_file)
-    guardrails = _canonical_guardrails()
     return {
         "dark": dict(V["dark"]),
         "light": dict(V["light"]),
-        "night": night_palette(dict(V["dark"]), params, guardrails),
     }
 
 
@@ -218,13 +214,6 @@ def _main_patches(mock_paths, active, variants, **overrides):
         write_repo_enabled=True,
         valid_starship=True,
         load_guardrails=_canonical_guardrails(),
-        load_render_profile={
-            "brightness_factor": 0.86,
-            "saturation_factor": 0.72,
-            "maximum_corrective_delta": 0.12,
-            "corrective_step": 0.02,
-        },
-        night_palette=active,
         batch_theme_variants=[False],
     )
     vals.update(overrides)
@@ -238,8 +227,6 @@ def _main_patches(mock_paths, active, variants, **overrides):
         "write_repo_enabled",
         "valid_starship",
         "load_guardrails",
-        "load_render_profile",
-        "night_palette",
     ):
         if name in vals:
             result.append(mock.patch(f"dreamcoder_theme.sync.{name}", return_value=vals[name]))
@@ -275,9 +262,9 @@ def test_main_gate_failure_blocks_all_writes(mock_paths, active, variants):
     """R4: a failed dual gate performs zero writes and exits non-zero.
 
     No writer, selector, variant, or repo writer may run when validation
-    fails, and no settings/profile mutation occurs (Phase 2 main() performs
-    none; persisted profile state is Phase 4/5 — here the fail-closed contract
-    is: non-zero exit, zero writes, prior profile untouched by construction).
+    fails, and no settings mutation occurs (main() performs none — here the
+    fail-closed contract is: non-zero exit, zero writes, prior state untouched
+    by construction).
     """
     patches = [
         mock.patch("dreamcoder_theme.sync.theme_paths", return_value=mock_paths),
@@ -287,16 +274,6 @@ def test_main_gate_failure_blocks_all_writes(mock_paths, active, variants):
         mock.patch("dreamcoder_theme.sync.adaptive_enabled", return_value=False),
         mock.patch("dreamcoder_theme.sync.write_repo_enabled", return_value=True),
         mock.patch("dreamcoder_theme.sync.load_guardrails", return_value=_canonical_guardrails()),
-        mock.patch(
-            "dreamcoder_theme.sync.load_render_profile",
-            return_value={
-                "brightness_factor": 0.86,
-                "saturation_factor": 0.72,
-                "maximum_corrective_delta": 0.12,
-                "corrective_step": 0.02,
-            },
-        ),
-        mock.patch("dreamcoder_theme.sync.night_palette", return_value=active),
         mock.patch("dreamcoder_theme.sync.validate_palette", return_value=["forced gate failure"]),
     ]
     # Every write path must be untouched when the gate fails.
@@ -480,7 +457,7 @@ def test_kitty_ui_active_write_does_not_corrupt_symlinked_sibling(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, variants, active
 ) -> None:
     """An external mode selector can leave dreamcoder-ui.conf as a symlink to
-    one of the -dark/-light/-night siblings. Writing the active (dark) file
+    one of the -dark/-light siblings. Writing the active (dark) file
     through that symlink must never overwrite the sibling's own content."""
     monkeypatch.setattr(sync, "ROOT", tmp_path)
     kitty_dir = tmp_path / "DreamcoderKitty/.config/kitty"

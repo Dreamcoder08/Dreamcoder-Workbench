@@ -9,8 +9,6 @@ from dreamcoder_theme.palette import (
     apca_lc,
     contrast,
     load_guardrails,
-    load_render_profile,
-    night_palette,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -92,13 +90,3 @@ def test_dark_roles_meet_their_declared_apca_thresholds(role: str, guardrail: st
     thresholds = load_guardrails(TOKENS)
 
     assert abs(apca_lc(dark[role], dark["bg"])) >= thresholds[guardrail]
-
-
-def test_night_is_derived_from_the_neutral_dark_source_without_parameter_changes():
-    dark = _dark()
-    night = night_palette(dark, load_render_profile(TOKENS), load_guardrails(TOKENS))
-
-    assert night["bg"] == "#000000"
-    assert night["selection"] == night["selection_bg"]
-    assert night["text"] != dark["text"]
-    assert contrast(night["text"], night["surface3"]) >= 7

@@ -111,22 +111,16 @@ def ensure_kitty_ui_include(path: Path) -> bool:
     return True
 
 
-def update_ghostty_theme(path: Path, mode: str, profile: str = "standard") -> bool:
+def update_ghostty_theme(path: Path, mode: str) -> bool:
     """Update Ghostty config to use the correct theme name, opacity, and blur.
 
-    Profile-aware selector (design §6): Night maps to ``dreamcoder-night``;
-    the legacy ``dreamcoder`` name is retained only for standard light;
-    standard dark keeps ``dreamcoder-dark``.
+    The legacy ``dreamcoder`` name is retained only for light; dark keeps
+    ``dreamcoder-dark``.
     """
     if not path.exists():
         return False
     content = path.read_text()
-    if profile == "night":
-        theme_name = "dreamcoder-night"
-    elif mode != "light":
-        theme_name = "dreamcoder-dark"
-    else:
-        theme_name = "dreamcoder"
+    theme_name = "dreamcoder-dark" if mode != "light" else "dreamcoder"
 
     changed = False
 
@@ -144,29 +138,12 @@ def update_ghostty_theme(path: Path, mode: str, profile: str = "standard") -> bo
     return write_if_changed(path, content) if changed else False
 
 
-def update_zellij_config(
-    path: Path, mode: str, profile: str = "standard", kdl_ready: bool = True
-) -> bool:
-    """Patch Zellij config.kdl to select the theme for base mode + profile.
-
-    Night writes ``theme "dreamcoder-night"`` only when its KDL artifact
-    exists in the prepared plan (design §6): passing ``kdl_ready=False``
-    fails closed rather than pointing at a missing theme (no silent
-    standard-dark substitution, R5).
-    """
+def update_zellij_config(path: Path, mode: str) -> bool:
+    """Patch Zellij config.kdl to select ``theme "dreamcoder-{mode}"``."""
     if not path.exists():
         return False
     content = path.read_text()
-    if profile == "night":
-        theme_name = "dreamcoder-night"
-        if not kdl_ready:
-            raise ValueError(
-                'cannot select theme "dreamcoder-night": its KDL artifact is '
-                "not present in the prepared plan (fail closed, no standard-"
-                "dark substitution)"
-            )
-    else:
-        theme_name = f"dreamcoder-{mode}"
+    theme_name = f"dreamcoder-{mode}"
 
     new_line = f'theme "{theme_name}"'
     pattern = re.compile(r'^\s*theme\s+".*?"\s*$', re.MULTILINE)
@@ -180,14 +157,9 @@ def update_zellij_config(
     return write_if_changed(path, content)
 
 
-def update_warp_settings(path: Path, mode: str, profile: str = "standard") -> bool:
-    """Patch Warp settings.toml with mode-aware opacity/blur for glass coherence.
-
-    Appearance class resolves from base/profile (design §6): Night keeps the
-    dark opacity/blur behavior and never enters the light branch.
-    """
-    dark_appearance = mode == "dark" or profile == "night"
-    if dark_appearance:
+def update_warp_settings(path: Path, mode: str) -> bool:
+    """Patch Warp settings.toml with mode-aware opacity/blur for glass coherence."""
+    if mode == "dark":
         opacity_val = 76
         blur_val = 20
         blur_texture = True
@@ -232,9 +204,8 @@ def write_variant_files(
     """Write every named variant, failing closed before the first write.
 
     The declared ``names`` must be a subset of the provided ``variants`` map
-    (dark/light/night) so a caller can never silently fall back to standard
-    dark for a missing Night palette (R5, design §6): the preflight raises
-    before any file is touched.
+    (dark/light) so a caller can never silently fall back to another palette
+    for a missing variant: the preflight raises before any file is touched.
     """
     missing = set(names) - set(variants)
     if missing:
@@ -260,7 +231,7 @@ def write_variant_files_and_active(
 
     All content is rendered in memory before the first write, and
     ``write_variant_files``' fail-closed ``names <= variants`` preflight runs
-    before any file is touched — a missing Night variant or a render error
+    before any file is touched — a missing variant or a render error
     aborts with zero mutations. Full snapshot/rollback of the activation
     transaction is owned by the Phase 5 activation layer.
     """

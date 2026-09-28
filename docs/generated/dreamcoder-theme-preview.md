@@ -240,44 +240,6 @@ Semantic tokens are intentionally distinct:
 | `border_hi` | 8.10:1 | PASS |
 | `focus` | 4.92:1 | PASS |
 
-### Night (render profile derived from Dreamcoder Dark) contrast (WCAG 2)
-
-| Token | Ratio vs bg | Target |
-| --- | ---: | --- |
-| `text` | 12.29:1 | AAA |
-| `muted` | 9.14:1 | AA |
-| `comment` | 10.02:1 | AA |
-| `accent` | 9.95:1 | AA |
-| `accent_2` | 7.87:1 | AA |
-| `diagnostic` | 9.56:1 | AA |
-| `sage` | 8.14:1 | AA |
-| `error` | 8.06:1 | AA |
-| `warning` | 8.84:1 | AA |
-
-### Night (render profile derived from Dreamcoder Dark) APCA
-
-| Token | Lc vs bg | Target |
-| --- | ---: | --- |
-| `text` | 72.1 | ≥75 (FAIL) |
-| `muted` | 56.8 | ≥75 (FAIL) |
-| `comment` | 61.2 | ≥75 (FAIL) |
-| `accent` | 60.9 | ≥75 (FAIL) |
-| `accent_2` | 50.1 | ≥75 (FAIL) |
-| `diagnostic` | 59.1 | ≥75 (FAIL) |
-| `sage` | 51.8 | ≥75 (FAIL) |
-| `error` | 51.4 | ≥75 (FAIL) |
-| `warning` | 55.4 | ≥75 (FAIL) |
-| `border_ui` | 31.5 | ≥60 (FAIL) |
-| `focus` | 31.3 | ≥60 (FAIL) |
-
-### Night (render profile derived from Dreamcoder Dark) UI affordance contrast
-
-| Token | Ratio vs bg | Target |
-| --- | ---: | --- |
-| `border_ui` | 4.82:1 | PASS |
-| `border_hi` | 7.01:1 | PASS |
-| `focus` | 4.74:1 | PASS |
-
 ## Usage
 
 ```bash
