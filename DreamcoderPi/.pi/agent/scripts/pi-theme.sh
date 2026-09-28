@@ -38,27 +38,11 @@ detect() {
 }
 
 mode="$(detect)"
-profile="${DREAMCODER_THEME_PROFILE:-standard}"
-case "${profile}" in
-standard | night) ;;
-*)
-  echo "✗ invalid render profile: ${profile} (expected standard|night)" >&2
-  exit 1
-  ;;
-esac
-# Night is an orthogonal render profile on top of the base mode: the Pi
-# selector picks the generated *-night sibling while the mode stays dark.
-variant="${mode}"
-[[ "${profile}" == "night" ]] && variant="night"
-src="$DC/DreamcoderPi/.pi/agent/themes/dreamcoder-$variant.json"
+src="$DC/DreamcoderPi/.pi/agent/themes/dreamcoder-$mode.json"
 [[ -f "$src" ]] || {
   echo "✗ $src not found" >&2
   exit 1
 }
 mkdir -p "$(dirname "$LN")"
 ln -sf "$src" "$LN"
-if [[ "${profile}" == "night" ]]; then
-  echo "→ pi-theme: $mode (night)"
-else
-  echo "→ pi-theme: $mode"
-fi
+echo "→ pi-theme: $mode"

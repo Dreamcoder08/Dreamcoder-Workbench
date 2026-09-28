@@ -55,12 +55,15 @@ User decision (2026-09-28): "solo debe tener dreamcoder light y dreamcoder dark"
   palette / Dark-pinned). A persisted legacy `theme.render_profile` is ignored as an
   unknown setting (warning, preserved). Repo-only regeneration: every Light/Dark
   artifact byte-identical; only the generated README, nvim dispatcher and preview
-  docs lost their Night lines.
-- [ ] N2 — Sync + CLI + scripts: sync.py coverage/profile branches and explicit Night
-  writers, cli_handlers/cli_parser/herdr_switch, dispatcher `night` route,
-  apply-theme-mode.sh profile arg + Night gate + kanagawa Night case, theme-auto.sh,
-  verify-theme-health.py, generate-theme-preview.py, nvim colors and pi-theme.sh
-  selectors; update tests (bats + pytest). Route: delegated writer.
+  docs lost their Night lines. Commit: 319ffdd.
+- [x] N2 — Scripts + shell tests: `apply-theme-mode.sh` drops the profile argument,
+  the Night artifact gate, the kanagawa Night case and `DREAMCODER_THEME_PROFILE`
+  (cursor-cli.env no longer writes it; tmux unsets the stale variable); the
+  `dreamcoder` dispatcher rejects `night` as an unknown command; `theme-auto.sh`
+  stops passing `standard`; `pi-theme.sh` selects by mode only. Bats: Night tests
+  (including the failing kanagawa one) deleted and replaced with Light/Dark and
+  `night`-rejection coverage. Route: delegated writer. Python parts of the original
+  N2 landed in N1 (see above).
 - [ ] N3 — Artifacts + fixtures: delete the 33 `*-night*` artifacts, regenerate
   characterization fixtures and generated docs; CI workflow reference. Route:
   delegated writer.

@@ -11,8 +11,6 @@ DARK_START="${DREAMCODER_DARK_START:-18}"
 HOUR="$(date +%H)"
 MODE="dark"
 if (( 10#${HOUR} >= LIGHT_START && 10#${HOUR} < DARK_START )); then MODE="light"; fi
-# The scheduler keeps its existing Light/Dark schedule and never activates
-# Night (R7, task 5.6): the render profile is pinned to standard regardless
-# of any ambient DREAMCODER_THEME_PROFILE, and the bounded adapter routes
-# through the control activation path.
-exec "${DREAMCODER_DOTS_DIR}/scripts/apply-theme-mode.sh" "${MODE}" "${DREAMCODER_WALLPAPER:-}" "standard"
+# Light/Dark schedule; the bounded adapter routes through the control
+# activation path.
+exec "${DREAMCODER_DOTS_DIR}/scripts/apply-theme-mode.sh" "${MODE}" "${DREAMCODER_WALLPAPER:-}"

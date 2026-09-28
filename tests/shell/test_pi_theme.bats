@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 # ============================================================================
-# Tests for DreamcoderPi/.pi/agent/scripts/pi-theme.sh (profile-aware selector,
-# design §5 row 9, task 4.6)
+# Tests for DreamcoderPi/.pi/agent/scripts/pi-theme.sh (Light/Dark selector,
+# design §5 row 9)
 # ============================================================================
 
 setup() {
@@ -17,34 +17,34 @@ setup() {
     cp DreamcoderPi/.pi/agent/scripts/pi-theme.sh \
         "${DREAMCODER_DOTS_DIR}/DreamcoderPi/.pi/agent/scripts/pi-theme.sh"
     touch "${DREAMCODER_DOTS_DIR}/DreamcoderPi/.pi/agent/themes/dreamcoder-dark.json"
-    touch "${DREAMCODER_DOTS_DIR}/DreamcoderPi/.pi/agent/themes/dreamcoder-night.json"
+    touch "${DREAMCODER_DOTS_DIR}/DreamcoderPi/.pi/agent/themes/dreamcoder-light.json"
 }
 
 teardown() {
     rm -rf "${TEST_DIR}"
 }
 
-@test "pi-theme.sh selects night artifact when profile=night" {
-    run env DREAMCODER_THEME_PROFILE=night bash "${DREAMCODER_DOTS_DIR}/DreamcoderPi/.pi/agent/scripts/pi-theme.sh" 2>&1
-    [ "$status" -eq 0 ]
-    [ "$(readlink "${PI_AGENT_DIR}/themes/dreamcoder.json")" = "${DREAMCODER_DOTS_DIR}/DreamcoderPi/.pi/agent/themes/dreamcoder-night.json" ]
-}
-
-@test "pi-theme.sh keeps dark artifact for standard profile" {
+@test "pi-theme.sh selects the dark artifact in dark mode" {
     run bash "${DREAMCODER_DOTS_DIR}/DreamcoderPi/.pi/agent/scripts/pi-theme.sh" 2>&1
     [ "$status" -eq 0 ]
     [ "$(readlink "${PI_AGENT_DIR}/themes/dreamcoder.json")" = "${DREAMCODER_DOTS_DIR}/DreamcoderPi/.pi/agent/themes/dreamcoder-dark.json" ]
 }
 
-@test "pi-theme.sh rejects an invalid profile" {
-    run env DREAMCODER_THEME_PROFILE=dusk bash "${DREAMCODER_DOTS_DIR}/DreamcoderPi/.pi/agent/scripts/pi-theme.sh" 2>&1
-    [ "$status" -eq 1 ]
-    [[ "$output" == *"invalid render profile"* ]]
+@test "pi-theme.sh selects the light artifact in light mode" {
+    run env DREAMCODER_THEME_MODE=light bash "${DREAMCODER_DOTS_DIR}/DreamcoderPi/.pi/agent/scripts/pi-theme.sh" 2>&1
+    [ "$status" -eq 0 ]
+    [ "$(readlink "${PI_AGENT_DIR}/themes/dreamcoder.json")" = "${DREAMCODER_DOTS_DIR}/DreamcoderPi/.pi/agent/themes/dreamcoder-light.json" ]
 }
 
-@test "pi-theme.sh fails closed when night artifact is missing" {
-    rm "${DREAMCODER_DOTS_DIR}/DreamcoderPi/.pi/agent/themes/dreamcoder-night.json"
+@test "pi-theme.sh ignores a stale DREAMCODER_THEME_PROFILE" {
     run env DREAMCODER_THEME_PROFILE=night bash "${DREAMCODER_DOTS_DIR}/DreamcoderPi/.pi/agent/scripts/pi-theme.sh" 2>&1
+    [ "$status" -eq 0 ]
+    [ "$(readlink "${PI_AGENT_DIR}/themes/dreamcoder.json")" = "${DREAMCODER_DOTS_DIR}/DreamcoderPi/.pi/agent/themes/dreamcoder-dark.json" ]
+}
+
+@test "pi-theme.sh fails closed when the mode artifact is missing" {
+    rm "${DREAMCODER_DOTS_DIR}/DreamcoderPi/.pi/agent/themes/dreamcoder-dark.json"
+    run bash "${DREAMCODER_DOTS_DIR}/DreamcoderPi/.pi/agent/scripts/pi-theme.sh" 2>&1
     [ "$status" -eq 1 ]
     [[ "$output" == *"not found"* ]]
 }
