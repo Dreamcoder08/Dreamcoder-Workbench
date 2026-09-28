@@ -94,7 +94,7 @@ registration would falsely assert that no active output exists.
 
 The `zellij` registration's `RepositoryStrategy.MODE_VARIANTS` claim MUST be
 resolved against one design-recorded decision: either (a) correct the claim
-to match that only Night is generated today (orphaned `.kdl` status
+to match the variants actually generated (orphaned `.kdl` status
 documented as a follow-up, never silently deleted), or (b) wire real
 dark/light `.kdl` generation so the existing claim becomes true.
 
@@ -115,7 +115,7 @@ dark/light `.kdl` generation so the existing claim becomes true.
 ### Requirement: herdr registration represents all 3 supported profiles
 
 The `herdr` registration(s) MUST represent that
-`sync_herdr_repo_variants()` writes dark/light(+night) variants for every
+`sync_herdr_repo_variants()` writes dark/light variants for every
 `is_complete` profile in `SUPPORTED_PROFILES` (`herdr-0.7.3`, `-0.8.0`,
 `-0.8.2`), each under its own versioned directory. A single hardcoded
 profile/mode entry MUST NOT stand in for this fan-out.

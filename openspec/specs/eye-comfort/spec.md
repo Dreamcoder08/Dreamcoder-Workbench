@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define the Night/Dim eye-comfort rendering profile for Dreamcoder OS: one canonical APCA contrast implementation, independent blocking WCAG 2.2 + APCA gates, a deterministic brightness/saturation-reduced derivation of the dark Anthracite Steel palette, persistent `theme.render_profile` settings with `dreamcoder night` CLI activation, all-32-active-target coverage, and fail-closed validation before any write — without medical claims, automatic scheduling, palette redesign, or renderer-interface changes.
+Define the eye-comfort contract for Dreamcoder OS: one canonical APCA contrast implementation, independent blocking WCAG 2.2 + APCA gates, exactly two user-facing modes (Dreamcoder Light and Dreamcoder Dark) activated through the Dreamcoder CLI, declared coverage of every active color consumer, and fail-closed validation before any write — without medical claims, palette redesign, or renderer-interface changes.
 
 ## Requirements
 
@@ -52,141 +52,73 @@ All enforced text and affordance pairs MUST satisfy BOTH the WCAG 2.2 minimum co
 
 #### Scenario: Class floors apply per content and mode
 
-- GIVEN heading (Lc 60 light / Lc 45 dark), quiet (Lc 44), UI (Lc 60 light / Lc 28 dark), and on-accent (Lc 60) pairs across Light, Dark, and Night
+- GIVEN heading (Lc 60 light / Lc 45 dark), quiet (Lc 44), UI (Lc 60 light / Lc 28 dark), and on-accent (Lc 60) pairs across Light, Dark, and Dusk
 - WHEN health validation runs
 - THEN each pair MUST be measured against its declared class and mode floor, and any below-floor pair MUST block
 
-### Requirement: Deterministic Night/Dim palette transformation
-
-The system MUST derive the Night/Dim palette in `src/dreamcoder_theme/palette.py` by applying a brightness- and saturation-reduced transform to the dark Anthracite Steel palette, after `adaptive_palette()` and before any renderer runs. The transform MUST use explicit, bounded profile parameters represented in the canonical token contract or its schema, and MUST NOT hand-tune colors inside individual renderers. The transform MUST preserve token keys, semantic relationships, pure-black/white avoidance, alpha syntax, and the `dict[str, str]` renderer input shape. For identical canonical tokens, wallpaper/adaptive input, and profile settings, the transform MUST produce byte-identical output.
-
-#### Scenario: Night derives from dark Anthracite Steel
-
-- GIVEN the standard dark Anthracite Steel palette
-- WHEN the Night/Dim transform is applied after `adaptive_palette()` and before any renderer runs
-- THEN every output token is a brightness/saturation-reduced derivation of the corresponding dark token with the same semantic role, and no individual renderer adjusts colors
-
-#### Scenario: Identical inputs produce identical output
-
-- GIVEN identical canonical tokens, adaptive input, and profile settings
-- WHEN the Night transform runs twice
-- THEN both runs MUST produce byte-identical palettes
-
-#### Scenario: Keys, alpha syntax, and input shape are preserved
-
-- GIVEN a transformed Night palette
-- WHEN it is passed to renderers
-- THEN it contains exactly the same token keys and alpha syntax as the standard palette and consumes the same `dict[str, str]` input shape
-
 ### Requirement: Pre-write validation and fail-closed write behavior
 
-The final palette — including the transformed Night palette — MUST be validated by `validate_palette()` before the first writer runs, and validation MUST finish before `sync_active_targets()` and `sync_repo_snippets()` perform any write. If dimming causes any WCAG or APCA pair to miss its floor, generation MUST stop before writes, the command MUST exit non-zero, and no partial cross-target profile MAY be left applied. The transform MAY make a narrowly bounded corrective adjustment to restore a floor, but MUST NOT weaken a threshold and MUST NOT silently fall back to the standard dark palette. `write_if_changed()` semantics MUST be preserved.
+The final Light or Dark palette MUST be validated by `validate_palette()` before the first writer runs, and validation MUST finish before `sync_active_targets()` and `sync_repo_snippets()` perform any write. If any WCAG or APCA pair misses its floor, generation MUST stop before writes, the command MUST exit non-zero, and no partial cross-target state MAY be left applied. `write_if_changed()` semantics MUST be preserved.
 
 #### Scenario: A failed gate blocks all writes
 
-- GIVEN a Night palette whose transformed output misses one APCA floor
+- GIVEN a palette that misses one APCA floor
 - WHEN the validated sync runs
-- THEN no target or active output is written or selected, the command exits non-zero, and the prior standard profile remains active
+- THEN no target or active output is written or selected, the command exits non-zero, and the prior mode remains active
 
-#### Scenario: Bounded corrective adjustment restores a floor
+### Requirement: Declared coverage of every active color consumer
 
-- GIVEN dimming pushes one pair below its declared floor
-- WHEN the transform applies a narrowly bounded corrective adjustment
-- THEN the adjustment restores the floor without weakening any threshold, and the final palette passes validation before any write
+Every consumer output in the union of `sync_active_targets()` and `sync_repo_snippets()` MUST be declared in the sync coverage table and rendered in memory during preparation; an undeclared or unrendered consumer MUST fail the command before any write. `targets.json` render modes MUST be exactly `dark` and `light`; `dusk-runtime` MUST remain excluded.
 
-#### Scenario: No silent standard-dark fallback
+#### Scenario: An undeclared consumer blocks preparation
 
-- GIVEN the transform cannot meet a floor after bounded correction
-- WHEN the Night sync runs
-- THEN it MUST fail closed with a diagnostic and MUST NOT emit standard dark output while reporting Night
+- GIVEN a consumer written by sync but missing from the coverage declaration
+- WHEN preparation runs
+- THEN the command fails closed before any write and names the consumer
 
-### Requirement: All-active-target Night coverage
+### Requirement: Dreamcoder CLI Light/Dark activation
 
-Night MUST apply to every consumer output in the union of `sync_active_targets()` and `sync_repo_snippets()` — the 32 active color consumers — and MUST NOT silently substitute standard dark for any of them. Each active consumer MUST have a deterministic Night artifact or a Night-selected active output where the target format supports named variants. Silent omission, standard-dark substitution, and partial success MUST be forbidden: no target MAY receive standard dark while the command reports Night. `targets.json` and its schema MUST be updated only as required to represent Night render coverage for the existing active color targets; `dusk-runtime` MUST remain excluded, and no new application targets beyond the 32 active consumers MAY be added.
+`dreamcoder light` and `dreamcoder dark` MUST persist `terminal.default_mode`, run the validated sync, and return non-zero without changing active outputs when validation fails. `night` MUST be rejected as an unknown command, and `dreamcoder theme apply` MUST accept only `light` and `dark`. A settings file that still carries the retired `theme.render_profile` key MUST load without error: the key is reported as an unknown setting, preserved, and never read. `scripts/theme-auto.sh` MUST keep the Light/Dark schedule.
 
-#### Scenario: All 32 active targets receive Night output
+#### Scenario: Light or Dark activation succeeds
 
-- GIVEN the Night profile is active
-- WHEN the validated sync runs
-- THEN every one of the 32 consumers in the union of `sync_active_targets()` and `sync_repo_snippets()` receives Night output or a Night-selected active variant, and the coverage report lists each target
-
-#### Scenario: Standard-dark substitution is forbidden
-
-- GIVEN a consumer whose format supports named variants
-- WHEN Night sync runs
-- THEN that consumer MUST NOT be written with or left selecting standard dark while the command reports Night, and any such substitution MUST fail the command non-zero
-
-#### Scenario: Partial success fails closed
-
-- GIVEN Night generation succeeds for 31 consumers but fails for one
-- WHEN the sync completes
-- THEN the command exits non-zero and identifies the failed target, and MUST NOT report a silently partial profile as success
-
-### Requirement: Persistent render profile setting
-
-The system MUST add a typed setting `theme.render_profile` to `SETTINGS_SCHEMA` in `src/dreamcoder_theme/settings_store.py` with the closed values `standard` and `night`, and MUST preserve unknown settings for forward compatibility. A profile resolver in `src/dreamcoder_theme/settings.py` MUST read the persisted setting for sync, with an explicit environment override for isolated generation and tests. `theme_mode()` MUST remain responsible for the Light/Dark base and MUST NOT reinterpret Night as Dusk.
-
-#### Scenario: Persisted profile is resolved
-
-- GIVEN `theme.render_profile=night` is persisted
-- WHEN sync resolves the rendering profile
-- THEN the resolver returns `night` absent an environment override, and sync uses the Night transform with the dark base
-
-#### Scenario: Environment override wins without mutation
-
-- GIVEN `theme.render_profile=night` is persisted
-- WHEN an explicit environment override for the profile is set for an invocation
-- THEN the resolver MUST return the override value for that invocation and MUST NOT mutate the persisted setting
-
-#### Scenario: Invalid profile value is rejected
-
-- GIVEN `theme.render_profile` is set to a value other than `standard` or `night`
-- WHEN settings validation runs
-- THEN the value MUST be rejected or defaulted to `standard`, and MUST NOT be interpreted as a runtime profile
-
-### Requirement: Dreamcoder CLI activation and profile exit
-
-`dreamcoder night` MUST persist the Night profile, select the dark Anthracite Steel base, run the validated sync, and return non-zero without changing active outputs when validation fails. `dreamcoder light` and `dreamcoder dark` MUST remain backward compatible and MUST each explicitly persist `theme.render_profile=standard` before applying their base mode, exiting Night and regenerating the standard identity across the same target inventory. `dreamcoder settings get/set theme.render_profile` MUST remain available through the existing generic settings interface. The system MUST NOT add automatic time-based activation; `scripts/theme-auto.sh` MUST keep its current Light/Dark schedule.
-
-#### Scenario: Night activation succeeds
-
-- GIVEN the standard profile is active
-- WHEN the user runs `dreamcoder night`
-- THEN the Night profile is persisted, the dark base is selected, the Night transform is validated, and all 32 active targets receive Night output
-
-#### Scenario: Night with a failing gate changes nothing
-
-- GIVEN a transformed Night palette that fails a floor
-- WHEN the user runs `dreamcoder night`
-- THEN the command exits non-zero, no active output is changed, and the prior standard setting remains in effect
-
-#### Scenario: Light and Dark exit Night
-
-- GIVEN `theme.render_profile=night` is active
+- GIVEN either mode is active
 - WHEN the user runs `dreamcoder light` or `dreamcoder dark`
-- THEN `theme.render_profile=standard` is persisted before the base mode is applied, the standard identity is regenerated across the same target inventory, and subsequent sync uses the standard profile
+- THEN the mode is persisted, the palette is validated, and every declared consumer receives that mode's output
 
-#### Scenario: No automatic time-based activation
+#### Scenario: A failing gate changes nothing
 
-- GIVEN the Night profile is not persisted
-- WHEN the theme scheduler runs at any time of day
-- THEN it MUST NOT activate Night automatically and MUST keep the existing Light/Dark schedule
+- GIVEN a palette that fails a floor
+- WHEN the user runs `dreamcoder light` or `dreamcoder dark`
+- THEN the command exits non-zero, no active output is changed, and the prior setting remains in effect
+
+#### Scenario: Night is not a mode
+
+- GIVEN the Night render profile was removed
+- WHEN the user runs `dreamcoder night` or `dreamcoder theme apply night`
+- THEN the command is rejected as unknown, exits non-zero, and changes nothing
+
+#### Scenario: Legacy render profile setting is tolerated
+
+- GIVEN a persisted `theme.render_profile` from an older version
+- WHEN settings are loaded, validated, or updated
+- THEN loading succeeds with an unknown-setting warning and the key is preserved without affecting the mode
 
 ### Requirement: Blocking health verification
 
-`scripts/verify-theme-health.py` MUST import canonical `contrast()` and `apca_lc()` from the package and MUST remove the `check_apca_or_warn()` advisory path for declared guardrail pairs. Every below-floor pair MUST terminate the command non-zero and report mode/profile, token or state pair, measured WCAG/APCA value, and required threshold. The command MUST validate standard Light, standard Dark, design-system Dusk, and derived Night deterministically, and MUST check Night before any generated artifact is accepted. It MUST declare generation/selection coverage for all 32 active consumers, and any consumer without declared coverage MUST block. `scripts/generate-theme-preview.py` MUST use the same canonical math and include Night measurements without creating screenshot baselines.
+`scripts/verify-theme-health.py` MUST import canonical `contrast()` and `apca_lc()` from the package and MUST remove the `check_apca_or_warn()` advisory path for declared guardrail pairs. Every below-floor pair MUST terminate the command non-zero and report mode, token or state pair, measured WCAG/APCA value, and required threshold. The command MUST validate Light, Dark, and design-system Dusk deterministically. It MUST declare generation/selection coverage for every active consumer, and any consumer without declared coverage MUST block. `scripts/generate-theme-preview.py` MUST use the same canonical math without creating screenshot baselines.
 
 #### Scenario: Below-floor pair blocks with actionable diagnostics
 
-- GIVEN a quiet-text pair measuring below Lc 44 in Night
+- GIVEN a quiet-text pair measuring below Lc 44 in Dark
 - WHEN `verify-theme-health.py` runs
-- THEN the command exits non-zero and reports profile Night, the pair, the measured Lc value, and the required threshold
+- THEN the command exits non-zero and reports mode dark, the pair, the measured Lc value, and the required threshold
 
-#### Scenario: All four profiles are validated
+#### Scenario: All canonical palettes are validated
 
-- GIVEN standard Light, standard Dark, design-system Dusk, and derived Night palettes
+- GIVEN the Light, Dark, and design-system Dusk palettes
 - WHEN health validation runs
-- THEN each profile is measured deterministically, and any below-floor pair in any profile blocks the command
+- THEN each palette is measured deterministically, and any below-floor pair in any palette blocks the command
 
 #### Scenario: Advisory warnings become blocking
 
@@ -196,13 +128,13 @@ The system MUST add a typed setting `theme.render_profile` to `SETTINGS_SCHEMA` 
 
 #### Scenario: All-target coverage is declared
 
-- GIVEN the Night profile
+- GIVEN the sync coverage declaration
 - WHEN health validation runs
-- THEN the report declares generation/selection coverage for all 32 active consumers, and any consumer without declared coverage blocks the command
+- THEN it declares generation/selection coverage for every active consumer, and any consumer without declared coverage blocks the command
 
 ### Requirement: Focused regression coverage for the eye-comfort contract
 
-The automated test suite MUST cover APCA known vectors, threshold boundaries, polarity, Night determinism, transform bounds, failed-transform no-write behavior, `theme.render_profile` setting validation, CLI activation, and all-target coverage. Advisory assertions and comments in `tests/test_dreamcoder_global_design_system.py` MUST be replaced with blocking checks. `tests/test_apca_implementation.py` MUST cross-validate the package `apca_lc()` against known vectors. Local and CI behavior MUST align around `python scripts/verify-theme-health.py` and the existing pytest suite.
+The automated test suite MUST cover APCA known vectors, threshold boundaries, polarity, failed-gate no-write behavior, legacy `theme.render_profile` tolerance, Light/Dark CLI activation, and all-target coverage. Advisory assertions and comments in `tests/test_dreamcoder_global_design_system.py` MUST be replaced with blocking checks. `tests/test_apca_implementation.py` MUST cross-validate the package `apca_lc()` against known vectors. Local and CI behavior MUST align around `python scripts/verify-theme-health.py` and the existing pytest suite.
 
 #### Scenario: Known vectors cross-validate the package implementation
 
@@ -216,21 +148,21 @@ The automated test suite MUST cover APCA known vectors, threshold boundaries, po
 - WHEN the focused tests run
 - THEN at-floor pairs pass and below-floor pairs fail with the correct metric and polarity-aware measurement
 
-#### Scenario: Failed transform performs no writes
+#### Scenario: Failed gate performs no writes
 
-- GIVEN a test that forces the Night transform below a floor
+- GIVEN a test that forces the dual gate to fail
 - WHEN the sync path runs under test
 - THEN no writes occur and the failure is asserted
 
 ### Requirement: Evidence and claims boundaries
 
-Night MUST be documented as a user-controlled display profile, not a medical treatment. The system MUST NOT make blue-light-treatment, disease-prevention, eye-strain-cure, or sleep-improvement claims, MUST NOT add automatic warmth/color-temperature filtering, and MUST NOT replace the existing Hyprland 4000K keybindings, which remain a separate external display filter. `docs/DREAMCODER_DESIGN_SYSTEM.md` and generated preview policy MUST document WCAG 2.2 and APCA as independent blocking gates, and previously documented APCA exceptions MUST be corrected or explicitly removed rather than remaining accepted warnings.
+The Light/Dark modes MUST be documented as display modes, not a medical treatment. The system MUST NOT make blue-light-treatment, disease-prevention, eye-strain-cure, or sleep-improvement claims, MUST NOT add automatic warmth/color-temperature filtering, and MUST NOT replace the existing Hyprland 4000K keybindings, which remain a separate external display filter. `docs/DREAMCODER_DESIGN_SYSTEM.md` and generated preview policy MUST document WCAG 2.2 and APCA as independent blocking gates, and previously documented APCA exceptions MUST be corrected or explicitly removed rather than remaining accepted warnings.
 
-#### Scenario: Night is documented without treatment claims
+#### Scenario: Modes are documented without treatment claims
 
-- GIVEN the Night profile and its documentation
+- GIVEN the Light/Dark documentation
 - WHEN the documentation and generated preview policy are inspected
-- THEN Night is described as a validated luminance/chroma display profile with no medical-treatment, blue-light-filtering, or sleep claims, and no automatic warmth is introduced
+- THEN the modes are described without medical-treatment, blue-light-filtering, or sleep claims, and no automatic warmth is introduced
 
 #### Scenario: Advisory APCA exceptions are removed
 

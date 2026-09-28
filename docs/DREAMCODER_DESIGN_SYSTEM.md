@@ -21,7 +21,7 @@ The system competes as a **developer OS design system**, not as a web component 
 Required contract:
 
 - **Versioned token schema**: `DreamcoderThemes/dreamcoder/tokens.schema.json` defines the public token shape.
-- **Mode parity**: `light`, `dusk`, and `dark` must expose equivalent semantic roles; the derived `night` render profile preserves those roles from Dreamcoder Dark.
+- **Mode parity**: `light`, `dusk`, and `dark` must expose equivalent semantic roles.
 - **Semantic separation**: `accent`, `accent_2`, `diagnostic`, `warning`, `error`, `comment`, `subtle`, `focus`, `border_ui`, and `border_hi` must remain distinct.
 - **Generator ownership**: app-specific files are outputs; renderer modules own translation from tokens to target syntax.
 - **No silent drift**: regenerated artifacts must be checked into the repo or intentionally ignored.
@@ -62,15 +62,13 @@ Minimums:
 - On-accent text: Lc 60
 - Heading text: Lc 60 light / 45 dark
 
-See `DreamcoderThemes/dreamcoder/tokens.json` guardrails for current values. `scripts/verify-theme-health.py` validates Light, Dark, and the derived Night candidate, and any below-floor pair blocks the command.
+See `DreamcoderThemes/dreamcoder/tokens.json` guardrails for current values. `scripts/verify-theme-health.py` validates Light, Dark, and Dusk, and any below-floor pair blocks the command.
 
 ## Health verification policy
 
-`python scripts/verify-theme-health.py` is the blocking health command for Dreamcoder Workbench theme changes. It validates the in-memory design-system contract matrix for `dark`, `light`, and `night`; any contract finding fails health verification.
+`python scripts/verify-theme-health.py` is the blocking health command for Dreamcoder Workbench theme changes. It validates the in-memory design-system contract matrix for `dark`, `light`, and `dusk`; any contract finding fails health verification.
 
 OpenCode theme ownership is limited to `.opencode/themes/`. The health check requires exactly `dreamcoder.json` there. Application configuration under `DreamcoderOpenCode/.config/opencode/`, including `opencode.json`, is not a theme artifact and is intentionally excluded.
-
-`night` is the low-light render profile derived from Dreamcoder Dark (reduced brightness and saturation via the canonical `render_profiles`). The health check validates it, and runtime activation is supported through `dreamcoder night`.
 
 ## Governance
 
@@ -83,7 +81,7 @@ Dreamcoder Workbench changes follow this governance model:
 5. **Release notes**: user-visible theme, CLI, repair, or governance changes need a changelog entry.
 6. **Compatibility check**: repair/install flows must remain safe after ML4W, Gentleman, Waypaper, or Hyprland updates.
 
-⚠️ **Known token gaps:** the corrected dual gate surfaces pre-existing debt that Phase 2 corrected in tokens (dark `subtle` → Lc 44.0, `border_ui` WCAG ≥ 4.5, light `disabled` WCAG ≥ 4.5, light/night `success` APCA ≥ 75). The gate is now passing on all canonical palettes; any future below-floor pair blocks health verification.
+⚠️ **Known token gaps:** the corrected dual gate surfaces pre-existing debt that Phase 2 corrected in tokens (dark `subtle` → Lc 44.0, `border_ui` WCAG ≥ 4.5, light `disabled` WCAG ≥ 4.5, light `success` APCA ≥ 75). The gate is now passing on all canonical palettes; any future below-floor pair blocks health verification.
 
 ## Release readiness checklist
 

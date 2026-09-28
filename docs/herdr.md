@@ -87,16 +87,12 @@ drift is detectable:
 DreamcoderHerdr/.config/herdr/dreamcoder/
   0.7.3/config.dark.toml
   0.7.3/config.light.toml
-  0.7.3/config.night.toml
   0.8.0/config.dark.toml
   0.8.0/config.light.toml
-  0.8.0/config.night.toml
   0.8.2/config.dark.toml
   0.8.2/config.light.toml
-  0.8.2/config.night.toml
   0.9.1/config.dark.toml
   0.9.1/config.light.toml
-  0.9.1/config.night.toml
 ```
 
 - Each variant carries the header `# Managed by Dreamcoder; repository variant only.`
@@ -114,7 +110,7 @@ DreamcoderHerdr/.config/herdr/dreamcoder/
 `DreamcoderProfiles/deploy/` holds repository-safe deployment profiles:
 
 - `desktop-arch.json` — desktop Arch Linux deployment; supports the full
-  day/night cycle via systemd timers. Herdr `[ui] pane_scrollbars` follows the
+  light/dark schedule via systemd timers. Herdr `[ui] pane_scrollbars` follows the
   Herdr default (`false`).
 - `mobile-termux.json` — mobile Termux/Moshi deployment; selects Dreamcoder
   Light and disables Herdr pane scrollbars for narrow screens. It contains
@@ -140,7 +136,7 @@ safely.
 ## Live switching
 
 `scripts/herdr-theme-switch.sh` detects the installed Herdr version, selects
-the matching generated dark, light, or night variant, and requests a live config
+the matching generated dark or light variant, and requests a live config
 reload. It resolves the selector from `HERDR_CONFIG_PATH` first, then
 `XDG_CONFIG_HOME`, then `~/.config/herdr/config.toml`.
 

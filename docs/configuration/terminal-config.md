@@ -14,7 +14,7 @@
 Terminals auto-detect `DREAMCODER_THEME_MODE` env var:
 
 ```bash
-export DREAMCODER_THEME_MODE="dark"  # or "light" or "night"
+export DREAMCODER_THEME_MODE="dark"  # or "light"
 ```
 
 ## Font Configuration

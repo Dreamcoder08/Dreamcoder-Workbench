@@ -17,7 +17,7 @@ in this change makes Waybar run with it. The active-workspace accent highlight
 is also not reachable in the shipped chain — `style.css` imports only
 `colors.css`, which declares variables and no accent rule, while the
 `#workspaces button.active` accent rule lives in the engine-generated
-`DreamcoderThemes/dreamcoder/waybar-{dark,light,night}.css`, which `style.css`
+`DreamcoderThemes/dreamcoder/waybar-{dark,light}.css`, which `style.css`
 does not import. The delivered Waybar behavior is therefore the taskbar module
 plus `window-rewrite` icon mappings only. Both limitations, plus two further
 ones, are recorded non-normatively in `## Known Gaps` and MUST NOT be read as
@@ -218,7 +218,7 @@ modules MUST carry its own configuration block.
 
 `DreamcoderWaybar/.config/waybar/style.css` MUST import exactly one stylesheet,
 `colors.css`, which is the Dreamcoder color bridge that selects the active
-light/dark/night variable set written by the theme sync. The shipped import is
+light/dark variable set written by the theme sync. The shipped import is
 `colors.css`; the `waybar-light.css` / `waybar-dark.css` files named by an
 earlier revision of this requirement were reconciled to the shipped import on
 2026-09-11. The layout stylesheet MUST NOT define colors itself (no
@@ -300,7 +300,7 @@ the layout config (see FR2.4).
   `scripts/apply-theme-mode.sh`
 - WHEN the changed paths and the Waybar section of that script are inspected
 - THEN no file under the theme engine package is present, and
-  `DreamcoderThemes/dreamcoder/waybar-{dark,light,night}.css` remain
+  `DreamcoderThemes/dreamcoder/waybar-{dark,light}.css` remain
   engine-generated and unedited
 - AND the mode switch still repoints `~/.config/waybar/colors.css` to the active
   mode variant before the sync and restarts Waybar
@@ -375,7 +375,7 @@ satisfied requirements.
 `DreamcoderWaybar/.config/waybar/style.css` imports only `colors.css`, which
 declares variables and no accent rule; the `#workspaces button.active` accent
 rule lives in the engine-generated
-`DreamcoderThemes/dreamcoder/waybar-{dark,light,night}.css`, which `style.css`
+`DreamcoderThemes/dreamcoder/waybar-{dark,light}.css`, which `style.css`
 does not import. Delivered behavior is the module plus `window-rewrite` only.
 Follow-up: wire the mode CSS import so the accent rule reaches the live chain.
 

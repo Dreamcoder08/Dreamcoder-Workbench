@@ -12,8 +12,7 @@ Defined in `DreamcoderThemes/dreamcoder/tokens.json` with validation schema at `
 | `light` | Dreamcoder Light | `#f3eadc` | `#824f16` | 07:00-16:00 |
 | `dusk`  | Dreamcoder Dusk  | `#ebe4d6` | `#8a5520` | 16:00-18:00 |
 
-These are the only canonical modes. `night` is a render profile derived from Dreamcoder Dark,
-not a schema mode. OLED behavior belongs to `modes.dark.surface_policy`.
+These are the only canonical modes; Dark and Light are the user-facing ones. OLED behavior belongs to `modes.dark.surface_policy`.
 
 ## Token Categories
 

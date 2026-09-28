@@ -142,8 +142,7 @@ systemctl --user status dreamcoder-theme-auto.timer
 
 The timer switches modes by schedule:
 
-- **07:00-16:00** → Light
-- **16:00-18:00** → Night
+- **07:00-18:00** → Light
 - **18:00-07:00** → Dark
 
 ---

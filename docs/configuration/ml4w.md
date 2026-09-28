@@ -149,9 +149,7 @@ one of those files silently disappears on the next upgrade. The rule:
   restarted with `~/.config/ml4w/listeners.sh --restart gtk-theme-switcher`
   (it keeps the body it parsed at start). A listener without a Matugen call is
   left untouched with a warning; a missing listener is skipped. Override the
-  paths with `ML4W_GTK_LISTENER` and `ML4W_LISTENERS_SCRIPT`. Known gap: with
-  the Night render profile persisted, `sync` only regenerates repository
-  artifacts, so the block does not restore live Night colours.
+  paths with `ML4W_GTK_LISTENER` and `ML4W_LISTENERS_SCRIPT`.
 - **waypaper is optional.** ML4W 2.16 no longer installs it; its
   `post_command` is hooked only when `~/.config/waypaper/config.ini` exists.
 - **Colour files may be regular files.** ML4W 2.16 ships

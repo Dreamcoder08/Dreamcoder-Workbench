@@ -1,10 +1,9 @@
 [Unit]
-Description=Run Dreamcoder day/night theme automation
+Description=Run Dreamcoder light/dark theme automation
 
 [Timer]
 OnBootSec=2min
 OnCalendar=*-*-* 07:00:00
-OnCalendar=*-*-* 16:00:00
 OnCalendar=*-*-* 18:00:00
 Persistent=true
 AccuracySec=1min

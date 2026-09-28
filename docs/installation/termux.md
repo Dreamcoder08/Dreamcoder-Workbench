@@ -38,7 +38,7 @@ dreamcoder-theme sync
 
 ## Limitations
 
-- No systemd (day/night automation unavailable)
+- No systemd (light/dark automation unavailable)
 - No GUI apps (Kitty/Ghostty unavailable)
 - Limited shader support
 

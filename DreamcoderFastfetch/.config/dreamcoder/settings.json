@@ -1,8 +1,5 @@
 {
   "terminal": {
     "default_mode": "dark"
-  },
-  "theme": {
-    "render_profile": "standard"
   }
 }

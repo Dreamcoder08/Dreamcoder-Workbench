@@ -22,7 +22,7 @@ Dreamcoder colorscheme generated from `tokens.json`:
 return {
   "dreamcoder.nvim",
   opts = {
-    variant = "dark", -- or "light" or "night"
+    variant = "dark", -- or "light"
   },
 }
 ```

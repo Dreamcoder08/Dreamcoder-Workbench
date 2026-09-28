@@ -73,10 +73,17 @@ User decision (2026-09-28): "solo debe tener dreamcoder light y dreamcoder dark"
   Phase-0 evidence of the legacy 32-consumer sync (no test reads them), a rerun would
   replace the legacy hashes with today's palette and bake machine-specific live
   paths; the harness itself was updated in N1 so it still runs. Route: delegated
+  writer. Commit: e9b75fd.
+- [x] N4 — Docs + timer: live docs (CLAUDE.md, README, INSTALL, AGENTS, CONTRIBUTING,
+  COMPARISON, design system, theme-system/ml4w/editor/terminal/termux, migration,
+  herdr + Herdr evidence, palette-token skill), live openspec specs (eye-comfort
+  rewritten around Light/Dark + legacy-key tolerance, ml4w-keybindings-waybar,
+  renderer-registry), `desktop-arch.json` wording, repo `settings.json` drops
+  `theme.render_profile`, and the timer drops the 16:00 trigger ("light/dark"
+  wording; schedule is 07:00 light, 18:00 dark). Not touched: archived and
+  in-flight `openspec/changes/*`, CHANGELOG, docs/superpowers, the Dusk
+  `light_hours_default`/`dusk_hours_default` token metadata. Route: delegated
   writer.
-- [ ] N4 — Docs + timer: live docs (CLAUDE.md, README, INSTALL, AGENTS, CONTRIBUTING,
-  COMPARISON, docs/*, openspec live specs, skills, herdr evidence) and the systemd
-  timer without 16:00. Route: delegated writer.
 - [ ] N5 — Live cleanup: drop `theme.render_profile` from live settings, remove
   dangling `~/.config/starship-night.toml` and Warp `Dreamcoder-Night.yaml` links,
   `systemctl --user daemon-reload`, apply current mode, verify. Route: inline.
@@ -95,4 +102,4 @@ User decision (2026-09-28): "solo debe tener dreamcoder light y dreamcoder dark"
 
 ## Next step
 
-N1.
+N5 (live cleanup, parent-owned).
