@@ -26,6 +26,7 @@ configuration.
 | `herdr-0.7.3` | 0.7.3 | `herdr config check` | `herdr server reload-config` | `~/.config/herdr/config.toml` | Pre-existing supported profile |
 | `herdr-0.8.0` | 0.8.0 | `herdr config check` | `herdr server reload-config` | `~/.config/herdr/config.toml` (overridable by `HERDR_CONFIG_PATH`) | Installed-binary evidence |
 | `herdr-0.8.2` | 0.8.2 | Source-derived | `herdr server reload-config` | XDG config path (overridable by `HERDR_CONFIG_PATH`) | Public upstream source; no local runtime observation |
+| `herdr-0.9.1` | 0.9.1 | `herdr config check` | `herdr server reload-config` | `~/.config/herdr/config.toml` (overridable by `HERDR_CONFIG_PATH`) | Installed-binary evidence |
 
 ### Herdr 0.8.0 installed-binary evidence
 
@@ -52,6 +53,30 @@ base and the custom `sidebar_bg`, `active_row_bg`, and `selection_bg` tokens.
 See the complete hashes and procedural boundaries in
 [`herdr-contract-evidence.md`](../src/dreamcoder_theme/herdr-contract-evidence.md).
 
+### Herdr 0.9.1 installed-binary evidence
+
+Observed from the executable installed by `herdr update` (0.9.0 → 0.9.1):
+
+- Executable: `~/.cargo/bin/herdr`, version `0.9.1`
+- Binary SHA-256:
+  `2a02fed16beb651ef006e1d43f048f652ca4dc58ad053cd2d44450563d5c54b7`
+- Config validation: `herdr config check`. In 0.9.1 it is strict: unknown keys
+  (`theme.custom.*`, `ui.*`) and unknown theme names are reported as issues and
+  exit non-zero, so a passing check proves every emitted field is recognized.
+- Reload command: `herdr server reload-config`
+- Config path: `~/.config/herdr/config.toml`, overridable via `HERDR_CONFIG_PATH`
+- Default-config deltas relevant to the Dreamcoder variant (`herdr --default-config`):
+  `[ui] pane_scrollbars` now defaults to `true` (the variant keeps `false`);
+  `[ui] accent` defaults to the named color `"cyan"` (the variant pins a hex);
+  `[keys] prefix` defaults to `"ctrl+b"` and `previous_agent` / `next_agent` /
+  `focus_agent` are unset by default (the variant keeps `ctrl+a` and its agent
+  bindings); `catppuccin-latte` is a valid built-in theme name.
+
+The 0.9.1 variants carry the same field set as 0.8.2 (catppuccin base,
+`catppuccin-latte` for Light, sidebar/active-row/selection tokens). Each
+generated variant passed `HERDR_CONFIG_PATH=<variant> herdr config check`. A
+live reload was not observed (the server was not running when captured).
+
 ## Generated repository variants
 
 Versioned variants are generated from the Dreamcoder Workbench canonical tokens
@@ -69,13 +94,17 @@ DreamcoderHerdr/.config/herdr/dreamcoder/
   0.8.2/config.dark.toml
   0.8.2/config.light.toml
   0.8.2/config.night.toml
+  0.9.1/config.dark.toml
+  0.9.1/config.light.toml
+  0.9.1/config.night.toml
 ```
 
 - Each variant carries the header `# Managed by Dreamcoder; repository variant only.`
 - Light renders Dreamcoder Light; dark renders Dreamcoder dark.
 - The 0.8.0 variants include `pane_scrollbars = false`.
-- The 0.8.2 Light variant uses `catppuccin-latte`; all 0.8.2 variants explicitly
-  map sidebar, active-row, and navigation-selection backgrounds.
+- The 0.8.2 and 0.9.1 Light variants use `catppuccin-latte`; all 0.8.2 and
+  0.9.1 variants explicitly map sidebar, active-row, and navigation-selection
+  backgrounds.
 - Active/live configuration (`~/.config/herdr/config.toml`, or whatever
   `HERDR_CONFIG_PATH` points to) stays out of git. The repository only ever
   ships static, versioned variants.
@@ -103,7 +132,8 @@ that deployment profiles validate against their schema, that the mobile profile
 selects Light with pane scrollbars disabled, that the source manifest is
 present, and that no sensitive material exists in the synchronization surface.
 When `herdr` is installed, the verifier additionally runs `herdr config check`
-against a temporary copy of the 0.8.0 light variant using `HERDR_CONFIG_PATH`
+against a temporary copy of the light variant for the installed version (the
+0.8.0 variant when that version has no profile) using `HERDR_CONFIG_PATH`
 (never the live configuration). When `herdr` is absent, that step is skipped
 safely.
 

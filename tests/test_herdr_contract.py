@@ -11,6 +11,7 @@ from dreamcoder_theme.herdr_contract import (
     HERDR_073_PROFILE,
     HERDR_080_PROFILE,
     HERDR_082_PROFILE,
+    HERDR_091_PROFILE,
     SUPPORTED_PROFILES,
     ContractEvidence,
     ContractStatus,
@@ -63,6 +64,17 @@ def test_source_derived_082_profile_is_complete_and_version_bound() -> None:
     )
     assert detect_profile("herdr 0.8.2").profile is HERDR_082_PROFILE
     assert detect_profile("herdr 0.8.3").status is ContractStatus.UNSUPPORTED_CONTRACT
+
+
+def test_installed_binary_091_profile_is_complete_and_version_bound() -> None:
+    assert HERDR_091_PROFILE.is_complete
+    assert HERDR_091_PROFILE.evidence.source_sha256 == (
+        "2a02fed16beb651ef006e1d43f048f652ca4dc58ad053cd2d44450563d5c54b7"
+    )
+    assert HERDR_091_PROFILE.evidence.light_base_theme_name == "catppuccin-latte"
+    assert detect_profile("herdr 0.9.1").profile is HERDR_091_PROFILE
+    assert detect_profile("herdr 0.9.0").status is ContractStatus.UNSUPPORTED_CONTRACT
+    assert detect_profile("herdr 0.9.2").status is ContractStatus.UNSUPPORTED_CONTRACT
 
 
 def test_073_and_080_profiles_select_their_own_exact_versions() -> None:

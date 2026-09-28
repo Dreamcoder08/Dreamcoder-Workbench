@@ -21,7 +21,7 @@ from pathlib import Path
 
 import jsonschema
 
-from dreamcoder_theme.herdr_contract import SUPPORTED_PROFILES
+from dreamcoder_theme.herdr_contract import SUPPORTED_PROFILES, detect_profile
 from dreamcoder_theme.palette_tokens import VARIANTS
 from dreamcoder_theme.renderers_herdr import herdr_content
 
@@ -343,10 +343,16 @@ def optional_host_tool_problems() -> list[str]:
     if herdr is None:
         print("herdr: not installed — optional config validation skipped (safe)")
         return problems
-    profile = next(p for p in SUPPORTED_PROFILES if p.evidence.version == "0.8.0")
-    variant = HERDR_VARIANT_ROOT / "0.8.0" / "config.light.toml"
+    # Validate the installed version's own variant; an unprofiled version
+    # falls back to the 0.8.0 baseline.
+    version_result = subprocess.run(
+        [herdr, "--version"], capture_output=True, text=True, check=False
+    )
+    selection = detect_profile(str(version_result.stdout or ""))
+    version = selection.profile.evidence.version if selection.profile else "0.8.0"
+    variant = HERDR_VARIANT_ROOT / version / "config.light.toml"
     if not variant.is_file():
-        problems.append("0.8.0 light variant missing; cannot run optional herdr config check")
+        problems.append(f"{version} light variant missing; cannot run optional herdr config check")
         return problems
     with tempfile.TemporaryDirectory() as tmp:
         candidate = Path(tmp) / "config.toml"
@@ -357,7 +363,7 @@ def optional_host_tool_problems() -> list[str]:
         )
         if result.returncode != 0:
             problems.append(
-                "herdr config check failed for the 0.8.0 light variant: "
+                f"herdr config check failed for the {version} light variant: "
                 f"{result.stdout.strip()} {result.stderr.strip()}".strip()
             )
     return problems

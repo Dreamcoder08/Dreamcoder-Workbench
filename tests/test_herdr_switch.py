@@ -37,7 +37,7 @@ RELOAD_FAILED = json.dumps(
 def _variant_root(
     tmp_path: Path,
     *,
-    versions: tuple[str, ...] = ("0.7.3", "0.8.0", "0.8.2"),
+    versions: tuple[str, ...] = ("0.7.3", "0.8.0", "0.8.2", "0.9.1"),
     modes: tuple[str, ...] = ("dark", "light", "night"),
 ) -> Path:
     root = tmp_path / "variants"
@@ -57,7 +57,7 @@ class FakeRun:
     def __init__(
         self,
         *,
-        version: str = "herdr 0.9.0\n",
+        version: str = "herdr 0.9.2\n",
         config_check_returncode: int = 0,
         reload_stdout: str = APPLIED,
         reload_stderr: str = "",
@@ -142,11 +142,26 @@ def test_exact_profile_selects_its_own_variant(tmp_path: Path) -> None:
 
 def test_newer_unprofiled_version_falls_back_to_newest_variant(tmp_path: Path) -> None:
     root = _variant_root(tmp_path)
-    choice = choose_variant("herdr 0.9.0\n", "dark", root)
-    assert choice.path == root / "0.8.2/config.dark.toml"
-    assert choice.profile_version == "0.8.2"
+    choice = choose_variant("herdr 0.9.2\n", "dark", root)
+    assert choice.path == root / "0.9.1/config.dark.toml"
+    assert choice.profile_version == "0.9.1"
     assert choice.fallback is True
     assert "no checked-in profile" in choice.reason
+
+
+def test_installed_091_selects_its_own_variant(tmp_path: Path) -> None:
+    root = _variant_root(tmp_path)
+    choice = choose_variant("herdr 0.9.1\n", "night", root)
+    assert choice.path == root / "0.9.1/config.night.toml"
+    assert choice.profile_version == "0.9.1"
+    assert choice.fallback is False
+
+
+def test_version_between_profiles_is_rejected(tmp_path: Path) -> None:
+    root = _variant_root(tmp_path)
+    choice = choose_variant("herdr 0.9.0\n", "dark", root)
+    assert choice.path is None
+    assert "unsupported" in choice.reason
 
 
 def test_older_unprofiled_version_is_rejected(tmp_path: Path) -> None:
@@ -221,22 +236,22 @@ def test_absent_selector_is_created(tmp_path: Path) -> None:
     assert selector.is_symlink()
     assert selector.readlink() == Path("config.light.toml")
     deployed = selector.parent / "config.light.toml"
-    assert deployed.read_text() == (root / "0.8.2/config.light.toml").read_text()
+    assert deployed.read_text() == (root / "0.9.1/config.light.toml").read_text()
 
 
 def test_existing_symlink_selector_is_repointed(tmp_path: Path) -> None:
     root = _variant_root(tmp_path)
     selector = tmp_path / "config.toml"
-    selector.symlink_to(root / "0.8.2/config.dark.toml")
+    selector.symlink_to(root / "0.9.1/config.dark.toml")
     outcome = switch_herdr("light", run=FakeRun(), selector=selector, variant_root=root)
     assert outcome.status == "applied"
     assert selector.readlink() == Path("config.light.toml")
-    assert outcome.previous_target == str(root / "0.8.2/config.dark.toml")
+    assert outcome.previous_target == str(root / "0.9.1/config.dark.toml")
 
 
 def test_repo_variant_is_never_modified(tmp_path: Path) -> None:
     root = _variant_root(tmp_path)
-    variant = root / "0.8.2/config.light.toml"
+    variant = root / "0.9.1/config.light.toml"
     before = variant.read_text()
     switch_herdr("light", run=FakeRun(), selector=tmp_path / "config.toml", variant_root=root)
     assert variant.read_text() == before
@@ -315,7 +330,7 @@ def test_reload_server_not_running_keeps_the_selector(tmp_path: Path) -> None:
 def test_reload_failure_restores_the_previous_selector(tmp_path: Path) -> None:
     root = _variant_root(tmp_path)
     selector = tmp_path / "config.toml"
-    original = root / "0.8.2/config.dark.toml"
+    original = root / "0.9.1/config.dark.toml"
     selector.symlink_to(original)
     run = FakeRun(reload_stdout=RELOAD_FAILED, reload_returncode=1)
     outcome = switch_herdr("light", run=run, selector=selector, variant_root=root)
@@ -337,7 +352,7 @@ def test_reload_failure_removes_a_newly_created_selector(tmp_path: Path) -> None
 def test_reload_launch_failure_restores_the_previous_selector(tmp_path: Path) -> None:
     root = _variant_root(tmp_path)
     selector = tmp_path / "config.toml"
-    original = root / "0.8.2/config.night.toml"
+    original = root / "0.9.1/config.night.toml"
     selector.symlink_to(original)
     run = FakeRun(reload_error=FileNotFoundError("herdr"))
     outcome = switch_herdr("light", run=run, selector=selector, variant_root=root)

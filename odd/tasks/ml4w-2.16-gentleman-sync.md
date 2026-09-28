@@ -122,10 +122,25 @@ injected into ML4W-owned files.
     (universal vars incl. `fish_user_paths`) is not migrated — report to the user.
 - [ ] T6 — Relink the live system through `dreamcoder repair`, confirm a new
   interactive fish starts Herdr. Route: inline.
-- [ ] T7 — Herdr 0.9.1: live binary updated with `herdr update` (0.9.0 → 0.9.1),
+- [x] T7 — Herdr 0.9.1: live binary updated with `herdr update` (0.9.0 → 0.9.1),
   integrations reinstalled, `herdr config check` ok. Onboard a `herdr-0.9.1` profile
   per `docs/herdr.md` (installed-binary evidence, generated variants, verify-repo-sync).
   Route: delegated writer.
+  - Evidence: commit `feat(herdr): onboard the installed Herdr 0.9.1 profile`; binary
+    SHA-256 `2a02fed1…5c54b7`; `HERDR_CONFIG_PATH=<variant> herdr config check` ok for
+    0.9.1 dark/light/night; pytest green on a clean `HEAD` export plus this change;
+    `verify-repo-sync.py` ok (host check now validates the installed 0.9.1 variant).
+  - Rationale: 0.9.1's `config check` is strict (unknown keys and theme names fail),
+    so passing proves the 0.8.2 field set is accepted; the profile reuses it with no new
+    fields and the variants are byte-identical to 0.8.2. Variants generated with a
+    scoped `sync_herdr_repo_variants(profiles=(HERDR_091_PROFILE,))` call, touching no
+    other file. Consequence: a version between profiles (0.9.0) now fails closed; only
+    versions newer than 0.9.1 fall back. `herdr-theme-switch.sh` needed no change
+    (Python detection). Herdr scripts (`herdr-lib`, `herdr-review`,
+    `herdr-workspace-dev`) and the fish autostart (plain `herdr`) match the 0.9.1 CLI;
+    `dev-dots.fish` used `herdr tab open`, absent in 0.9.1, now `tab create` +
+    `pane run` from inside a Herdr pane (`HERDR_ENV`).
+  - Not observed: live `server reload-config` (server not running at capture).
 
 ## Acceptance criteria
 
@@ -142,5 +157,5 @@ injected into ML4W-owned files.
 
 ## Next step
 
-T5 and T7 (delegated writer), then T6. Pending user decisions: SUPER+SHIFT+arrows
+T6 (inline live relink). Pending user decisions: SUPER+SHIFT+arrows
 overlap (resize vs move), the pre-existing kanagawa bridge test, push/PR of the branch.

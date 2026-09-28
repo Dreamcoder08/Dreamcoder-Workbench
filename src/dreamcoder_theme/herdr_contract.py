@@ -296,7 +296,39 @@ HERDR_082_EVIDENCE = ContractEvidence(
     restoration=ProcedureEvidence(available=True, unambiguous=True),
 )
 HERDR_082_PROFILE = HerdrProfile(evidence=HERDR_082_EVIDENCE)
-SUPPORTED_PROFILES = (HERDR_073_PROFILE, HERDR_080_PROFILE, HERDR_082_PROFILE)
+
+# Herdr v0.9.1 installed-binary evidence (`herdr update` from 0.9.0). Observed
+# exactly: executable `herdr` at ~/.cargo/bin/herdr, version `0.9.1`, binary
+# SHA-256 2a02fed16beb651ef006e1d43f048f652ca4dc58ad053cd2d44450563d5c54b7.
+# `herdr config check` rejects unknown keys and theme names in 0.9.1, so the
+# field set below is the 0.8.2 set proven accepted by running `config check`
+# against each generated variant through HERDR_CONFIG_PATH. Reload command is
+# `herdr server reload-config`; see herdr-contract-evidence.md.
+HERDR_091_EVIDENCE = ContractEvidence(
+    profile_id="herdr-0.9.1",
+    executable="herdr",
+    version="0.9.1",
+    source_identity=(
+        "Herdr v0.9.1 installed-binary evidence: `herdr config check` (strict on "
+        "unknown keys) accepts every generated field; reload "
+        "`herdr server reload-config`; HERDR_CONFIG_PATH override"
+    ),
+    source_sha256="2a02fed16beb651ef006e1d43f048f652ca4dc58ad053cd2d44450563d5c54b7",
+    default_config_path="<HOME>/.config/herdr/config.toml",
+    config_path_environment="HERDR_CONFIG_PATH",
+    color_representation="hex (#RRGGBB)",
+    base_theme_name="catppuccin",
+    light_base_theme_name="catppuccin-latte",
+    allowed_theme_fields=HERDR_082_EVIDENCE.allowed_theme_fields,
+    allowed_custom_fields=HERDR_082_EVIDENCE.allowed_custom_fields,
+    allowed_ui_fields=HERDR_082_EVIDENCE.allowed_ui_fields,
+    candidate_validation=ProcedureEvidence(available=True, unambiguous=True),
+    server_applicability=ProcedureEvidence(available=True, unambiguous=True),
+    reload=ProcedureEvidence(available=True, unambiguous=True, observable=True),
+    restoration=ProcedureEvidence(available=True, unambiguous=True),
+)
+HERDR_091_PROFILE = HerdrProfile(evidence=HERDR_091_EVIDENCE)
+SUPPORTED_PROFILES = (HERDR_073_PROFILE, HERDR_080_PROFILE, HERDR_082_PROFILE, HERDR_091_PROFILE)
 
 
 def detect_profile(
