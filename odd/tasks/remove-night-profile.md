@@ -83,7 +83,7 @@ User decision (2026-09-28): "solo debe tener dreamcoder light y dreamcoder dark"
   wording; schedule is 07:00 light, 18:00 dark). Not touched: archived and
   in-flight `openspec/changes/*`, CHANGELOG, docs/superpowers, the Dusk
   `light_hours_default`/`dusk_hours_default` token metadata. Route: delegated
-  writer.
+  writer. Commit: ad41d7b.
 - [ ] N5 — Live cleanup: drop `theme.render_profile` from live settings, remove
   dangling `~/.config/starship-night.toml` and Warp `Dreamcoder-Night.yaml` links,
   `systemctl --user daemon-reload`, apply current mode, verify. Route: inline.
@@ -97,6 +97,10 @@ User decision (2026-09-28): "solo debe tener dreamcoder light y dreamcoder dark"
 
 ## Progress
 
+- Verification after N4: `python -m pytest tests/ -q` exit 0; `bats tests/shell/
+  tests/ml4w/` 143/143 ok; `verify-theme-health.py` and `verify-repo-sync.py` OK;
+  shellcheck/bash -n clean on modified scripts; `git ls-files | grep -i night`
+  lists only this feature document.
 - Branch created from `chore/ml4w-2.16-gentleman-sync`; shell readability fixes
   (c9cf723, 32f9f6f, ffc5359, 754d352) landed here before the Night work started.
 
