@@ -2,6 +2,13 @@
 # Sources generated theme files from themes/dreamcoder/ (synced from tokens.json).
 # No hardcoded colors — the .sh files are the single source of truth.
 
+# The persisted live mode wins over an inherited value: a long-lived parent
+# (e.g. a Herdr server started before the last mode switch) exports a stale one.
+set -l mode_cache "$HOME/.cache/dreamcoder/cursor-cli.env"
+if test -f "$mode_cache"
+    set -l persisted (string match -rg '^(?:export )?DREAMCODER_THEME_MODE="?(light|dark)"?$' <"$mode_cache")
+    test -n "$persisted"; and set -gx DREAMCODER_THEME_MODE $persisted[1]
+end
 set -q DREAMCODER_THEME_MODE; or set -gx DREAMCODER_THEME_MODE dark
 set -q COLORTERM; or set -gx COLORTERM truecolor
 set -gx FORCE_COLOR 3
