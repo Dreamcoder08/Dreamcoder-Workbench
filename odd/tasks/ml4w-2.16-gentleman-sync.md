@@ -78,8 +78,18 @@ injected into ML4W-owned files.
     `docs/configuration/ml4w.md` documents the 2.16 keybind delta and the
     "hooks live in Dreamcoder-owned files" rule; `docs/installation/linux.md` now
     checks `custom.lua` for the loader. `docs/migration/*` had no stale references.
-- [ ] T4 — Apply to the live system and verify (`./scripts/dreamcoder sync`, hooks
+- [x] T4 — Apply to the live system and verify (`./scripts/dreamcoder sync`, hooks
   re-applied, doctor/verify clean). Route: inline.
+  - Evidence: backup at `~/.config/hypr/.dreamcoder-backup-20260928`; refreshed
+    `hypr-colors-*`; `setup-hyprland.sh --profile asus-vivobook15` (custom.lua loader,
+    dreamcoder.lua, marked wallpaper hook); `dreamcoder sync` rewrote hypr colors;
+    `verify-ml4w-setup.sh` 20 passed / 0 failed; `dreamcoder doctor` guardrails passed;
+    `hyprctl configerrors` empty; SUPER+Tab → `~/.local/share/quickshell-overview`.
+  - Fixes found while applying: `61a1ec8` dispatcher exported PYTHONPATH only for
+    CONTROL routes (`dreamcoder sync` raised ModuleNotFoundError); `e715d09` verify
+    required a symlink for the sync-rendered `waybar/colors.css`.
+  - Pre-existing, out of scope: `tests/shell/test_apply_theme.bats` "kanagawa bridge
+    carries night-derived colors" also fails on clean `main`.
 
 ## Acceptance criteria
 
@@ -96,4 +106,5 @@ injected into ML4W-owned files.
 
 ## Next step
 
-T4 (live apply), including refreshing the stale `~/.config/hypr/hypr-colors-*.lua`.
+Feature complete. Pending user decisions: SUPER+SHIFT+arrows overlap (resize vs
+move), the pre-existing kanagawa bridge test, push/PR of the branch.
