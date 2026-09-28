@@ -30,7 +30,10 @@ def managed_targets() -> list[dict[str, Any]]:
             "module": "DreamcoderSystemd",
             "path": str(ch / "systemd" / "user" / "dreamcoder-theme-auto.service"),
         },
-        {"module": "Systemd", "path": str(ch / "systemd" / "user" / "dreamcoder-theme-auto.timer")},
+        {
+            "module": "DreamcoderSystemd",
+            "path": str(ch / "systemd" / "user" / "dreamcoder-theme-auto.timer"),
+        },
     ]
 
 

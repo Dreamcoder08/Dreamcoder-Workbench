@@ -15,6 +15,12 @@ BACKUP_DIR="${CONFIG_HOME}/dreamcoder-backup-$(date +%Y%m%d-%H%M%S)"
 }
 
 mkdir -p "${CONFIG_HOME}"
+# Already linked (e.g. by stow's relative link): keep it, so the next
+# `dreamcoder repair` does not see an absolute link stow does not own.
+if [[ -L "${TARGET_DIR}" && "$(cd -P "${TARGET_DIR}" 2>/dev/null && pwd)" == "$(cd -P "${SOURCE_DIR}" && pwd)" ]]; then
+  printf '✓ Fastfetch assets linked: %s\n' "${TARGET_DIR}"
+  exit 0
+fi
 if [[ -e "${TARGET_DIR}" && ! -L "${TARGET_DIR}" ]]; then
   mkdir -p "${BACKUP_DIR}"
   mv "${TARGET_DIR}" "${BACKUP_DIR}/"
