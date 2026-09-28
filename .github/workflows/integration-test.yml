@@ -45,10 +45,10 @@ jobs:
           ln -sf "$PWD/DreamcoderShell/.config/fish/conf.d/05-dreamcoder-theme.fish" ~/.config/fish/conf.d/05-dreamcoder-theme.fish
           # Deploy theme variant files from the repo, mirroring the real
           # install (ghostty dual-mode and kitty theme switching reference
-          # the -dark/-light/-night variants at runtime).
+          # the -dark/-light variants at runtime).
           rm -rf ~/.config/ghostty/themes
           ln -sfn "$PWD/DreamcoderGhostty/.config/ghostty/themes" ~/.config/ghostty/themes
-          for f in colors-dreamcoder.conf colors-dreamcoder-dark.conf colors-dreamcoder-light.conf colors-dreamcoder-night.conf; do
+          for f in colors-dreamcoder.conf colors-dreamcoder-dark.conf colors-dreamcoder-light.conf; do
             ln -sf "$PWD/DreamcoderKitty/.config/kitty/$f" ~/.config/kitty/$f
               done
 

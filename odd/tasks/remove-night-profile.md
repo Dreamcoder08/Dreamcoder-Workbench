@@ -63,10 +63,17 @@ User decision (2026-09-28): "solo debe tener dreamcoder light y dreamcoder dark"
   stops passing `standard`; `pi-theme.sh` selects by mode only. Bats: Night tests
   (including the failing kanagawa one) deleted and replaced with Light/Dark and
   `night`-rejection coverage. Route: delegated writer. Python parts of the original
-  N2 landed in N1 (see above).
-- [ ] N3 — Artifacts + fixtures: delete the 33 `*-night*` artifacts, regenerate
-  characterization fixtures and generated docs; CI workflow reference. Route:
-  delegated writer.
+  N2 landed in N1 (see above). Commit: 72c173b.
+- [x] N3 — Artifacts: deleted the 33 tracked `*-night*` generated artifacts (Herdr
+  `config.night.toml` for 0.7.3/0.8.0/0.8.2/0.9.1 included) and the CI workflow's
+  Kitty night symlink. Repo-only regeneration afterwards reports 0 changes, so sync
+  no longer recreates them. Light/Dark byte-identity vs the pre-N1 baseline: every
+  tracked `*dark*`/`*light*` artifact unchanged. The characterization fixtures
+  (`tests/fixtures/legacy_*.json`) were intentionally NOT regenerated: they are frozen
+  Phase-0 evidence of the legacy 32-consumer sync (no test reads them), a rerun would
+  replace the legacy hashes with today's palette and bake machine-specific live
+  paths; the harness itself was updated in N1 so it still runs. Route: delegated
+  writer.
 - [ ] N4 — Docs + timer: live docs (CLAUDE.md, README, INSTALL, AGENTS, CONTRIBUTING,
   COMPARISON, docs/*, openspec live specs, skills, herdr evidence) and the systemd
   timer without 16:00. Route: delegated writer.
