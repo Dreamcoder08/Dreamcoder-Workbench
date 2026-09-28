@@ -143,16 +143,21 @@ fi
 # ── 3. Colour file symlinks ══════════════════════════════════════════════════
 title "3. Colour file chain"
 
-# Waybar colors.css (pointing to dreamcoder-colors-{mode}.css)
-if [[ -L "${HOME}/.config/waybar/colors.css" ]]; then
-  target=$(readlink "${HOME}/.config/waybar/colors.css")
-  if [[ "$target" == *"dreamcoder"* ]]; then
-    ok "waybar/colors.css → ${target}"
+# Waybar colors.css: a Dreamcoder symlink or a regular file rendered by the
+# theme sync (same rule as the Hyprland colour files below).
+waybar_colors_path="${HOME}/.config/waybar/colors.css"
+if waybar_colors_is_dreamcoder "${waybar_colors_path}"; then
+  if [[ -L "${waybar_colors_path}" ]]; then
+    ok "waybar/colors.css → $(readlink "${waybar_colors_path}")"
   else
-    warn "waybar/colors.css → ${target} (not dreamcoder)"
+    ok "waybar/colors.css carries Dreamcoder colours (managed regular file)"
   fi
+elif [[ -L "${waybar_colors_path}" ]]; then
+  warn "waybar/colors.css → $(readlink "${waybar_colors_path}") (not dreamcoder)"
+elif [[ -f "${waybar_colors_path}" ]]; then
+  fail "waybar/colors.css has no Dreamcoder colours (Matugen overwrote it?) — run ./scripts/dreamcoder sync"
 else
-  fail "waybar/colors.css is not a symlink"
+  fail "waybar/colors.css is missing"
 fi
 
 # Wlogout → waybar
@@ -256,7 +261,9 @@ if [[ -f "$ENV_FILE" ]]; then
 
     # Verify colour files match the current mode
     COLOR_TARGET=$(readlink "${HOME}/.config/waybar/colors.css" 2>/dev/null || echo "")
-    if [[ "$COLOR_TARGET" == *"${CURRENT_MODE}"* ]]; then
+    if [[ -z "$COLOR_TARGET" ]] && waybar_colors_is_dreamcoder "${HOME}/.config/waybar/colors.css"; then
+      ok "waybar/colors.css is rendered by the sync for the active mode"
+    elif [[ "$COLOR_TARGET" == *"${CURRENT_MODE}"* ]]; then
       ok "waybar/colors.css matches current mode"
     else
       warn "waybar/colors.css (${COLOR_TARGET}) may not match mode (${CURRENT_MODE})"
