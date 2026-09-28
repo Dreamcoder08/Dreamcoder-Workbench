@@ -88,3 +88,12 @@ teardown() {
     run bash -n "$script"
     [ "$status" -eq 0 ]
 }
+
+@test "apply-theme-mode.sh re-selects the Dreamcoder btop theme after ML4W resets it" {
+    # ML4W upgrades rewrite btop.conf with color_theme = "matugen"; every apply
+    # must point it back at the Dreamcoder theme without rewriting it needlessly.
+    script="scripts/apply-theme-mode.sh"
+    grep -q 'BTOP_CONF="${HOME}/.config/btop/btop.conf"' "$script"
+    grep -qF "grep -q '^color_theme = \"dreamcoder\"\$' \"\${BTOP_CONF}\"" "$script"
+    grep -qF "sed -i 's/^color_theme = .*/color_theme = \"dreamcoder\"/' \"\${BTOP_CONF}\"" "$script"
+}

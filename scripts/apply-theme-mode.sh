@@ -294,6 +294,12 @@ BTOP_THEME="${HOME}/.config/btop/themes/dreamcoder.theme"
 if [[ -L "${BTOP_THEME}" ]]; then
   ln -sf "dreamcoder-${VARIANT}.theme" "${BTOP_THEME}"
 fi
+# btop.conf is ML4W-owned and upgrades reset color_theme (to "matugen"), so
+# re-select the Dreamcoder theme on every apply; a no-op when already set.
+BTOP_CONF="${HOME}/.config/btop/btop.conf"
+if [[ -f "${BTOP_THEME}" && -f "${BTOP_CONF}" ]] && ! grep -q '^color_theme = "dreamcoder"$' "${BTOP_CONF}"; then
+  sed -i 's/^color_theme = .*/color_theme = "dreamcoder"/' "${BTOP_CONF}"
+fi
 
 # Zellij: update theme in config.kdl
 ZELLIJ_CONF="${HOME}/.config/zellij/config.kdl"
