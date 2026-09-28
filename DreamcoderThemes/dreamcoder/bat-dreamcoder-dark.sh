@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+# Sourced snippet: never set shell options here.
 # Dreamcoder Dark — Bat theme; run 'bat cache --build' after installing the tmTheme.
 export BAT_THEME="Dreamcoder-Dark"
 export BAT_STYLE="auto,changes,header,grid"

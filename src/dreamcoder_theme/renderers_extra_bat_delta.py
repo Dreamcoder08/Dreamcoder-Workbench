@@ -14,7 +14,7 @@ def bat_content(c: dict[str, str]) -> str:
     theme = f"Dreamcoder-{'Night' if 'Night' in c.get('name', '') else mode_name.title()}"
     return (
         "#!/usr/bin/env bash\n"
-        "set -euo pipefail\n"
+        "# Sourced snippet: never set shell options here.\n"
         f"# {c['name']} — Bat theme; run 'bat cache --build' after installing the tmTheme.\n"
         f'export BAT_THEME="{theme}"\n'
         'export BAT_STYLE="auto,changes,header,grid"\n'
