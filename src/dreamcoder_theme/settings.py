@@ -75,10 +75,34 @@ class ThemePaths:
     )
 
 
+def persisted_theme_mode() -> str | None:
+    """Return the base mode apply-theme-mode.sh persisted, or None.
+
+    ``~/.cache/dreamcoder/cursor-cli.env`` is the live mode record every
+    mode switch writes (Neovim reads the same file as its fallback).
+    """
+    cache_home = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache"))
+    try:
+        lines = (cache_home / "dreamcoder" / "cursor-cli.env").read_text().splitlines()
+    except OSError:
+        return None
+    for line in lines:
+        key, _, value = line.removeprefix("export ").partition("=")
+        if key.strip() == "DREAMCODER_THEME_MODE":
+            mode = value.strip().strip("\"'").lower()
+            return mode if mode in {"dark", "light"} else None
+    return None
+
+
 def theme_mode() -> str:
-    # Dreamcoder Dark is the repo default; a clean env (CI, fresh
-    # shell) must not silently regenerate the legacy light palette.
-    mode = os.environ.get("DREAMCODER_THEME_MODE", "dark").lower()
+    # Precedence: explicit env override, then the persisted live mode, then
+    # Dreamcoder Dark as the repo default. Without the persisted fallback a
+    # bare `dreamcoder sync` rendered Dark over a system running Light; a clean
+    # env (CI, fresh shell) still never regenerates the legacy light palette.
+    env_mode = os.environ.get("DREAMCODER_THEME_MODE")
+    if env_mode is None:
+        return persisted_theme_mode() or "dark"
+    mode = env_mode.lower()
     if mode not in {"dark", "light"}:
         raise SystemExit("DREAMCODER_THEME_MODE must be 'dark' or 'light'")
     return mode
