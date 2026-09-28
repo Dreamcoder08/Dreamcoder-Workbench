@@ -52,7 +52,7 @@ injected into ML4W-owned files.
   relying on an injected line in ML4W's `hyprland.lua`; update doctor to accept it.
   Make the wallpaper hook idempotent, re-appliable after ML4W upgrades, with waypaper
   optional; update bats fixtures to the 2.16 layout. Route: delegated writer.
-  - Evidence: commit `fix(ml4w): make Dreamcoder hooks survive ML4W upgrades`;
+  - Evidence: commit `2ebb433` (`fix(ml4w): make Dreamcoder hooks survive ML4W upgrades`);
     `bats tests/ml4w/` 85/85 ok; `python -m pytest tests/ -q` exit 0; shellcheck clean.
   - Rationale: runner hook is a marked block replaced on each run (byte-identical on
     re-run, migrates the old unmarked block, keeps symlinks); waypaper only when its
@@ -66,8 +66,18 @@ injected into ML4W-owned files.
     colours because the sync writes `colors.lua` itself. Live
     `~/.config/hypr/hypr-colors-*.lua` (the `dreamcoder-colors.lua` targets) are stale
     (Sep 10, older palette) — refresh in T4.
-- [ ] T3 — Pins and docs: bump `docs/upstream-manifest.json` (ML4W `3960570` / tag 2.16,
+- [x] T3 — Pins and docs: bump `docs/upstream-manifest.json` (ML4W `3960570` / tag 2.16,
   Gentleman.Dots `6f44b79`), update `docs/configuration/ml4w.md`. Route: delegated writer.
+  - Evidence: commit `chore(upstream): pin ML4W 2.16 and Gentleman.Dots 6f44b79`;
+    `git ls-remote` (2026-09-28): ML4W `HEAD` and `refs/tags/2.16` (lightweight) =
+    `3960570`, Gentleman.Dots `main` = `6f44b79`; `upstream-diff.py --check-pins` both
+    current; `verify-repo-sync.py` ok; markdown links ok.
+  - Rationale: the manifest schema forbids extra upstream keys, so the tag is recorded
+    in `provenance.method` and `docs/sources.md`. `docs/sources.md` and the
+    `test_verify_repo_sync.py` fixture must track the pins (docs-consistency check).
+    `docs/configuration/ml4w.md` documents the 2.16 keybind delta and the
+    "hooks live in Dreamcoder-owned files" rule; `docs/installation/linux.md` now
+    checks `custom.lua` for the loader. `docs/migration/*` had no stale references.
 - [ ] T4 — Apply to the live system and verify (`./scripts/dreamcoder sync`, hooks
   re-applied, doctor/verify clean). Route: inline.
 
@@ -86,4 +96,4 @@ injected into ML4W-owned files.
 
 ## Next step
 
-T1.
+T4 (live apply), including refreshing the stale `~/.config/hypr/hypr-colors-*.lua`.
