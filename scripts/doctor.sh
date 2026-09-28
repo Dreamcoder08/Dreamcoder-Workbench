@@ -5,6 +5,7 @@ source "${DREAMCODER_DOTS_DIR:-$(cd "$(dirname "$0")/.." && pwd)}/lib/logging.sh
 source "${DREAMCODER_DOTS_DIR}/lib/env.sh"
 source "${DREAMCODER_DOTS_DIR}/lib/checks.sh"
 source "${DREAMCODER_DOTS_DIR}/lib/safety.sh"
+source "${DREAMCODER_DOTS_DIR}/lib/ml4w.sh"
 
 ensure_dots_dir
 
@@ -201,7 +202,18 @@ section '3. Colour file chain'
 check_symlink "${CONFIG_HOME}/waybar/colors.css" "" "waybar → dreamcoder"
 check_symlink "${CONFIG_HOME}/wlogout/colors.css" "../../waybar/colors.css" "wlogout → waybar"
 check_symlink "${CONFIG_HOME}/swaync/colors.css" "../../waybar/colors.css" "swaync → waybar"
-check_symlink "${CONFIG_HOME}/hypr/colors.lua" "" "hypr → dreamcoder"
+# Hyprland colour files may be managed regular files (ML4W 2.16 ships them as
+# regular files and the theme sync writes through them), so check content.
+for hypr_colors in colors.lua colors.conf; do
+  hypr_colors_path="${CONFIG_HOME}/hypr/${hypr_colors}"
+  if hypr_colors_is_dreamcoder "${hypr_colors_path}"; then
+    ok "hypr/${hypr_colors} carries Dreamcoder colours"
+  elif [[ -e "${hypr_colors_path}" ]]; then
+    fail "hypr/${hypr_colors} has no Dreamcoder colours — run ./scripts/dreamcoder sync"
+  else
+    fail "missing: ${hypr_colors_path}"
+  fi
+done
 
 # Verify colour files exist
 if [[ -L "${CONFIG_HOME}/waybar/colors.css" ]]; then

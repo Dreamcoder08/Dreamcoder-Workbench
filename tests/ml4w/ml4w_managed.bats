@@ -122,3 +122,50 @@ load_ml4w_lib() {
   [[ "${lines[0]}" == "flags:"* ]]
   [[ "${lines[0]#flags:}" != *e* ]]
 }
+
+# ── hypr_colors_is_dreamcoder ────────────────────────────────────────────────
+# ML4W 2.16 ships colors.lua / colors.conf as regular files and the theme sync
+# writes Dreamcoder content through them, so a regular file is valid when its
+# bytes match a DreamcoderThemes variant.
+
+@test "ml4w lib: regular colors.lua with Dreamcoder content is accepted" {
+  mkdir -p "${HOME}/.config/hypr"
+  cp "${DREAMCODER_DOTS_DIR}/DreamcoderThemes/dreamcoder/hypr-colors-dark.lua" "${HOME}/.config/hypr/colors.lua"
+
+  load_ml4w_lib
+  run hypr_colors_is_dreamcoder "${HOME}/.config/hypr/colors.lua"
+  [ "$status" -eq 0 ]
+}
+
+@test "ml4w lib: regular colors.conf with Dreamcoder light content is accepted" {
+  mkdir -p "${HOME}/.config/hypr"
+  cp "${DREAMCODER_DOTS_DIR}/DreamcoderThemes/dreamcoder/hypr-colors-light.conf" "${HOME}/.config/hypr/colors.conf"
+
+  load_ml4w_lib
+  run hypr_colors_is_dreamcoder "${HOME}/.config/hypr/colors.conf"
+  [ "$status" -eq 0 ]
+}
+
+@test "ml4w lib: regular colors.lua with foreign (Matugen) content is rejected" {
+  mkdir -p "${HOME}/.config/hypr"
+  printf 'primary = "rgba(ff0000ff)"\n' >"${HOME}/.config/hypr/colors.lua"
+
+  load_ml4w_lib
+  run hypr_colors_is_dreamcoder "${HOME}/.config/hypr/colors.lua"
+  [ "$status" -ne 0 ]
+}
+
+@test "ml4w lib: a symlink to a Dreamcoder variant is accepted" {
+  mkdir -p "${HOME}/.config/hypr"
+  ln -s "${DREAMCODER_DOTS_DIR}/DreamcoderThemes/dreamcoder/hypr-colors-night.lua" "${HOME}/.config/hypr/colors.lua"
+
+  load_ml4w_lib
+  run hypr_colors_is_dreamcoder "${HOME}/.config/hypr/colors.lua"
+  [ "$status" -eq 0 ]
+}
+
+@test "ml4w lib: a missing colour file is rejected" {
+  load_ml4w_lib
+  run hypr_colors_is_dreamcoder "${HOME}/.config/hypr/colors.lua"
+  [ "$status" -ne 0 ]
+}

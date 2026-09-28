@@ -2,9 +2,9 @@
 # ============================================================================
 # ml4w.sh — ML4W ownership predicates (pure; no side effects)
 # ============================================================================
-# This library deliberately omits `set -euo pipefail` (and <30 lines total):
-# sourcing a library must not mutate the caller's shell options. Both callers
-# set their own options before sourcing this file.
+# This library deliberately omits `set -euo pipefail`: sourcing a library must
+# not mutate the caller's shell options. Callers set their own options before
+# sourcing this file.
 #
 # ML4W ownership is accepted from either supported layout:
 #   - old layout: individual config files symlinked from the ML4W dotfiles
@@ -23,5 +23,20 @@ waybar_is_ml4w_managed() {
     [[ -L "${HOME}/.config/waybar/config.jsonc" ]] && return 0
     [[ -L "${HOME}/.config/waybar" ]] && return 0
     [[ -f "${HOME}/.config/waybar/launch.sh" ]] && return 0
+    return 1
+}
+
+# Hyprland colour files (colors.lua / colors.conf) carry Dreamcoder colours when
+# they are a symlink into a Dreamcoder variant, or a regular file byte-identical
+# to one of the DreamcoderThemes hypr-colors-* variants. Regular files are the
+# supported layout: ML4W 2.16 ships them as regular files and the theme sync
+# writes through whatever sits at the path (it only flips existing symlinks).
+hypr_colors_is_dreamcoder() {
+    local path="$1" variant
+    [[ -e "${path}" ]] || return 1
+    [[ -L "${path}" && "$(readlink "${path}")" == *dreamcoder* ]] && return 0
+    for variant in "${DREAMCODER_DOTS_DIR}"/DreamcoderThemes/dreamcoder/hypr-colors-*."${path##*.}"; do
+        [[ -f "${variant}" ]] && cmp -s "${path}" "${variant}" && return 0
+    done
     return 1
 }

@@ -41,17 +41,31 @@ injected into ML4W-owned files.
   (fallback to the legacy path only if the new one is missing) and port the 2.16
   upstream keybind additions (ALT+B statusbar autohide, ALT+D dock autohide,
   SHIFT+D reload dock, AZERTY detection) into `dreamcoder.lua`. Route: delegated writer.
-  - Evidence: commit `fix(ml4w): align the Dreamcoder keybind variant with ML4W 2.16`;
+  - Evidence: commit `f7c2b9b` (`fix(ml4w): align the Dreamcoder keybind variant with ML4W 2.16`);
     `bats tests/ml4w/keybindings_variant.bats` 4/4, `luac -p` ok.
   - Rationale: mirrors upstream 2.16 exactly (no legacy fallback, a clean 2.16 install
     has no `~/.config/quickshell/overview`); Reload Dock left unbound because SHIFT+D is
     the profile theme toggle; AZERTY keysyms bound only on AZERTY (profile owns digits).
     Pre-existing SUPER+SHIFT+arrows overlap (variant resize vs profile move) allowlisted
     in the collision test, pending a product decision.
-- [ ] T2 — Upgrade-proof hooks: load `dreamcoder-colors` from `custom.lua` instead of
+- [x] T2 — Upgrade-proof hooks: load `dreamcoder-colors` from `custom.lua` instead of
   relying on an injected line in ML4W's `hyprland.lua`; update doctor to accept it.
   Make the wallpaper hook idempotent, re-appliable after ML4W upgrades, with waypaper
   optional; update bats fixtures to the 2.16 layout. Route: delegated writer.
+  - Evidence: commit `fix(ml4w): make Dreamcoder hooks survive ML4W upgrades`;
+    `bats tests/ml4w/` 85/85 ok; `python -m pytest tests/ -q` exit 0; shellcheck clean.
+  - Rationale: runner hook is a marked block replaced on each run (byte-identical on
+    re-run, migrates the old unmarked block, keeps symlinks); waypaper only when its
+    config exists. `custom.lua` now loads `dreamcoder-colors` (guarded) and doctor
+    prefers it. colors.lua/colors.conf checks accept managed regular files whose bytes
+    match a DreamcoderThemes `hypr-colors-*` variant: the sync writer writes through the
+    path and `_flip_bridge_symlinks` only flips existing symlinks, and the live 2.16
+    files are regular and byte-identical to `hypr-colors-dark.*`.
+  - Caveat: `custom.lua` is required after ML4W's `conf.*`, so the late
+    `dreamcoder-colors` require only re-defines colour globals; borders get Dreamcoder
+    colours because the sync writes `colors.lua` itself. Live
+    `~/.config/hypr/hypr-colors-*.lua` (the `dreamcoder-colors.lua` targets) are stale
+    (Sep 10, older palette) — refresh in T4.
 - [ ] T3 — Pins and docs: bump `docs/upstream-manifest.json` (ML4W `3960570` / tag 2.16,
   Gentleman.Dots `6f44b79`), update `docs/configuration/ml4w.md`. Route: delegated writer.
 - [ ] T4 — Apply to the live system and verify (`./scripts/dreamcoder sync`, hooks

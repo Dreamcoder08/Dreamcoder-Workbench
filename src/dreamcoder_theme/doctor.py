@@ -39,23 +39,35 @@ def summarize_checks(checks: list[dict[str, str]]) -> dict[str, int]:
     }
 
 
+def _check_hypr_colors_loader(ch: Path) -> HealthCheck:
+    """Check that Hyprland loads dreamcoder-colors.
+
+    The loader belongs in custom.lua: Dreamcoder generates it and ML4W never
+    ships it, so ML4W upgrades that rewrite hyprland.lua cannot drop it. A
+    require injected into hyprland.lua is still accepted as a legacy layout.
+    """
+    hypr = ch / "hypr"
+    for candidate in (hypr / "custom.lua", hypr / "hyprland.lua"):
+        if candidate.exists() and "dreamcoder-colors" in candidate.read_text(errors="ignore"):
+            return HealthCheck(
+                name="hyprland dreamcoder import",
+                status="ok",
+                detail=str(candidate),
+                repair="",
+            )
+    return HealthCheck(
+        name="hyprland dreamcoder import",
+        status="warn",
+        detail=f"no dreamcoder-colors loader in {hypr / 'custom.lua'}",
+        repair="scripts/generate-custom-lua.sh (custom.lua loads dreamcoder-colors)",
+    )
+
+
 def _check_ml4w_hooks(ch: Path) -> list[HealthCheck]:
     """Check ML4W integration hooks."""
     ml4w_checks: list[HealthCheck] = []
 
-    # Hyprland dreamcoder-colors import
-    hypr_lua = ch / "hypr" / "hyprland.lua"
-    dc_imported = False
-    if hypr_lua.exists():
-        dc_imported = "dreamcoder-colors" in hypr_lua.read_text(errors="ignore")
-    ml4w_checks.append(
-        HealthCheck(
-            name="hyprland dreamcoder import",
-            status="ok" if dc_imported else "warn",
-            detail=str(hypr_lua) if hypr_lua.exists() else "missing hyprland.lua",
-            repair="Add require('dreamcoder-colors') after require('colors') in hyprland.lua",
-        )
-    )
+    ml4w_checks.append(_check_hypr_colors_loader(ch))
 
     # Btop theme
     btop_theme = ch / "btop" / "themes" / "dreamcoder.theme"

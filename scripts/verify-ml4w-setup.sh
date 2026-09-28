@@ -179,17 +179,25 @@ else
   fail "swaync/colors.css is not a symlink"
 fi
 
-# Hyprland colors.lua
-if [[ -L "${HOME}/.config/hypr/colors.lua" ]]; then
-  target=$(readlink "${HOME}/.config/hypr/colors.lua")
-  if [[ "$target" == *"dreamcoder"* ]]; then
-    ok "hypr/colors.lua → ${target}"
+# Hyprland colors.lua / colors.conf: a Dreamcoder symlink or a managed regular
+# file with Dreamcoder content (ML4W 2.16 ships regular files; the sync writes
+# through them). Only foreign content or a missing file fails.
+for hypr_colors in colors.lua colors.conf; do
+  hypr_colors_path="${HOME}/.config/hypr/${hypr_colors}"
+  if hypr_colors_is_dreamcoder "${hypr_colors_path}"; then
+    if [[ -L "${hypr_colors_path}" ]]; then
+      ok "hypr/${hypr_colors} → $(readlink "${hypr_colors_path}")"
+    else
+      ok "hypr/${hypr_colors} carries Dreamcoder colours (managed regular file)"
+    fi
+  elif [[ -L "${hypr_colors_path}" ]]; then
+    warn "hypr/${hypr_colors} → $(readlink "${hypr_colors_path}") (not dreamcoder)"
+  elif [[ -f "${hypr_colors_path}" ]]; then
+    fail "hypr/${hypr_colors} has no Dreamcoder colours (Matugen overwrote it?) — run ./scripts/dreamcoder sync"
   else
-    warn "hypr/colors.lua → ${target} (not dreamcoder)"
+    fail "hypr/${hypr_colors} is missing"
   fi
-else
-  fail "hypr/colors.lua is not a symlink"
-fi
+done
 
 # ── 4. custom.lua ═══════════════════════════════════════════════════════════
 title "4. Keybinding file"

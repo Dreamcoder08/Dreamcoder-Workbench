@@ -142,3 +142,18 @@ load '../helpers/setup'
   [ "$status" -eq 0 ]
   [[ "$output" == *"default.json"* ]]
 }
+
+@test "generate-custom-lua: custom.lua loads dreamcoder-colors exactly once, guarded" {
+  run bash "${DREAMCODER_DOTS_DIR}/scripts/generate-custom-lua.sh" \
+    --profile asus-vivobook15 --dry-run
+  [ "$status" -eq 0 ]
+  # ML4W upgrades rewrite hyprland.lua, so the loader lives in custom.lua.
+  [ "$(grep -c 'require("dreamcoder-colors")' <<<"$output")" -eq 1 ]
+  [[ "$output" == *'io.open(os.getenv("HOME") .. "/.config/hypr/dreamcoder-colors.lua", "r")'* ]]
+}
+
+@test "generate-custom-lua: regenerating keeps a single colour loader" {
+  bash "${DREAMCODER_DOTS_DIR}/scripts/generate-custom-lua.sh" --profile default >/dev/null
+  bash "${DREAMCODER_DOTS_DIR}/scripts/generate-custom-lua.sh" --profile default >/dev/null
+  [ "$(grep -c 'require("dreamcoder-colors")' "${HOME}/.config/hypr/custom.lua")" -eq 1 ]
+}
