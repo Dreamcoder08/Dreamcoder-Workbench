@@ -6,7 +6,10 @@ ENV_FILE="${DREAMCODER_DOTS_ENV:-${0%/*}/dreamcoder-env.sh}"
 [[ -f "${ENV_FILE}" ]] && source "${ENV_FILE}"
 CMD="${1:-help}"
 shift || true
-CONTROL() { PYTHONPATH="${DREAMCODER_DOTS_DIR}/src${PYTHONPATH:+:${PYTHONPATH}}" python3 -m dreamcoder_theme.control "$@"; }
+# Every Python entrypoint imports dreamcoder_theme from src/; the package is
+# not required to be installed, so expose it to all routes, not only CONTROL.
+export PYTHONPATH="${DREAMCODER_DOTS_DIR}/src${PYTHONPATH:+:${PYTHONPATH}}"
+CONTROL() { python3 -m dreamcoder_theme.control "$@"; }
 
 case "${CMD}" in
     install) exec "${DREAMCODER_DOTS_DIR}/scripts/install.sh" "$@" ;;
