@@ -13,7 +13,9 @@ restart_waybar() {
         pkill waybar 2>/dev/null || true
         sleep 0.3
         local launch_script="${HOME}/.config/waybar/launch.sh"
-        [[ -f "${launch_script}" ]] && "${launch_script}" 2>/dev/null || true
+        # Detach every stream: the relaunched bar outlives us, and an inherited
+        # stdout pipe would block any caller capturing our output (theme apply).
+        [[ -f "${launch_script}" ]] && "${launch_script}" </dev/null >/dev/null 2>&1 || true
     fi
 }
 

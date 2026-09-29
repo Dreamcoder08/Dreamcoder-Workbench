@@ -131,6 +131,27 @@ one of those files silently disappears on the next upgrade. The rule:
   wallpaper app calls with `$IMAGE_PATH`) between
   `# >>> Dreamcoder wallpaper hook >>>` markers. Each run replaces the block, so
   re-running it after an ML4W upgrade restores the hook without duplicates.
+- **The GTK theme listener is hooked the same way.** ML4W 2.16 runs
+  `~/.config/ml4w/listeners/gtk-theme-switcher.sh`, which watches
+  `~/.config/gtk-3.0/settings.ini`. Dreamcoder's own light/dark switch writes
+  that file, so the listener then runs Matugen over the wallpaper and
+  overwrites Dreamcoder's colour files (`waybar/colors.css`, `hypr/colors.lua`,
+  `hypr/colors.conf`, rofi colours) before reloading Quickshell, Waybar, GTK and
+  swaync. `scripts/apply-ml4w-hooks.sh` inserts a block between
+  `# >>> Dreamcoder listener hook >>>` markers right after each Matugen call.
+  The block runs `scripts/dreamcoder sync` synchronously
+  (`DREAMCODER_THEME_MODE` taken from the branch's `matugen -m dark|light`, or
+  read from `settings.ini` when the call has no `-m`; `DREAMCODER_WRITE_REPO=0`;
+  streams to
+  `~/.cache/dreamcoder/ml4w-listener-sync.log`, 120 s timeout), so the reloads
+  that follow pick up Dreamcoder colours. The sync never writes `settings.ini`,
+  so the listener cannot loop. When the file changes, the running listener is
+  restarted with `~/.config/ml4w/listeners.sh --restart gtk-theme-switcher`
+  (it keeps the body it parsed at start). A listener without a Matugen call is
+  left untouched with a warning; a missing listener is skipped. Override the
+  paths with `ML4W_GTK_LISTENER` and `ML4W_LISTENERS_SCRIPT`. Known gap: with
+  the Night render profile persisted, `sync` only regenerates repository
+  artifacts, so the block does not restore live Night colours.
 - **waypaper is optional.** ML4W 2.16 no longer installs it; its
   `post_command` is hooked only when `~/.config/waypaper/config.ini` exists.
 - **Colour files may be regular files.** ML4W 2.16 ships
@@ -144,7 +165,7 @@ After every ML4W upgrade:
 
 ```bash
 ./scripts/generate-custom-lua.sh      # custom.lua (keybinds + colour loader)
-./scripts/apply-ml4w-hooks.sh         # re-hook the wallpaper runner
+./scripts/apply-ml4w-hooks.sh         # re-hook the wallpaper runner + GTK listener
 ./scripts/dreamcoder sync             # rewrite colors.lua / colors.conf
 ./scripts/verify-ml4w-setup.sh
 ```
@@ -200,7 +221,7 @@ DreamcoderProfiles/dreamcoder/
 └── asus-vivobook15.json       # ASUS VivoBook 15 profile (all Fn keys)
 
 tests/ml4w/
-├── apply_ml4w_hooks.bats      # wallpaper hook (ML4W 2.16 runner fixture)
+├── apply_ml4w_hooks.bats      # wallpaper + GTK listener hooks (ML4W 2.16 fixtures)
 ├── args.bats                  # script argument handling
 ├── generate_custom_lua.bats   # generator, incl. the dreamcoder-colors loader
 ├── keybindings_variant.bats   # dreamcoder.lua vs ML4W 2.16 and the profile

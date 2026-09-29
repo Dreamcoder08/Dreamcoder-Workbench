@@ -120,8 +120,23 @@ injected into ML4W-owned files.
     systemd unit links (absolute repo links), `.config/systemd/user/dreamcoder-env.conf`
     (identical regular file), warp settings/theme links. ML4W's `fish_variables`
     (universal vars incl. `fish_user_paths`) is not migrated — report to the user.
-- [ ] T6 — Relink the live system through `dreamcoder repair`, confirm a new
+- [x] T6 — Relink the live system through `dreamcoder repair`, confirm a new
   interactive fish starts Herdr. Route: inline.
+  - Evidence: `./scripts/dreamcoder repair` (backup id `20260928-133204-402020`,
+    conflicts moved to
+    `~/.local/share/dreamcoder/install-conflicts/20260928-133204-402020/`) relinked
+    fish, kitty, fastfetch, `.bashrc`, `.zshrc` and the other Dreamcoder stow
+    targets; fish loads the Dreamcoder config; an interactive fish in a pty
+    autostarted the Herdr 0.9.1 server.
+  - Fixes found while relinking: `a7c925a` (Herdr panes spawned zsh: `SHELL`
+    pinned to fish), `702751f` (`restart_waybar` leaked the caller's stdout, so the
+    theme apply hung), `a107ff0` (ML4W reset btop `color_theme` to matugen; the
+    Dreamcoder theme is re-selected on every apply).
+  - Not migrated: ML4W's `fish_variables` (universal vars); the only effective
+    difference is `/usr/lib/ccache/bin` missing from `PATH`.
+  - Found: during `repair` (13:33:12) ML4W's GTK theme listener re-ran Matugen and
+    overwrote `waybar/colors.css` and `hypr/colors.lua`; `verify-ml4w-setup.sh`
+    failed until `dreamcoder sync` — addressed by T8.
 - [x] T7 — Herdr 0.9.1: live binary updated with `herdr update` (0.9.0 → 0.9.1),
   integrations reinstalled, `herdr config check` ok. Onboard a `herdr-0.9.1` profile
   per `docs/herdr.md` (installed-binary evidence, generated variants, verify-repo-sync).
@@ -142,6 +157,35 @@ injected into ML4W-owned files.
     `pane run` from inside a Herdr pane (`HERDR_ENV`).
   - Not observed: live `server reload-config` (server not running at capture).
 
+- [x] T8 — Hook ML4W 2.16's GTK theme listener
+  (`~/.config/ml4w/listeners/gtk-theme-switcher.sh`): on every gtk `settings.ini`
+  change (every Dreamcoder mode switch, including the 07:00/16:00/18:00 timer) it
+  runs Matugen over the wallpaper and overwrites Dreamcoder colour files before
+  reloading Quickshell, Waybar, GTK and swaync. `scripts/apply-ml4w-hooks.sh` now
+  inserts a marked block after each Matugen call that runs `dreamcoder sync`
+  synchronously, and restarts the listener through ML4W's `listeners.sh` when the
+  file changes. Route: delegated writer.
+  - Evidence: commit `fix(ml4w): restore Dreamcoder colours after ML4W's GTK
+    listener runs Matugen`; `bats tests/ml4w/ tests/shell/` 143/144 (only the known
+    kanagawa failure); `tests/ml4w/apply_ml4w_hooks.bats` 25/25 (10 new listener
+    tests on a read-only copy of the installed 2.16 listener); `python -m pytest
+    tests/` 694 passed; `bash -n` + shellcheck clean.
+  - Rationale: same philosophy as the runner hook (marked, byte-identical on
+    re-run, stale blocks replaced, write-through keeps symlink/mode, missing
+    listener skipped, no Matugen call → untouched with a warning, overrides
+    `ML4W_GTK_LISTENER` / `ML4W_LISTENERS_SCRIPT`). The block passes the branch's
+    own `matugen -m dark|light` as `DREAMCODER_THEME_MODE` (fallback: read
+    `settings.ini`), because `sync` defaulted to Dark without it; it sets
+    `DREAMCODER_WRITE_REPO=0` so a background listener never dirties the repo,
+    logs to `~/.cache/dreamcoder/ml4w-listener-sync.log`, and is bounded by a
+    120 s timeout. `sync` writes no gtk `settings.ini`, so the listener cannot
+    loop. The restart runs in the foreground with detached streams so the
+    `theme-auto.sh` apply that follows never races a half-restarted listener.
+  - Known gap: with the Night render profile persisted, `sync` only regenerates
+    repository artifacts, so live Night colours are not restored by the block.
+  - Pending: live apply (hook the live listener, toggle dark/light, verify) —
+    run by the parent after the persisted-mode fix.
+
 ## Acceptance criteria
 
 - `bats tests/ml4w/` and `python -m pytest tests/` pass.
@@ -157,5 +201,15 @@ injected into ML4W-owned files.
 
 ## Next step
 
-T6 (inline live relink). Pending user decisions: SUPER+SHIFT+arrows
+T8 live apply (parent). Pending user decisions: SUPER+SHIFT+arrows
 overlap (resize vs move), the pre-existing kanagawa bridge test, push/PR of the branch.
+
+## Live evidence (T8, 2026-09-28)
+
+- `./scripts/apply-ml4w-hooks.sh`: listener hooked (markers present) and restarted.
+- Dark → Light toggle through the listener: final waybar/hypr colours carry the
+  Dreamcoder light palette; `verify-ml4w-setup.sh` 20 passed / 0 failed.
+- Also fixed during this pass: `b9f8c50` theme_mode() falls back to the persisted
+  live mode; `bd8e5b5` fish starts in the persisted mode; `4b04f3e` ls colours `or`/`st`
+  lifted to WCAG AA with a 4.5:1 gate.
+- Follow-up feature: `odd/tasks/remove-night-profile.md` (user decision: Light + Dark only).
