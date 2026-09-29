@@ -49,7 +49,9 @@ alias zf="zen-browser -P Founder"
 set -gx BROWSER "zen-browser -P Personal"
 # Start selected terminal multiplexer (Herdr)
 if status is-interactive; and command -q herdr; and not set -q HERDR_ENV; and not set -q TMUX; and not set -q ZELLIJ; and not set -q ORCA_PANE_KEY
-    herdr; or echo "⚠️  Herdr failed to start; continuing in Fish."
+    # Herdr spawns panes with $SHELL; pin it to this fish so panes never inherit
+    # a foreign login shell (e.g. zsh from the session environment).
+    env SHELL=(status fish-path) herdr; or echo "⚠️  Herdr failed to start; continuing in Fish."
 end
 
 # ── SDD Profile Aliases ───────────────────────────────────────────

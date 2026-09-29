@@ -8,15 +8,22 @@ LIB_FILE="${DREAMCODER_DOTS_DIR}/scripts/dreamcoder-lib.sh"
 # shellcheck source=/dev/null
 [[ -f "${LIB_FILE}" ]] && source "${LIB_FILE}"
 fail() { printf '✗ %s\n' "${*}" >&2; exit 1; }
-backup_path() { local path="${1}" legacy_dir="${CONFIG_HOME}/dreamcoder/install-conflicts/${BACKUP_ID}"; [[ -e "${path}" && ! -L "${path}" ]] || return 0; mkdir -p "${legacy_dir}"; mv "${path}" "${legacy_dir}/"; printf '→ Moved stow conflict %s to %s\n' "${path}" "${legacy_dir}"; }
 command -v python3 >/dev/null || fail 'Missing dependency: python3'
+[[ "${MODE}" == install ]] && command -v stow >/dev/null || [[ "${MODE}" == repair ]] || fail 'Usage: dreamcoder-maintenance.sh {install|repair}'
 BACKUP_JSON="$(dreamcoder_backup "${MODE}-preflight")"; BACKUP_ID="$(printf '%s' "${BACKUP_JSON}" | dreamcoder_json_get backup_id)"
 printf '→ Backup manifest: %s\n  rollback: ./scripts/dreamcoder backup restore %s --json\n' "${BACKUP_ID}" "${BACKUP_ID}"
-[[ "${MODE}" == install ]] && command -v stow >/dev/null || [[ "${MODE}" == repair ]] || fail 'Usage: dreamcoder-maintenance.sh {install|repair}'
+# Outside every stowed tree: ~/.config/dreamcoder is itself a stow target.
+CONFLICT_DIR="${DATA_HOME}/dreamcoder/install-conflicts/${BACKUP_ID}"
 cd "${DREAMCODER_DOTS_DIR}"
-if [[ "${MODE}" == install ]]; then for target in "${DREAMCODER_TARGETS[@]}"; do backup_path "${target}"; done; stow -t "${HOME}" "${DREAMCODER_MODULES[@]}"; fi
+# Stow before the hooks so they write through Dreamcoder links, not through a
+# target an upstream (e.g. an ML4W upgrade) re-pointed to its own tree.
+if command -v stow >/dev/null; then
+  dreamcoder_stow_modules "${CONFLICT_DIR}"
+  [[ -d "${CONFLICT_DIR}" ]] && printf '→ Stow conflicts preserved in %s\n' "${CONFLICT_DIR}"
+else
+  printf '! stow not found: skipping relink (%s)\n' "${MODE}" >&2
+fi
 dreamcoder_apply_hooks
-if [[ "${MODE}" == repair ]]; then command -v stow >/dev/null && stow -t "${HOME}" "${DREAMCODER_MODULES[@]}"; fi
 dreamcoder_enable_timer
 "${DREAMCODER_DOTS_DIR}/scripts/theme-auto.sh"
 [[ "${MODE}" == repair ]] && "${DREAMCODER_DOTS_DIR}/scripts/verify.sh"

@@ -25,7 +25,7 @@ High-level documentation on how the system is built and how it works.
 | [Monorepo Structure](architecture/monorepo-structure.mmd) | Visual map of the repository: `src/`, `scripts/`, `tests/`, and every top-level directory |
 | [Data Flow](architecture/data-flow.mmd) | Full flow of `dreamcoder-theme sync`: palette → tokens → renderers → writers → disk |
 | [Source Manifest](sources.md) | Upstream inputs (ML4W, Gentleman.Dots), ownership boundaries, and prohibitions on secrets/runtime state |
-| [Herdr Integration](herdr.md) | Herdr 0.7.3/0.8.0 contracts, versioned generated variants, and deployment profiles |
+| [Herdr Integration](herdr.md) | Herdr 0.7.3/0.8.0/0.8.2/0.9.1 contracts, versioned generated variants, and deployment profiles |
 | [Design System](DREAMCODER_DESIGN_SYSTEM.md) | Design principles, color philosophy, and visual identity guidelines |
 | [Control Center](DREAMCODER_CONTROL_CENTER.md) | Central control dashboard for the Dreamcoder Workbench ecosystem |
 

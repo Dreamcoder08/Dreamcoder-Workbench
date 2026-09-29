@@ -133,3 +133,21 @@ systemctl --user disable --now dreamcoder-theme-auto.timer
 | Btop theme not found            | Run `dreamcoder-theme sync` to regenerate                   |
 | Auto-timer not switching        | Check `systemctl --user status dreamcoder-theme-auto.timer` |
 | Doctor reports missing files    | Run `./scripts/dreamcoder repair`                           |
+
+### Upstream upgrades that re-point Dreamcoder targets
+
+An ML4W upgrade can re-point `~/.config/fish`, `~/.config/kitty`,
+`~/.config/fastfetch`, `~/.bashrc`, or `~/.zshrc` to its own tree under
+`~/.mydotfiles`. `./scripts/dreamcoder repair` (and `install`) relinks the
+Dreamcoder stow modules (`DreamcoderShell`, `DreamcoderKitty`,
+`DreamcoderGhostty`, `DreamcoderFastfetch`, `DreamcoderWarp`, `DreamcoderBat`,
+`DreamcoderSystemd`) before applying hooks:
+
+- a stow dry run lists every blocking target: regular files, and symlinks stow
+  does not own (foreign trees or absolute links into the repo);
+- each one is moved, never deleted, to
+  `~/.local/share/dreamcoder/install-conflicts/<backup-id>/<path under $HOME>`;
+  symlinks move as links, so the tree they point to stays untouched;
+- stow then links the modules. Anything the upstream tree held that you still
+  need (for example fish universal variables in its `fish_variables`) must be
+  copied back by hand.

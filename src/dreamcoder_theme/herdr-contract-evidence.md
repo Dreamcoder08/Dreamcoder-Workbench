@@ -146,6 +146,30 @@ silently accepted" behavior already documented above for 0.7.3) is a
 design decision, not a patch, and is left open here rather than decided
 unilaterally.
 
+## Herdr 0.9.1 installed-binary profile
+
+`herdr-0.9.1` is bound to local `herdr 0.9.1` (installed by `herdr update`
+from 0.9.0), binary SHA-256
+`2a02fed16beb651ef006e1d43f048f652ca4dc58ad053cd2d44450563d5c54b7` at
+`~/.cargo/bin/herdr`. Unlike the 0.9.0 note above, 0.9.1's
+`herdr config check` rejects unknown keys (`unknown config key
+theme.custom.<name>; ignoring key`) and unknown theme names with a non-zero
+exit, which closes the open question of whether the 0.8.2 field set is still
+accepted: each generated `0.9.1/config.{dark,light,night}.toml` passed
+`HERDR_CONFIG_PATH=<variant> herdr config check` with `config: ok`. The profile
+therefore reuses the 0.8.2 theme, custom, and ui field sets exactly and adds no
+new fields.
+
+Observed default-config deltas (`herdr --default-config`, 374 lines, SHA-256
+`a62a4a2fc4746dd392976916d3333b89598cc30407819de9544cc8f4b4502fa8`):
+`[ui] pane_scrollbars` defaults to `true`, `[ui] accent` to `"cyan"`,
+`[keys] prefix` to `"ctrl+b"`, and the agent navigation keys are unset. The
+Dreamcoder variant sets all of them explicitly, so those defaults do not leak
+into it. Reload remains `herdr server reload-config`; no live reload was
+observed for this profile (server not running at capture time). A version
+between two profiles (for example 0.9.0) fails closed; only versions newer than
+the newest profile fall back to it.
+
 ## Fail-closed boundary
 
 Unknown or malformed version output remains `unsupported-contract`; an absent

@@ -91,6 +91,57 @@ injected into ML4W-owned files.
   - Pre-existing, out of scope: `tests/shell/test_apply_theme.bats` "kanagawa bridge
     carries night-derived colors" also fails on clean `main`.
 
+- [x] T5 — Restore the Dreamcoder stow layer: `scripts/dreamcoder-lib.sh` stows modules
+  `Shell Kitty Ghostty Fastfetch Warp Bat Systemd`, which no longer exist (renamed to
+  `Dreamcoder*`), so `dreamcoder install|repair` cannot relink anything. Fix the module
+  list and let install/repair replace a Dreamcoder-owned target that ML4W re-pointed
+  to its own tree (backed up, never deleted). Route: delegated writer.
+  - Trigger: the ML4W 2.16 upgrade (00:04) re-pointed `~/.config/fish` to ML4W's empty
+    `config.fish`, dropping the Dreamcoder fish layer and the Herdr autostart
+    (`DreamcoderShell/.config/fish/config.fish:51`); `kitty` and `fastfetch` also point
+    to ML4W.
+  - Evidence: commit `fix(install): relink Dreamcoder stow modules over foreign targets`;
+    `bats tests/ml4w/ tests/shell/` 126/127 (only the known kanagawa failure);
+    `tests/shell/test_stow_layer.bats` 8/8; `stow -n -v` of the 7 modules into an empty
+    temp HOME exits 0; pytest green on a clean `HEAD` export plus this change (the live
+    working tree fails `test_active_mirror_identity_consistency` only because of the
+    uncommitted 07:00 auto-theme rewrite); shellcheck clean.
+  - Rationale: modules renamed 1:1 (`a9dd5b5` prefix rename; `installer.py` was
+    already updated, the shell list was missed) — no new packages, a bats test pins
+    the list to `installer_plan()`. Conflicts come from a stow dry run instead of a
+    hand-kept list, so foreign symlinks (ML4W), regular files, and absolute links into
+    the repo are all moved (never deleted, symlinks moved as links) to
+    `~/.local/share/dreamcoder/install-conflicts/<backup-id>/` — not under
+    `~/.config/dreamcoder`, which is itself a stow target. Install and repair now stow
+    before hooks, so hooks never write through ML4W links. The fastfetch hook keeps
+    stow's relative link instead of re-creating an absolute one each run.
+  - Live dry run (read-only) conflicts T6 will move: `.config/{fish,kitty,fastfetch}`
+    and `.bashrc`/`.zshrc` (ML4W links), `.config/dreamcoder`, `.config/starship.toml`,
+    systemd unit links (absolute repo links), `.config/systemd/user/dreamcoder-env.conf`
+    (identical regular file), warp settings/theme links. ML4W's `fish_variables`
+    (universal vars incl. `fish_user_paths`) is not migrated — report to the user.
+- [ ] T6 — Relink the live system through `dreamcoder repair`, confirm a new
+  interactive fish starts Herdr. Route: inline.
+- [x] T7 — Herdr 0.9.1: live binary updated with `herdr update` (0.9.0 → 0.9.1),
+  integrations reinstalled, `herdr config check` ok. Onboard a `herdr-0.9.1` profile
+  per `docs/herdr.md` (installed-binary evidence, generated variants, verify-repo-sync).
+  Route: delegated writer.
+  - Evidence: commit `feat(herdr): onboard the installed Herdr 0.9.1 profile`; binary
+    SHA-256 `2a02fed1…5c54b7`; `HERDR_CONFIG_PATH=<variant> herdr config check` ok for
+    0.9.1 dark/light/night; pytest green on a clean `HEAD` export plus this change;
+    `verify-repo-sync.py` ok (host check now validates the installed 0.9.1 variant).
+  - Rationale: 0.9.1's `config check` is strict (unknown keys and theme names fail),
+    so passing proves the 0.8.2 field set is accepted; the profile reuses it with no new
+    fields and the variants are byte-identical to 0.8.2. Variants generated with a
+    scoped `sync_herdr_repo_variants(profiles=(HERDR_091_PROFILE,))` call, touching no
+    other file. Consequence: a version between profiles (0.9.0) now fails closed; only
+    versions newer than 0.9.1 fall back. `herdr-theme-switch.sh` needed no change
+    (Python detection). Herdr scripts (`herdr-lib`, `herdr-review`,
+    `herdr-workspace-dev`) and the fish autostart (plain `herdr`) match the 0.9.1 CLI;
+    `dev-dots.fish` used `herdr tab open`, absent in 0.9.1, now `tab create` +
+    `pane run` from inside a Herdr pane (`HERDR_ENV`).
+  - Not observed: live `server reload-config` (server not running at capture).
+
 ## Acceptance criteria
 
 - `bats tests/ml4w/` and `python -m pytest tests/` pass.
@@ -106,5 +157,5 @@ injected into ML4W-owned files.
 
 ## Next step
 
-Feature complete. Pending user decisions: SUPER+SHIFT+arrows overlap (resize vs
-move), the pre-existing kanagawa bridge test, push/PR of the branch.
+T6 (inline live relink). Pending user decisions: SUPER+SHIFT+arrows
+overlap (resize vs move), the pre-existing kanagawa bridge test, push/PR of the branch.

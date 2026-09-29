@@ -13,6 +13,7 @@ from dreamcoder_theme.herdr_contract import (
     HERDR_073_PROFILE,
     HERDR_080_PROFILE,
     HERDR_082_PROFILE,
+    HERDR_091_PROFILE,
 )
 from dreamcoder_theme.palette_tokens import VARIANTS
 from dreamcoder_theme.renderers_herdr import herdr_content
@@ -30,7 +31,7 @@ def _load_verifier() -> ModuleType:
 
 
 def _install_layout(module: ModuleType, root: Path) -> None:
-    for profile in (HERDR_073_PROFILE, HERDR_080_PROFILE, HERDR_082_PROFILE):
+    for profile in (HERDR_073_PROFILE, HERDR_080_PROFILE, HERDR_082_PROFILE, HERDR_091_PROFILE):
         base = root / "DreamcoderHerdr/.config/herdr/dreamcoder" / profile.evidence.version
         base.mkdir(parents=True)
         (base / "config.dark.toml").write_text(herdr_content(profile, "dark", VARIANTS["dark"]))
@@ -164,6 +165,39 @@ def test_host_tool_failure_is_not_masked(
 
     assert code == 1
     assert "herdr config check failed" in output
+
+
+def test_host_check_validates_the_installed_version_variant(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    module = _load_verifier()
+    _install_layout(module, tmp_path)
+    _point_module_at(module, monkeypatch, tmp_path)
+    monkeypatch.setattr(module.shutil, "which", lambda _: "/bin/herdr")
+    checked: list[str] = []
+
+    class FakeResult:
+        def __init__(self, returncode: int, stdout: str) -> None:
+            self.returncode = returncode
+            self.stdout = stdout
+            self.stderr = ""
+
+    def fake_run(args: list[str], **kwargs: object) -> FakeResult:
+        if args[1:] == ["--version"]:
+            return FakeResult(0, "herdr 0.9.1\n")
+        env = kwargs["env"]
+        assert isinstance(env, dict)
+        checked.append(Path(env["HERDR_CONFIG_PATH"]).read_text())
+        return FakeResult(1, "invalid config")
+
+    monkeypatch.setattr(module.subprocess, "run", fake_run)
+
+    code, output = _run(module, capsys)
+
+    variant = tmp_path / "DreamcoderHerdr/.config/herdr/dreamcoder/0.9.1/config.light.toml"
+    assert code == 1
+    assert checked == [variant.read_text()]
+    assert "herdr config check failed for the 0.9.1 light variant" in output
 
 
 def test_missing_source_manifest_fails_safely(
