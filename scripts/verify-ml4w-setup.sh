@@ -80,20 +80,22 @@ echo ""
 # ── 1. System checks ═════════════════════════════════════════════════════════
 title "1. System"
 
-if command -v hyprctl >/dev/null; then
-  if hyprctl monitors -j 2>/dev/null | jq -e 'length > 0' >/dev/null 2>&1; then
-    ok "Hyprland is running"
-  else
-    fail "Hyprland is not running (no monitors detected)"
-  fi
-else
-  fail "hyprctl not found — Hyprland not installed?"
-fi
-
+have_jq=0
 if command -v jq >/dev/null; then
   ok "jq is installed"
+  have_jq=1
 else
   fail "jq is not installed"
+fi
+
+if ! command -v hyprctl >/dev/null; then
+  fail "hyprctl not found — Hyprland not installed?"
+elif ((!have_jq)); then
+  warn "Hyprland running check skipped (needs jq)"
+elif hyprctl monitors -j 2>/dev/null | jq -e 'length > 0' >/dev/null 2>&1; then
+  ok "Hyprland is running"
+else
+  fail "Hyprland is not running (no monitors detected)"
 fi
 
 HYPR_VERSION=""
@@ -114,11 +116,10 @@ SYMLINKS=(
 for entry in "${SYMLINKS[@]}"; do
   path="${entry%%:*}"
   label="${entry#*:}"
-  if [[ -L "$path" ]]; then
-    target=$(readlink "$path")
-    ok "${label} (→ ${target})"
+  if path_is_ml4w_managed "$path"; then
+    ok "${label} (→ $(readlink -f -- "$path"))"
   elif [[ -f "$path" ]]; then
-    warn "${label} — regular file, not symlink"
+    warn "${label} — regular file outside the ML4W dotfiles"
   else
     fail "${label} — NOT FOUND"
   fi
@@ -160,29 +161,22 @@ else
   fail "waybar/colors.css is missing"
 fi
 
-# Wlogout → waybar
-if [[ -L "${HOME}/.config/wlogout/colors.css" ]]; then
-  target=$(readlink "${HOME}/.config/wlogout/colors.css")
-  if [[ "$target" == *"waybar/colors.css" ]]; then
-    ok "wlogout/colors.css → waybar (shared)"
+# Wlogout and Swaync share Waybar's colours through a symlink.
+check_shared_waybar_colors() {
+  local app="$1" link="${HOME}/.config/${1}/colors.css" target
+  if [[ -L "$link" ]]; then
+    target=$(readlink "$link")
+    if [[ "$target" == *"waybar/colors.css" ]]; then
+      ok "${app}/colors.css → waybar (shared)"
+    else
+      warn "${app}/colors.css → ${target}"
+    fi
   else
-    warn "wlogout/colors.css → ${target}"
+    fail "${app}/colors.css is not a symlink"
   fi
-else
-  fail "wlogout/colors.css is not a symlink"
-fi
-
-# Swaync → waybar
-if [[ -L "${HOME}/.config/swaync/colors.css" ]]; then
-  target=$(readlink "${HOME}/.config/swaync/colors.css")
-  if [[ "$target" == *"waybar/colors.css" ]]; then
-    ok "swaync/colors.css → waybar (shared)"
-  else
-    warn "swaync/colors.css → ${target}"
-  fi
-else
-  fail "swaync/colors.css is not a symlink"
-fi
+}
+check_shared_waybar_colors wlogout
+check_shared_waybar_colors swaync
 
 # Hyprland colors.lua / colors.conf: a Dreamcoder symlink or a managed regular
 # file with Dreamcoder content (ML4W 2.16 ships regular files; the sync writes
@@ -278,21 +272,22 @@ fi
 # ── 7. ML4W profile ═══════════════════════════════════════════════════════
 title "7. ML4W profile"
 
-if [[ -n "${PROFILE_NAME}" ]]; then
-  PROFILE_FILE="${DREAMCODER_DOTS_DIR}/DreamcoderProfiles/dreamcoder/${PROFILE_NAME}.json"
-else
+if [[ -z "${PROFILE_NAME}" ]]; then
   # Auto-detect
   HOSTNAME="$(hostname -s 2>/dev/null || echo "unknown")"
   case "$(echo "${HOSTNAME}" | tr '[:upper:]' '[:lower:]')" in
   *asus* | *vivobook*) PROFILE_NAME="asus-vivobook15" ;;
   *) PROFILE_NAME="default" ;;
   esac
-  PROFILE_FILE="${DREAMCODER_DOTS_DIR}/DreamcoderProfiles/dreamcoder/${PROFILE_NAME}.json"
   info "Auto-detected profile: ${PROFILE_NAME}"
 fi
+PROFILES_DIR="${DREAMCODER_DOTS_DIR}/DreamcoderProfiles/dreamcoder"
+PROFILE_FILE="${PROFILES_DIR}/${PROFILE_NAME}.json"
 
 if [[ -f "$PROFILE_FILE" ]]; then
-  if jq empty "$PROFILE_FILE" 2>/dev/null; then
+  if ((!have_jq)); then
+    warn "Profile ${PROFILE_NAME}.json JSON check skipped (needs jq)"
+  elif jq empty "$PROFILE_FILE" 2>/dev/null; then
     ok "Profile ${PROFILE_NAME}.json is valid JSON"
   else
     fail "Profile ${PROFILE_NAME}.json is INVALID JSON"
@@ -302,22 +297,31 @@ else
 fi
 
 # Schema validation
-SCHEMA_FILE="${DREAMCODER_DOTS_DIR}/DreamcoderProfiles/dreamcoder/profile.schema.json"
+SCHEMA_FILE="${PROFILES_DIR}/profile.schema.json"
 if [[ -f "$SCHEMA_FILE" ]]; then
   ok "Schema file exists"
   if command -v python3 >/dev/null && python3 -c "import jsonschema" 2>/dev/null; then
-    if python3 -c "
-import json, sys
-with open('${SCHEMA_FILE}') as f: schema = json.load(f)
-with open('${PROFILE_FILE}') as f: profile = json.load(f)
+    # Paths travel through argv: interpolating them into Python source breaks on a
+    # quote and would let a crafted path run code.
+    if python3 - "$SCHEMA_FILE" "$PROFILE_FILE" 2>/dev/null <<'PY'
+import json
+import sys
+
 import jsonschema
+
+with open(sys.argv[1]) as f:
+    schema = json.load(f)
+with open(sys.argv[2]) as f:
+    profile = json.load(f)
 jsonschema.validate(instance=profile, schema=schema)
-print('OK')
-" 2>/dev/null; then
+PY
+    then
       ok "Profile matches schema"
     else
       warn "Profile does NOT match schema"
     fi
+  else
+    warn "Schema validation skipped (python3 with jsonschema not available)"
   fi
 else
   warn "Schema file not found"

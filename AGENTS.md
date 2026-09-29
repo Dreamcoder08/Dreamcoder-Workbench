@@ -4,10 +4,16 @@
 
 ### Shell Scripts
 
-- Max 30 lines per file
-- Use `set -euo pipefail` for scripts
+- Executable scripts (`scripts/*.sh`) start with `set -euo pipefail`
+- Sourced files must NOT set shell options: `lib/*.sh` and everything under
+  `DreamcoderShell/.config/shell/` run inside the caller's shell, and `errexit`/`nounset`
+  there closes an interactive terminal on the first failing command
+- Shell fragments loaded by interactive shells (aliases, small functions) stay short;
+  scripts and libraries have one purpose per file and functions that fit on a screen
 - Quote all variables: `"${var}"`
 - Use `[[ ]]` instead of `[ ]` for tests
+- Pass values to inline Python or other interpreters through arguments, never by
+  interpolating them into source text
 
 ### Modularity
 

@@ -200,3 +200,53 @@ load_ml4w_lib() {
   run waybar_colors_is_dreamcoder "${HOME}/.config/waybar/colors.css"
   [ "$status" -ne 0 ]
 }
+
+# ── path_is_ml4w_managed ─────────────────────────────────────────────────────
+# ML4W 2.16 links whole app directories (~/.config/rofi -> ~/.mydotfiles/...), so
+# the files inside are regular files from the link's point of view while still
+# being owned by ML4W. Ownership therefore follows where the path resolves to.
+
+@test "ml4w lib: a file inside a directory symlinked into the ML4W dotfiles is managed" {
+  mkdir -p "${HOME}/.config" "${HOME}/.mydotfiles/com.ml4w.dotfiles/.config/rofi"
+  : >"${HOME}/.mydotfiles/com.ml4w.dotfiles/.config/rofi/config.rasi"
+  ln -s "${HOME}/.mydotfiles/com.ml4w.dotfiles/.config/rofi" "${HOME}/.config/rofi"
+
+  load_ml4w_lib
+  run path_is_ml4w_managed "${HOME}/.config/rofi/config.rasi"
+  [ "$status" -eq 0 ]
+}
+
+@test "ml4w lib: a symlinked file is managed" {
+  mkdir -p "${HOME}/.config/swaync" "${HOME}/.mydotfiles/x"
+  : >"${HOME}/.mydotfiles/x/config.json"
+  ln -s "${HOME}/.mydotfiles/x/config.json" "${HOME}/.config/swaync/config.json"
+
+  load_ml4w_lib
+  run path_is_ml4w_managed "${HOME}/.config/swaync/config.json"
+  [ "$status" -eq 0 ]
+}
+
+@test "ml4w lib: a plain regular file outside the ML4W dotfiles is not managed" {
+  mkdir -p "${HOME}/.config/wlogout"
+  : >"${HOME}/.config/wlogout/layout"
+
+  load_ml4w_lib
+  run path_is_ml4w_managed "${HOME}/.config/wlogout/layout"
+  [ "$status" -ne 0 ]
+}
+
+@test "ml4w lib: a missing path is not managed" {
+  load_ml4w_lib
+  run path_is_ml4w_managed "${HOME}/.config/rofi/config.rasi"
+  [ "$status" -ne 0 ]
+}
+
+@test "ml4w lib: ML4W_DOTFILES_DIR relocates the dotfiles root" {
+  mkdir -p "${HOME}/elsewhere/rofi" "${HOME}/.config"
+  : >"${HOME}/elsewhere/rofi/config.rasi"
+  ln -s "${HOME}/elsewhere/rofi" "${HOME}/.config/rofi"
+
+  load_ml4w_lib
+  ML4W_DOTFILES_DIR="${HOME}/elsewhere" run path_is_ml4w_managed "${HOME}/.config/rofi/config.rasi"
+  [ "$status" -eq 0 ]
+}
