@@ -84,9 +84,13 @@ User decision (2026-09-28): "solo debe tener dreamcoder light y dreamcoder dark"
   in-flight `openspec/changes/*`, CHANGELOG, docs/superpowers, the Dusk
   `light_hours_default`/`dusk_hours_default` token metadata. Route: delegated
   writer. Commit: ad41d7b.
-- [ ] N5 — Live cleanup: drop `theme.render_profile` from live settings, remove
-  dangling `~/.config/starship-night.toml` and Warp `Dreamcoder-Night.yaml` links,
-  `systemctl --user daemon-reload`, apply current mode, verify. Route: inline.
+- [x] N5 — Live cleanup (2026-09-29): live `settings.json` already had no
+  `theme.render_profile`; the timer is a repo symlink and already fires only 07:00 and
+  18:00; removed the two dangling links `~/.config/starship-night.toml` and Warp
+  `Dreamcoder-Night.yaml`; `systemctl --user daemon-reload`; `dreamcoder sync`;
+  real `dreamcoder dark` → `dreamcoder light` toggle leaves Starship, Hyprland and
+  Waybar in Light; `verify-ml4w-setup.sh` 20 passed / 0 failed; `dreamcoder doctor`
+  guardrails passed; `dreamcoder night` is rejected as an unknown command. Route: inline.
 
 ## Acceptance criteria
 
@@ -106,4 +110,4 @@ User decision (2026-09-28): "solo debe tener dreamcoder light y dreamcoder dark"
 
 ## Next step
 
-N5 (live cleanup, parent-owned).
+Feature complete. Pending user decisions: push / PR slicing of the two stacked branches.
