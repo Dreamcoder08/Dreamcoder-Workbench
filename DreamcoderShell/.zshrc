@@ -10,6 +10,13 @@ BUN_INSTALL="${HOME}/.bun"
 [[ -s "${BUN_INSTALL}/_bun" ]] && source "${BUN_INSTALL}/_bun"
 [[ -d "${BUN_INSTALL}/bin" ]] && path=("${BUN_INSTALL}/bin" "${path[@]}")
 export BUN_INSTALL
+# gga reviews: Codex provider with the pinned model shim first (docs/configuration/gga.md).
+_dc_gga_bin="${XDG_CONFIG_HOME:-${HOME}/.config}/gga/bin"
+if [[ -d "${_dc_gga_bin}" ]]; then
+  export GGA_PROVIDER="codex"
+  path=("${_dc_gga_bin}" "${path[@]}")
+fi
+unset _dc_gga_bin
 
 # ── Dreamcoder Theme Hooks ─────────────────────────────────────
 # Source shell-level theme snippets based on current mode.
@@ -19,7 +26,9 @@ _dc_mode_cache="${XDG_CACHE_HOME:-${HOME}/.cache}/dreamcoder/cursor-cli.env"
 _dc_mode="$([[ -r "${_dc_mode_cache}" ]] && sed -nE 's/^(export )?DREAMCODER_THEME_MODE="?(light|dark)"?$/\2/p' "${_dc_mode_cache}" | tail -n1)"
 _dc_mode="${_dc_mode:-${DREAMCODER_THEME_MODE:-dark}}"
 export DREAMCODER_THEME_MODE="${_dc_mode}"
-_dc_theme_dir="${DREAMCODER_DOTS_DIR:-${HOME}/Documents/PROYECTOS/dreamcoder-dots}/themes/dreamcoder"
+# Without DREAMCODER_DOTS_DIR, resolve the repo through the stowed ~/.zshrc link
+# (<repo>/DreamcoderShell/.zshrc).
+_dc_theme_dir="${DREAMCODER_DOTS_DIR:-${${:-${HOME}/.zshrc}:A:h:h}}/themes/dreamcoder"
 
 [[ -f "${_dc_theme_dir}/ls-colors-dreamcoder-${_dc_mode}.sh" ]] && source "${_dc_theme_dir}/ls-colors-dreamcoder-${_dc_mode}.sh"
 [[ -f "${_dc_theme_dir}/bat-dreamcoder-${_dc_mode}.sh" ]]    && source "${_dc_theme_dir}/bat-dreamcoder-${_dc_mode}.sh"

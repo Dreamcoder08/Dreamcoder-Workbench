@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-set -euo pipefail
-# used by sourcing scripts (dreamcoder.sh, dreamcoder-maintenance.sh)
+# Sourced by dreamcoder-maintenance.sh, which sets strict mode itself; a sourced
+# library must not change its caller's shell options.
 # Stow packages owned by install/repair; keep in sync with
 # src/dreamcoder_theme/installer.py (installer_plan()["modules"]).
 DREAMCODER_MODULES=(DreamcoderShell DreamcoderKitty DreamcoderGhostty DreamcoderFastfetch DreamcoderWarp DreamcoderBat DreamcoderSystemd)
@@ -8,7 +8,13 @@ DREAMCODER_TARGETS=("${CONFIG_HOME}/kitty" "${CONFIG_HOME}/ghostty" "${CONFIG_HO
 dreamcoder_control() { PYTHONPATH="${DREAMCODER_DOTS_DIR}/src${PYTHONPATH:+:${PYTHONPATH}}" python3 -m dreamcoder_theme.control "$@"; }
 dreamcoder_json_get() { python3 -c 'import json,sys; print(json.load(sys.stdin)[sys.argv[1]])' "$1"; }
 dreamcoder_backup() { dreamcoder_control backup create "${DREAMCODER_TARGETS[@]}" --reason "${1}" --json; }
-dreamcoder_apply_hooks() { "${DREAMCODER_DOTS_DIR}/scripts/apply-ml4w-hooks.sh"; "${DREAMCODER_DOTS_DIR}/scripts/apply-cli-env-hooks.sh"; "${DREAMCODER_DOTS_DIR}/scripts/apply-fastfetch-assets.sh"; }
+dreamcoder_apply_hooks() {
+  "${DREAMCODER_DOTS_DIR}/scripts/apply-ml4w-hooks.sh"
+  "${DREAMCODER_DOTS_DIR}/scripts/apply-cli-env-hooks.sh"
+  "${DREAMCODER_DOTS_DIR}/scripts/apply-fastfetch-assets.sh"
+  # Re-apply the gga model pin that `gentle-ai sync` drops from ~/.config/gga/config.
+  if command -v gga >/dev/null; then "${DREAMCODER_DOTS_DIR}/scripts/install-gga-pin.sh"; fi
+}
 dreamcoder_enable_timer() { command -v systemctl >/dev/null || return 0; systemctl --user daemon-reload || true; systemctl --user enable --now dreamcoder-theme-auto.timer || true; }
 
 # Print every target (relative to $HOME) that blocks stowing the modules,

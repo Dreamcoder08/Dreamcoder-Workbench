@@ -1,5 +1,6 @@
 # shellcheck shell=bash disable=SC1090,SC1091
-set -euo pipefail
+# Dreamcoder interactive Bash. No errexit/nounset/pipefail here: in an
+# interactive shell they close the terminal on the first failing command.
 [[ -z "${TERM:-}" || "${TERM}" == "dumb" ]] && export TERM="xterm-256color"
 export COLORTERM="${COLORTERM:-truecolor}"
 [[ "${-}" != *i* ]] && return
@@ -16,6 +17,13 @@ BUN_COMPLETION="${HOME}/.bun/_bun"
 [[ -f "${BUN_COMPLETION}" ]] && source "${BUN_COMPLETION}"
 export BUN_INSTALL="${HOME}/.bun"
 [[ -d "${BUN_INSTALL}/bin" ]] && export PATH="${BUN_INSTALL}/bin:${PATH}"
+# gga reviews: Codex provider with the pinned model shim first (docs/configuration/gga.md).
+_dc_gga_bin="${XDG_CONFIG_HOME:-${HOME}/.config}/gga/bin"
+if [[ -d "${_dc_gga_bin}" ]]; then
+    export GGA_PROVIDER="codex"
+    [[ ":${PATH}:" == *":${_dc_gga_bin}:"* ]] || export PATH="${_dc_gga_bin}:${PATH}"
+fi
+unset _dc_gga_bin
 SHELL_DIR="${XDG_CONFIG_HOME:-${HOME}/.config}/shell"
 for group in core aliases functions; do
     for file in "${SHELL_DIR}/${group}"/*.sh; do [[ -f "${file}" ]] && source "${file}"; done
@@ -27,7 +35,7 @@ if command -v starship >/dev/null; then
 fi
 command -v zoxide >/dev/null && eval "$(zoxide init bash)"
 [[ -f "${HOME}/.cargo/env" ]] && source "${HOME}/.cargo/env"
-unset PATH_DIRS dir group file BUN_COMPLETION SHELL_DIR
-. "$HOME/.cargo/env"
-export PATH="$HOME/.local/share/fnm:$PATH"
-eval "$(fnm env --use-on-cd --shell bash)"
+_dc_fnm_dir="${HOME}/.local/share/fnm"
+[[ -d "${_dc_fnm_dir}" && ":${PATH}:" != *":${_dc_fnm_dir}:"* ]] && export PATH="${_dc_fnm_dir}:${PATH}"
+command -v fnm >/dev/null && eval "$(fnm env --use-on-cd --shell bash)"
+unset PATH_DIRS dir group file BUN_COMPLETION SHELL_DIR _dc_fnm_dir
