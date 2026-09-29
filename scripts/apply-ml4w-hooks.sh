@@ -29,11 +29,22 @@
 # ============================================================================
 set -euo pipefail
 
-source "${DREAMCODER_DOTS_DIR:-$(cd "$(dirname "$0")/.." && pwd)}/lib/env.sh"
+ENV_LIB="${DREAMCODER_DOTS_DIR:-$(cd "$(dirname "$0")/.." && pwd)}/lib/env.sh"
+if [[ ! -f "${ENV_LIB}" ]]; then
+  printf '✗ Required library not found: %s\n' "${ENV_LIB}" >&2
+  exit 1
+fi
+# shellcheck source=../lib/env.sh
+source "${ENV_LIB}"
 ensure_dots_dir
 WAYPAPER_CONFIG="${WAYPAPER_CONFIG:-${HOME}/.config/waypaper/config.ini}"
 ML4W_WALLPAPER_SCRIPT="${ML4W_WALLPAPER_SCRIPT:-${HOME}/.config/ml4w/scripts/ml4w-wallpaper}"
 ML4W_WALLPAPER_VAR="${ML4W_WALLPAPER_VAR:-IMAGE_PATH}"
+# It is embedded in the generated runner block as a variable name.
+if [[ ! "${ML4W_WALLPAPER_VAR}" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]; then
+  printf '✗ ML4W_WALLPAPER_VAR is not a valid shell identifier: %s\n' "${ML4W_WALLPAPER_VAR}" >&2
+  exit 1
+fi
 HOOK_SCRIPT="${DREAMCODER_DOTS_DIR}/scripts/wallpaper-hook.sh"
 BEGIN_MARK='# >>> Dreamcoder wallpaper hook >>>'
 END_MARK='# <<< Dreamcoder wallpaper hook <<<'
@@ -42,6 +53,11 @@ ML4W_GTK_LISTENER="${ML4W_GTK_LISTENER:-${HOME}/.config/ml4w/listeners/gtk-theme
 ML4W_LISTENERS_SCRIPT="${ML4W_LISTENERS_SCRIPT:-${HOME}/.config/ml4w/listeners.sh}"
 LISTENER_BEGIN_MARK='# >>> Dreamcoder listener hook >>>'
 LISTENER_END_MARK='# <<< Dreamcoder listener hook <<<'
+MATUGEN_CONFIG="${MATUGEN_CONFIG:-${HOME}/.config/matugen/config.toml}"
+MATUGEN_OFF_PREFIX='#dreamcoder-off# '
+# Matugen templates whose output is a file Dreamcoder owns. swaync/colors.css is a symlink
+# to waybar/colors.css, so its template lands on the same file.
+DREAMCODER_MATUGEN_TEMPLATES="hyprland hyprland-lua waybar rofi swaync"
 
 # Print the runner without any Dreamcoder block (marked or legacy) and without
 # trailing blank lines, so re-appending always yields the same bytes.
@@ -65,14 +81,17 @@ hook_ml4w_runner() {
     printf '⚠ ML4W wallpaper runner not found, skipped: %s\n' "${ML4W_WALLPAPER_SCRIPT}" >&2
     return 0
   fi
-  local current desired
+  # %q escapes every shell metacharacter: the path lands in generated shell source, where
+  # a quote, $ or backtick inside double quotes would still expand or break out.
+  local current desired hook_q
+  hook_q="$(printf '%q' "${HOOK_SCRIPT}")"
   current="$(cat "${ML4W_WALLPAPER_SCRIPT}")"
   desired="$(strip_runner_hook "${ML4W_WALLPAPER_SCRIPT}")
 
 ${BEGIN_MARK}
 # Managed by dreamcoder-dots scripts/apply-ml4w-hooks.sh; re-run it after ML4W upgrades.
-if [[ -x \"${HOOK_SCRIPT}\" ]]; then
-    \"${HOOK_SCRIPT}\" \"\$${ML4W_WALLPAPER_VAR}\"
+if [[ -x ${hook_q} ]]; then
+    ${hook_q} \"\$${ML4W_WALLPAPER_VAR}\"
 fi
 ${END_MARK}"
   if [[ "${current}" == "${desired}" ]]; then
@@ -92,9 +111,10 @@ ${END_MARK}"
 # because `dreamcoder sync` renders Dark when DREAMCODER_THEME_MODE is unset.
 # Exits 3 when no Matugen call is found, leaving the decision to the caller.
 render_listener_hook() {
-  awk -v begin="${LISTENER_BEGIN_MARK}" -v end="${LISTENER_END_MARK}" \
-    -v dispatcher="${DREAMCODER_DOTS_DIR}/scripts/dreamcoder" '
+  DREAMCODER_DISPATCHER_Q="$(printf '%q' "${DREAMCODER_DOTS_DIR}/scripts/dreamcoder")" \
+    awk -v begin="${LISTENER_BEGIN_MARK}" -v end="${LISTENER_END_MARK}" '
     function trim(s) { sub(/^[[:space:]]+/, "", s); sub(/[[:space:]]+$/, "", s); return s }
+    BEGIN { dispatcher = ENVIRON["DREAMCODER_DISPATCHER_Q"] }
     trim($0) == begin { skip = 1; next }
     skip && trim($0) == end { skip = 0; next }
     skip { next }
@@ -108,7 +128,7 @@ render_listener_hook() {
         print pad "# Managed by dreamcoder-dots scripts/apply-ml4w-hooks.sh; re-run it after ML4W upgrades."
         print pad "# Matugen just rewrote the colour files from the wallpaper: restore Dreamcoder"
         print pad "# colours before the reloads below. The sync never writes gtk settings.ini."
-        print pad "if [[ -x \"" dispatcher "\" ]]; then"
+        print pad "if [[ -x " dispatcher " ]]; then"
         if (match($0, /-m[[:space:]]+"?(dark|light)"?/)) {
           # The branch passes its mode to Matugen: reuse it verbatim.
           mode = substr($0, RSTART, RLENGTH)
@@ -120,7 +140,7 @@ render_listener_hook() {
           print pad "    grep -Eq \"^gtk-application-prefer-dark-theme=(1|true)$\" \"${SETTINGS_FILE:-$HOME/.config/gtk-3.0/settings.ini}\" && _dreamcoder_mode=dark"
         }
         print pad "    mkdir -p \"$HOME/.cache/dreamcoder\""
-        print pad "    DREAMCODER_THEME_MODE=\"$_dreamcoder_mode\" DREAMCODER_WRITE_REPO=0 timeout 120 \"" dispatcher "\" sync </dev/null >\"$HOME/.cache/dreamcoder/ml4w-listener-sync.log\" 2>&1 || true"
+        print pad "    DREAMCODER_THEME_MODE=\"$_dreamcoder_mode\" DREAMCODER_WRITE_REPO=0 timeout 120 " dispatcher " sync </dev/null >\"$HOME/.cache/dreamcoder/ml4w-listener-sync.log\" 2>&1 || true"
         print pad "fi"
         print pad end
       }
@@ -130,6 +150,12 @@ render_listener_hook() {
 }
 
 hook_gtk_listener() {
+  # The block bounds `dreamcoder sync` with timeout(1); without it a hung sync would
+  # stall ML4W's listener, so leave the listener alone rather than hook it unbounded.
+  if ! command -v timeout >/dev/null 2>&1; then
+    printf '⚠ timeout(1) not found, GTK theme listener hook skipped\n' >&2
+    return 0
+  fi
   if [[ ! -f "${ML4W_GTK_LISTENER}" ]]; then
     printf '⚠ ML4W GTK theme listener not found, skipped: %s\n' "${ML4W_GTK_LISTENER}" >&2
     return 0
@@ -158,6 +184,10 @@ hook_gtk_listener() {
 # ~1s) so the theme apply below never races a half-restarted listener; every
 # stream is detached so the relaunched listener cannot hold the caller's pipes.
 restart_gtk_listener() {
+  if ! command -v timeout >/dev/null 2>&1; then
+    printf '⚠ timeout(1) not found, restart the GTK theme listener manually: %s --restart gtk-theme-switcher\n' "${ML4W_LISTENERS_SCRIPT}" >&2
+    return 0
+  fi
   if [[ ! -x "${ML4W_LISTENERS_SCRIPT}" ]]; then
     printf '⚠ ML4W listeners.sh not found, restart the GTK theme listener manually: %s\n' "${ML4W_LISTENERS_SCRIPT}" >&2
     return 0
@@ -169,6 +199,47 @@ restart_gtk_listener() {
   fi
 }
 
+# Print the Matugen config with every Dreamcoder-owned template section commented out.
+# Sections that are already disabled start with '#', so re-running changes nothing.
+# To undo by hand: sed -i 's/^#dreamcoder-off# //' ~/.config/matugen/config.toml
+disable_owned_templates() {
+  awk -v owned="${DREAMCODER_MATUGEN_TEMPLATES}" -v prefix="${MATUGEN_OFF_PREFIX}" '
+    BEGIN { n = split(owned, names, " "); for (i = 1; i <= n; i++) want["[templates." names[i] "]"] = 1 }
+    /^\[/ { header = $0; sub(/[ \t]+$/, "", header); off = (header in want) }
+    off && $0 != "" && $0 !~ /^#/ { print prefix $0; next }
+    { print }
+  ' "$1"
+}
+
+# Matugen rewrites the colour files Dreamcoder owns on every wallpaper or mode change,
+# and restoring them afterwards is a race that can be lost. Disable those templates at
+# the source. ML4W upgrades restore the stock file, so re-run this script afterwards.
+hook_matugen_config() {
+  if [[ ! -f "${MATUGEN_CONFIG}" ]]; then
+    printf '⚠ Matugen config not found, skipped: %s\n' "${MATUGEN_CONFIG}" >&2
+    return 0
+  fi
+  local current desired
+  current="$(cat "${MATUGEN_CONFIG}")"
+  desired="$(disable_owned_templates "${MATUGEN_CONFIG}")"
+  if [[ "${current}" == "${desired}" ]]; then
+    printf '✓ Matugen no longer writes Dreamcoder-owned colour files (already current)\n'
+    return 0
+  fi
+  # Never leave Matugen with a config it cannot parse: without a validator, leave it alone.
+  if ! python3 -c 'import tomllib' 2>/dev/null; then
+    printf '⚠ python3 with tomllib is not available to validate the Matugen config, left untouched: %s\n' "${MATUGEN_CONFIG}" >&2
+    return 0
+  fi
+  if ! printf '%s\n' "${desired}" | python3 -c 'import sys, tomllib; tomllib.loads(sys.stdin.read())' 2>/dev/null; then
+    printf '⚠ patched Matugen config is not valid TOML, left untouched: %s\n' "${MATUGEN_CONFIG}" >&2
+    return 0
+  fi
+  # Write through the path so a symlinked config stays a symlink.
+  printf '%s\n' "${desired}" >"${MATUGEN_CONFIG}"
+  printf '✓ Matugen templates for Dreamcoder-owned files disabled: %s\n' "${MATUGEN_CONFIG}"
+}
+
 hook_waypaper() {
   if [[ ! -f "${WAYPAPER_CONFIG}" ]]; then
     printf '✓ waypaper config absent (not used by ML4W 2.16), skipped\n'
@@ -178,16 +249,22 @@ hook_waypaper() {
     printf '✓ waypaper post_command hook already present\n'
     return 0
   fi
-  local hook="${HOOK_SCRIPT} \"\$wallpaper\" > /dev/null 2>&1"
-  # `&` in a sed replacement expands to the whole match, and the hook text
-  # contains `2>&1`; unescaped it corrupts the line by re-inserting the match.
-  local hook_sed="${hook//&/\\&}"
-  sed -i "s|^post_command = \(.*\)|post_command = \1; ${hook_sed}|" "${WAYPAPER_CONFIG}"
+  # awk with ENVIRON instead of sed: the hook text carries the script path and `2>&1`, and a
+  # sed replacement would mangle `&`, the delimiter and backslashes.
+  local hook updated
+  hook="$(printf '%q' "${HOOK_SCRIPT}") \"\$wallpaper\" > /dev/null 2>&1"
+  updated="$(DREAMCODER_WAYPAPER_HOOK="${hook}" awk '
+    /^post_command = / { print $0 "; " ENVIRON["DREAMCODER_WAYPAPER_HOOK"]; next }
+    { print }
+  ' "${WAYPAPER_CONFIG}")"
+  # Write through the path so a symlinked config stays a symlink.
+  printf '%s\n' "${updated}" >"${WAYPAPER_CONFIG}"
   printf '✓ waypaper post_command hooked: %s\n' "${WAYPAPER_CONFIG}"
 }
 
 hook_ml4w_runner
 hook_gtk_listener
+hook_matugen_config
 hook_waypaper
 
 "${DREAMCODER_DOTS_DIR}/scripts/theme-auto.sh"

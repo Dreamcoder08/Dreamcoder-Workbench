@@ -18,6 +18,7 @@
 
 RUNNER_FIXTURE="${BATS_TEST_DIRNAME}/../fixtures/ml4w/ml4w-wallpaper-2.16"
 LISTENER_FIXTURE="${BATS_TEST_DIRNAME}/../fixtures/ml4w/gtk-theme-switcher-2.16"
+MATUGEN_FIXTURE="${BATS_TEST_DIRNAME}/../fixtures/ml4w/matugen-config-2.16.toml"
 
 setup() {
     TEST_DIR="$(mktemp -d)"
@@ -27,8 +28,10 @@ setup() {
     printf '#!/usr/bin/env bash\nexit 0\n' >"${TEST_DIR}/scripts/theme-auto.sh"
     printf '#!/usr/bin/env bash\nexit 0\n' >"${TEST_DIR}/scripts/wallpaper-hook.sh"
     chmod +x "${TEST_DIR}/scripts/"*.sh
-    WAYPAPER_CONFIG="${TEST_DIR}/config.ini"
-    ML4W_WALLPAPER_SCRIPT="${TEST_DIR}/ml4w-wallpaper"
+    # Exported: every invocation of the script under test, including ones that do not go
+    # through run_hooks, must be unable to reach the real ~/.config files.
+    export WAYPAPER_CONFIG="${TEST_DIR}/config.ini"
+    export ML4W_WALLPAPER_SCRIPT="${TEST_DIR}/ml4w-wallpaper"
     printf '[Settings]\npost_command = ~/.config/ml4w/scripts/ml4w-wallpaper "$wallpaper" --skip > /dev/null 2>&1\n' >"${WAYPAPER_CONFIG}"
     cp "${RUNNER_FIXTURE}" "${ML4W_WALLPAPER_SCRIPT}"
     chmod +x "${ML4W_WALLPAPER_SCRIPT}"
@@ -39,6 +42,10 @@ setup() {
     chmod +x "${ML4W_GTK_LISTENER}"
     printf '#!/usr/bin/env bash\necho "$*" >>"%s/restarts"\n' "${TEST_DIR}" >"${ML4W_LISTENERS_SCRIPT}"
     chmod +x "${ML4W_LISTENERS_SCRIPT}"
+    # This suite runs with the real HOME: without an override the hooks would edit the
+    # live ~/.config/matugen/config.toml.
+    export MATUGEN_CONFIG="${TEST_DIR}/matugen.toml"
+    cp "${MATUGEN_FIXTURE}" "${MATUGEN_CONFIG}"
 }
 
 teardown() {
@@ -74,7 +81,7 @@ count_restarts() {
     run run_hooks
     [ "$status" -eq 0 ]
     [ "$(count_blocks)" -eq 1 ]
-    grep -q 'wallpaper-hook.sh" "\$IMAGE_PATH"' "${ML4W_WALLPAPER_SCRIPT}"
+    grep -q 'wallpaper-hook.sh "\$IMAGE_PATH"' "${ML4W_WALLPAPER_SCRIPT}"
 }
 
 @test "apply-ml4w-hooks: the hook runs after the runner's own work" {
@@ -129,7 +136,7 @@ LEGACY
     [ "$(count_blocks)" -eq 1 ]
     run grep -q 'Dreamcoder final wallpaper/theme sync' "${ML4W_WALLPAPER_SCRIPT}"
     [ "$status" -ne 0 ]
-    [ "$(grep -c 'wallpaper-hook.sh" "\$IMAGE_PATH"' "${ML4W_WALLPAPER_SCRIPT}")" -eq 1 ]
+    [ "$(grep -c 'wallpaper-hook.sh "\$IMAGE_PATH"' "${ML4W_WALLPAPER_SCRIPT}")" -eq 1 ]
 }
 
 @test "apply-ml4w-hooks: a symlinked runner stays a symlink" {
@@ -153,7 +160,7 @@ LEGACY
         ML4W_WALLPAPER_VAR="used_wallpaper" \
         DREAMCODER_DOTS_DIR="${TEST_DIR}" \
         bash "${DREAMCODER_DOTS_DIR}/scripts/apply-ml4w-hooks.sh"
-    grep -q 'wallpaper-hook.sh" "\$used_wallpaper"' "${ML4W_WALLPAPER_SCRIPT}"
+    grep -q 'wallpaper-hook.sh "\$used_wallpaper"' "${ML4W_WALLPAPER_SCRIPT}"
 }
 
 @test "apply-ml4w-hooks: the default target is the current ML4W runner" {
@@ -313,4 +320,162 @@ STUB
     printf 'gtk-application-prefer-dark-theme=0\n' >"${TEST_DIR}/settings.ini"
     HOME="${TEST_DIR}/home" SETTINGS_FILE="${TEST_DIR}/settings.ini" bash "${TEST_DIR}/block.sh"
     [ "$(tr '\n' ' ' <"${TEST_DIR}/dispatched")" = "dark light " ]
+}
+
+# ── Matugen templates that write Dreamcoder-owned files ─────────────────────
+# Matugen rewrites hypr/colors.{conf,lua}, waybar/colors.css, rofi/colors.rasi and (through
+# a symlink into waybar) swaync/colors.css from the wallpaper. Restoring Dreamcoder colours
+# after Matugen is a race that can be lost, so the templates themselves are disabled.
+
+template_ids() {
+    python3 - "$1" <<'PY'
+import sys
+import tomllib
+
+with open(sys.argv[1], "rb") as f:
+    print(" ".join(sorted(tomllib.load(f).get("templates", {}))))
+PY
+}
+
+@test "matugen: templates that write Dreamcoder-owned files are disabled, the rest kept" {
+    run run_hooks
+    [ "$status" -eq 0 ]
+    before="$(template_ids "${MATUGEN_FIXTURE}")"
+    after="$(template_ids "${MATUGEN_CONFIG}")"
+    for owned in hyprland hyprland-lua waybar rofi swaync; do
+        [[ " ${before} " == *" ${owned} "* ]]
+        [[ " ${after} " != *" ${owned} "* ]]
+    done
+    for kept in colorsjson kitty btop gtk3 gtk4 quickshell_overview; do
+        [[ " ${after} " == *" ${kept} "* ]]
+    done
+}
+
+@test "matugen: the patched config is still valid TOML" {
+    run run_hooks
+    [ "$status" -eq 0 ]
+    run template_ids "${MATUGEN_CONFIG}"
+    [ "$status" -eq 0 ]
+}
+
+@test "matugen: re-running leaves the config byte-identical" {
+    run run_hooks
+    first="$(cat "${MATUGEN_CONFIG}")"
+    run run_hooks
+    [ "$status" -eq 0 ]
+    [ "$(cat "${MATUGEN_CONFIG}")" = "${first}" ]
+    [[ "$output" == *"Matugen"*"already current"* ]]
+}
+
+@test "matugen: an ML4W upgrade that restores the stock config is disabled again" {
+    run run_hooks
+    cp "${MATUGEN_FIXTURE}" "${MATUGEN_CONFIG}"
+    run run_hooks
+    [ "$status" -eq 0 ]
+    [[ " $(template_ids "${MATUGEN_CONFIG}") " != *" waybar "* ]]
+}
+
+@test "matugen: a missing config is skipped without failing" {
+    rm -f "${MATUGEN_CONFIG}"
+    run run_hooks
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"Matugen config not found"* ]]
+}
+
+# ── robustness (paths with spaces, missing tools) ───────────────────────────
+
+@test "harness: every file the hooks write is isolated under the temp dir" {
+    # A test that reaches the live ~/.config once already left the real wallpaper runner
+    # pointing at a deleted temp path.
+    for var in WAYPAPER_CONFIG ML4W_WALLPAPER_SCRIPT ML4W_GTK_LISTENER ML4W_LISTENERS_SCRIPT MATUGEN_CONFIG; do
+        [[ "${!var}" == "${TEST_DIR}/"* ]]
+    done
+}
+
+@test "waypaper: the hook executable is quoted so a dots path with spaces still works" {
+    SPACED="${TEST_DIR}/dots with space"
+    mkdir -p "${SPACED}/lib" "${SPACED}/scripts"
+    cp "${TEST_DIR}/lib/"*.sh "${SPACED}/lib/"
+    cp "${TEST_DIR}/scripts/"*.sh "${SPACED}/scripts/"
+    DREAMCODER_DOTS_DIR="${SPACED}" run bash "${BATS_TEST_DIRNAME}/../../scripts/apply-ml4w-hooks.sh"
+    [ "$status" -eq 0 ]
+    grep -qF 'dots\ with\ space/scripts/wallpaper-hook.sh' "${WAYPAPER_CONFIG}"
+}
+
+@test "hooks: a hostile dots path is escaped in the generated runner and waypaper commands" {
+    # The path goes into generated shell source. Quotes, $(...), backticks, |, & and a
+    # backslash must reach the hook as literal characters and must not execute anything.
+    HOSTILE="${TEST_DIR}"'/we$(touch INJECTED)`touch INJECTED2`"q|a&b\c'
+    mkdir -p "${HOSTILE}/lib" "${HOSTILE}/scripts" "${TEST_DIR}/work"
+    cp "${TEST_DIR}/lib/"*.sh "${HOSTILE}/lib/"
+    cp "${TEST_DIR}/scripts/theme-auto.sh" "${HOSTILE}/scripts/"
+    printf '#!/usr/bin/env bash\nprintf "%%s" "$1" >"%s/called"\n' "${TEST_DIR}/work" >"${HOSTILE}/scripts/wallpaper-hook.sh"
+    chmod +x "${HOSTILE}/scripts/"*.sh
+    DREAMCODER_DOTS_DIR="${HOSTILE}" run bash "${BATS_TEST_DIRNAME}/../../scripts/apply-ml4w-hooks.sh"
+    [ "$status" -eq 0 ]
+
+    # Runner block: run it as the ML4W runner would.
+    sed -n '/^# >>> Dreamcoder wallpaper hook >>>$/,/^# <<< Dreamcoder wallpaper hook <<<$/p' \
+        "${ML4W_WALLPAPER_SCRIPT}" >"${TEST_DIR}/block.sh"
+    (cd "${TEST_DIR}/work" && IMAGE_PATH=runner-image bash "${TEST_DIR}/block.sh")
+    [ "$(cat "${TEST_DIR}/work/called")" = "runner-image" ]
+
+    # waypaper post_command: run the appended command with $wallpaper set.
+    rm -f "${TEST_DIR}/work/called"
+    cmd="$(grep '^post_command' "${WAYPAPER_CONFIG}" | sed 's/^[^;]*; //')"
+    (cd "${TEST_DIR}/work" && wallpaper=waypaper-image bash -c "${cmd}")
+    [ "$(cat "${TEST_DIR}/work/called")" = "waypaper-image" ]
+
+    [ ! -e "${TEST_DIR}/work/INJECTED" ]
+    [ ! -e "${TEST_DIR}/work/INJECTED2" ]
+    [ ! -e "${TEST_DIR}/INJECTED" ]
+}
+
+@test "hooks: a wallpaper variable that is not a shell identifier is rejected" {
+    ML4W_WALLPAPER_VAR='x; touch INJECTED' run run_hooks
+    [ "$status" -ne 0 ]
+    [[ "$output" == *"not a valid shell identifier"* ]]
+}
+
+# A PATH holding only the tools the script needs, so a specific one can be left out.
+restricted_path() {
+    local skip="$1" bin="${TEST_DIR}/restricted-bin" tool src
+    mkdir -p "${bin}"
+    for tool in bash env dirname awk sed grep cat tr cut head tail sort uniq date git readlink \
+        chmod mkdir cp rm mktemp python3 timeout printf hostname; do
+        [[ "${tool}" == "${skip}" ]] && continue
+        src="$(command -v "${tool}" 2>/dev/null)" && ln -sf "${src}" "${bin}/${tool}"
+    done
+    printf '%s' "${bin}"
+}
+
+# Set PATH only around the hooks, not around bats' own `run` bookkeeping.
+run_hooks_with_path() {
+    PATH="$1" run_hooks
+}
+
+@test "listener: without timeout(1) the hook is skipped with a warning, not applied unbounded" {
+    before="$(cat "${ML4W_GTK_LISTENER}")"
+    run run_hooks_with_path "$(restricted_path timeout)"
+    [[ "$output" == *"timeout(1) not found"* ]]
+    [ "$(cat "${ML4W_GTK_LISTENER}")" = "${before}" ]
+}
+
+@test "matugen: without a TOML validator the config is left untouched with a warning" {
+    before="$(cat "${MATUGEN_CONFIG}")"
+    bin="${TEST_DIR}/nopy"
+    mkdir -p "${bin}"
+    printf '#!/bin/sh\nexit 1\n' >"${bin}/python3"
+    chmod +x "${bin}/python3"
+    run run_hooks_with_path "${bin}:${PATH}"
+    [[ "$output" == *"to validate the Matugen config, left untouched"* ]]
+    [ "$(cat "${MATUGEN_CONFIG}")" = "${before}" ]
+}
+
+@test "hooks: a missing required library fails with a clear message" {
+    empty="${TEST_DIR}/no-lib"
+    mkdir -p "${empty}"
+    DREAMCODER_DOTS_DIR="${empty}" run bash "${BATS_TEST_DIRNAME}/../../scripts/apply-ml4w-hooks.sh"
+    [ "$status" -ne 0 ]
+    [[ "$output" == *"Required library not found"* ]]
 }
