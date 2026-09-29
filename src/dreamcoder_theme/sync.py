@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import subprocess
 import sys
 from collections.abc import Callable, Mapping, Sequence
@@ -1020,7 +1021,26 @@ def prepare(base: str) -> PreparedSync:
     )
 
 
-def main() -> None:
+def _parse_args(argv: Sequence[str] | None) -> None:
+    """Reject anything unknown before a single side effect runs.
+
+    sync takes no options: the mode and write behaviour come from the
+    environment. Parsing first is what keeps ``--help`` from syncing.
+    """
+    parser = argparse.ArgumentParser(
+        prog="dreamcoder sync",
+        description="Regenerate the Dreamcoder theme from tokens.json and apply the active mode.",
+        epilog=(
+            "environment: DREAMCODER_THEME_MODE=light|dark selects the mode (default: the "
+            "persisted live mode, then dark); DREAMCODER_WRITE_REPO=0 skips repo-tracked "
+            "outputs and writes live targets only."
+        ),
+    )
+    parser.parse_args(argv)
+
+
+def main(argv: Sequence[str] | None = None) -> None:
+    _parse_args(argv)
     gen = ROOT / "scripts" / "generate-palette-tokens.py"
     if gen.is_file():
         subprocess.run([sys.executable, str(gen)], check=True)
