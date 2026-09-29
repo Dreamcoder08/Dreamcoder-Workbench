@@ -66,6 +66,7 @@ Configuration guides for individual components.
 | [Multiplexer](configuration/multiplexer-config.md) | Tmux, Zellij |
 | [ML4W Integration](configuration/ml4w.md) | Profile-driven keybindings, native dispatchers, file layout |
 | [Theme System](configuration/theme-system.md) | Theme engine architecture, tokens, variants |
+| [gga Model Pin](configuration/gga.md) | Gentleman Guardian Angel reviews pinned to Codex `gpt-6.1-sol` (medium) |
 
 ---
 
