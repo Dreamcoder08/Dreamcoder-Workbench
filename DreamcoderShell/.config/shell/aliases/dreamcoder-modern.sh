@@ -64,7 +64,10 @@ extract() {
     echo "Usage: extract <archive> [output_dir]"
     return 1
   fi
-  local file="$1" dir="${2:-${file%.*}}"
+  # Two statements: in bash a single `local` expands every value before any is
+  # assigned, so dir would not see file (ShellCheck SC2318).
+  local file="$1"
+  local dir="${2:-${file%.*}}"
   case "$file" in
   *.tar.gz | *.tgz) tar -xzf "$file" -C "$(dirname "$file")" 2>/dev/null || tar -xzf "$file" ;;
   *.tar.bz2 | *.tbz2) tar -xjf "$file" ;;
