@@ -89,8 +89,9 @@ The ML4W 2.16 delta is ported as follows:
 | Rewritten AZERTY detection (`fr`, `be`) | Ported; binds the AZERTY keysyms only on AZERTY layouts, since the profile owns the digit workspace binds |
 
 `tests/ml4w/keybindings_variant.bats` fails on any new collision between the
-variant and the profile. The `SUPER + SHIFT + arrows` overlap (variant resize,
-profile move) predates 2.16 and is listed there as a known exception.
+variant and the profile; there are no exceptions. The profile owns
+`SUPER + SHIFT + arrows` (move window), so the variant's keyboard resize sits on
+`SUPER + CTRL + arrows` instead of ML4W's upstream `SUPER + SHIFT + arrows`.
 
 ## hyprctl dispatch is broken on Hyprland 0.55+ — native dispatchers used
 
