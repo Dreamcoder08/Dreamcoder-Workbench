@@ -81,6 +81,14 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get install -y jq
 
+      # The runner has no ML4W install; the pre-flight only needs the two marker
+      # files the ownership predicates in lib/ml4w.sh look for.
+      - name: Simulate a minimal ML4W install
+        run: |
+          mkdir -p ~/.config/hypr/conf ~/.config/waybar
+          : > ~/.config/hypr/conf/keybinding.lua
+          : > ~/.config/waybar/launch.sh
+
       - name: Dry-run with default profile
         run: |
           bash scripts/setup-hyprland.sh --profile default --dry-run
