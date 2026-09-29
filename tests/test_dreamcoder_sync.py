@@ -239,7 +239,7 @@ def test_main_happy_path(mock_paths, active, variants):
     for p in patches:
         p.start()
     try:
-        sync.main()
+        sync.main([])
     finally:
         for p in patches:
             p.stop()
@@ -251,7 +251,7 @@ def test_main_fails_on_invalid_starship(mock_paths, active, variants):
         p.start()
     try:
         with pytest.raises(SystemExit) as exc:
-            sync.main()
+            sync.main([])
     finally:
         for p in patches:
             p.stop()
@@ -303,7 +303,7 @@ def test_main_gate_failure_blocks_all_writes(mock_paths, active, variants):
         p.start()
     try:
         with pytest.raises(SystemExit) as exc:
-            sync.main()
+            sync.main([])
     finally:
         for p in patches:
             p.stop()
@@ -323,7 +323,7 @@ def test_main_skips_sync_repo_when_disabled(mock_paths, active, variants):
     for p in patches:
         p.start()
     try:
-        sync.main()
+        sync.main([])
     finally:
         for p in patches:
             p.stop()
@@ -335,7 +335,7 @@ def test_main_calls_sync_repo_when_enabled(mock_paths, active, variants):
     for p in patches:
         p.start()
     try:
-        sync.main()
+        sync.main([])
     finally:
         for p in patches:
             p.stop()
@@ -348,7 +348,7 @@ def test_main_light_mode(mock_paths):
     for p in patches:
         p.start()
     try:
-        sync.main()
+        sync.main([])
     finally:
         for p in patches:
             p.stop()

@@ -278,96 +278,155 @@ def validate_palette(
             measured={value} guardrail={key}={threshold}
     """
     g = guardrails or {}
-    errors: list[str] = []
-    bg = palette["bg"]
+    if "bg" not in palette:  # fail fast, exactly like the former eager lookup
+        raise KeyError("bg")
     effective_mode = mode if mode is not None else detect_mode(palette)
     text_min = g.get("minimum_text_contrast", 4.5)
-    main_min = g.get("preferred_main_text_contrast", 7.0)
-    sel_min = g.get("minimum_terminal_selection_contrast", 7.0)
-
-    def wcag_diag(fg_key: str, bg_key: str, measured: float, key: str, threshold: float) -> str:
-        return (
-            f"WCAG fail: mode={effective_mode} "
-            f"pair={fg_key}/{bg_key} measured={measured:.2f} "
-            f"guardrail={key}={threshold}"
-        )
-
-    def apca_diag(cls: str, fg_key: str, bg_key: str, lc: float, key: str, threshold: float) -> str:
-        return (
-            f"APCA fail: mode={effective_mode} "
-            f"pair={fg_key}/{bg_key} class={cls} measured={abs(lc):.1f} "
-            f"guardrail={key}={threshold}"
-        )
 
     # -- WCAG 2.2 gate --------------------------------------------------
+    errors = _wcag_text_tokens(palette, effective_mode, text_min)
+    errors += _wcag_main_text(palette, effective_mode, g.get("preferred_main_text_contrast", 7.0))
+    errors += _wcag_foreground_pairs(
+        palette, effective_mode, text_min, g.get("minimum_terminal_selection_contrast", 7.0)
+    )
+    errors += _wcag_ansi(palette, effective_mode, g.get("minimum_terminal_ansi_contrast", 4.5))
+
+    # -- APCA gate (independent; never short-circuits WCAG) -------------
+    if mode is not None and mode not in ("light", "dark", "dusk"):
+        errors.append(f"invalid mode: {mode}")
+    errors += _apca_classes(palette, g, effective_mode, text_min)
+
+    # -- Structural checks ----------------------------------------------
+    errors += _structural_errors(palette, effective_mode)
+    return errors
+
+
+def _wcag_diag(
+    mode: str, fg_key: str, bg_key: str, measured: float, key: str, threshold: float
+) -> str:
+    return (
+        f"WCAG fail: mode={mode} "
+        f"pair={fg_key}/{bg_key} measured={measured:.2f} "
+        f"guardrail={key}={threshold}"
+    )
+
+
+def _apca_diag(
+    mode: str, cls: str, fg_key: str, bg_key: str, lc: float, key: str, threshold: float
+) -> str:
+    return (
+        f"APCA fail: mode={mode} "
+        f"pair={fg_key}/{bg_key} class={cls} measured={abs(lc):.1f} "
+        f"guardrail={key}={threshold}"
+    )
+
+
+def _wcag_text_tokens(palette: dict[str, str], mode: str, text_min: float) -> list[str]:
+    errors: list[str] = []
     for key in ("text", "muted", "comment", "accent", "error", "warning", "diagnostic"):
         if key not in palette:
             errors.append(f"missing token: {key}")
             continue
-        ratio = contrast(bg, palette[key])
+        ratio = contrast(palette["bg"], palette[key])
         if ratio < text_min:
-            errors.append(wcag_diag(key, "bg", ratio, "minimum_text_contrast", text_min))
+            errors.append(_wcag_diag(mode, key, "bg", ratio, "minimum_text_contrast", text_min))
+    return errors
 
-    if "text" in palette:
-        ratio = contrast(bg, palette["text"])
-        if ratio < main_min:
-            errors.append(wcag_diag("text", "bg", ratio, "preferred_main_text_contrast", main_min))
 
+def _wcag_main_text(palette: dict[str, str], mode: str, main_min: float) -> list[str]:
+    if "text" not in palette:
+        return []
+    ratio = contrast(palette["bg"], palette["text"])
+    if ratio >= main_min:
+        return []
+    return [_wcag_diag(mode, "text", "bg", ratio, "preferred_main_text_contrast", main_min)]
+
+
+def _wcag_foreground_pairs(
+    palette: dict[str, str], mode: str, text_min: float, sel_min: float
+) -> list[str]:
+    errors: list[str] = []
     for fg_key, bg_key in (
         ("selection_fg", "selection_bg"),
         ("on_accent", "accent"),
         ("on_error", "error"),
     ):
-        if fg_key in palette and bg_key in palette:
-            ratio = contrast(palette[fg_key], palette[bg_key])
-            if fg_key == "selection_fg" and ratio < sel_min:
-                errors.append(
-                    wcag_diag(fg_key, bg_key, ratio, "minimum_terminal_selection_contrast", sel_min)
-                )
-            elif fg_key.startswith("on_") and ratio < text_min:
-                errors.append(wcag_diag(fg_key, bg_key, ratio, "minimum_text_contrast", text_min))
+        if fg_key not in palette or bg_key not in palette:
+            continue
+        ratio = contrast(palette[fg_key], palette[bg_key])
+        if fg_key == "selection_fg":
+            key, threshold = "minimum_terminal_selection_contrast", sel_min
+        else:
+            key, threshold = "minimum_text_contrast", text_min
+        if ratio < threshold:
+            errors.append(_wcag_diag(mode, fg_key, bg_key, ratio, key, threshold))
+    return errors
 
-    ansi_min = g.get("minimum_terminal_ansi_contrast", 4.5)
+
+def _wcag_ansi(palette: dict[str, str], mode: str, ansi_min: float) -> list[str]:
+    errors: list[str] = []
     for index, color in enumerate(ansi(palette)):
-        ratio = contrast(color, bg)
+        ratio = contrast(color, palette["bg"])
         if ratio < ansi_min:
             errors.append(
-                wcag_diag(f"ansi{index}", "bg", ratio, "minimum_terminal_ansi_contrast", ansi_min)
+                _wcag_diag(
+                    mode, f"ansi{index}", "bg", ratio, "minimum_terminal_ansi_contrast", ansi_min
+                )
             )
+    return errors
 
-    # -- APCA gate (independent; never short-circuits WCAG) -------------
-    if mode is not None and mode not in ("light", "dark", "dusk"):
-        errors.append(f"invalid mode: {mode}")
+
+def _apca_classes(
+    palette: dict[str, str], guardrails: dict[str, float], mode: str, text_min: float
+) -> list[str]:
+    errors: list[str] = []
     for cls, pairs, light_key, dark_key in _APCA_PAIR_CLASSES:
-        key = light_key if effective_mode in ("light", "dusk") else dark_key
-        threshold = g.get(key)
+        key = light_key if mode in ("light", "dusk") else dark_key
+        threshold = guardrails.get(key)
         if threshold is None:
             errors.append(f"missing guardrail key: {key}")
             continue
         for fg_key, bg_key in pairs:
-            if fg_key not in palette or bg_key not in palette:
-                errors.append(f"missing token: {fg_key} (declared {cls} pair)")
-                continue
-            lc = apca_lc(palette[fg_key], palette[bg_key])
-            if abs(lc) < threshold:
-                errors.append(apca_diag(cls, fg_key, bg_key, lc, key, threshold))
-            # Independent WCAG floor on the SAME declared pair (ADR-002 dual
-            # gate): both metrics are required for every declared class, so
-            # an APCA-boosted near-invisible pair cannot pass unremarked.
-            ratio = contrast(palette[fg_key], palette[bg_key])
-            if ratio < text_min:
-                errors.append(wcag_diag(fg_key, bg_key, ratio, "minimum_text_contrast", text_min))
+            errors += _apca_pair(palette, mode, cls, (fg_key, bg_key), (key, threshold), text_min)
+    return errors
 
-    # -- Structural checks ----------------------------------------------
-    for step in ("bg_soft", "surface0", "surface1", "surface2", "surface3"):
-        if step in palette and contrast(palette[step], bg) < 1.02:
-            errors.append(f"{step} too close to bg")
 
+def _apca_pair(
+    palette: dict[str, str],
+    mode: str,
+    cls: str,
+    pair: tuple[str, str],
+    guardrail: tuple[str, float],
+    text_min: float,
+) -> list[str]:
+    fg_key, bg_key = pair
+    if fg_key not in palette or bg_key not in palette:
+        return [f"missing token: {fg_key} (declared {cls} pair)"]
+    errors: list[str] = []
+    key, threshold = guardrail
+    lc = apca_lc(palette[fg_key], palette[bg_key])
+    if abs(lc) < threshold:
+        errors.append(_apca_diag(mode, cls, fg_key, bg_key, lc, key, threshold))
+    # Independent WCAG floor on the SAME declared pair (ADR-002 dual
+    # gate): both metrics are required for every declared class, so
+    # an APCA-boosted near-invisible pair cannot pass unremarked.
+    ratio = contrast(palette[fg_key], palette[bg_key])
+    if ratio < text_min:
+        errors.append(_wcag_diag(mode, fg_key, bg_key, ratio, "minimum_text_contrast", text_min))
+    return errors
+
+
+def _structural_errors(palette: dict[str, str], mode: str) -> list[str]:
+    errors = [
+        f"{step} too close to bg"
+        for step in ("bg_soft", "surface0", "surface1", "surface2", "surface3")
+        if step in palette and contrast(palette[step], palette["bg"]) < 1.02
+    ]
     if palette.get("comment") == palette.get("subtle"):
         errors.append("comment and subtle must differ")
     if palette.get("accent") == palette.get("accent_2"):
         errors.append("accent and accent_2 must differ")
-    if effective_mode == "light" and "surface3" not in palette:
+    if mode == "light" and "surface3" not in palette:
         errors.append("light mode missing surface3")
     return errors
 

@@ -9,6 +9,8 @@ pair, measured value, and guardrail key/value.
 import json
 from pathlib import Path
 
+import pytest
+
 from dreamcoder_theme._math import apca_lc, contrast
 from dreamcoder_theme.palette import validate_palette
 
@@ -164,3 +166,136 @@ def test_missing_declared_pair_token_is_reported():
     pal.pop("text_heading")
     errors = validate_palette(pal, _guardrails(), mode="dark")
     assert any("missing token: text_heading (declared heading pair)" in e for e in errors)
+
+
+# -- Characterization: exact error list and order ---------------------------
+# Frozen snapshot of the canonical dark palette so the golden list below stays
+# independent of future token edits; it pins every validate_palette branch and
+# the exact order in which errors are emitted.
+_FROZEN_DARK = {
+    "bg": "#000000",
+    "bg_soft": "#0B0B0B",
+    "surface0": "#0B0B0B",
+    "surface1": "#0D0D0F",
+    "surface2": "#1F1F1F",
+    "surface3": "#2E2E2E",
+    "text": "#E6E6E6",
+    "text_heading": "#F5F5F5",
+    "muted": "#C7C7C7",
+    "subtle": "#A7A7A7",
+    "comment": "#D0D0D0",
+    "border": "#6B6B6B",
+    "border_ui": "#767676",
+    "border_hi": "#A7A7A7",
+    "focus": "#3B82F6",
+    "accent": "#A5B4FC",
+    "accent_2": "#D4B5FD",
+    "diagnostic": "#7DD3FC",
+    "selection": "#3A3A3A",
+    "details": "darker",
+    "prompt_bg": "#000000",
+    "prompt_surface0": "#0B0B0B",
+    "prompt_surface1": "#0D0D0F",
+    "prompt_surface2": "#1F1F1F",
+    "prompt_text": "#E6E6E6",
+    "prompt_muted": "#C7C7C7",
+    "prompt_accent": "#A5B4FC",
+    "prompt_accent_2": "#D4B5FD",
+    "sage": "#34D399",
+    "lavender": "#D4B5FD",
+    "mauve": "#D8B4FE",
+    "error": "#FB8585",
+    "warning": "#FBBF24",
+    "success": "#34D399",
+    "info": "#7DD3FC",
+    "selection_bg": "#3A3A3A",
+    "selection_fg": "#E6E6E6",
+    "on_surface": "#E6E6E6",
+    "on_accent": "#000000",
+    "on_error": "#000000",
+    "on_focus": "#000000",
+    "link": "#A5B4FC",
+    "link_hover": "#D4B5FD",
+    "disabled": "#A7A7A7",
+    "hover": "#3A3A3A",
+    "pressed": "#1F1F1F",
+}
+
+
+def test_error_list_and_order_are_stable_across_every_rule_family():
+    pal = dict(_FROZEN_DARK)
+    pal.pop("diagnostic")
+    pal["text"] = "#8a8a8a"
+    pal["selection_fg"] = pal["selection_bg"]
+    pal["on_accent"] = pal["accent"]
+    pal["surface1"] = pal["bg"]
+    pal["subtle"] = pal["comment"]
+    pal["accent_2"] = pal["accent"]
+    guardrails = dict(_guardrails(), minimum_terminal_ansi_contrast=12.0)
+
+    errors = validate_palette(pal, guardrails, mode="dark")
+
+    ansi = "WCAG fail: mode=dark pair=ansi{}/bg measured={} guardrail=minimum_terminal_ansi_contrast=12.0"
+    assert errors == [
+        "missing token: diagnostic",
+        "WCAG fail: mode=dark pair=text/bg measured=6.08 guardrail=preferred_main_text_contrast=7.0",
+        "WCAG fail: mode=dark pair=selection_fg/selection_bg measured=1.00 "
+        "guardrail=minimum_terminal_selection_contrast=7.0",
+        "WCAG fail: mode=dark pair=on_accent/accent measured=1.00 guardrail=minimum_text_contrast=4.5",
+        ansi.format(0, "4.82"),
+        ansi.format(1, "8.80"),
+        ansi.format(2, "10.92"),
+        ansi.format(5, "11.88"),
+        ansi.format(6, "11.83"),
+        ansi.format(9, "8.15"),
+        ansi.format(10, "9.76"),
+        ansi.format(11, "11.06"),
+        ansi.format(12, "11.13"),
+        ansi.format(13, "10.59"),
+        ansi.format(14, "5.64"),
+        ansi.format(15, "6.08"),
+        "APCA fail: mode=dark pair=text/bg class=body measured=39.6 "
+        "guardrail=minimum_apca_body_dark=50",
+        "missing token: diagnostic (declared body pair)",
+        "APCA fail: mode=dark pair=on_accent/accent class=on-accent measured=16.0 "
+        "guardrail=minimum_apca_on_accent=60",
+        "WCAG fail: mode=dark pair=on_accent/accent measured=1.00 guardrail=minimum_text_contrast=4.5",
+        "surface1 too close to bg",
+        "comment and subtle must differ",
+        "accent and accent_2 must differ",
+    ]
+
+
+def test_light_mode_without_surface3_is_reported_last():
+    pal = _clean_palette("light")
+    pal.pop("surface3")
+
+    errors = validate_palette(pal, _guardrails())
+
+    assert errors[-1] == "light mode missing surface3"
+
+
+def test_missing_bg_fails_fast_with_key_error():
+    pal = dict(_FROZEN_DARK)
+    pal.pop("bg")
+
+    with pytest.raises(KeyError, match="bg"):
+        validate_palette(pal, _guardrails(), mode="dark")
+
+
+def test_absent_foreground_pair_token_skips_its_wcag_check():
+    pal = dict(_FROZEN_DARK)
+    pal.pop("on_error")
+
+    errors = validate_palette(pal, _guardrails(), mode="dark")
+
+    assert not any("on_error/" in e for e in errors)
+
+
+def test_missing_text_token_still_fails_through_the_ansi_derivation():
+    """ANSI colors derive from ``text``, so a palette without it cannot be validated."""
+    pal = dict(_FROZEN_DARK)
+    pal.pop("text")
+
+    with pytest.raises(KeyError, match="text"):
+        validate_palette(pal, _guardrails(), mode="dark")

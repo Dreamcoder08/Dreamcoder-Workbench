@@ -34,13 +34,13 @@ jobs:
         run: mypy src/
 
       - name: Shell check
-        run: shellcheck --shell=bash --severity=warning scripts/*.sh
+        run: git ls-files 'scripts/*.sh' 'lib/*.sh' 'DreamcoderShell/*.sh' 'DreamcoderShell/**/*.sh' | xargs shellcheck --shell=bash --severity=warning
 
       - name: Run tests
         run: python -m pytest tests/ -v --tb=short
 
       - name: Coverage
-        run: python -m pytest tests/ --cov=dreamcoder_theme --cov-fail-under=40
+        run: python -m pytest tests/ --cov=dreamcoder_theme --cov-fail-under=80
 
       - name: Run theme health check
         env:

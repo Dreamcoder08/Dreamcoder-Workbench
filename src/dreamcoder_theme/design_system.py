@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import re
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal, cast
@@ -166,13 +166,24 @@ def render_target(
     return RenderedTarget(target=target, mode=mode, fields=fields, content=content)
 
 
-def evaluate_contract(  # noqa: PLR0912
-    contract: Mapping[str, Any], tokens: Mapping[str, Any]
-) -> list[Finding]:
+def evaluate_contract(contract: Mapping[str, Any], tokens: Mapping[str, Any]) -> list[Finding]:
     """Evaluate role provenance, three-mode parity, and matrix coverage in memory."""
-    findings: list[Finding] = []
     expected_modes = tuple(contract["modes"])
     canonical_modes = tokens.get("modes", {})
+    findings = _mode_role_findings(contract, tokens, expected_modes, canonical_modes)
+    rendered = _render_declared_targets(contract, expected_modes, canonical_modes, findings)
+    findings += _parity_findings(contract, tokens, expected_modes, rendered)
+    findings += _matrix_findings(contract)
+    return sorted(findings, key=_finding_sort_key)
+
+
+def _mode_role_findings(
+    contract: Mapping[str, Any],
+    tokens: Mapping[str, Any],
+    expected_modes: tuple[str, ...],
+    canonical_modes: Mapping[str, Any],
+) -> list[Finding]:
+    findings: list[Finding] = []
     for mode in expected_modes:
         if mode not in canonical_modes:
             findings.append(
@@ -186,7 +197,16 @@ def evaluate_contract(  # noqa: PLR0912
                 findings.append(
                     _finding("ROLE_RESOLUTION", mode=mode, role=role, message=str(error))
                 )
+    return findings
 
+
+def _render_declared_targets(
+    contract: Mapping[str, Any],
+    expected_modes: tuple[str, ...],
+    canonical_modes: Mapping[str, Any],
+    findings: list[Finding],
+) -> dict[tuple[str, str], RenderedTarget]:
+    """Render every declared target/mode pair, appending failures to ``findings``."""
     rendered: dict[tuple[str, str], RenderedTarget] = {}
     for target, target_contract in contract["targets"].items():
         declared_modes = tuple(target_contract.get("modes", ()))
@@ -210,64 +230,99 @@ def evaluate_contract(  # noqa: PLR0912
                 findings.append(
                     _finding("RENDER_FAILURE", mode=mode, target=target, message=str(error))
                 )
+    return rendered
 
+
+def _parity_findings(
+    contract: Mapping[str, Any],
+    tokens: Mapping[str, Any],
+    expected_modes: tuple[str, ...],
+    rendered: Mapping[tuple[str, str], RenderedTarget],
+) -> list[Finding]:
+    findings: list[Finding] = []
     for target, target_contract in contract["targets"].items():
         for mode in expected_modes:
             output = rendered.get((target, mode))
             if output is None:
                 continue
-            mappings = target_contract.get("mappings", {})
-            for role, rendered_value in output.fields.items():
-                expected_role = mappings.get(role, role)
-                if expected_role.startswith("renderer:"):
-                    continue
-                try:
-                    expected = resolve_role(contract, tokens, mode, expected_role)
-                except ValueError as error:
-                    findings.append(
-                        _finding(
-                            "SEMANTIC_PROVENANCE_INVALID",
-                            mode=mode,
-                            target=target,
-                            role=role,
-                            message=str(error),
-                        )
-                    )
-                    continue
-                if rendered_value != expected.value:
-                    findings.append(
-                        _finding(
-                            "SEMANTIC_PROVENANCE_MISMATCH",
-                            mode=mode,
-                            target=target,
-                            role=role,
-                            measured=rendered_value,
-                            required=expected.value,
-                            message=(
-                                f"target '{target}' field for role '{role}' does not match "
-                                f"canonical role '{expected_role}'"
-                            ),
-                        )
-                    )
-            for role in target_contract["required_roles"]:
-                if role in output.fields:
-                    continue
-                mapped_to = mappings.get(role)
-                if mapped_to and mapped_to in output.fields:
-                    continue
-                findings.append(
-                    _finding(
-                        "PARITY_MISSING_FIELD",
-                        mode=mode,
-                        target=target,
-                        role=role,
-                        message=(
-                            f"target '{target}' omits required role '{role}'; "
-                            "declare a field or explicit semantic mapping"
-                        ),
-                    )
-                )
+            findings += _provenance_findings(contract, tokens, target_contract, output)
+            findings += _required_role_findings(target_contract, output)
+    return findings
 
+
+def _provenance_findings(
+    contract: Mapping[str, Any],
+    tokens: Mapping[str, Any],
+    target_contract: Mapping[str, Any],
+    output: RenderedTarget,
+) -> list[Finding]:
+    findings: list[Finding] = []
+    target, mode = output.target, output.mode
+    mappings = target_contract.get("mappings", {})
+    for role, rendered_value in output.fields.items():
+        expected_role = mappings.get(role, role)
+        if expected_role.startswith("renderer:"):
+            continue
+        try:
+            expected = resolve_role(contract, tokens, mode, expected_role)
+        except ValueError as error:
+            findings.append(
+                _finding(
+                    "SEMANTIC_PROVENANCE_INVALID",
+                    mode=mode,
+                    target=target,
+                    role=role,
+                    message=str(error),
+                )
+            )
+            continue
+        if rendered_value != expected.value:
+            findings.append(
+                _finding(
+                    "SEMANTIC_PROVENANCE_MISMATCH",
+                    mode=mode,
+                    target=target,
+                    role=role,
+                    measured=rendered_value,
+                    required=expected.value,
+                    message=(
+                        f"target '{target}' field for role '{role}' does not match "
+                        f"canonical role '{expected_role}'"
+                    ),
+                )
+            )
+    return findings
+
+
+def _required_role_findings(
+    target_contract: Mapping[str, Any], output: RenderedTarget
+) -> list[Finding]:
+    mappings = target_contract.get("mappings", {})
+    return [
+        _finding(
+            "PARITY_MISSING_FIELD",
+            mode=output.mode,
+            target=output.target,
+            role=role,
+            message=(
+                f"target '{output.target}' omits required role '{role}'; "
+                "declare a field or explicit semantic mapping"
+            ),
+        )
+        for role in target_contract["required_roles"]
+        if not _role_is_covered(role, mappings, output.fields)
+    ]
+
+
+def _role_is_covered(role: str, mappings: Mapping[str, str], fields: Mapping[str, str]) -> bool:
+    if role in fields:
+        return True
+    mapped_to = mappings.get(role)
+    return bool(mapped_to and mapped_to in fields)
+
+
+def _matrix_findings(contract: Mapping[str, Any]) -> list[Finding]:
+    findings: list[Finding] = []
     for row in contract["matrix"]:
         for target in row["targets"]:
             target_contract = contract["targets"].get(target)
@@ -281,18 +336,18 @@ def evaluate_contract(  # noqa: PLR0912
             supported = set(target_contract["required_roles"]) | set(
                 target_contract.get("mappings", {})
             )
-            for role in (row["foreground"], row["background"]):
-                if role not in supported:
-                    findings.append(
-                        _finding(
-                            "MATRIX_MISSING_ROLE",
-                            target=target,
-                            role=role,
-                            required=row["id"],
-                            message=f"matrix row '{row['id']}' requires role '{role}' for target '{target}'",
-                        )
-                    )
-    return sorted(findings, key=_finding_sort_key)
+            findings += [
+                _finding(
+                    "MATRIX_MISSING_ROLE",
+                    target=target,
+                    role=role,
+                    required=row["id"],
+                    message=f"matrix row '{row['id']}' requires role '{role}' for target '{target}'",
+                )
+                for role in (row["foreground"], row["background"])
+                if role not in supported
+            ]
+    return findings
 
 
 def _finding(
@@ -319,49 +374,56 @@ def _finding_sort_key(finding: Finding) -> tuple[str, str, str, str, str]:
     )
 
 
-def _parse_renderer_output(target: str, content: str) -> dict[str, str]:  # noqa: PLR0912
-    if target == "opencode":
-        try:
-            parsed = json.loads(content)
-        except json.JSONDecodeError as exc:
-            raise ValueError(f"renderer {target!r} produced invalid JSON: {exc}") from exc
-        return {f"theme.{key}": value for key, value in parsed["theme"].items()}
-    if target == "kitty":
-        return _space_assignments(content)
-    if target == "ghostty":
-        fields = _equals_assignments(content)
-        for line in content.splitlines():
-            if line.startswith("palette = "):
-                number, value = line.removeprefix("palette = ").split("=", 1)
-                fields[f"palette.{number}"] = value
-        return fields
-    if target == "warp":
-        fields = _colon_assignments(content)
-        section = ""
-        for line in content.splitlines():
-            stripped = line.strip()
-            if stripped.endswith(":"):
-                section = stripped[:-1]
-            elif ":" in stripped and section in {"normal", "bright"}:
-                key, value = stripped.split(":", 1)
-                fields[f"terminal_colors.{section}.{key}"] = value.strip().strip("'")
-        return fields
-    if target == "starship":
-        star_fields: dict[str, str] = {}
-        in_palette = False
-        for line in content.splitlines():
-            if line == "[palettes.dreamcoder]":
-                in_palette = True
-                continue
-            if in_palette and line.startswith("["):
-                break
-            if in_palette and " = " in line:
-                key, value = line.split(" = ", 1)
-                star_fields[f"palette.{key}"] = value.strip().strip('"')
-        return star_fields
-    if target == "tmux":
-        return _tmux_fields(content)
-    raise ValueError(f"no adapter for target: {target}")
+def _parse_renderer_output(target: str, content: str) -> dict[str, str]:
+    parser = _OUTPUT_PARSERS.get(target)
+    if parser is None:
+        raise ValueError(f"no adapter for target: {target}")
+    return parser(content)
+
+
+def _opencode_fields(content: str) -> dict[str, str]:
+    try:
+        parsed = json.loads(content)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"renderer 'opencode' produced invalid JSON: {exc}") from exc
+    return {f"theme.{key}": value for key, value in parsed["theme"].items()}
+
+
+def _ghostty_fields(content: str) -> dict[str, str]:
+    fields = _equals_assignments(content)
+    for line in content.splitlines():
+        if line.startswith("palette = "):
+            number, value = line.removeprefix("palette = ").split("=", 1)
+            fields[f"palette.{number}"] = value
+    return fields
+
+
+def _warp_fields(content: str) -> dict[str, str]:
+    fields = _colon_assignments(content)
+    section = ""
+    for line in content.splitlines():
+        stripped = line.strip()
+        if stripped.endswith(":"):
+            section = stripped[:-1]
+        elif ":" in stripped and section in {"normal", "bright"}:
+            key, value = stripped.split(":", 1)
+            fields[f"terminal_colors.{section}.{key}"] = value.strip().strip("'")
+    return fields
+
+
+def _starship_fields(content: str) -> dict[str, str]:
+    star_fields: dict[str, str] = {}
+    in_palette = False
+    for line in content.splitlines():
+        if line == "[palettes.dreamcoder]":
+            in_palette = True
+            continue
+        if in_palette and line.startswith("["):
+            break
+        if in_palette and " = " in line:
+            key, value = line.split(" = ", 1)
+            star_fields[f"palette.{key}"] = value.strip().strip('"')
+    return star_fields
 
 
 def _space_assignments(content: str) -> dict[str, str]:
@@ -398,3 +460,13 @@ def _tmux_fields(content: str) -> dict[str, str]:
         if match:
             fields[name] = match.group(1)
     return fields
+
+
+_OUTPUT_PARSERS: dict[str, Callable[[str], dict[str, str]]] = {
+    "opencode": _opencode_fields,
+    "kitty": _space_assignments,
+    "ghostty": _ghostty_fields,
+    "warp": _warp_fields,
+    "starship": _starship_fields,
+    "tmux": _tmux_fields,
+}

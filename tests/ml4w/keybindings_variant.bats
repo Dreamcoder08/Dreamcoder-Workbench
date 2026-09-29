@@ -30,14 +30,6 @@ profile() { printf '%s' "${DREAMCODER_DOTS_DIR}/DreamcoderProfiles/dreamcoder/as
   [ "$status" -eq 0 ]
 }
 
-# Pre-existing overlap, not introduced by the 2.16 port: the variant resizes
-# with SUPER + SHIFT + arrows (upstream default.lua) while the profile moves
-# windows on the same combos. Resolving it is a product decision; listed here
-# so any NEW collision still fails.
-KNOWN_OVERLAPS='SUPER+SHIFT+DOWN
-SUPER+SHIFT+LEFT
-SUPER+SHIFT+RIGHT
-SUPER+SHIFT+UP'
 
 @test "keybindings variant: no mainMod bind collides with the profile" {
   command -v jq >/dev/null || skip "jq not installed"
@@ -49,9 +41,16 @@ SUPER+SHIFT+UP'
   grep -oE 'hl\.bind\(mainMod \.\. " \+ [^"]+"' "$(variant)" \
     | sed -E 's/.*" \+ ([^"]+)"/SUPER + \1/; s/ \+ /+/g' | tr '[:lower:]' '[:upper:]' \
     | sort -u >"${BATS_TEST_TMPDIR}/variant"
-  printf '%s\n' "${KNOWN_OVERLAPS}" | sort -u >"${BATS_TEST_TMPDIR}/known"
-  comm -12 "${BATS_TEST_TMPDIR}/profile" "${BATS_TEST_TMPDIR}/variant" >"${BATS_TEST_TMPDIR}/overlap"
-  run comm -23 "${BATS_TEST_TMPDIR}/overlap" "${BATS_TEST_TMPDIR}/known"
+  run comm -12 "${BATS_TEST_TMPDIR}/profile" "${BATS_TEST_TMPDIR}/variant"
   [ "$status" -eq 0 ]
   [ -z "$output" ]
+}
+
+@test "keybindings variant: keyboard resize uses SUPER + CTRL + arrows, leaving SUPER + SHIFT + arrows to the profile's move-window" {
+  for dir in right left down up; do
+    run grep -F "mainMod .. \" + CTRL + ${dir}\", hl.dsp.window.resize(" "$(variant)"
+    [ "$status" -eq 0 ]
+    run grep -F "mainMod .. \" + SHIFT + ${dir}\"" "$(variant)"
+    [ "$status" -ne 0 ]
+  done
 }

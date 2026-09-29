@@ -6,6 +6,7 @@ import jsonschema
 import pytest
 
 from dreamcoder_theme.design_system import (
+    _parse_renderer_output,
     evaluate_contract,
     load_contract,
     load_tokens,
@@ -184,3 +185,59 @@ def test_matrix_requires_declared_target_roles_and_orders_findings(contract, tok
             finding.artifact or "",
         ),
     )
+
+
+def _summaries(findings):
+    return [(f.code, f.target, f.mode, f.role, f.message) for f in findings]
+
+
+def test_missing_canonical_mode_is_reported_once_and_skips_rendering(contract, tokens):
+    broken = copy.deepcopy(tokens)
+    del broken["modes"]["dusk"]
+
+    assert _summaries(evaluate_contract(contract, broken)) == [
+        ("MISSING_MODE", None, "dusk", None, "canonical mode 'dusk' is missing"),
+    ]
+
+
+def test_unresolvable_role_source_is_reported_per_mode(contract, tokens):
+    broken = copy.deepcopy(contract)
+    broken["roles"]["panel"]["source"] = "modes.{mode}.nope"
+
+    assert _summaries(evaluate_contract(broken, tokens)) == [
+        (
+            "ROLE_RESOLUTION",
+            None,
+            mode,
+            "panel",
+            f"missing canonical role source: modes.{mode}.nope",
+        )
+        for mode in ("dark", "dusk", "light")
+    ]
+
+
+def test_unknown_renderer_is_a_render_failure_per_mode(contract, tokens):
+    broken = copy.deepcopy(contract)
+    broken["targets"]["kitty"]["renderer"] = "nope"
+
+    assert _summaries(evaluate_contract(broken, tokens)) == [
+        ("RENDER_FAILURE", "kitty", mode, None, "unknown renderer callable: nope")
+        for mode in ("dark", "dusk", "light")
+    ]
+
+
+def test_mapping_to_unknown_role_is_invalid_provenance(contract, tokens):
+    broken = copy.deepcopy(contract)
+    broken["targets"]["kitty"]["mappings"]["text"] = "missing-role"
+
+    assert _summaries(evaluate_contract(broken, tokens)) == [
+        ("SEMANTIC_PROVENANCE_INVALID", "kitty", mode, "text", "unknown role: missing-role")
+        for mode in ("dark", "dusk", "light")
+    ]
+
+
+def test_renderer_output_parser_rejects_invalid_json_and_unknown_targets():
+    with pytest.raises(ValueError, match="renderer 'opencode' produced invalid JSON"):
+        _parse_renderer_output("opencode", "{not json")
+    with pytest.raises(ValueError, match="no adapter for target: nope"):
+        _parse_renderer_output("nope", "")
