@@ -75,6 +75,23 @@ updates, so custom bindings live in a separate **variant**. `conf/keybinding.lua
 If you add a keybinding, add it to the profile JSON and re-run the generator —
 never to `dreamcoder.lua` unless it is a native-only bind.
 
+### Tracking upstream `default.lua` (ML4W 2.16)
+
+`dreamcoder.lua` follows upstream `default.lua` minus the profile-owned binds.
+The ML4W 2.16 delta is ported as follows:
+
+| Upstream 2.16 change | In `dreamcoder.lua` |
+| --- | --- |
+| Overview moved to `~/.local/share/quickshell-overview` | `SUPER + Tab` runs `qs -p ~/.local/share/quickshell-overview ipc call overview toggle` |
+| `SUPER + ALT + B` statusbar autohide | Ported |
+| `SUPER + ALT + D` dock autohide | Ported |
+| Reload Dock moved to `SUPER + SHIFT + D` | Not bound — the profile owns that combo (theme toggle) |
+| Rewritten AZERTY detection (`fr`, `be`) | Ported; binds the AZERTY keysyms only on AZERTY layouts, since the profile owns the digit workspace binds |
+
+`tests/ml4w/keybindings_variant.bats` fails on any new collision between the
+variant and the profile. The `SUPER + SHIFT + arrows` overlap (variant resize,
+profile move) predates 2.16 and is listed there as a known exception.
+
 ## hyprctl dispatch is broken on Hyprland 0.55+ — native dispatchers used
 
 Hyprland's Lua config parses `hyprctl dispatch <arg>` as Lua
@@ -96,6 +113,41 @@ translates the following `hyprctl dispatch` commands in profiles to native
 | `hyprctl dispatch movewindow <dir>`| `hl.dsp.window.move({ direction = "<dir>" })` |
 
 Any other command still falls back to `hl.dsp.exec_cmd(...)`.
+
+## Upgrade-proof hooks: Dreamcoder hooks live in Dreamcoder-owned files
+
+ML4W upgrades overwrite every file ML4W ships (`hyprland.lua`, the
+`ml4w-wallpaper` runner, shipped keybinding variants). A line injected into
+one of those files silently disappears on the next upgrade. The rule:
+
+- **Put hooks in files ML4W never ships.** `custom.lua` (generated from the
+  profile) loads `dreamcoder-colors`; `hyprland.lua` already requires
+  `custom.lua` when it exists, so nothing is injected into `hyprland.lua`.
+  `dreamcoder doctor` accepts the loader from `custom.lua` (a legacy require in
+  `hyprland.lua` is still recognised).
+- **When a hook must live in an ML4W file, make it re-appliable.**
+  `scripts/apply-ml4w-hooks.sh` appends the wallpaper hook to
+  `~/.config/ml4w/scripts/ml4w-wallpaper` (the runner ML4W 2.16's Quickshell
+  wallpaper app calls with `$IMAGE_PATH`) between
+  `# >>> Dreamcoder wallpaper hook >>>` markers. Each run replaces the block, so
+  re-running it after an ML4W upgrade restores the hook without duplicates.
+- **waypaper is optional.** ML4W 2.16 no longer installs it; its
+  `post_command` is hooked only when `~/.config/waypaper/config.ini` exists.
+- **Colour files may be regular files.** ML4W 2.16 ships
+  `~/.config/hypr/colors.lua` / `colors.conf` as regular files and the theme
+  sync writes Dreamcoder colours through them (it only re-points files that are
+  already symlinks). `doctor.sh` and `verify-ml4w-setup.sh` accept either a
+  symlink into a Dreamcoder variant or a regular file whose bytes match a
+  `DreamcoderThemes/dreamcoder/hypr-colors-*` variant.
+
+After every ML4W upgrade:
+
+```bash
+./scripts/generate-custom-lua.sh      # custom.lua (keybinds + colour loader)
+./scripts/apply-ml4w-hooks.sh         # re-hook the wallpaper runner
+./scripts/dreamcoder sync             # rewrite colors.lua / colors.conf
+./scripts/verify-ml4w-setup.sh
+```
 
 ## What setup-hyprland.sh does
 
@@ -148,8 +200,15 @@ DreamcoderProfiles/dreamcoder/
 └── asus-vivobook15.json       # ASUS VivoBook 15 profile (all Fn keys)
 
 tests/ml4w/
-├── generate_custom_lua.bats   # 13 tests for the generator
-├── setup_hyprland.bats        # 9 tests for the orchestrator
-├── profile_validation.bats    # 11 tests for JSON profiles
-└── setup.bash                 # BATS test helper
+├── apply_ml4w_hooks.bats      # wallpaper hook (ML4W 2.16 runner fixture)
+├── args.bats                  # script argument handling
+├── generate_custom_lua.bats   # generator, incl. the dreamcoder-colors loader
+├── keybindings_variant.bats   # dreamcoder.lua vs ML4W 2.16 and the profile
+├── ml4w_managed.bats          # ML4W ownership + colour-file predicates
+├── setup_hyprland.bats        # orchestrator
+├── profile_validation.bats    # JSON profiles
+└── waybar_override.bats       # Waybar accent override
+
+tests/fixtures/ml4w/
+└── ml4w-wallpaper-2.16        # upstream runner at tag 2.16 (3960570)
 ```

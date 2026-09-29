@@ -49,6 +49,10 @@ hl.bind(mainMod .. " + ALT + W", hl.dsp.exec_cmd("~/.config/ml4w/scripts/ml4w-wa
 hl.bind(mainMod .. " + CTRL + RETURN", hl.dsp.exec_cmd("~/.config/hypr/scripts/launcher.sh"), { description = "Open application launcher" })
 hl.bind(mainMod .. " + SHIFT + B", hl.dsp.exec_cmd("~/.config/ml4w/scripts/ml4w-reload-statusbar"), { description = "Reload Status Bar" })
 hl.bind(mainMod .. " + CTRL + B", hl.dsp.exec_cmd("~/.config/ml4w/scripts/ml4w-toggle-statusbar"), { description = "Toggle Status Bar" })
+hl.bind(mainMod .. " + ALT + B", hl.dsp.exec_cmd("~/.config/ml4w/scripts/ml4w-toggle-statusbar-autohide"), { description = "Toggle Status Bar Autohide" })
+-- ML4W 2.16 moved "Reload Dock" to SUPER + SHIFT + D, which is profile-owned
+-- here (Dreamcoder theme toggle), so the dock reload stays unbound.
+hl.bind(mainMod .. " + ALT + D", hl.dsp.exec_cmd("~/.config/ml4w/scripts/ml4w-toggle-dock-autohide"), { description = "Toggle Dock Autohide" })
 hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd("~/.config/hypr/scripts/loadconfig.sh"), { description = "Reload hyprland config" })
 hl.bind(mainMod .. " + CTRL + T", hl.dsp.exec_cmd("~/.config/waybar/themeswitcher.sh"), { description = "Open waybar theme switcher" })
 hl.bind(mainMod .. " + SHIFT + M", hl.dsp.exec_cmd("~/.config/ml4w/scripts/ml4w-toggle-theme"), { description = "Toggle between light and dark mode" })
@@ -56,8 +60,52 @@ hl.bind(mainMod .. " + ALT + G", hl.dsp.exec_cmd("~/.config/hypr/scripts/gamemod
 hl.bind(mainMod .. " + CTRL + L", hl.dsp.exec_cmd("~/.config/ml4w/scripts/ml4w-power -l"), { description = "Lock Screen" })
 -- Note: SHIFT + H is profile-owned (Move Window Left); hyprsunset is
 -- profile-owned too via SHIFT + U (on) / SHIFT + I (off).
-hl.bind(mainMod .. " + Tab", hl.dsp.exec_cmd("qs -p ~/.config/quickshell/overview ipc call overview toggle"), { description = "Open Select Window Menu" })
+hl.bind(mainMod .. " + Tab", hl.dsp.exec_cmd("qs -p ~/.local/share/quickshell-overview ipc call overview toggle"), { description = "Open Select Window Menu" })
 hl.bind("CTRL + ALT + T", hl.dsp.exec_cmd("~/.config/ml4w/themes/themes.sh"), { description = "Open Select Window Menu" })
+
+-- AZERTY keyboard layout setup (ported from ML4W 2.16 default.lua)
+-- The profile owns SUPER + [0-9] workspace binds. On AZERTY the number row
+-- needs Shift, so Hyprland sees the unshifted keysyms instead of the digits;
+-- bind those keysyms here only when an AZERTY layout is detected, so QWERTY
+-- layouts never get duplicate workspace binds.
+local azerty_keys = {
+    fr = { "ampersand", "eacute", "quotedbl", "apostrophe", "parenleft",
+           "minus", "egrave", "underscore", "ccedilla", "agrave" },
+    be = { "ampersand", "eacute", "quotedbl", "apostrophe", "parenleft",
+           "section", "egrave", "exclam", "ccedilla", "agrave" },
+}
+
+-- Variants of the layouts above that are not AZERTY
+local non_azerty_variants = {
+    fr = { us = true, bepo = true, bepo_afnor = true, dvorak = true },
+    be = { wang = true },
+}
+
+local function detect_azerty()
+    local f = io.open(os.getenv("HOME") .. "/.config/hypr/input.lua", "r")
+    if not f then return nil end
+    local content = f:read("*all")
+    f:close()
+
+    -- kb_layout may be a list ("be,us"); the first entry is the primary one
+    local layout = content:match('kb_layout%s*=%s*"([^",]*)')
+    local variant = content:match('kb_variant%s*=%s*"([^",]*)') or ""
+    if not layout then return nil end
+    layout = layout:lower():gsub("%s", "")
+    variant = variant:lower():gsub("%s", "")
+
+    local excluded = non_azerty_variants[layout]
+    if excluded and excluded[variant] then return nil end
+    return azerty_keys[layout]
+end
+
+local ws_keys = detect_azerty()
+if ws_keys then
+    for i = 1, 10 do
+        hl.bind(mainMod .. " + " .. ws_keys[i],         hl.dsp.focus({ workspace = i }),        { description = "Focus workspace " .. i })
+        hl.bind(mainMod .. " + SHIFT + " .. ws_keys[i], hl.dsp.window.move({ workspace = i }), { description = "Move window to workspace " .. i })
+    end
+end
 
 -- Special workspace (scratchpad)
 -- Note: SHIFT + S is profile-owned (screenshot screen), so only plain S here.

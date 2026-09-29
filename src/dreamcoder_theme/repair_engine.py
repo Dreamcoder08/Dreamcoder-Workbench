@@ -17,7 +17,7 @@ SAFE_REPAIR_CATALOG = {
     "restore-fish-config": "Restore missing Fish config from repo.",
     "restore-active-kitty-colors": "Restore active Kitty colors from repo.",
     "restore-btop-theme": "Deploy Btop theme from repo.",
-    "restore-hypr-import": "Add dreamcoder-colors import in hyprland.lua.",
+    "restore-hypr-import": "Regenerate custom.lua so it loads dreamcoder-colors.",
     "restore-bat-themes": "Deploy Bat themes from repo.",
     "enable-auto-timer": "Enable dreamcoder auto-theme timer via systemctl.",
 }

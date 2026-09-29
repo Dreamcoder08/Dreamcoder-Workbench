@@ -77,8 +77,8 @@ readlink ~/.config/btop/themes/dreamcoder.theme      # → dreamcoder-light.them
 readlink ~/.config/waybar/colors.css                 # → colors-light.css or colors-dark.css
 readlink ~/.config/rofi/colors.rasi                  # → colors-light.rasi or colors-dark.rasi
 
-# 3. Hyprland imports dreamcoder
-grep "dreamcoder-colors" ~/.config/hypr/hyprland.lua  # → require("dreamcoder-colors")
+# 3. Hyprland loads dreamcoder colours (from the generated custom.lua)
+grep "dreamcoder-colors" ~/.config/hypr/custom.lua    # → require("dreamcoder-colors")
 
 # 4. Timer is active
 systemctl --user is-active dreamcoder-theme-auto.timer  # → active
@@ -115,8 +115,8 @@ rm ~/.config/hypr/dreamcoder-colors.lua
 rm ~/.config/btop/themes/dreamcoder.theme
 sed -i 's/color_theme = "dreamcoder"/color_theme = "matugen"/' ~/.config/btop/btop.conf
 
-# Remove dreamcoder import from hyprland.lua:
-# Edit ~/.config/hypr/hyprland.lua and remove line: require("dreamcoder-colors")
+# The dreamcoder-colors loader lives in the generated ~/.config/hypr/custom.lua;
+# with dreamcoder-colors.lua removed, its guard skips the require.
 
 # Disable timer
 systemctl --user disable --now dreamcoder-theme-auto.timer

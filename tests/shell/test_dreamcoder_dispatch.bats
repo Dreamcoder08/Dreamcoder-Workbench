@@ -49,3 +49,13 @@ assert report["upstreams"]["ml4w"]["mappings"] == [], report
     [[ "$output" == *"Usage: dreamcoder"* ]]
     [[ "$output" == *"upstream-diff"* ]]
 }
+
+@test "dreamcoder exposes src/ to Python routes without an installed package" {
+    mkdir -p "${TEST_DIR}/src/dreamcoder_theme"
+    printf 'def main():\n    print("sync-ok")\n' > "${TEST_DIR}/src/dreamcoder_theme/sync.py"
+    : > "${TEST_DIR}/src/dreamcoder_theme/__init__.py"
+    cp scripts/sync-dreamcoder-theme.py "${TEST_DIR}/scripts/"
+    run env -u PYTHONPATH DREAMCODER_DOTS_DIR="${TEST_DIR}" bash "${TEST_DIR}/scripts/dreamcoder" sync
+    [ "$status" -eq 0 ]
+    [ "$output" = "sync-ok" ]
+}

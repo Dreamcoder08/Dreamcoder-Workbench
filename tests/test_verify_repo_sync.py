@@ -195,14 +195,14 @@ def _base_manifest() -> dict:
                 "name": "ML4W (Hyprland desktop dotfiles)",
                 "url": "https://github.com/mylinuxforwork/dotfiles.git",
                 "status": "pinned",
-                "pinned_ref": "46f2ca7f73fe98b16ce4ab6433a9ac29fa9fd033",
+                "pinned_ref": "3960570f47f4f691c424ff46b387d389a8e69bca",
                 "verified_on": "2026-08-10T01:27:49Z",
             },
             "gentleman-dots": {
                 "name": "Gentleman.Dots (shell / editor / terminal base configuration)",
                 "url": "https://github.com/Gentleman-Programming/Gentleman.Dots.git",
                 "status": "pinned",
-                "pinned_ref": "02584500de6378ff5f54d252dc28fce8424b088a",
+                "pinned_ref": "6f44b797b016aea92772d8a6d81a5f1bc53a84bb",
                 "verified_on": "2026-08-10T01:27:49Z",
             },
         },
@@ -328,7 +328,7 @@ def test_manifest_docs_mismatch_is_rejected(
     sources = tmp_path / "docs/sources.md"
     stale_ref = "1" * 40
     sources.write_text(
-        sources.read_text().replace("46f2ca7f73fe98b16ce4ab6433a9ac29fa9fd033", stale_ref)
+        sources.read_text().replace("3960570f47f4f691c424ff46b387d389a8e69bca", stale_ref)
     )
 
     code, output = _run(module, capsys)
