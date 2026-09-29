@@ -189,3 +189,33 @@ shim() { PATH="${SHIM_DIR}:${REAL_BIN}:${PATH}" "$@"; }
     run -127 env PATH="${SHIM_DIR}:/usr/bin:/bin" codex exec x
     [[ "$output" == *"real codex CLI was not found"* ]]
 }
+
+# ── fish PATH order ──────────────────────────────────────────────────
+
+# fish keeps fish_user_paths ahead of the rest of PATH, and config.fish adds ~/.local/bin (where
+# the real codex lives) to it. A shim directory added with --path, or only from conf.d, ends up
+# behind the real codex, so a config rewrite by gentle-ai would silently drop the model pin.
+@test "fish: the gga shim directory precedes ~/.local/bin in fish_user_paths after config.fish" {
+    command -v fish >/dev/null || skip "fish not installed"
+    gga_setup
+    mkdir -p "${HOME}/.local/bin" "${SHIM_DIR}"
+    run env -u XDG_CONFIG_HOME HOME="${HOME}" fish --no-config -c '
+        source '"${DREAMCODER_DOTS_DIR}"'/DreamcoderShell/.config/fish/conf.d/27-dreamcoder-gga-pin.fish
+        source '"${DREAMCODER_DOTS_DIR}"'/DreamcoderShell/.config/fish/config.fish
+        set -l shim (contains -i -- $HOME/.config/gga/bin $fish_user_paths)
+        set -l real (contains -i -- $HOME/.local/bin $fish_user_paths)
+        test -n "$shim" -a -n "$real" -a "$shim" -lt "$real"; and echo ordered
+    ' 2>/dev/null
+    [[ "$output" == *ordered* ]]
+}
+
+@test "fish: GGA_PROVIDER is exported when the shim directory exists" {
+    command -v fish >/dev/null || skip "fish not installed"
+    gga_setup
+    mkdir -p "${SHIM_DIR}"
+    run env -u XDG_CONFIG_HOME -u GGA_PROVIDER HOME="${HOME}" fish --no-config -c '
+        source '"${DREAMCODER_DOTS_DIR}"'/DreamcoderShell/.config/fish/conf.d/27-dreamcoder-gga-pin.fish
+        echo "provider=$GGA_PROVIDER"
+    ' 2>/dev/null
+    [[ "$output" == *"provider=codex"* ]]
+}
