@@ -151,6 +151,16 @@ one of those files silently disappears on the next upgrade. The rule:
   (it keeps the body it parsed at start). A listener without a Matugen call is
   left untouched with a warning; a missing listener is skipped. Override the
   paths with `ML4W_GTK_LISTENER` and `ML4W_LISTENERS_SCRIPT`.
+- **Matugen no longer writes Dreamcoder's files.** Restoring colours after Matugen is a
+  race: Matugen rewrites `hypr/colors.conf`, `hypr/colors.lua`, `waybar/colors.css`,
+  `rofi/colors.rasi` and, through a symlink into Waybar, `swaync/colors.css` on every
+  wallpaper or mode change, and a late write beats the restore. The hook comments out those
+  five `[templates.*]` sections in `~/.config/matugen/config.toml` with a `#dreamcoder-off# `
+  prefix (idempotent; the result is validated as TOML before it is written). Every other
+  template (kitty, btop, GTK, quickshell, ...) keeps running. An ML4W upgrade restores the
+  stock file, so re-run `./scripts/apply-ml4w-hooks.sh` (or `dreamcoder repair`). To undo by
+  hand: `sed -i 's/^#dreamcoder-off# //' ~/.config/matugen/config.toml`. Override the path
+  with `MATUGEN_CONFIG`.
 - **waypaper is optional.** ML4W 2.16 no longer installs it; its
   `post_command` is hooked only when `~/.config/waypaper/config.ini` exists.
 - **Colour files may be regular files.** ML4W 2.16 ships
