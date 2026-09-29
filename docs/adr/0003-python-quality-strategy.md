@@ -33,7 +33,7 @@ We adopt a three-layer quality strategy for all Python code:
 ### Layer 3 — Coverage (pytest-cov)
 
 - **Metric**: Branch coverage via `pytest --cov=dreamcoder_theme`
-- **Threshold**: `fail_under = 40` (baseline; expected to increase over time)
+- **Threshold**: `fail_under = 80` (ratcheted from the original 40 baseline on 2026-09-29, when measured coverage was 83%; raise it again only when coverage rises — never lower it)
 - **Reporting**: `--cov-report=term-missing` shows uncovered lines
 
 All three layers run in CI on every push and pull request.
@@ -52,7 +52,7 @@ Positive:
 
 Negative:
 - Mypy strict mode requires explicit annotations throughout the codebase
-- Coverage fail-under of 40 is low — new code should aim for 80%+
+- The 80% floor sits just under the measured level (83%), so a large untested addition fails CI; raising it is a deliberate follow-up
 - Initial migration required fixing pre-existing issues
 
 ## Compliance
@@ -60,7 +60,7 @@ Negative:
 - `ruff check src/ tests/` must pass
 - `ruff format --check src/ tests/` must pass
 - `mypy src/` must pass (strict mode)
-- `pytest --cov=dreamcoder_theme --cov-fail-under=40` must pass
+- `pytest --cov=dreamcoder_theme --cov-fail-under=80` must pass
 
 ## Alternatives Considered
 

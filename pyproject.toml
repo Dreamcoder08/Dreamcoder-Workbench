@@ -111,7 +111,7 @@ relative_files = true
 
 [tool.coverage.report]
 show_missing = true
-fail_under = 40
+fail_under = 80
 
 [dependency-groups]
 dev = ["mypy>=2.1.0"]
