@@ -1,210 +1,130 @@
+<!-- Reemplaza <PLACEHOLDERS> y borra las secciones que no apliquen -->
+
+<div align="center">
+
 # Dreamcoder Workbench
 
-> A health-first, terminal-native engineering environment built on **Gentleman.Dots + ML4W**.
-> Cocoa/Lúcuma. Dreamcoder Dark. Healthy contrast. Identity.
+Terminal-native, health-first engineering environment built on Gentleman.Dots + ML4W.
 
-Dreamcoder Workbench is a personal distribution layer for developers who live in the terminal: it adds token-governed themes (WCAG/APCA-validated), machine-specific ML4W keybinding profiles, AI-aware tooling, and a verification layer on top of Gentleman.Dots and ML4W — without replacing either upstream. It is built for people who want reproducible, health-conscious setups and are ready to keep configuration as code. The what/who/why is covered in the sections below; the docs index ([docs/README.md](docs/README.md)) is the entry point for everything else.
-
-[![Theme CI](https://github.com/Dreamcoder08/Dreamcoder-Workbench/actions/workflows/theme-validation.yml/badge.svg)](https://github.com/Dreamcoder08/Dreamcoder-Workbench/actions/workflows/theme-validation.yml)
-[![ML4W Setup CI](https://github.com/Dreamcoder08/Dreamcoder-Workbench/actions/workflows/test-ml4w-setup.yml/badge.svg)](https://github.com/Dreamcoder08/Dreamcoder-Workbench/actions/workflows/test-ml4w-setup.yml)
-[![WCAG 4.5:1](https://img.shields.io/badge/WCAG-4.5%3A1-brightgreen)](docs/DREAMCODER_DESIGN_SYSTEM.md#accessibility-policy)
-[![APCA](https://img.shields.io/badge/APCA-75-brightgreen)](docs/DREAMCODER_DESIGN_SYSTEM.md#accessibility-policy)
-[![PyPI](https://img.shields.io/pypi/v/dreamcoder-theme)](https://pypi.org/project/dreamcoder-theme/)
 [![License](https://img.shields.io/pypi/l/dreamcoder-theme)](./LICENSE)
+[![Stack](https://img.shields.io/badge/stack-Python%20%7C%20Go%20%7C%20Shell-informational)]()
+[![PyPI](https://img.shields.io/pypi/v/dreamcoder-theme)](https://pypi.org/project/dreamcoder-theme/)
+[![WCAG 4.5:1](https://img.shields.io/badge/WCAG-4.5%3A1-brightgreen)](docs/DREAMCODER_DESIGN_SYSTEM.md#accessibility-policy)
+
+</div>
 
 ---
 
-## Quick Start — 3-Step Install
+## Demo
 
-Dreamcoder Workbench is a personal distribution layer that adds profiles, themes, generators, and verification around Gentleman.Dots and ML4W. It does not replace either upstream project.
+<img src="dreamcoder.webp" width="600" alt="Dreamcoder Workbench" />
 
-### 1. Install Gentleman.Dots
+## Índice
+
+- [Descripción](#descripción)
+- [Características](#características)
+- [Stack técnico](#stack-técnico)
+- [Instalación](#instalación)
+- [Uso](#uso)
+- [Estructura del proyecto](#estructura-del-proyecto)
+- [Roadmap](#roadmap)
+- [Licencia](#licencia)
+
+## Descripción
+
+Dreamcoder Workbench es una capa de distribución personal para desarrolladores que viven en la terminal: agrega temas gobernados por tokens (validados WCAG/APCA), perfiles de keybindings de ML4W por máquina, tooling AI-aware y una capa de verificación, todo sobre **Gentleman.Dots** y **ML4W** sin reemplazar a ninguno de los dos.
+
+No es una app única sino un workbench/monorepo: combina un paquete Python (`dreamcoder-theme`) que genera y sincroniza temas, un instalador TUI en Go, y decenas de carpetas `Dreamcoder<Tool>/` con la configuración final de cada herramienta (Neovim, Ghostty, Kitty, Tmux, Zellij, Waybar, etc.).
+
+## Características
+
+- Motor de temas token-governed (`dreamcoder-theme`) con validación de contraste WCAG/APCA.
+- Perfiles de keybindings ML4W específicos por máquina (desktop Arch, mobile Termux).
+- Sincronización de configuraciones para 25+ herramientas de terminal/desktop (Neovim, Ghostty, Kitty, Warp, WezTerm, Waybar, Yazi, Lazygit, etc.).
+- Integración AI-aware (Codex CLI/App, OpenCode, Pi, Herdr).
+- Instalador TUI escrito en Go (Bubble Tea + Cobra) en `installer/`.
+- Verificación/auditoría de configuración vía scripts (`scripts/verify-*.py`, `doctor.sh`).
+
+## Stack técnico
+
+| Capa | Tecnología |
+|------|-----------|
+| Motor de temas | Python 3.11+ (`dreamcoder-theme`, Jinja2) |
+| Instalador TUI | Go 1.25 (Bubble Tea, Lipgloss, Cobra) |
+| Automatización/sync | Shell (bash/zsh), shellcheck |
+| Base de escritorio/terminal | Gentleman.Dots + ML4W (Hyprland, Neovim, Ghostty, Kitty, Waybar) |
+| Tests | pytest (Python), Go e2e (`installer/e2e`) |
+| Infraestructura | GoReleaser, Homebrew tap (`homebrew-tap/`) |
+
+## Instalación
+
+Dreamcoder Workbench se instala en 3 pasos, sobre Arch Linux (o derivada):
 
 ```bash
-brew install Gentleman-Programming/tap/gentleman-dots
-gentleman-dots
+git clone https://github.com/Dreamcoder08/Dreamcoder-Workbench.git
+cd Dreamcoder-Workbench
 ```
 
-→ Or download it from [Gentleman.Dots](https://github.com/Gentleman-Programming/Gentleman.Dots)
+1. **Gentleman.Dots** (base de shells, terminales y Neovim):
+   ```bash
+   brew install Gentleman-Programming/tap/gentleman-dots
+   gentleman-dots
+   ```
+2. **ML4W OS** (base de escritorio Hyprland):
+   ```bash
+   bash <(curl -s https://ml4w.com/os/stable)
+   ```
+3. **Dreamcoder Workbench** (temas, perfiles y verificación):
+   ```bash
+   pip install -e ".[dev]"
+   ```
 
-**Provides**: Neovim (29 plugins LazyVim), Ghostty shaders (53), Tmux/Zellij, Vim Trainer, Fish/Zsh/Nushell
+Guía completa paso a paso: [INSTALL.md](INSTALL.md).
 
-### 2. Install ML4W OS
+### Variables de entorno
+
+<TODO: completar> — no se encontró `.env.example` en el repo; no hay variables de entorno documentadas a nivel raíz.
+
+## Uso
 
 ```bash
-bash <(curl -s https://ml4w.com/os/stable)
+# generar/sincronizar el tema Dreamcoder
+./scripts/dreamcoder sync
+
+# correr tests del paquete Python
+make test
+
+# lint + type-check
+make lint
 ```
 
-→ [ML4W documentation](https://ml4w.com/os/)
+## Estructura del proyecto
 
-**Provides**: full Hyprland (animations, keybinds, monitors), Waybar, Rofi, Dunst, GTK, Btop
+Monorepo/workbench con múltiples subproyectos, cada uno con su propia configuración:
 
-### 3. Install Dreamcoder Workbench
-
-```bash
-git clone git@github.com:Dreamcoder08/Dreamcoder-Workbench.git ~/Documents/PROYECTOS/Dreamcoder-Workbench
-cd ~/Documents/PROYECTOS/Dreamcoder-Workbench
-./scripts/dreamcoder install
+```
+Dreamcoder-Workbench/
+├── src/dreamcoder_theme/   # paquete Python: motor de temas, renderers, CLI
+├── installer/              # instalador TUI en Go (Bubble Tea + Cobra)
+├── scripts/                 # sync, verificación, generación de paletas
+├── tests/                   # tests pytest del paquete Python
+├── docs/                    # arquitectura, ADRs, guías de instalación/migración
+├── openspec/                # especificaciones del proyecto (SDD)
+├── homebrew-tap/             # tap de Homebrew para el instalador
+├── DreamcoderNvim/          # config final: Neovim
+├── DreamcoderGhostty/       # config final: Ghostty
+├── DreamcoderKitty/         # config final: Kitty
+├── DreamcoderTmux/          # config final: Tmux
+├── DreamcoderZellij/        # config final: Zellij
+├── DreamcoderWaybar/        # config final: Waybar
+├── DreamcoderShell/         # config final: Fish/Zsh/Bash/Starship
+└── Dreamcoder<Tool>/        # config final para cada herramienta soportada (25+)
 ```
 
-**Applies**: Dreamcoder Dark and Light modes plus the derived Night render profile over the whole Gentleman + ML4W base
+## Roadmap
 
-**Adds**: Starship prompt with AI session state, 19 shell functions, modern aliases, auto-theme switching
+<TODO: completar> — ver [CHANGELOG.md](CHANGELOG.md) para el historial de cambios; no se encontró un roadmap explícito en el repo.
 
----
+## Licencia
 
-## ML4W Integration — Profile-Driven Keybinding System
-
-Dreamcoder Workbench integrates with [ML4W](https://ml4w.com) through a modular, profile-driven system: machine-specific keybindings live in JSON profiles under `DreamcoderProfiles/dreamcoder/` and compile into `~/.config/hypr/custom.lua`, validated in CI.
-
-- Profiles → generator → `custom.lua`; native `hl.dsp.*` dispatchers (hyprctl dispatch is broken on Hyprland 0.55+)
-- Theme toggle: `SUPER + SHIFT + D`; blue light: `SUPER + SHIFT + U` / `I`
-
-Full binding contract, dispatcher tables, file layout, and testing commands: [docs/configuration/ml4w.md](docs/configuration/ml4w.md)
-
----
-
-## Why Dreamcoder Workbench?
-
-| Feature               | Gentleman.Dots      | ML4W         | **Dreamcoder Workbench**        |
-| --------------------- | ------------------- | ------------ | ------------------------------- |
-| **Theme Engine**      | — Catppuccin        | ✓ Matugen    | ✓ **Token-based + WCAG/APCA**   |
-| **Dark/Light + Night profile** | —            | ✓            | ✓ **+ derived Night profile**   |
-| **AI Session Prompt** | —                   | —            | ✓ **Session-aware prompt**      |
-| **Accessibility**     | —                   | —            | ✓ **WCAG 4.5:1 + APCA 75**      |
-| **Neovim**            | ✓ 29 plugins        | —            | ◐ Dreamcoder colorscheme        |
-| **Hyprland**          | —                   | ✓ Full       | ◐ Color overlay                 |
-| **Shell Configs**     | ✓ Fish/Zsh/Nushell  | ✓ Fish/Bash  | ◐ Aliases + functions           |
-| **Ghostty Shaders**   | ✓ 53 GLSL           | —            | ◐ Uses Gentleman's shaders      |
-| **Installer**         | ✓ Go TUI            | ✓ bash       | ✓ **Go TUI + Vim Trainer**      |
-| **Prompt**            | — Basic             | — Basic      | ✓ **Starship 17 modules**       |
-
-> ✓ = full support · ◐ = Dreamcoder Workbench adds an overlay · — = not provided
-
----
-
-## What Dreamcoder Workbench does not replace
-
-Dreamcoder Workbench is a **visual layer**, not a replacement. You keep everything Gentleman and ML4W already give you:
-
-**Kept from Gentleman.Dots:**
-
-- Neovim with 29 plugins (avante, copilot, blink, fzf-lua, oil, DAP...)
-- Ghostty shaders (53 GLSL effects)
-- Tmux/Zellij with TPM and plugins
-- Vim Mastery Trainer
-- Fish/Zsh/Nushell base config
-
-**Kept from ML4W:**
-
-- Full Hyprland (animations, keybinds, monitors, layouts)
-- Waybar, Rofi, Dunst configs
-- GTK 3.0/4.0 settings
-- Matugen color generation pipeline
-- Btop, Chromium/Edge configs
-
-**Dreamcoder Workbench adds:**
-
-- Color tokens validated with WCAG 4.5:1 + APCA
-- 3 canonical modes: Dreamcoder Dark, Dreamcoder Light, and Dreamcoder Dusk; Night is a derived render profile
-- Starship prompt with 17 modules and AI session state
-- 19 shell functions (extract, sysupdate, killport, dots, cheat, http, logs, tm-session, tm, tmux-kill-all, identity, id-dev, id-founder, id-personal, id-research, dev-dots, sdd-swap, tl)
-- Modern aliases with graceful fallback (eza, bat, fd, rg, zoxide)
-- Auto-theme switching by schedule (systemd timer)
-- Python library for theme generation (PyPI)
-
----
-
-## Usage
-
-### CLI
-
-```bash
-dreamcoder dark         # → Dreamcoder Dark
-dreamcoder light        # → Dreamcoder Light
-dreamcoder status       # → System status overview
-dreamcoder doctor       # → Health check
-```
-
-### Theme Engine (Python)
-
-```bash
-pip install dreamcoder-theme
-dreamcoder-theme sync   # Render all themes
-dreamcoder-theme doctor # Check health
-```
-
----
-
-## Architecture
-
-```mermaid
-flowchart LR
-    subgraph Tokens["Design Tokens"]
-        PT["tokens.json<br/>dark / light / dusk<br/>Night render profile"]
-    end
-    subgraph Render["Renderers (23 modules)"]
-        R["renderers.py<br/>hub → leaf modules"]
-    end
-    subgraph Write["Writers"]
-        W["writers.py<br/>write_if_changed()"]
-    end
-    subgraph Output["Theme Files"]
-        O["Kitty, Ghostty, Nvim,<br/>Tmux, Starship, Hyprland,<br/>Codex, OpenCode, Pi, ..."]
-    end
-    Tokens --> Render --> Write --> Output
-```
-
----
-
-## Philosophy
-
-Dreamcoder Workbench is not a neon rice. It is a workbench:
-
-- **Health first**: pure black is reserved for the Dreamcoder Dark canvas via `surface_policy`; functional and scrollable surfaces use near-black tones, while light and dusk avoid pure black and pure white
-- **Daily comfort**: larger typography, calm prompt density, automatic day-to-night transitions
-- **Identity second**: Cocoa/Lúcuma warmth, diagnostic cyan, editorial colors
-
----
-
-## Credits and upstream relationship
-
-Dreamcoder Workbench builds on the upstream work of [Gentleman.Dots](https://github.com/Gentleman-Programming/Gentleman.Dots) and [ML4W](https://ml4w.com/). Their projects remain the source of the base environment; this repository contributes the Dreamcoder profiles, tokens, overlays, generators, and verification layer. See [docs/sources.md](docs/sources.md) for the repository-owned source manifest, pin mechanism, and ownership boundaries.
-
-## Documentation
-
-Work through the docs by task — pick what you want to do and start there. The full index lives in [docs/README.md](docs/README.md).
-
-| Your task | Start here |
-| ----------- | ------------ |
-| Understand the repo layout and upstream ownership | [Source Manifest](docs/sources.md) |
-| Install or migrate from ML4W / Gentleman.Dots | [Installation guides](docs/README.md) |
-| Configure a terminal, editor, shell, or multiplexer | [Configuration guides](docs/README.md) |
-| Work with colors, tokens, or the theme engine | [Theme System](docs/configuration/theme-system.md) |
-| Adjust ML4W keybindings and Hyprland integration | [ML4W integration](docs/configuration/ml4w.md) |
-| Integrate with Claude Code / OpenCode / Pi | [AI Integration](docs/ai-integration.md) |
-| Publish the Python package | [PyPI publishing](docs/pypi-publishing.md) |
-| Contribute code or tests | [CONTRIBUTING.md](CONTRIBUTING.md) |
-
-## Next steps
-
-- [ ] Follow the [3-step install](#quick-start--3-step-install) and run `dreamcoder doctor` to verify the environment.
-- [ ] Skim the [Source Manifest](docs/sources.md) to learn what the repo owns vs. upstream.
-- [ ] Pick a component from the [Documentation](#documentation) table and read its guide.
-- [ ] Report an issue or open a PR — see [CONTRIBUTING.md](CONTRIBUTING.md).
-
-## Project
-
-| Aspect        | Detail                             |
-| ------------- | ---------------------------------- |
-| **Status**    | Active                             |
-| **Version**   | 1.0                                |
-| **License**   | MIT                                |
-| **Docs**      | [docs/README.md](docs/README.md)   |
-| **Contribute**| [CONTRIBUTING.md](CONTRIBUTING.md) |
-
----
-
-## SDD
-
-This project uses Spec-Driven Development. Plans live in [docs/superpowers/plans/](docs/superpowers/plans/).
+Distribuido bajo licencia MIT. Ver [LICENSE](LICENSE) para más detalles.
