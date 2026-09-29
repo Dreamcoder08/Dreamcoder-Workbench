@@ -51,8 +51,17 @@ reality is not a gate.
 - [x] Q2 — Refactor `evaluate_contract` and `_parse_renderer_output` (D→ at most B). Route: delegated writer.
   `evaluate_contract` D(26) → A(1), `_parse_renderer_output` D(21) → A(2) via a per-target
   parser table; helpers all ≤ B(7). Commit: d503d2e.
-- [ ] Q3 — Ratchet coverage `fail_under` (pyproject + CI) from 40 to the measured floor. Route: inline.
-- [ ] Q4 — PR slicing plan for the two stacked branches (chained-pr / work-unit-commits). Route: inline.
+- [x] Q3 — Ratchet coverage `fail_under` (pyproject + CI + ADR-0003) from 40 to 80 (measured 83–84%). Commit: 089f513. Route: inline.
+- [x] Q4 — PR slicing plan (nothing pushed; user decides): keep commit order, cut at
+  commit boundaries into chained PRs: (1) ML4W 2.16 compat f7c2b9b..339ab7e,
+  (2) stow layer + Herdr 0.9.1 3398856..a7c925a, (3) theme-mode correctness + listener
+  hook 702751f..8127674, (4) shell safety c9cf723..754d352, (5) Night removal
+  319ffdd..f7597b1, (6) quality pass 089f513 onwards. PRs 1, 2, 3 and 5 exceed the
+  ~400-line heuristic (tests, fixtures and generated deletions dominate); 684026f mixes
+  characterization tests into the extract() fix, to be re-cut when slicing. Route: inline.
+- [x] Q5 — Found while verifying Q1/Q2: `dreamcoder sync --help` ran a real sync.
+  `main(argv)` now parses arguments before any side effect (--help exits 0, unknown
+  options exit 2); tests inject argv. Route: inline.
 
 ## Acceptance criteria
 
@@ -81,4 +90,4 @@ reality is not a gate.
 
 ## Next step
 
-Q3, Q4.
+Feature complete; publication is the user's decision.
