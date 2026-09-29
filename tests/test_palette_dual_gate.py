@@ -9,6 +9,8 @@ pair, measured value, and guardrail key/value.
 import json
 from pathlib import Path
 
+import pytest
+
 from dreamcoder_theme._math import apca_lc, contrast
 from dreamcoder_theme.palette import validate_palette
 
@@ -271,3 +273,29 @@ def test_light_mode_without_surface3_is_reported_last():
     errors = validate_palette(pal, _guardrails())
 
     assert errors[-1] == "light mode missing surface3"
+
+
+def test_missing_bg_fails_fast_with_key_error():
+    pal = dict(_FROZEN_DARK)
+    pal.pop("bg")
+
+    with pytest.raises(KeyError, match="bg"):
+        validate_palette(pal, _guardrails(), mode="dark")
+
+
+def test_absent_foreground_pair_token_skips_its_wcag_check():
+    pal = dict(_FROZEN_DARK)
+    pal.pop("on_error")
+
+    errors = validate_palette(pal, _guardrails(), mode="dark")
+
+    assert not any("on_error/" in e for e in errors)
+
+
+def test_missing_text_token_still_fails_through_the_ansi_derivation():
+    """ANSI colors derive from ``text``, so a palette without it cannot be validated."""
+    pal = dict(_FROZEN_DARK)
+    pal.pop("text")
+
+    with pytest.raises(KeyError, match="text"):
+        validate_palette(pal, _guardrails(), mode="dark")
