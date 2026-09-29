@@ -5,7 +5,7 @@
 # is kept outside it where possible and re-applied here idempotently:
 #   1. <gga>/bin/codex        shim that injects the model for gga's `codex exec`
 #   2. <gga>/pin.env          model and effort (created once, never overwritten)
-#   3. <gga>/config           marked block at the end: PROVIDER/GGA_PROVIDER=codex
+#   3. <gga>/config           marked block at the end: PROVIDER/GGA_PROVIDER=codex, STRICT_MODE=false
 #                             and the shim dir first on PATH
 #   4. environment.d/50-gga-pin.conf  the same for desktop-launched programs
 # One line is printed per changed file; nothing when everything is current.
@@ -96,6 +96,8 @@ ${BLOCK_BEGIN}
 # gentle-ai rewrites this file; re-run the installer or \`dreamcoder repair\` after it.
 PROVIDER="codex"
 GGA_PROVIDER="codex"
+# A real STATUS: FAILED still blocks; an unavailable provider (usage limit, network) does not.
+STRICT_MODE="false"
 case ":\${PATH}:" in *":${shim_dir}:"*) ;; *) export PATH="${shim_dir}:\${PATH}" ;; esac
 ${BLOCK_END}
 EOF
