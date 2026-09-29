@@ -20,6 +20,13 @@ if test -d "$HOME/.bun/bin"
     fish_add_path -g "$BUN_INSTALL/bin"
 end
 
+# gga model pin: the shim must come before ~/.local/bin (the real codex). fish keeps
+# fish_user_paths ahead of the rest of PATH, so the shim has to join that list (no --path) and
+# move to its front. Keep this after the block above: each fish_add_path puts its entries first.
+set -l _dc_gga_config_home $HOME/.config
+set -q XDG_CONFIG_HOME[1]; and test -n "$XDG_CONFIG_HOME"; and set _dc_gga_config_home $XDG_CONFIG_HOME
+test -d $_dc_gga_config_home/gga/bin; and fish_add_path --global --move $_dc_gga_config_home/gga/bin
+
 if status is-interactive
     command -q zoxide; and zoxide init fish | source
 end

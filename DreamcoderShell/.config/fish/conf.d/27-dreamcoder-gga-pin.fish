@@ -1,9 +1,7 @@
-# gga reviews: Codex provider with the pinned model shim first on PATH.
-# The shim only changes `codex exec` calls made by gga (docs/configuration/gga.md).
+# gga reviews use the Codex provider. The model itself is pinned by the shim in
+# ~/.config/gga/bin (docs/configuration/gga.md); putting that directory on PATH happens in
+# config.fish, because conf.d runs before it and config.fish prepends ~/.local/bin, which
+# would leave the real codex ahead of the shim.
 set -l _dc_config_home $HOME/.config
 set -q XDG_CONFIG_HOME[1]; and test -n "$XDG_CONFIG_HOME"; and set _dc_config_home $XDG_CONFIG_HOME
-set -l _dc_gga_bin $_dc_config_home/gga/bin
-if test -d $_dc_gga_bin
-    set -gx GGA_PROVIDER codex
-    fish_add_path --global --move --path $_dc_gga_bin
-end
+test -d $_dc_config_home/gga/bin; and set -gx GGA_PROVIDER codex
