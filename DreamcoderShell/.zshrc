@@ -1,5 +1,6 @@
 # Dreamcoder interactive Zsh ergonomics.
-set -euo pipefail
+# No errexit/nounset here: in an interactive shell they close the terminal on
+# the first failing command and break plugins and the Starship init.
 [[ -o interactive ]] || return
 
 export EDITOR="nvim" VISUAL="nvim" COLORTERM="${COLORTERM:-truecolor}"
@@ -12,7 +13,12 @@ export BUN_INSTALL
 
 # ── Dreamcoder Theme Hooks ─────────────────────────────────────
 # Source shell-level theme snippets based on current mode.
-_dc_mode="${DREAMCODER_THEME_MODE:-light}"
+# The persisted live mode wins over an inherited value, which a long-lived
+# parent (e.g. a Herdr server started before the last switch) may carry stale.
+_dc_mode_cache="${XDG_CACHE_HOME:-${HOME}/.cache}/dreamcoder/cursor-cli.env"
+_dc_mode="$([[ -r "${_dc_mode_cache}" ]] && sed -nE 's/^(export )?DREAMCODER_THEME_MODE="?(light|dark)"?$/\2/p' "${_dc_mode_cache}" | tail -n1)"
+_dc_mode="${_dc_mode:-${DREAMCODER_THEME_MODE:-dark}}"
+export DREAMCODER_THEME_MODE="${_dc_mode}"
 _dc_theme_dir="${DREAMCODER_DOTS_DIR:-${HOME}/Documents/PROYECTOS/dreamcoder-dots}/themes/dreamcoder"
 
 [[ -f "${_dc_theme_dir}/ls-colors-dreamcoder-${_dc_mode}.sh" ]] && source "${_dc_theme_dir}/ls-colors-dreamcoder-${_dc_mode}.sh"

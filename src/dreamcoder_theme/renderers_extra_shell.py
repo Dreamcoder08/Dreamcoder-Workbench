@@ -185,7 +185,7 @@ def ls_colors_content(c: dict[str, str]) -> str:
         "gwx": _fg(g("warning")),
         "*.md": g("accent"),
     }
-    return f"#!/usr/bin/env bash\nset -euo pipefail\n# {c['name']} — LS_COLORS / eza\nexport LS_COLORS='{':'.join(entries)}'\nexport EZA_COLORS='{':'.join(f'{k}={v}' for k, v in eza.items())}'\n"
+    return f"#!/usr/bin/env bash\n# Sourced snippet: never set shell options here.\n# {c['name']} — LS_COLORS / eza\nexport LS_COLORS='{':'.join(entries)}'\nexport EZA_COLORS='{':'.join(f'{k}={v}' for k, v in eza.items())}'\n"
 
 
 def fzf_content(c: dict[str, str]) -> str:
@@ -218,7 +218,7 @@ def fzf_content(c: dict[str, str]) -> str:
         f"preview-bg:{preview_bg}",
         f"preview-border:{c['border']}",
     ]
-    return f'#!/usr/bin/env bash\nset -euo pipefail\n# {c["name"]} — fzf\nexport FZF_DEFAULT_OPTS="${{FZF_DEFAULT_OPTS:-}} --color={",".join(parts)}"\n'
+    return f'#!/usr/bin/env bash\n# Sourced snippet: never set shell options here.\n# {c["name"]} — fzf\nexport FZF_DEFAULT_OPTS="${{FZF_DEFAULT_OPTS:-}} --color={",".join(parts)}"\n'
 
 
 # --- Hexagonal-architecture-v2: adjacent immutable registrations (design §5) ---
