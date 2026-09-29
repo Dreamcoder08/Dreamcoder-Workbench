@@ -67,5 +67,5 @@ The installer writes a backup manifest under `~/.local/share/dreamcoder/backups/
 | Theme | Hardcoded | Token-based |
 | AI layer | gentle-ai | gentle-ai + agent themes (see [AI Integration](../ai-integration.md)) |
 | Vim trainer | ✓ | ✓ (improved) |
-| Day/Night | — | ✓ Systemd timer |
+| Light/Dark schedule | — | ✓ Systemd timer |
 | Health checks | — | ✓ WCAG/APCA |

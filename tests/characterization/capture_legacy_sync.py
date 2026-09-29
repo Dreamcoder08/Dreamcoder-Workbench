@@ -1,16 +1,15 @@
 """Characterization harness for the current (legacy) sync plan.
 
-Hexagonal-architecture-v2 Phase 0 tasks 0.2 + 0.3: capture, for all 32
+Hexagonal-architecture-v2 Phase 0 tasks 0.2 + 0.3: capture, for all 33
 consumers declared by ``sync.py:COVERAGE``, the resolved active path,
 repository variant paths per mode, mode set, writer/selector behavior,
 summary rows (via the real ``print_summary``), and the rendered content
 hashes produced by the current ``prepare()``/render path — WITHOUT running
 any writer, selector, or filesystem mutation.
 
-Variant paths are derived from the authoritative ``COVERAGE.night_artifact``
-row by mode substitution ("night" -> dark/light, "Night" -> Dark/Light),
-which matches every current repository artifact naming pattern; only Zellij
-(current code writes the night KDL only) carries an explicit override.
+Variant paths are derived from the authoritative ``COVERAGE.artifact`` (Dark)
+row by mode substitution ("dark" -> light, "Dark" -> Light), which matches
+every current repository artifact naming pattern.
 
 Outputs (deterministic, sorted):
   - tests/fixtures/legacy_sync_characterization.json
@@ -53,6 +52,7 @@ from dreamcoder_theme.renderers import (  # noqa: E402
     hypr_content,
     kitty_content,
     kitty_ui_content,
+    lazygit_content,
     ls_colors_content,
     nvim_content,
     obsidian_content,
@@ -71,7 +71,7 @@ from dreamcoder_theme.renderers_herdr import herdr_content  # noqa: E402
 from dreamcoder_theme.settings import ROOT, theme_paths  # noqa: E402
 from dreamcoder_theme.sync import COVERAGE, prepare, print_summary  # noqa: E402
 
-MODES = ("dark", "light", "night")
+MODES = ("dark", "light")
 
 # Builders used by the current sync path for repository variant artifacts.
 BUILDERS = {
@@ -86,6 +86,7 @@ BUILDERS = {
     "pi_theme": pi_theme_content,
     "antigravity": antigravity_content,
     "tmux": tmux_content,
+    "lazygit": lazygit_content,
     "zsh_syntax": zsh_syntax_content,
     "ls_colors": ls_colors_content,
     "bat": bat_content,
@@ -119,6 +120,7 @@ ACTIVE_PATHS: dict[str, str | None] = {
     "pi_theme": "pi_theme",
     "antigravity": None,
     "tmux": "tmux",
+    "lazygit": "lazygit",
     "zsh_syntax": "zsh_syntax",
     "ls_colors": "ls_colors",
     "bat": "bat",
@@ -142,12 +144,6 @@ ACTIVE_PATHS: dict[str, str | None] = {
     "herdr": None,
 }
 
-# Consumers whose current repo artifact is written for only a subset of modes.
-# Zellij: only the night KDL is generated today (dark/light have no artifact).
-MODE_ARTIFACT_OVERRIDES: dict[str, dict[str, str | None]] = {
-    "zellij": {"dark": None, "light": None},
-}
-
 
 def rel(p: Path) -> str:
     """Deterministic POSIX path relative to the repository root."""
@@ -159,25 +155,21 @@ def rel(p: Path) -> str:
 
 
 def variant_paths_for(row) -> dict[str, str | None]:
-    """Per-mode repository artifact paths from the COVERAGE night artifact."""
-    artifact = row.night_artifact
+    """Per-mode repository artifact paths from the COVERAGE (Dark) artifact."""
+    artifact = row.artifact
     if artifact.startswith("active:"):
         return {m: artifact for m in MODES}
-    override = MODE_ARTIFACT_OVERRIDES.get(row.consumer_id, {})
     out: dict[str, str | None] = {}
     for mode in MODES:
-        if mode in override:
-            out[mode] = override[mode]
-        else:
-            resolved = artifact
-            if "<version>" in resolved:
-                complete = next(
-                    (p for p in SUPPORTED_PROFILES if p is not None and p.is_complete), None
-                )
-                resolved = resolved.replace(
-                    "<version>", complete.evidence.version if complete else "unknown"
-                )
-            out[mode] = resolved.replace("night", mode).replace("Night", mode.title())
+        resolved = artifact
+        if "<version>" in resolved:
+            complete = next(
+                (p for p in SUPPORTED_PROFILES if p is not None and p.is_complete), None
+            )
+            resolved = resolved.replace(
+                "<version>", complete.evidence.version if complete else "unknown"
+            )
+        out[mode] = resolved.replace("dark", mode).replace("Dark", mode.title())
     return out
 
 
@@ -207,7 +199,7 @@ def capture_characterization() -> dict:
                 "writer": row.writer,
                 "selection_strategy": row.selection_strategy,
                 "source": row.source,
-                "night_artifact": row.night_artifact,
+                "artifact": row.artifact,
                 "modes": list(MODES),
                 "active_path": active_path_for(row, paths),
                 "variant_paths": variant_paths_for(row),
@@ -281,7 +273,7 @@ def artifact_hash_for(row, base_mode: str, prepared) -> dict:
 def capture_output_hashes() -> dict:
     artifacts: dict[str, dict[str, dict]] = {}
     for base_mode in ("dark", "light"):
-        prepared = prepare(base_mode, "standard")
+        prepared = prepare(base_mode)
         for row in COVERAGE:
             artifacts.setdefault(row.consumer_id, {})[base_mode] = artifact_hash_for(
                 row, base_mode, prepared

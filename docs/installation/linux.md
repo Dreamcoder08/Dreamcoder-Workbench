@@ -98,7 +98,7 @@ dreamcoder light    # → Cocoa/Lúcuma
 dreamcoder status   # → System overview
 
 # Automatic (via systemd timer)
-# Switches at 07:00 (light), 16:00 (night), 18:00 (dark)
+# Switches at 07:00 (light) and 18:00 (dark)
 systemctl --user status dreamcoder-theme-auto.timer
 ```
 

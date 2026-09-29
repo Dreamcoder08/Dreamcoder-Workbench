@@ -50,6 +50,13 @@ assert report["upstreams"]["ml4w"]["mappings"] == [], report
     [[ "$output" == *"upstream-diff"* ]]
 }
 
+@test "dreamcoder rejects night as an unknown command" {
+    run bash "${TEST_DIR}/scripts/dreamcoder" night
+    [ "$status" -eq 2 ]
+    [[ "$output" == *"Usage: dreamcoder"* ]]
+    [[ "$output" != *"night"* ]]
+}
+
 @test "dreamcoder exposes src/ to Python routes without an installed package" {
     mkdir -p "${TEST_DIR}/src/dreamcoder_theme"
     printf 'def main():\n    print("sync-ok")\n' > "${TEST_DIR}/src/dreamcoder_theme/sync.py"

@@ -1,9 +1,9 @@
 {
   "kind": "deployment",
   "name": "desktop-arch",
-  "description": "Desktop Arch Linux deployment of Dreamcoder with full day/night theme support. Repository-safe: contains no device address, username, key, or host runtime state.",
+  "description": "Desktop Arch Linux deployment of Dreamcoder with full light/dark theme support. Repository-safe: contains no device address, username, key, or host runtime state.",
   "platform": "arch-desktop",
   "os": "Arch Linux",
   "terminal_default_mode": "light",
-  "notes": "Day/night switching is handled by systemd timers via scripts/theme-auto.sh. Herdr [ui] pane_scrollbars follows the Herdr default (false); the mobile profile pins the same setting explicitly."
+  "notes": "Light/dark switching is handled by systemd timers via scripts/theme-auto.sh. Herdr [ui] pane_scrollbars follows the Herdr default (false); the mobile profile pins the same setting explicitly."
 }

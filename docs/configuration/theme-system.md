@@ -20,8 +20,7 @@ tokens.json → generate-palette-tokens.py → palette_tokens.py
 Single source of truth: [`DreamcoderThemes/dreamcoder/tokens.json`](../../DreamcoderThemes/dreamcoder/tokens.json)
 
 The canonical modes are exactly **Dreamcoder Dark**, **Dreamcoder Light**, and
-**Dreamcoder Dusk**. Night is a render profile derived from Dark, not a fourth
-mode. Dark's `surface_policy` permits pure black only for the canvas; functional
+**Dreamcoder Dusk**; only Dark and Light are user-facing. Dark's `surface_policy` permits pure black only for the canvas; functional
 and scrollable surfaces use the near-black ladder (`surface0`–`surface3`) to
 reduce OLED smear.
 

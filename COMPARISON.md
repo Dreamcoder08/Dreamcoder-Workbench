@@ -8,7 +8,7 @@
 | Feature               | Gentleman.Dots         | ML4W                | **Dreamcoder Workbench**       |
 | --------------------- | ---------------------- | ------------------- | ------------------------------ |
 | **Theme Engine**      | — Catppuccin static    | ✓ Matugen dynamic   | ✓ **Token-based + WCAG/APCA**  |
-| **Dark/Light/Night**  | — Dark only            | ✓ Light/Dark        | ✓ **+ night transition mode**  |
+| **Dark/Light**        | — Dark only            | ✓ Light/Dark        | ✓ **+ scheduled switching**    |
 | **Accessibility**     | —                      | —                   | ✓ **WCAG 4.5:1 + APCA 75**     |
 | **AI Session Prompt** | —                      | —                   | ✓ **Live AI session state**    |
 | **Neovim Plugins**    | ✓ 29 (LazyVim)         | —                   | ◐ Dreamcoder colorscheme       |
@@ -70,13 +70,12 @@ After installing Dreamcoder Workbench, everything Gentleman provides keeps worki
 
 No other dotfiles setup does this. Every color is validated against WCAG 4.5:1 and APCA.
 
-### 3 Color Modes
+### 2 Color Modes
 
 | Mode    | Name              | Schedule       |
 | ------- | ----------------- | -------------- |
 | 🌙 Dark | Anthracite Steel  | 18:00-07:00    |
-| ☀️ Light| Cocoa/Lúcuma      | 07:00-16:00    |
-| 🌆 Night| Low-light transition | 16:00-18:00 |
+| ☀️ Light| Cocoa/Lúcuma      | 07:00-18:00    |
 
 ### AI Session State in the Prompt
 
@@ -139,7 +138,7 @@ Without Dreamcoder Workbench:
 ┌─────────────────────────────────────────────┐
 │  Gentleman.Dots: Catppuccin                │
 │  ML4W: Matugen colors                      │
-│  No WCAG, no AI prompt, no night mode      │
+│  No WCAG, no AI prompt, no auto switching  │
 └─────────────────────────────────────────────┘
 
 With Dreamcoder Workbench:

@@ -17,7 +17,7 @@ Need a smaller first step? Pick an open issue, fix a docs typo, or add a rendere
 ```text
 src/dreamcoder_theme/     # Python theme engine (pip-installable package)
   ├── palette.py              # Color math, adaptive palette derivation
-  ├── palette_tokens.py       # Static design tokens (dark/light/night)
+  ├── palette_tokens.py       # Static design tokens (dark/light/dusk)
   ├── renderers.py            # Public renderer import hub
   ├── renderers_kitty.py      # Kitty format renderer
   ├── renderers_ghostty_warp.py
@@ -51,7 +51,7 @@ src/dreamcoder_theme/     # Python theme engine (pip-installable package)
   ├── backups.py               # Theme backup/restore
   ├── audit.py                 # Theme audit & validation
   ├── docs_report.py           # Documentation health report
-  ├── motion.py                # Day/night mode scheduler
+  ├── motion.py                # Motion preset scheduler
   ├── tui.py                   # Terminal UI
   ├── visual_regression.py     # Visual regression testing
   └── settings_store.py        # Settings persistence
@@ -201,7 +201,7 @@ Documentation changes are reviewed like code changes.
 - [ ] Run `python scripts/validate-markdown-links.py` and fix any broken links.
 - [ ] Update the smallest relevant page; do not duplicate content that already lives in another doc — link to it instead.
 - [ ] The changed page is reachable from the [docs index](docs/README.md) or the README documentation table; add it there if it is a new page.
-- [ ] Keep the identity string "Dreamcoder Workbench" and mode names `dark/light/night` consistent with the rest of the docs.
+- [ ] Keep the identity string "Dreamcoder Workbench" and mode names `dark/light` consistent with the rest of the docs.
 - [ ] Commit with the `docs:` conventional commit type.
 
 Do not duplicate references: link to the source page for detailed behavior.

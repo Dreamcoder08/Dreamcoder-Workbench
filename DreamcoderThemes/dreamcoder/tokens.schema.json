@@ -2,49 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Dreamcoder OS design tokens",
   "type": "object",
-  "required": ["name", "version", "modes", "render_profiles", "guardrails"],
+  "required": ["name", "version", "modes", "guardrails"],
   "properties": {
     "$schema": { "type": "string" },
     "name": { "const": "Dreamcoder OS" },
     "version": { "type": "integer", "minimum": 1 },
     "description": { "type": "string" },
-    "render_profiles": {
-          "type": "object",
-          "required": ["night"],
-          "properties": {
-            "night": {
-              "type": "object",
-              "required": [
-                "brightness_factor",
-                "saturation_factor",
-                "maximum_corrective_delta",
-                "corrective_step"
-              ],
-              "properties": {
-                "brightness_factor": {
-                  "type": "number",
-                  "exclusiveMinimum": 0,
-                  "maximum": 1
-                },
-                "saturation_factor": {
-                  "type": "number",
-                  "exclusiveMinimum": 0,
-                  "maximum": 1
-                },
-                "maximum_corrective_delta": {
-                  "type": "number",
-                  "minimum": 0,
-                  "maximum": 0.2
-                },
-                "corrective_step": {
-                  "type": "number",
-                  "exclusiveMinimum": 0,
-                  "maximum": 0.2
-                }
-              }
-            }
-          }
-        },
     "modes": {
       "type": "object",
       "required": ["dark", "light", "dusk"],

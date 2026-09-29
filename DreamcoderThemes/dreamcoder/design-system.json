@@ -519,7 +519,7 @@
       "source": "DreamcoderThemes/dreamcoder/tokens.json",
       "generator": "sync.py::sync_repo_snippets",
       "path": ".opencode/themes/dreamcoder.json",
-      "mode_policy": "base-modes+derived-night",
+      "mode_policy": "base-modes",
       "discovery_root": ".opencode/themes",
       "pattern": "*.json",
       "validation": "exact-bytes"

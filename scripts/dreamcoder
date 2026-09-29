@@ -37,14 +37,13 @@ case "${CMD}" in
     upstream-diff) exec "${DREAMCODER_DOTS_DIR}/scripts/upstream-diff.py" "$@" ;;
     preview) exec "${DREAMCODER_DOTS_DIR}/scripts/generate-theme-preview.py" "$@" ;;
     auto) exec "${DREAMCODER_DOTS_DIR}/scripts/theme-auto.sh" "$@" ;;
-    # Phase 5 (R7): light/dark/night route through the control activation
-    # path (prepare -> validate -> persist -> commit -> reload adapter); the
-    # generic settings interface continues to serve theme.render_profile.
-    light|dark|night) CONTROL theme apply "${CMD}" "$@" ;;
+    # Phase 5 (R7): light/dark route through the control activation path
+    # (prepare -> validate -> persist -> commit -> reload adapter).
+    light|dark) CONTROL theme apply "${CMD}" "$@" ;;
     theme) CONTROL theme "$@" ;;
     sync) exec "${DREAMCODER_DOTS_DIR}/scripts/sync-dreamcoder-theme.py" "$@" ;;
     *)
-        printf 'Usage: dreamcoder {install|repair|doctor|doctor-json|dashboard|tui|docs|audit|control|settings|profile|motion|backup|visual|installer|status|verify|upstream-diff|preview|auto|light|dark|night|theme|sync}\n' >&2
+        printf 'Usage: dreamcoder {install|repair|doctor|doctor-json|dashboard|tui|docs|audit|control|settings|profile|motion|backup|visual|installer|status|verify|upstream-diff|preview|auto|light|dark|theme|sync}\n' >&2
         exit 2
         ;;
 esac

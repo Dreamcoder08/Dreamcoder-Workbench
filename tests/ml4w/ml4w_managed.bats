@@ -157,7 +157,7 @@ load_ml4w_lib() {
 
 @test "ml4w lib: a symlink to a Dreamcoder variant is accepted" {
   mkdir -p "${HOME}/.config/hypr"
-  ln -s "${DREAMCODER_DOTS_DIR}/DreamcoderThemes/dreamcoder/hypr-colors-night.lua" "${HOME}/.config/hypr/colors.lua"
+  ln -s "${DREAMCODER_DOTS_DIR}/DreamcoderThemes/dreamcoder/hypr-colors-light.lua" "${HOME}/.config/hypr/colors.lua"
 
   load_ml4w_lib
   run hypr_colors_is_dreamcoder "${HOME}/.config/hypr/colors.lua"

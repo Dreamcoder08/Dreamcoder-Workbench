@@ -41,7 +41,7 @@ When editing documentation, follow these maintenance rules:
 - Run `python scripts/validate-markdown-links.py` after doc changes (pre-commit does this automatically for staged files).
 - Docs are English, user-facing guides in neutral professional English.
 - Identity is always "Dreamcoder Workbench" (never "Dreamcoder OS" / "DreamcoderDots" / bare "dreamcoder-dots").
-- Color modes are `dark/light/night` (never "dusk" as a user-facing mode).
+- Color modes are `dark/light` (never "dusk" as a user-facing mode).
 - One file = one purpose: do not duplicate content across docs — link to the source page.
 - Update the smallest relevant page for a change; keep every doc reachable from [docs/README.md](docs/README.md).
 - Commit doc changes with the `docs:` conventional commit type.

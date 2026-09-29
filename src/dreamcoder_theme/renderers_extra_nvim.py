@@ -14,23 +14,21 @@ def nvim_dispatcher_content() -> str:
     """Return a dispatcher that loads the correct variant.
 
     Priority:
-      1. DREAMCODER_THEME_PROFILE env var (night) — resolved BEFORE base mode
-      2. DREAMCODER_THEME_MODE env var (set by `dreamcoder dark` / `dreamcoder light`)
-      3. ~/.cache/dreamcoder/cursor-cli.env (written by apply-theme-mode.sh)
-      4. vim.o.background (Neovim's own mode)
-      5. Fallback: "dark"
+      1. DREAMCODER_THEME_MODE env var (set by `dreamcoder dark` / `dreamcoder light`)
+      2. ~/.cache/dreamcoder/cursor-cli.env (written by apply-theme-mode.sh)
+      3. vim.o.background (Neovim's own mode)
+      4. Fallback: "dark"
     """
     return """-- ========================================================
 -- Dreamcoder — auto-detect dispatcher
 -- ========================================================
 -- Usage: vim.cmd.colorscheme("dreamcoder")
 -- Auto-loads the correct variant based on:
---   1. DREAMCODER_THEME_PROFILE env var (night) — before base mode
---   2. DREAMCODER_THEME_MODE env var (set by `dreamcoder light`)
---   3. ~/.cache/dreamcoder/cursor-cli.env (persisted by apply-theme-mode.sh)
---   4. vim.o.background (Neovim's own setting)
---   5. Fallback: dark
--- Direct variant access: colorscheme dreamcoder-dark / dreamcoder-light / dreamcoder-night
+--   1. DREAMCODER_THEME_MODE env var (set by `dreamcoder light`)
+--   2. ~/.cache/dreamcoder/cursor-cli.env (persisted by apply-theme-mode.sh)
+--   3. vim.o.background (Neovim's own setting)
+--   4. Fallback: dark
+-- Direct variant access: colorscheme dreamcoder-dark / dreamcoder-light
 -- ========================================================
 
 vim.g.colors_name = "dreamcoder"
@@ -42,29 +40,6 @@ vim.opt.pumblend = 10
 -- Find variant files relative to this file's location
 local src = debug.getinfo(1, "S").source:match("@?(.*)")
 local theme_dir = src:match("^(.*[/\\\\])") or "."
-
--- Resolve render profile first (night wins over base mode), then mode.
-local profile = vim.env.DREAMCODER_THEME_PROFILE
-
-if not profile then
-  local cache_file = vim.fn.expand("~/.cache/dreamcoder/cursor-cli.env")
-  local f = io.open(cache_file, "r")
-  if f then
-    for line in f:lines() do
-      local m = line:match('^export DREAMCODER_THEME_PROFILE="(.-)"')
-      if m then
-        profile = m
-        break
-      end
-    end
-    f:close()
-  end
-end
-
-if profile == "night" then
-  dofile(theme_dir .. "dreamcoder-night.lua")
-  return
-end
 
 -- Resolve base mode: env var > cache file > vim.o.background > dark
 local mode = vim.env.DREAMCODER_THEME_MODE
@@ -123,10 +98,7 @@ def nvim_content(c: dict[str, str]) -> str:
         return f'  vim.api.nvim_set_hl(0, "{name}", {{\n{inner}\n  }})\n'
 
     invert = c["details"] == "lighter"
-    # The derived Night variant reports its own identity (design §5 row 14)
-    # so a direct ``colorscheme dreamcoder-night`` stays correct; standard
-    # dark/light keep today's names.
-    variant_name = "night" if "Night" in c.get("name", "") else ("light" if invert else "dark")
+    variant_name = "light" if invert else "dark"
     bg = c["bg"]
     normal_bg = bg if invert else "none"
     text = c["text"]
@@ -199,7 +171,7 @@ REGISTRATIONS: tuple[RendererRegistration, ...] = (
         consumer_id="nvim",
         renderer=NvimDispatcherAdapter(),
         contract_version=1,
-        modes=frozenset({"dark", "light", "night"}),
+        modes=frozenset({"dark", "light"}),
         output_kind="active-and-repository",
         sync=SyncDefinition(
             renderer=RendererStrategy.NVIM_DISPATCHER,

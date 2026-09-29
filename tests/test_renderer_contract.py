@@ -23,8 +23,7 @@ DARK: Palette = dict(VARIANTS["dark"])
 
 def test_canonical_modes_are_distinct_from_derived_render_variants() -> None:
     assert {"light", "dusk", "dark"} == CANONICAL_MODES
-    assert {"light", "dark", "night"} == ALL_RENDER_VARIANTS
-    assert "night" not in CANONICAL_MODES
+    assert {"light", "dark"} == ALL_RENDER_VARIANTS
     assert "dusk" not in ALL_RENDER_VARIANTS
 
 
@@ -70,7 +69,7 @@ class TestAdaptersUseTheSinglePort:
             TransparentOpenCodeAdapter(),
             NvimDispatcherAdapter(),
             NamedZellijAdapter("dreamcoder"),
-            VersionedHerdrAdapter(complete, "night"),
+            VersionedHerdrAdapter(complete, "dark"),
         )
 
     def test_every_adapter_conforms_to_the_one_contract(self, adapters) -> None:

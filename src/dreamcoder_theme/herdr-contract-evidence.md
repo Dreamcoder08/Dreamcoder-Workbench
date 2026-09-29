@@ -155,7 +155,7 @@ from 0.9.0), binary SHA-256
 `herdr config check` rejects unknown keys (`unknown config key
 theme.custom.<name>; ignoring key`) and unknown theme names with a non-zero
 exit, which closes the open question of whether the 0.8.2 field set is still
-accepted: each generated `0.9.1/config.{dark,light,night}.toml` passed
+accepted: each generated `0.9.1/config.{dark,light}.toml` passed
 `HERDR_CONFIG_PATH=<variant> herdr config check` with `config: ok`. The profile
 therefore reuses the 0.8.2 theme, custom, and ui field sets exactly and adds no
 new fields.

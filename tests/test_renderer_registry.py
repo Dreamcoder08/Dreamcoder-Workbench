@@ -55,7 +55,7 @@ def make_registration(
     consumer_id: str = "test_consumer",
     renderer: object = kitty_content,
     contract_version: int = SUPPORTED_CONTRACT_VERSION,
-    modes: frozenset[str] = frozenset({"dark", "light", "night"}),
+    modes: frozenset[str] = frozenset({"dark", "light"}),
     output_kind: str = "active",
     sync: SyncDefinition | None = None,
     summary_label: str = "Test consumer",

@@ -59,5 +59,5 @@ The installer writes a backup manifest under `~/.local/share/dreamcoder/backups/
 | Feature | ML4W | Dreamcoder Workbench |
 | --- | --- | --- |
 | Theme source | Wallpaper (Material You) | tokens.json |
-| Day/Night | Manual | Systemd timer |
+| Light/Dark schedule | Manual | Systemd timer |
 | Health checks | None | WCAG/APCA |

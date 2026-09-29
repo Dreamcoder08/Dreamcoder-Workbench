@@ -38,7 +38,7 @@ def _variant_root(
     tmp_path: Path,
     *,
     versions: tuple[str, ...] = ("0.7.3", "0.8.0", "0.8.2", "0.9.1"),
-    modes: tuple[str, ...] = ("dark", "light", "night"),
+    modes: tuple[str, ...] = ("dark", "light"),
 ) -> Path:
     root = tmp_path / "variants"
     for version in versions:
@@ -151,8 +151,8 @@ def test_newer_unprofiled_version_falls_back_to_newest_variant(tmp_path: Path) -
 
 def test_installed_091_selects_its_own_variant(tmp_path: Path) -> None:
     root = _variant_root(tmp_path)
-    choice = choose_variant("herdr 0.9.1\n", "night", root)
-    assert choice.path == root / "0.9.1/config.night.toml"
+    choice = choose_variant("herdr 0.9.1\n", "light", root)
+    assert choice.path == root / "0.9.1/config.light.toml"
     assert choice.profile_version == "0.9.1"
     assert choice.fallback is False
 
@@ -352,7 +352,7 @@ def test_reload_failure_removes_a_newly_created_selector(tmp_path: Path) -> None
 def test_reload_launch_failure_restores_the_previous_selector(tmp_path: Path) -> None:
     root = _variant_root(tmp_path)
     selector = tmp_path / "config.toml"
-    original = root / "0.9.1/config.night.toml"
+    original = root / "0.9.1/config.dark.toml"
     selector.symlink_to(original)
     run = FakeRun(reload_error=FileNotFoundError("herdr"))
     outcome = switch_herdr("light", run=run, selector=selector, variant_root=root)

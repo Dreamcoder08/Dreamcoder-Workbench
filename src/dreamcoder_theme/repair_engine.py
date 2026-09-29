@@ -107,10 +107,10 @@ def repair_plan() -> dict[str, Any]:
                     "command": "./scripts/dreamcoder installer plan --json",
                 }
             )
-        elif check.name == "day/night timer":
+        elif check.name == "light/dark timer":
             actions.append(
                 {
-                    "id": "enable-day-night-timer",
+                    "id": "enable-light-dark-timer",
                     "check": check.name,
                     "safe": False,
                     "target": "dreamcoder-theme-auto.timer",

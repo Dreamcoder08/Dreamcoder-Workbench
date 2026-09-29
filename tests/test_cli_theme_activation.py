@@ -1,7 +1,8 @@
 """CLI theme activation + transaction/rollback (Phase 5, tasks 5.2/5.3/5.5/5.7).
 
-Covers R7/R4 scenarios: ``theme apply`` persists base+profile, light/dark exit
-Night, a failing gate changes nothing and exits non-zero, and an injected
+Covers R7/R4 scenarios: ``theme apply`` persists the Light/Dark base, ``night``
+is no longer an accepted choice, a failing gate changes nothing and exits
+non-zero, and an injected
 post-commit write/reload failure restores file bytes, symlink targets, and
 prior settings. Tests drive ``control.main`` directly (no subprocess) with an
 isolated temp config home; the system/reload adapter is mocked.
@@ -85,7 +86,6 @@ def theme_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path / ".cache"))
     monkeypatch.setenv("DREAMCODER_WRITE_REPO", "0")
     monkeypatch.setenv("DREAMCODER_CLEAN_OPENCODE_THEMES", "0")
-    monkeypatch.delenv("DREAMCODER_THEME_PROFILE", raising=False)
     monkeypatch.delenv("DREAMCODER_THEME_MODE", raising=False)
     monkeypatch.delenv("DREAMCODER_SYNC_DONE", raising=False)
     monkeypatch.delenv("DREAMCODER_WALLPAPER", raising=False)
@@ -122,54 +122,53 @@ def _tree_state(root: Path) -> dict[str, str]:
 
 
 # ---------------------------------------------------------------------------
-# R7: Night activation
+# R7: Light/Dark activation
 # ---------------------------------------------------------------------------
 
 
-def test_night_activation_persists_profile_and_dark_base(theme_home: Path, capsys) -> None:
-    rc, payload = _run("night", capsys)
-    assert rc == 0
-    assert settings_get("terminal.default_mode") == "dark"
-    assert settings_get("theme.render_profile") == "night"
-    assert payload["requested"] == "night"
-    assert payload["effective_base"] == "dark"
-    assert payload["effective_profile"] == "night"
-    assert payload["coverage"] == "33/33"
-    assert payload["rollback_state"] == "none"
-    assert payload["changed"]["kitty"] is True
-    # The dark base + Night profile produce an active kitty output.
-    assert theme_paths().kitty.exists()
-
-
-# ---------------------------------------------------------------------------
-# R7: Light and Dark exit Night
-# ---------------------------------------------------------------------------
-
-
-def test_light_from_night_persists_standard_and_regenerates_all_active(
-    theme_home: Path, capsys
-) -> None:
-    _run("night", capsys)
-    night_kitty = theme_paths().kitty.read_bytes()
-    rc, payload = _run("light", capsys)
-    assert rc == 0
-    assert settings_get("terminal.default_mode") == "light"
-    assert settings_get("theme.render_profile") == "standard"
-    assert payload["effective_profile"] == "standard"
-    assert payload["coverage"] == "33/33"
-    assert payload["rollback_state"] == "none"
-    light_kitty = theme_paths().kitty.read_bytes()
-    assert light_kitty != night_kitty  # active outputs were regenerated
-
-
-def test_dark_from_night_persists_standard(theme_home: Path, capsys) -> None:
-    _run("night", capsys)
+def test_dark_activation_persists_base(theme_home: Path, capsys) -> None:
     rc, payload = _run("dark", capsys)
     assert rc == 0
     assert settings_get("terminal.default_mode") == "dark"
-    assert settings_get("theme.render_profile") == "standard"
-    assert payload["effective_profile"] == "standard"
+    assert payload["requested"] == "dark"
+    assert payload["effective_base"] == "dark"
+    assert "effective_profile" not in payload
     assert payload["coverage"] == "33/33"
+    assert payload["rollback_state"] == "none"
+    assert payload["changed"]["kitty"] is True
+    assert theme_paths().kitty.exists()
+
+
+def test_light_from_dark_regenerates_all_active(theme_home: Path, capsys) -> None:
+    _run("dark", capsys)
+    dark_kitty = theme_paths().kitty.read_bytes()
+    rc, payload = _run("light", capsys)
+    assert rc == 0
+    assert settings_get("terminal.default_mode") == "light"
+    assert payload["coverage"] == "33/33"
+    assert payload["rollback_state"] == "none"
+    assert theme_paths().kitty.read_bytes() != dark_kitty  # active outputs regenerated
+
+
+def test_night_choice_is_rejected(theme_home: Path, capsys) -> None:
+    before = _tree_state(theme_home)
+    with pytest.raises(SystemExit) as exc:
+        control.main(["theme", "apply", "night", "--json"])
+    assert exc.value.code == 2
+    assert "invalid choice" in capsys.readouterr().err
+    assert _tree_state(theme_home) == before
+
+
+def test_activation_ignores_and_preserves_legacy_render_profile(theme_home: Path, capsys) -> None:
+    """A settings file from the Night era still activates cleanly."""
+    settings_file = theme_home / ".config/dreamcoder/settings.json"
+    settings_file.parent.mkdir(parents=True)
+    settings_file.write_text(json.dumps({"theme": {"render_profile": "night"}}))
+    rc, payload = _run("light", capsys)
+    assert rc == 0
+    assert payload["effective_base"] == "light"
+    assert settings_get("terminal.default_mode") == "light"
+    assert settings_get("theme.render_profile") == "night"  # preserved, never read
 
 
 # ---------------------------------------------------------------------------
@@ -182,12 +181,12 @@ def test_failing_gate_changes_no_settings_or_output_and_exits_nonzero(
 ) -> None:
     before = _tree_state(theme_home)
     with mock.patch("dreamcoder_theme.sync.validate_palette", return_value=["forced gate failure"]):
-        rc, payload = _run("night", capsys)
+        rc, payload = _run("dark", capsys)
     assert rc != 0
     assert payload["rollback_state"] == "rejected"
     assert payload["errors"] == ["forced gate failure"]
     assert _tree_state(theme_home) == before  # zero writes
-    assert settings_get("theme.render_profile") is None  # nothing persisted
+    assert settings_get("terminal.default_mode") is None  # nothing persisted
 
 
 # ---------------------------------------------------------------------------
@@ -198,7 +197,7 @@ def test_failing_gate_changes_no_settings_or_output_and_exits_nonzero(
 def test_post_commit_reload_failure_restores_bytes_symlinks_and_settings(
     theme_home: Path, capsys
 ) -> None:
-    # Seed prior state: light/standard with a matugen bridge symlink exactly as
+    # Seed prior state: light with a matugen bridge symlink exactly as
     # the shell adapter would leave it (colors.css -> colors-light.css).
     _run("light", capsys)
     paths = theme_paths()
@@ -209,13 +208,12 @@ def test_post_commit_reload_failure_restores_bytes_symlinks_and_settings(
     os.symlink("colors-light.css", paths.waybar_matugen)
     before = _tree_state(theme_home)
 
-    rc, payload = _run("night", capsys, reload_failure=True)
+    rc, payload = _run("dark", capsys, reload_failure=True)
     assert rc != 0
     assert payload["rollback_state"] == "restored"
     assert _tree_state(theme_home) == before
     assert os.readlink(paths.waybar_matugen) == "colors-light.css"
     assert bridge.read_text() == real_content.decode()
-    assert settings_get("theme.render_profile") == "standard"
     assert settings_get("terminal.default_mode") == "light"
 
 
@@ -234,11 +232,11 @@ def test_post_commit_write_failure_restores_bytes_symlinks_and_settings(
         return True
 
     with mock.patch("dreamcoder_theme.sync.write_if_changed", side_effect=failing_writer):
-        rc, payload = _run("night", capsys)
+        rc, payload = _run("dark", capsys)
     assert rc != 0
     assert payload["rollback_state"] == "restored"
     assert _tree_state(theme_home) == before
-    assert settings_get("theme.render_profile") == "standard"
+    assert settings_get("terminal.default_mode") == "light"
 
 
 # ---------------------------------------------------------------------------
@@ -246,17 +244,15 @@ def test_post_commit_write_failure_restores_bytes_symlinks_and_settings(
 # ---------------------------------------------------------------------------
 
 
-def test_night_light_dark_end_to_end_transitions(theme_home: Path, capsys) -> None:
-    transitions: list[tuple[str, str]] = []
-    for choice in ("night", "light", "dark"):
+def test_dark_light_dark_end_to_end_transitions(theme_home: Path, capsys) -> None:
+    transitions: list[str] = []
+    for choice in ("dark", "light", "dark"):
         rc, payload = _run(choice, capsys)
         assert rc == 0
         assert payload["coverage"] == "33/33"
         assert payload["rollback_state"] == "none"
-        transitions.append(
-            (settings_get("terminal.default_mode"), settings_get("theme.render_profile"))
-        )
-    assert transitions == [("dark", "night"), ("light", "standard"), ("dark", "standard")]
+        transitions.append(settings_get("terminal.default_mode"))
+    assert transitions == ["dark", "light", "dark"]
 
 
 # ---------------------------------------------------------------------------
@@ -298,7 +294,7 @@ def test_reload_failure_restores_lazygit_active_and_live_symlink(theme_home: Pat
     os.symlink("config.dark.yml", live / "config.yml")
     before = _tree_state(theme_home)
 
-    rc, payload = _run("night", capsys, reload_failure=True)
+    rc, payload = _run("dark", capsys, reload_failure=True)
     assert rc != 0
     assert payload["rollback_state"] == "restored"
     assert _tree_state(theme_home) == before
@@ -333,7 +329,7 @@ def test_reload_failure_restores_herdr_override_selector(
     os.symlink(old_target, override)
     monkeypatch.setenv("HERDR_CONFIG_PATH", str(override))
 
-    def fail_after_switch(_base: str, _profile: str) -> None:
+    def fail_after_switch(_base: str) -> None:
         override.unlink()
         os.symlink(new_target, override)
         raise RuntimeError("injected Herdr reload failure")
@@ -350,9 +346,9 @@ def test_reload_failure_restores_herdr_override_selector(
 
 
 def test_generic_settings_interface_keeps_working(theme_home: Path, capsys) -> None:
-    assert control.main(["settings", "set", "theme.render_profile", "night", "--json"]) == 0
+    assert control.main(["settings", "set", "motion.active", "fluid", "--json"]) == 0
     capsys.readouterr()
-    assert settings_get("theme.render_profile") == "night"
-    assert control.main(["settings", "get", "theme.render_profile", "--json"]) == 0
+    assert settings_get("motion.active") == "fluid"
+    assert control.main(["settings", "get", "motion.active", "--json"]) == 0
     out = json.loads(capsys.readouterr().out)
-    assert out["value"] == "night"
+    assert out["value"] == "fluid"

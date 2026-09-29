@@ -31,12 +31,12 @@ from .settings import ROOT
 
 _VERSION_TIMEOUT_SECONDS = 5
 _RELOAD_TIMEOUT_SECONDS = 10
-_VALID_MODES = ("dark", "light", "night")
+_VALID_MODES = ("dark", "light")
 _VARIANT_ROOT = ROOT / "DreamcoderHerdr/.config/herdr/dreamcoder"
 _VERSION_OUTPUT = re.compile(r"herdr[ \t]+(\d+)\.(\d+)\.(\d+)", re.IGNORECASE)
 
 Run = Callable[..., subprocess.CompletedProcess[str]]
-Mode = Literal["dark", "light", "night"]
+Mode = Literal["dark", "light"]
 
 Status = Literal[
     "applied",
