@@ -15,6 +15,18 @@ Every gga review, in every repository, runs on the OpenAI Codex provider with
 | `~/.config/environment.d/50-gga-pin.conf` | Same provider and `PATH` for desktop-launched programs (IDE git hooks). |
 | Fish, Zsh, Bash startup | Export `GGA_PROVIDER=codex` and put the shim dir first on `PATH` when it exists. |
 
+## When Codex is unavailable
+
+The review is a safety net, not a wall. The block sets `STRICT_MODE="false"` in the global
+config, so a provider failure (for example `usage_limit_exceeded` when the Codex quota is used
+up) lets the commit through with gga's error on screen instead of blocking it, while a real
+`STATUS: FAILED` from the reviewer still blocks. gga never reports `PASSED` for a review that
+did not run. The quota is shared across models, so falling back to another model would not help.
+
+A repository whose own `.gga` sets `STRICT_MODE="true"` overrides the global value (project
+config is loaded after the global one) and keeps blocking during an outage: set it to `false`
+there, or commit with `git commit --no-verify` until the quota resets.
+
 ## Why a shim
 
 gga runs `codex exec "<prompt>"` without model options, so it would use the model

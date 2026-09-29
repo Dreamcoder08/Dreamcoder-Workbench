@@ -88,6 +88,19 @@ shim() { PATH="${SHIM_DIR}:${REAL_BIN}:${PATH}" "$@"; }
     [ "$output" = "codex codex ${SHIM_DIR}" ]
 }
 
+# A review tool is a safety net, not a wall: a real `STATUS: FAILED` still blocks, but an
+# unavailable provider (usage limit, network) must not brick every commit. gentle-ai writes
+# STRICT_MODE="true" into the generated part of the file, so the block has to override it.
+@test "the block makes gga non-blocking when the provider is unavailable" {
+    gga_setup
+    gentle_ai_config
+    printf 'STRICT_MODE="true"\n' >>"${CONFIG}"
+    run installer
+    [ "$status" -eq 0 ]
+    run env -u GGA_PROVIDER bash -c 'source "$1"; printf "%s" "$STRICT_MODE"' _ "${CONFIG}"
+    [ "$output" = "false" ]
+}
+
 @test "sourcing the block twice does not duplicate the shim dir on PATH" {
     gga_setup
     installer >/dev/null
