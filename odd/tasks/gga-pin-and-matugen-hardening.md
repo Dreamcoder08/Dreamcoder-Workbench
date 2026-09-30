@@ -65,8 +65,16 @@ grew, so the tasks and evidence below are reconstructed from the merged PRs.
   in suites that run with the real HOME (a leak once broke the live wallpaper runner); a
   test that cannot fail is worse than none (a vacuous injection test was removed).
 
+## Decision (2026-09-30)
+
+An earlier count of "~31" project `.gga` files with `STRICT_MODE="true"` was wrong: a full scan
+finds 72 checkouts of 15 repositories (50 of them worktrees of one `arkelythex` organisation
+repository), all tracked by git, so the value is committed project policy rather than a personal
+preference. The user chose **not to touch them**: during a Codex outage those repositories keep
+blocking commits, and `git commit --no-verify` is the escape hatch (documented in
+`docs/configuration/gga.md`). Changing them would mean editing tracked files in other
+repositories, so it needs a per-repository decision by their owners.
+
 ## Next step
 
-Feature complete. Open decision for the user: ~31 project `.gga` files set
-`STRICT_MODE="true"`, which overrides the global value and still blocks commits during a
-Codex outage; they were deliberately not edited.
+Feature complete; nothing pending.
