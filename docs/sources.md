@@ -44,7 +44,7 @@ repository that ships the dotfiles. Gentleman.Dots is hosted at
 | Upstream | Kind | Verified remote (HTTPS) | Pinned ref | Status |
 | --- | --- | --- | --- | --- |
 | ML4W (Hyprland desktop dotfiles) | Desktop base environment | <https://github.com/mylinuxforwork/dotfiles.git> | `3960570f47f4f691c424ff46b387d389a8e69bca` (tag `2.16`) | Pinned — verified against tag 2.16 and remote HEAD |
-| Gentleman.Dots | Shell / editor / terminal base configuration | <https://github.com/Gentleman-Programming/Gentleman.Dots.git> | `6f44b797b016aea92772d8a6d81a5f1bc53a84bb` | Pinned — verified against remote HEAD |
+| Gentleman.Dots | Shell / editor / terminal base configuration | <https://github.com/Gentleman-Programming/Gentleman.Dots.git> | `5b13e07b5a6fde799b65953e92cec323f684408f` | Pinned — verified against remote HEAD |
 
 ### Pin mechanism
 
