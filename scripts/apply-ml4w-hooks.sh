@@ -110,9 +110,10 @@ ${END_MARK}"
 # one falls back to reading gtk-application-prefer-dark-theme at run time,
 # because `dreamcoder sync` renders Dark when DREAMCODER_THEME_MODE is unset.
 # Exits 3 when no Matugen call is found, leaving the decision to the caller.
-render_listener_hook() {
-  DREAMCODER_DISPATCHER_Q="$(printf '%q' "${DREAMCODER_DOTS_DIR}/scripts/dreamcoder")" \
-    awk -v begin="${LISTENER_BEGIN_MARK}" -v end="${LISTENER_END_MARK}" '
+# The awk program that inserts the Dreamcoder block after every Matugen call. Quoted heredoc:
+# nothing in it is expanded by the shell. Reads the escaped dispatcher path from ENVIRON.
+listener_awk_program() {
+  cat <<'AWK'
     function trim(s) { sub(/^[[:space:]]+/, "", s); sub(/[[:space:]]+$/, "", s); return s }
     BEGIN { dispatcher = ENVIRON["DREAMCODER_DISPATCHER_Q"] }
     trim($0) == begin { skip = 1; next }
@@ -146,7 +147,12 @@ render_listener_hook() {
       }
     }
     END { if (!found) exit 3 }
-  ' "$1"
+AWK
+}
+
+render_listener_hook() {
+  DREAMCODER_DISPATCHER_Q="$(printf '%q' "${DREAMCODER_DOTS_DIR}/scripts/dreamcoder")" \
+    awk -v begin="${LISTENER_BEGIN_MARK}" -v end="${LISTENER_END_MARK}" "$(listener_awk_program)" "$1"
 }
 
 hook_gtk_listener() {
@@ -205,8 +211,9 @@ restart_gtk_listener() {
 disable_owned_templates() {
   awk -v owned="${DREAMCODER_MATUGEN_TEMPLATES}" -v prefix="${MATUGEN_OFF_PREFIX}" '
     BEGIN { n = split(owned, names, " "); for (i = 1; i <= n; i++) want["[templates." names[i] "]"] = 1 }
-    /^\[/ { header = $0; sub(/[ \t]+$/, "", header); off = (header in want) }
-    off && $0 != "" && $0 !~ /^#/ { print prefix $0; next }
+    # TOML allows whitespace before a table header, so match and trim it.
+    /^[ \t]*\[/ { header = $0; gsub(/^[ \t]+|[ \t]+$/, "", header); off = (header in want) }
+    off && $0 !~ /^[ \t]*(#|$)/ { print prefix $0; next }
     { print }
   ' "$1"
 }

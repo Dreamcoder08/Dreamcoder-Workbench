@@ -36,6 +36,8 @@ gga_dir="${config_home}/gga"
 shim_dir="${gga_dir}/bin"
 shim_src="${script_dir}/gga-codex-shim.sh"
 shim_dst="${shim_dir}/codex"
+path_src="${script_dir}/../lib/gga-shim-path.sh"
+path_dst="${gga_dir}/shim-path.sh"
 pin_file="${gga_dir}/pin.env"
 config_file="${gga_dir}/config"
 env_file="${config_home}/environment.d/50-gga-pin.conf"
@@ -47,10 +49,12 @@ if [[ ! "${shim_dir}" =~ ^/[A-Za-z0-9._@+/-]+$ ]]; then
   exit 1
 fi
 
-[[ -r "${shim_src}" ]] || {
-  printf 'install-gga-pin: shim source not found: %s\n' "${shim_src}" >&2
-  exit 1
-}
+for required in "${shim_src}" "${path_src}"; do
+  [[ -r "${required}" ]] || {
+    printf 'install-gga-pin: source not found: %s\n' "${required}" >&2
+    exit 1
+  }
+done
 
 # Write stdin to $1 when its content differs; report what changed.
 write_if_changed() {
@@ -79,6 +83,10 @@ install_shim() {
   fi
 }
 
+install_shim_path() {
+  write_if_changed "${path_dst}" "gga shim PATH fragment" <"${path_src}"
+}
+
 install_pin_env() {
   [[ -e "${pin_file}" ]] && return 0
   write_if_changed "${pin_file}" "gga pin model/effort" <<'EOF'
@@ -98,7 +106,10 @@ PROVIDER="codex"
 GGA_PROVIDER="codex"
 # A real STATUS: FAILED still blocks; an unavailable provider (usage limit, network) does not.
 STRICT_MODE="false"
-case ":\${PATH}:" in *":${shim_dir}:"*) ;; *) export PATH="${shim_dir}:\${PATH}" ;; esac
+_dc_gga_bin="${shim_dir}"
+# shellcheck source=/dev/null
+[[ -f "${path_dst}" && -r "${path_dst}" ]] && . "${path_dst}"
+unset _dc_gga_bin
 ${BLOCK_END}
 EOF
 }
@@ -144,6 +155,7 @@ EOF
 }
 
 install_shim
+install_shim_path
 install_pin_env
 install_config_block
 install_environment_d

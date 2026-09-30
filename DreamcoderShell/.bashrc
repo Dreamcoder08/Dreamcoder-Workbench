@@ -21,7 +21,9 @@ export BUN_INSTALL="${HOME}/.bun"
 _dc_gga_bin="${XDG_CONFIG_HOME:-${HOME}/.config}/gga/bin"
 if [[ -d "${_dc_gga_bin}" ]]; then
     export GGA_PROVIDER="codex"
-    [[ ":${PATH}:" == *":${_dc_gga_bin}:"* ]] || export PATH="${_dc_gga_bin}:${PATH}"
+    # Shared with the gga config block: the shim dir must come first, exactly once.
+    # shellcheck source=../lib/gga-shim-path.sh
+    [[ -f "${_dc_gga_bin%/bin}/shim-path.sh" && -r "${_dc_gga_bin%/bin}/shim-path.sh" ]] && source "${_dc_gga_bin%/bin}/shim-path.sh"
 fi
 unset _dc_gga_bin
 SHELL_DIR="${XDG_CONFIG_HOME:-${HOME}/.config}/shell"

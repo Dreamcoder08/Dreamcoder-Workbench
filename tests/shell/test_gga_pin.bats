@@ -38,18 +38,19 @@ shim() { PATH="${SHIM_DIR}:${REAL_BIN}:${PATH}" "$@"; }
 
 # ── installer ────────────────────────────────────────────────────────
 
-@test "installer creates shim, pin.env, config block and environment.d file" {
+@test "installer creates shim, PATH fragment, pin.env, config block and environment.d file" {
     gga_setup
     run installer
     [ "$status" -eq 0 ]
     [ -x "${SHIM_DIR}/codex" ]
     cmp -s "${SHIM_DIR}/codex" "${DREAMCODER_DOTS_DIR}/scripts/gga-codex-shim.sh"
+    cmp -s "${GGA_DIR}/shim-path.sh" "${DREAMCODER_DOTS_DIR}/lib/gga-shim-path.sh"
     grep -qx 'GGA_PIN_MODEL="gpt-6.1-sol"' "${PIN}"
     grep -qx 'GGA_PIN_EFFORT="medium"' "${PIN}"
     grep -qx '# >>> dreamcoder gga pin >>>' "${CONFIG}"
     grep -qx 'GGA_PROVIDER=codex' "${ENV_D}"
     grep -qx "PATH=${SHIM_DIR}:\${PATH}" "${ENV_D}"
-    [ "$(grep -c '^✓' <<<"$output")" -eq 4 ]
+    [ "$(grep -c '^✓' <<<"$output")" -eq 5 ]
 }
 
 @test "installer is idempotent: second run prints nothing and changes nothing" {
@@ -99,6 +100,56 @@ shim() { PATH="${SHIM_DIR}:${REAL_BIN}:${PATH}" "$@"; }
     [ "$status" -eq 0 ]
     run env -u GGA_PROVIDER bash -c 'source "$1"; printf "%s" "$STRICT_MODE"' _ "${CONFIG}"
     [ "$output" = "false" ]
+}
+
+# Membership is not precedence: a shim dir that is already on PATH but behind the real codex
+# (a parent process put it there) must be moved to the front, or the model pin is bypassed.
+@test "the config block moves a shim dir that is already on PATH to the front" {
+    gga_setup
+    run installer
+    [ "$status" -eq 0 ]
+    run env -u GGA_PROVIDER PATH="${REAL_BIN}:${SHIM_DIR}:/usr/bin:/bin" bash -c \
+        'source "$1"; IFS=: read -ra p <<<"$PATH"; printf "%s\n" "${p[0]}"; printf "%s\n" "${p[@]}" | grep -cxF "$2"' _ "${CONFIG}" "${SHIM_DIR}"
+    [ "${lines[0]}" = "${SHIM_DIR}" ]
+    [ "${lines[1]}" = "1" ]
+}
+
+@test "bashrc: a shim dir already on PATH behind the real codex is moved to the front" {
+    gga_setup
+    run installer
+    mkdir -p "${HOME}/.local/bin" "${SHIM_DIR}"
+    run env -u GGA_PROVIDER -u XDG_CONFIG_HOME HOME="${HOME}" PATH="${HOME}/.local/bin:${SHIM_DIR}:/usr/bin:/bin" \
+        bash --norc -i -c 'source "$1" >/dev/null 2>&1; IFS=: read -ra p <<<"$PATH"
+            for i in "${!p[@]}"; do [[ "${p[i]}" == "$2" ]] && s=$i; [[ "${p[i]}" == "$3" ]] && r=$i; done
+            [[ -n "${s:-}" && -n "${r:-}" && "$s" -lt "$r" ]] && echo ordered' \
+        _ "${DREAMCODER_DOTS_DIR}/DreamcoderShell/.bashrc" "${SHIM_DIR}" "${HOME}/.local/bin"
+    [[ "$output" == *ordered* ]]
+}
+
+@test "the shared fragment leaves the shim dir exactly once even when it is repeated in a row" {
+    gga_setup
+    run installer
+    run env -u GGA_PROVIDER PATH="${SHIM_DIR}:${SHIM_DIR}:${REAL_BIN}:${SHIM_DIR}:/usr/bin:/bin" bash -c \
+        'source "$1"; IFS=: read -ra p <<<"$PATH"; printf "%s\n" "${p[0]}"; printf "%s\n" "${p[@]}" | grep -cxF "$2"' _ "${CONFIG}" "${SHIM_DIR}"
+    [ "${lines[0]}" = "${SHIM_DIR}" ]
+    [ "${lines[1]}" = "1" ]
+}
+
+@test "the installer installs the shared PATH fragment and never rewrites it when current" {
+    gga_setup
+    run installer
+    [ -f "${GGA_DIR}/shim-path.sh" ]
+    cmp -s "${GGA_DIR}/shim-path.sh" "${DREAMCODER_DOTS_DIR}/lib/gga-shim-path.sh"
+    run installer
+    [ -z "$output" ]
+}
+
+@test "bashrc: without the installed fragment the gga PATH wiring is skipped without an error" {
+    gga_setup
+    mkdir -p "${SHIM_DIR}"
+    run env -u XDG_CONFIG_HOME HOME="${HOME}" bash --norc -i -c \
+        'source "$1" >/dev/null 2>&1; echo "status=$?"' _ "${DREAMCODER_DOTS_DIR}/DreamcoderShell/.bashrc"
+    [[ "$output" == *"status=0"* ]]
 }
 
 @test "sourcing the block twice does not duplicate the shim dir on PATH" {
