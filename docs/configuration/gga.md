@@ -10,6 +10,7 @@ Every gga review, in every repository, runs on the OpenAI Codex provider with
 | File | Role |
 |------|------|
 | `~/.config/gga/bin/codex` | Shim (source: `scripts/gga-codex-shim.sh`). Injects `-m <model> -c model_reasoning_effort=<effort>` into `codex exec` only when a `gga` process is an ancestor and no `-m`/`--model` is given. Everything else passes through to the real `codex`. |
+| `~/.config/gga/shim-path.sh` | Shared fragment (source: `lib/gga-shim-path.sh`) that puts the shim dir first on `PATH`, exactly once. Sourced by the config block and by `.bashrc`, so the rule lives in one place. |
 | `~/.config/gga/pin.env` | `GGA_PIN_MODEL` and `GGA_PIN_EFFORT`. Created once; never overwritten. |
 | `~/.config/gga/config` | Marked block at the end (`# >>> dreamcoder gga pin >>>`): `PROVIDER`/`GGA_PROVIDER="codex"` and the shim dir first on `PATH`. |
 | `~/.config/environment.d/50-gga-pin.conf` | Same provider and `PATH` for desktop-launched programs (IDE git hooks). |

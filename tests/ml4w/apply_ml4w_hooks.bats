@@ -479,3 +479,17 @@ run_hooks_with_path() {
     [ "$status" -ne 0 ]
     [[ "$output" == *"Required library not found"* ]]
 }
+
+@test "matugen: an indented table header ends the disabled section instead of swallowing the next template" {
+    # TOML allows leading whitespace before a table header: an owned section followed by an
+    # indented [templates.kitty] must not comment kitty out.
+    printf '%s\n' '[config]' '' '[templates.hyprland]' "input_path = 'a'" "output_path = 'b'" '' \
+        '  [templates.kitty]' "  input_path = 'c'" "  output_path = 'd'" '' \
+        '    [templates.waybar]' "    input_path = 'e'" "    output_path = 'f'" >"${MATUGEN_CONFIG}"
+    run run_hooks
+    [ "$status" -eq 0 ]
+    ids="$(template_ids "${MATUGEN_CONFIG}")"
+    [[ " ${ids} " == *" kitty "* ]]
+    [[ " ${ids} " != *" hyprland "* ]]
+    [[ " ${ids} " != *" waybar "* ]]
+}
