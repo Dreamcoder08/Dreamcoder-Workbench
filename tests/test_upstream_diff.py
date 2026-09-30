@@ -438,11 +438,19 @@ def test_check_pins_current(env, capsys):
     assert len(fake.calls) == 1
 
 
+def _reachable_pin_git(module: ModuleType) -> FakeGit:
+    """HEAD moved past the pin; the pinned commit is still fetchable by hash."""
+    fake = FakeGit(module)
+    fake.when(lambda a: "ls-remote" in a and a[-1] == "HEAD", f"{HEAD}\tHEAD\n".encode())
+    fake.when(lambda a: "init" in a, b"")
+    fake.when(lambda a: "fetch" in a and a[-1] == PIN, b"")
+    fake.when(lambda a: "cat-file" in a and "-e" in a, b"")
+    return fake
+
+
 def test_check_pins_stale_reports_drift(env, capsys):
     _write_manifest(env, _manifest())
-    fake = FakeGit(env.module)
-    fake.when(lambda a: "ls-remote" in a and a[-1] == "HEAD", f"{HEAD}\tHEAD\n".encode())
-    fake.when(lambda a: "ls-remote" in a and a[-1] == PIN, f"{PIN}\trefs/heads/main\n".encode())
+    fake = _reachable_pin_git(env.module)
     _stub_git(env.module, fake)
     assert env.module.main(["--check-pins", "--json"]) == 0  # drift is report-only
     report = json.loads(capsys.readouterr().out)
@@ -452,11 +460,23 @@ def test_check_pins_stale_reports_drift(env, capsys):
     assert "drift" in report["upstreams"]["ml4w"]["note"]
 
 
+def test_check_pins_never_looks_a_hash_up_as_a_ref_name(env, capsys):
+    # `git ls-remote <url> <sha>` matches ref NAMES, never hashes, so it always exits 2 for a
+    # pin that is no longer the remote HEAD. Reachability must be checked by fetching the hash.
+    _write_manifest(env, _manifest())
+    fake = _reachable_pin_git(env.module)
+    _stub_git(env.module, fake)
+    assert env.module.main(["--check-pins", "--json"]) == 0
+    assert not any("ls-remote" in call and call[-1] == PIN for call in fake.calls)
+    assert any("fetch" in call and call[-1] == PIN for call in fake.calls)
+
+
 def test_check_pins_unreachable_pin_fails_closed(env, capsys):
     _write_manifest(env, _manifest())
     fake = FakeGit(env.module)
     fake.when(lambda a: "ls-remote" in a and a[-1] == "HEAD", f"{HEAD}\tHEAD\n".encode())
-    fake.when(lambda a: "ls-remote" in a and a[-1] == PIN, b"")  # pin no longer advertised
+    fake.when(lambda a: "init" in a, b"")
+    fake.when(lambda a: "fetch" in a, env.module.GitError("upload-pack: not our ref"))
     _stub_git(env.module, fake)
     assert env.module.main(["--check-pins", "--json"]) == 1
     captured = capsys.readouterr()

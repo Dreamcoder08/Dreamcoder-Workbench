@@ -236,7 +236,7 @@ def _base_manifest() -> dict:
                 "name": "Gentleman.Dots (shell / editor / terminal base configuration)",
                 "url": "https://github.com/Gentleman-Programming/Gentleman.Dots.git",
                 "status": "pinned",
-                "pinned_ref": "6f44b797b016aea92772d8a6d81a5f1bc53a84bb",
+                "pinned_ref": "5b13e07b5a6fde799b65953e92cec323f684408f",
                 "verified_on": "2026-08-10T01:27:49Z",
             },
         },

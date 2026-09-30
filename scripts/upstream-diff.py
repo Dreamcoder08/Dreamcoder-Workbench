@@ -280,6 +280,33 @@ def _unpinned_result(upstream: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _require_pin_fetchable(name: str, url: str, pin: str) -> None:
+    """Fail closed unless the pinned commit can still be fetched by hash.
+
+    `git ls-remote <url> <sha>` cannot do this: it matches ref names, never hashes, so it
+    exits 2 for every pin that is no longer the remote HEAD. Fetching the hash into a
+    throwaway bare repo (as _diff_upstream does) is the check that reflects reality.
+    """
+    temp_dir: Path | None = None
+    try:
+        temp_dir = Path(
+            tempfile.mkdtemp(prefix="dreamcoder-upstream-pin-", dir=str(_system_temp_base()))
+        )
+        _run_git(["git", "init", "--bare", "--quiet", str(temp_dir)], ROOT, GIT_TIMEOUT)
+        _run_git(
+            ["git", "-C", str(temp_dir), "fetch", "--no-tags", "--depth=1", url, pin],
+            ROOT,
+            FETCH_TIMEOUT,
+        )
+    except GitError as exc:
+        raise GitError(
+            f"pinned ref {pin} for {name} is no longer reachable on the remote: {exc}"
+        ) from exc
+    finally:
+        if temp_dir is not None:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+
 def _check_pin(name: str, upstream: dict[str, Any]) -> dict[str, Any]:
     """Verify the pinned ref against the remote HEAD (drift is report-only)."""
     url = upstream["url"]
@@ -297,10 +324,7 @@ def _check_pin(name: str, upstream: dict[str, Any]) -> dict[str, Any]:
         "note": "pinned ref matches remote HEAD",
     }
     if head != pin:
-        reach_out = _run_git(["git", "ls-remote", "--exit-code", url, pin], ROOT, LSREMOTE_TIMEOUT)
-        reach = reach_out.decode("utf-8", errors="replace").split("\t", 1)[0].strip()
-        if not SHA_REF_RE.match(reach):
-            raise GitError(f"pinned ref {pin} for {name} is no longer reachable on the remote")
+        _require_pin_fetchable(name, url, pin)
         result["status"] = "stale"
         result["note"] = (
             f"remote HEAD {head} differs from pinned ref {pin}; pin still reachable — "

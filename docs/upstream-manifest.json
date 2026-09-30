@@ -1,7 +1,7 @@
 {
   "version": 1,
   "provenance": {
-    "verified_on": "2026-09-28T05:42:13Z",
+    "verified_on": "2026-09-30T07:27:46Z",
     "method": "Resolved each upstream HTTPS remote with git ls-remote and recorded the exact returned commit. ML4W is pinned to tag 2.16 (lightweight tag, 3960570f47f4f691c424ff46b387d389a8e69bca), which was also the remote HEAD at verification; Gentleman.Dots is pinned to main HEAD. No ref was ever filled without verification.",
     "command": "git ls-remote https://github.com/mylinuxforwork/dotfiles.git HEAD refs/tags/2.16; git ls-remote https://github.com/Gentleman-Programming/Gentleman.Dots.git HEAD refs/heads/main"
   },
@@ -11,14 +11,14 @@
       "url": "https://github.com/mylinuxforwork/dotfiles.git",
       "status": "pinned",
       "pinned_ref": "3960570f47f4f691c424ff46b387d389a8e69bca",
-      "verified_on": "2026-09-28T05:42:13Z"
+      "verified_on": "2026-09-30T07:27:46Z"
     },
     "gentleman-dots": {
       "name": "Gentleman.Dots (shell / editor / terminal base configuration)",
       "url": "https://github.com/Gentleman-Programming/Gentleman.Dots.git",
       "status": "pinned",
-      "pinned_ref": "6f44b797b016aea92772d8a6d81a5f1bc53a84bb",
-      "verified_on": "2026-09-28T05:42:13Z"
+      "pinned_ref": "5b13e07b5a6fde799b65953e92cec323f684408f",
+      "verified_on": "2026-09-30T07:27:46Z"
     }
   },
   "owned_paths": {}
