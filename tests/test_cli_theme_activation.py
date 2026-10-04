@@ -72,6 +72,13 @@ _UNSCOPED_OVERRIDE_ENV: tuple[str, ...] = (
     "PI_THEME",
     "PI_SETTINGS",
     "PI_AGENT_DIR",
+    "PI_CODING_AGENT_DIR",
+    "GENTLE_SHELL_HOME",
+    "HERDR_CONFIG_PATH",
+    "DREAMCODER_HYPR_COLORS_LUA",
+    "DREAMCODER_HYPR_COLORS_CONF",
+    "DREAMCODER_WAYBAR_MATUGEN",
+    "DREAMCODER_ROFI_MATUGEN",
     "DREAMCODER_TOKENS",
     "BAT_THEME_DIR",
 )
@@ -85,6 +92,7 @@ def theme_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     monkeypatch.setenv("HOME", str(tmp_path))
     monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path / ".cache"))
     monkeypatch.setenv("DREAMCODER_WRITE_REPO", "0")
+    monkeypatch.setenv("DREAMCODER_ADAPTIVE", "0")
     monkeypatch.setenv("DREAMCODER_CLEAN_OPENCODE_THEMES", "0")
     monkeypatch.delenv("DREAMCODER_THEME_MODE", raising=False)
     monkeypatch.delenv("DREAMCODER_SYNC_DONE", raising=False)

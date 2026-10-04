@@ -160,7 +160,7 @@ def test_sync_active_targets_returns_dict(mock_paths, active):
 
 
 def test_sync_active_targets_detects_changes(mock_paths, active):
-    def side_effect(path, content):
+    def side_effect(path, content, **kwargs):
         return path.name in ("colors.conf", "starship.toml", "tmux.conf")
 
     patches = [

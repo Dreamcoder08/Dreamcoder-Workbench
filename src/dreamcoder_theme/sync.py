@@ -110,6 +110,22 @@ class PreparedSync:
     render_plan: Mapping[str, str]
 
 
+def sync_pi_targets(paths: Any, active: dict[str, str]) -> dict[str, bool]:
+    """Generate one canonical theme and persist selection in both agent homes."""
+    content = pi_theme_content(active)
+    changed = {
+        "pi_theme": write_if_changed(paths.pi_theme, content, replace_symlink=True),
+        "pi_settings": ensure_pi_theme_settings(paths.pi_settings),
+    }
+    if paths.gentle_shell_theme is not None:
+        changed["gentle_shell_theme"] = write_if_changed(
+            paths.gentle_shell_theme, content, replace_symlink=True
+        )
+    if paths.gentle_shell_settings is not None:
+        changed["gentle_shell_settings"] = ensure_pi_theme_settings(paths.gentle_shell_settings)
+    return changed
+
+
 def sync_active_targets(paths: Any, active: dict[str, str], mode: str) -> dict[str, bool]:
     return {
         "kitty": write_if_changed(paths.kitty, kitty_content(active)),
@@ -129,8 +145,7 @@ def sync_active_targets(paths: Any, active: dict[str, str], mode: str) -> dict[s
             paths.bat_theme_dir / "Dreamcoder.tmTheme", codex_tmtheme_content(active)
         ),
         "codex_config": ensure_codex_theme_config(paths.codex_config),
-        "pi_theme": write_if_changed(paths.pi_theme, pi_theme_content(active)),
-        "pi_settings": ensure_pi_theme_settings(paths.pi_settings),
+        **sync_pi_targets(paths, active),
         "starship": write_if_changed(paths.starship, starship_content(active)),
         "tmux": write_if_changed(paths.tmux, tmux_content(active)),
         "lazygit": write_if_changed(paths.lazygit, lazygit_content(active)),
@@ -895,6 +910,8 @@ def print_summary(
     print(f"Bat theme dir: {paths.bat_theme_dir}")
     print(f"PI CLI theme: {paths.pi_theme}")
     print(f"PI CLI settings: {paths.pi_settings}")
+    print(f"Gentle Shell theme: {paths.gentle_shell_theme}")
+    print(f"Gentle Shell settings: {paths.gentle_shell_settings}")
     print(f"Starship: {paths.starship}")
     print(f"Lazygit: {paths.lazygit}")
     # New targets
@@ -972,6 +989,7 @@ def render_coverage_plan(
         "codex_app": opencode_content(active),
         "antigravity": antigravity_content(variants["dark"]),
     }
+    plan["gentle_shell_theme"] = plan["pi_theme"]
     complete = next((p for p in SUPPORTED_PROFILES if p is not None and p.is_complete), None)
     plan["herdr"] = herdr_content(complete, mode, variants[mode]) if complete else ""
     return plan

@@ -7,6 +7,7 @@ import os
 import re
 import shutil
 import subprocess
+import tempfile
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -23,13 +24,23 @@ def _ensure_single_trailing_newline(content: str) -> str:
     return content.rstrip() + "\n"
 
 
-def write_if_changed(path: Path, content: str) -> bool:
+def write_if_changed(path: Path, content: str, *, replace_symlink: bool = False) -> bool:
     content = _ensure_single_trailing_newline(content)
     old = path.read_text() if path.exists() else ""
-    if old == content:
+    if old == content and not (replace_symlink and path.is_symlink()):
         return False
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(content)
+    if replace_symlink:
+        # Replace the directory entry, never the repository variant behind a link.
+        with tempfile.NamedTemporaryFile(mode="w", dir=path.parent, delete=False) as stream:
+            temporary = Path(stream.name)
+            stream.write(content)
+        try:
+            temporary.replace(path)
+        finally:
+            temporary.unlink(missing_ok=True)
+    else:
+        path.write_text(content)
     return True
 
 
@@ -81,7 +92,7 @@ def ensure_pi_theme_settings(path: Path) -> bool:
     if data.get("theme") == "dreamcoder":
         return False
     data["theme"] = "dreamcoder"
-    return write_if_changed(path, json.dumps(data, indent=2) + "\n")
+    return write_if_changed(path, json.dumps(data, indent=2) + "\n", replace_symlink=True)
 
 
 def valid_starship(path: Path) -> bool:

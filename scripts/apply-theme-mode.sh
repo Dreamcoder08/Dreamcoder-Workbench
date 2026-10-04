@@ -1,7 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-source "${DREAMCODER_DOTS_DIR:-$(cd "$(dirname "$0")/.." && pwd)}/lib/logging.sh"
+# Bootstrap before sourcing: installed entrypoints may be symlinks.
+DREAMCODER_DOTS_DIR="${DREAMCODER_DOTS_DIR:-${DOTS_DIR:-}}"
+if [[ -z "${DREAMCODER_DOTS_DIR}" ]]; then
+  SCRIPT_PATH="$(readlink -f -- "${BASH_SOURCE[0]}")"
+  DREAMCODER_DOTS_DIR="$(cd -- "$(dirname -- "${SCRIPT_PATH}")/.." && pwd)"
+fi
+export DREAMCODER_DOTS_DIR
+# Check the complete required set before any library or command has side effects.
+for LIB in logging env checks hyprland; do
+  [[ -f "${DREAMCODER_DOTS_DIR}/lib/${LIB}.sh" ]] || {
+    printf 'Required library not found: %s\n' "${DREAMCODER_DOTS_DIR}/lib/${LIB}.sh" >&2
+    exit 1
+  }
+done
+source "${DREAMCODER_DOTS_DIR}/lib/logging.sh"
 source "${DREAMCODER_DOTS_DIR}/lib/env.sh"
 source "${DREAMCODER_DOTS_DIR}/lib/checks.sh"
 source "${DREAMCODER_DOTS_DIR}/lib/hyprland.sh"
@@ -91,12 +105,9 @@ if [[ -d "${KITTY_DIR}" ]]; then
 fi
 # Ghostty uses native dual-mode (light:dreamcoder-light,dark:dreamcoder-dark)
 # No symlink flipping needed — Ghostty auto-detects system theme
-# --- Pi CLI: flip theme symlink ---
-PI_SCRIPT="${DREAMCODER_DOTS_DIR}/DreamcoderPi/.pi/agent/scripts/pi-theme.sh"
-if [[ -f "${PI_SCRIPT}" ]]; then
-  DREAMCODER_THEME_MODE="${MODE}" bash "${PI_SCRIPT}" &>/dev/null || true
-  printf '  pi theme switched to %s mode\n' "${MODE}"
-fi
+# Pi and Gentle Shell stable themes/settings were committed by Python above.
+# Do not repoint their active files to repository variants after generation.
+printf '  Pi / Gentle Shell theme switched to %s mode\n' "${MODE}"
 
 # The Python preparation + validation + settings persistence + commit ran
 # above (or, when invoked by the control transaction, in that caller). This
@@ -104,8 +115,15 @@ fi
 signal_kitty
 # Refresh the Waybar accent override before Waybar restarts; machines without
 # the ML4W selector must not break the mode switch.
-install_waybar_override "${DREAMCODER_DOTS_DIR}" || true
-restart_waybar
+if declare -F install_waybar_override >/dev/null &&
+  declare -F waybar_style_dir >/dev/null &&
+  [[ -f "${DREAMCODER_DOTS_DIR}/DreamcoderWaybar/.config/waybar/style-custom.css" ]] &&
+  WAYBAR_STYLE_DIR="$(waybar_style_dir)" && [[ -d "${WAYBAR_STYLE_DIR}" ]]; then
+  install_waybar_override "${DREAMCODER_DOTS_DIR}"
+fi
+if declare -F restart_waybar >/dev/null; then
+  restart_waybar
+fi
 
 # --- tmux integration: propagate theme to running sessions ---
 KANAGAWA_DIR="${HOME}/.tmux/plugins/tmux-kanagawa"
@@ -199,7 +217,7 @@ printf '✓ Dreamcoder %s mode applied\n' "${MODE}"
 # are written by the activation transaction (which owns the bridge symlink
 # selection before commit). Only Dunst needs a symlink check since its
 # config is a plain file in the repo.
-DOTS_DIR="${DREAMCODER_DOTS_DIR:-${HOME}/Documents/PROYECTOS/dreamcoder-dots}"
+DOTS_DIR="${DREAMCODER_DOTS_DIR}"
 DUNST_CONF="${HOME}/.config/dunst/dreamcoder-dunst.conf"
 WARP_THEME="${HOME}/.local/share/warp-terminal/themes/Dreamcoder.yaml"
 WARP_VARIANT="${DOTS_DIR}/DreamcoderWarp/.local/share/warp-terminal/themes/Dreamcoder-${MODE^}.yaml"

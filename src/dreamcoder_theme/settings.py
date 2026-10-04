@@ -56,6 +56,8 @@ class ThemePaths:
     waybar_matugen: Path
     rofi: Path
     rofi_matugen: Path
+    gentle_shell_theme: Path | None = None
+    gentle_shell_settings: Path | None = None
     herdr_repo_variants: Path = field(
         default_factory=lambda: ROOT / "DreamcoderHerdr/.config/herdr/dreamcoder"
     )
@@ -110,7 +112,14 @@ def theme_paths() -> ThemePaths:
     config_home = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config"))
     data_home = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local/share"))
     codex_home = Path(os.environ.get("CODEX_HOME", Path.home() / ".codex"))
-    pi_agent_home = Path(os.environ.get("PI_AGENT_DIR", Path.home() / ".pi/agent"))
+    pi_agent_home = Path(
+        os.environ.get(
+            "PI_CODING_AGENT_DIR", os.environ.get("PI_AGENT_DIR", Path.home() / ".pi/agent")
+        )
+    ).expanduser()
+    gentle_shell_home = Path(
+        os.environ.get("GENTLE_SHELL_HOME", Path.home() / ".gentle-shell/agent")
+    ).expanduser()
     dreamcoder_theme = ROOT / "DreamcoderThemes/dreamcoder"
     return ThemePaths(
         kitty=Path(os.environ.get("KITTY_COLORS", config_home / "kitty/colors-dreamcoder.conf")),
@@ -146,6 +155,8 @@ def theme_paths() -> ThemePaths:
         codex_config=Path(os.environ.get("CODEX_CONFIG", codex_home / "config.toml")),
         pi_theme=Path(os.environ.get("PI_THEME", pi_agent_home / "themes/dreamcoder.json")),
         pi_settings=Path(os.environ.get("PI_SETTINGS", pi_agent_home / "settings.json")),
+        gentle_shell_theme=gentle_shell_home / "themes/dreamcoder.json",
+        gentle_shell_settings=gentle_shell_home / "settings.json",
         wallpaper=Path(os.environ.get("DREAMCODER_WALLPAPER", "")),
         tokens_file=Path(
             os.environ.get("DREAMCODER_TOKENS", ROOT / "DreamcoderThemes/dreamcoder/tokens.json")
