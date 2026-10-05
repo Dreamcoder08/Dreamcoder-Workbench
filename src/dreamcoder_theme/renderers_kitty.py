@@ -66,13 +66,18 @@ mark3_background        {c["mauve"]}
 
 def kitty_ui_content(c: dict[str, str]) -> str:
     is_dark = detect_mode(c) == "dark"
-    opacity = "0.76" if is_dark else "0.96"
+    opacity = "1.0" if is_dark else "0.96"
     blur = "24" if is_dark else "0"
     gamma = "1.0" if is_dark else "1.3"
     contrast = "15" if is_dark else "15"
+    dark_note = (
+        "# Dark mode: opaque black canvas; retained blur is inactive at full opacity."
+        if is_dark
+        else "# Dark mode: glass blur (24px) with 76% opacity for depth."
+    )
     return f"""# Dreamcoder Kitty UI parity layer
 # Loaded last so ML4W can keep behavior while Dreamcoder owns readability.
-# Dark mode: glass blur (24px) with 76% opacity for depth.
+{dark_note}
 # Light mode: opaque paper (96%) for maximum text legibility.
 # text_composition_strategy:
 #   gamma (1st val): thickness of dark text on light bg (default 1.0 on Linux).
