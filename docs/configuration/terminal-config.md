@@ -8,6 +8,23 @@
 | Ghostty | Custom | Custom shaders, blur effects |
 | WezTerm | `.lua` | Cross-platform, Lua config |
 | Alacritty | `.toml` | Minimal, fast |
+| Orca | Live settings JSON | Written into Orca's own profile, not a repo file |
+
+### Orca
+
+Orca keeps its themes in its own per-profile settings file
+(`~/.config/orca/profiles/local-default/orca-data.json`, overridable with
+`ORCA_DATA_PATH`). `dreamcoder sync` writes both `Dreamcoder Dark` and
+`Dreamcoder Light` into `terminalCustomThemes`, points
+`terminalThemeDark`/`terminalThemeLight` at them, enables
+`terminalUseSeparateLightTheme`, sets the per-appearance divider colors from
+the palette `border_ui` token, and sets the app chrome `theme` to the active
+Dreamcoder mode.
+
+Orca holds its settings in memory while its main window is open and flushes
+that copy over external edits, so the sync skips the file and reports
+`skipped-running` instead of writing something that would be discarded.
+Close Orca, then re-run `dreamcoder dark` or `dreamcoder light` to apply.
 
 ## Theme Switching
 

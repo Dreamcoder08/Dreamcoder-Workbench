@@ -1261,7 +1261,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     # entirely in the user's live settings file, so a failure here must
     # never abort the rest of sync.
     try:
-        orca_status = sync_orca_theme(prepared.active)
+        orca_status = sync_orca_theme(prepared.active, prepared.variants, prepared.mode)
     except OSError as exc:
         orca_status = f"skipped-error: {exc}"
     print(f"Orca terminal theme: {orca_status}")

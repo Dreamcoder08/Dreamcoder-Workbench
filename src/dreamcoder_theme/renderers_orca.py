@@ -1,17 +1,29 @@
-"""Orca terminal theme entry, derived from the standard ANSI mapping.
+"""Orca theme integration, derived from the standard ANSI mapping.
 
 Orca (an Electron-based dev IDE, unrelated to the GNOME screen reader) keeps
 its own list of named terminal color schemes in its per-profile settings
 file rather than reading a checked-in theme file, so there is no
-repository-variant output here — only the same dict shape used to populate
-``settings.terminalCustomThemes`` in that file.
+repository-variant output here — only the settings that populate
+``settings.terminalCustomThemes`` and the surrounding theme keys in that file.
+
+Orca's theme ecosystem spans four coupled keys: the two terminal variants
+(``terminalThemeDark``/``terminalThemeLight``), the
+``terminalUseSeparateLightTheme`` switch that makes Orca look the light name
+up whenever the app goes light, the per-appearance divider colors, and the
+app chrome ``theme`` (forwarded to Electron's ``nativeTheme.themeSource``).
+All of them must describe the same Dreamcoder mode, and both terminal
+variants must exist at once: writing only the active one leaves the other
+name dangling, so a light switch inside Orca falls back to its default
+scheme.
 """
 
 from __future__ import annotations
 
 import json
 import os
+from collections.abc import Mapping
 from pathlib import Path
+from typing import Any
 
 from .palette import ansi
 
@@ -48,6 +60,34 @@ def orca_terminal_theme(c: dict[str, str]) -> dict[str, str]:
     }
 
 
+def orca_theme_settings(
+    active: dict[str, str],
+    variants: Mapping[str, dict[str, str]],
+    mode: str,
+) -> dict[str, Any]:
+    """Build every Orca theme setting for one Dreamcoder mode.
+
+    ``active`` is the palette of ``mode`` (already adapted to the wallpaper
+    when adaptivity is on), while the other variant comes straight from
+    ``variants`` so both terminal entries always stay defined.
+    """
+    if mode not in {"dark", "light"}:
+        raise ValueError(f"mode must be 'dark' or 'light' (got {mode!r})")
+    dark = active if mode == "dark" else variants["dark"]
+    light = active if mode == "light" else variants["light"]
+    dark_theme = orca_terminal_theme(dark)
+    light_theme = orca_terminal_theme(light)
+    return {
+        "terminalCustomThemes": [dark_theme, light_theme],
+        "terminalThemeDark": dark_theme["name"],
+        "terminalThemeLight": light_theme["name"],
+        "terminalUseSeparateLightTheme": True,
+        "theme": mode,
+        "terminalDividerColorDark": dark.get("border_ui") or dark["border"],
+        "terminalDividerColorLight": light.get("border_ui") or light["border"],
+    }
+
+
 def orca_data_path() -> Path:
     """Resolve the Orca per-profile settings file, overridable for tests."""
     override = os.environ.get("ORCA_DATA_PATH")
@@ -79,14 +119,20 @@ def orca_main_window_running(proc_root: Path = Path("/proc")) -> bool:
     return False
 
 
-def sync_orca_theme(active: dict[str, str]) -> str:
-    """Best-effort: point Orca's active terminal theme at the given palette.
+def sync_orca_theme(
+    active: dict[str, str],
+    variants: Mapping[str, dict[str, str]],
+    mode: str,
+) -> str:
+    """Best-effort: point every Orca theme key at the given Dreamcoder mode.
 
     Orca keeps its own in-memory copy of orca-data.json while its main
     window is open and periodically flushes it back to disk, silently
     discarding any external edit made in that window — so this never
     writes while that window is running; it only ever updates the file
-    between sessions. Returns one of "applied", "skipped-running",
+    between sessions. Every run rewrites both terminal entries, which also
+    repairs a file whose theme names survived while their definitions were
+    dropped. Returns one of "applied", "unchanged", "skipped-running",
     "skipped-missing" (no Orca profile on this machine), or
     "skipped-malformed" (existing file is not the expected JSON object).
     """
@@ -104,21 +150,28 @@ def sync_orca_theme(active: dict[str, str]) -> str:
     if not isinstance(data, dict) or not isinstance(data.get("settings"), dict):
         return "skipped-malformed"
 
-    theme = orca_terminal_theme(active)
+    desired = orca_theme_settings(active, variants, mode)
     settings = data["settings"]
     existing = settings.get("terminalCustomThemes")
-    themes = [t for t in existing if isinstance(t, dict)] if isinstance(existing, list) else []
-    mode_key = "terminalThemeDark" if theme["name"].endswith("Dark") else "terminalThemeLight"
-    already_current = settings.get(mode_key) == theme["name"] and any(
-        t == theme for t in themes if t.get("name") == theme["name"]
+    existing_themes = (
+        [t for t in existing if isinstance(t, dict)] if isinstance(existing, list) else []
     )
-    if already_current:
+    managed = {t["name"] for t in desired["terminalCustomThemes"]}
+    merged = [t for t in existing_themes if t.get("name") not in managed] + list(
+        desired["terminalCustomThemes"]
+    )
+
+    changed = merged != existing_themes
+    for key, value in desired.items():
+        if key == "terminalCustomThemes":
+            continue
+        if settings.get(key) != value:
+            settings[key] = value
+            changed = True
+    if not changed:
         return "unchanged"
 
-    settings["terminalCustomThemes"] = [t for t in themes if t.get("name") != theme["name"]] + [
-        theme
-    ]
-    settings[mode_key] = theme["name"]
+    settings["terminalCustomThemes"] = merged
 
     tmp_path = path.with_suffix(path.suffix + ".dreamcoder-tmp")
     with open(tmp_path, "w", encoding="utf-8") as f:
