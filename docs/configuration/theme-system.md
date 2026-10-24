@@ -66,6 +66,12 @@ unrelated settings are preserved.
   that agent directory, including when it points to the Pi agent directory.
 - Each active `themes/dreamcoder.json` is a regular generated file. Legacy
   symlinks are replaced without modifying their repository variant targets.
+- Theme selection is the pair `dreamcoder-light/dreamcoder-dark`, so Pi follows
+  the terminal appearance and switches live when the terminal reports a change.
+  `themes/dreamcoder-dark.json` and `themes/dreamcoder-light.json` declare their
+  own filename as `name` and the matching `appearance`; the stable
+  `themes/dreamcoder.json` keeps `name: dreamcoder` for manual `--use-theme`
+  selection.
 
 The theme-only helper `DreamcoderPi/.pi/agent/scripts/pi-theme.sh` uses the same
 validation and destination rules but always generates canonical, non-adaptive

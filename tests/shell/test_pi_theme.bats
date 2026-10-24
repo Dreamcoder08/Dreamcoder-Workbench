@@ -28,8 +28,14 @@ assert_themes() {
     for agent in "${PI_CODING_AGENT_DIR}" "${GENTLE_SHELL_HOME}"; do
         [[ ! -L "${agent}/themes/dreamcoder.json" ]]
         grep -q "${1}" "${agent}/themes/dreamcoder.json"
-        grep -q '"theme": "dreamcoder"' "${agent}/settings.json"
+        grep -q '"name": "dreamcoder"' "${agent}/themes/dreamcoder.json"
+        grep -q '"theme": "dreamcoder-light/dreamcoder-dark"' "${agent}/settings.json"
         grep -q '"keep"' "${agent}/settings.json"
+        for variant in dark light; do
+            [[ -f "${agent}/themes/dreamcoder-${variant}.json" ]]
+            grep -q "\"name\": \"dreamcoder-${variant}\"" "${agent}/themes/dreamcoder-${variant}.json"
+            grep -q "\"appearance\": \"${variant}\"" "${agent}/themes/dreamcoder-${variant}.json"
+        done
     done
     [[ "$(<"${TEST_DIR}/variant.json")" == 'repository variant must not change' ]]
     [[ ! -e "${PI_AGENT_DIR}/themes/dreamcoder.json" ]]
@@ -91,6 +97,6 @@ assert_themes() {
     run bash "${SCRIPT}"
     [[ "${status}" -eq 0 ]]
     [[ -f "${PI_THEME}" && ! -L "${PI_THEME}" ]]
-    grep -q '"theme": "dreamcoder"' "${PI_SETTINGS}"
+    grep -q '"theme": "dreamcoder-light/dreamcoder-dark"' "${PI_SETTINGS}"
     grep -q '#A5B4FC' "${GENTLE_SHELL_HOME}/themes/dreamcoder.json"
 }

@@ -480,7 +480,7 @@ def _regenerate_prior(paths: Any, prior_base: str) -> None:
     # original activation error this rollback is recovering from.
     with contextlib.suppress(Exception):
         prepared = sync.prepare(prior_base)
-        sync.sync_active_targets(paths, prepared.active, prior_base)
+        sync.sync_active_targets(paths, prepared.active, prior_base, prepared.variants)
         sync.sync_bat_theme_variants(paths, prepared.variants)
         if write_repo_enabled():
             sync.sync_repo_snippets(prepared.variants, prepared.active)
@@ -505,7 +505,7 @@ def _commit_activation(
     _flip_bridge_symlinks(paths, base)
     # 6. Commit variants, active files, and selectors. write_if_changed()
     #    semantics are preserved — each entry reports bool changed.
-    changed.update(sync.sync_active_targets(paths, prepared.active, base))
+    changed.update(sync.sync_active_targets(paths, prepared.active, base, prepared.variants))
     bat_changes = sync.sync_bat_theme_variants(paths, prepared.variants)
     if write_repo_enabled():
         repo_changes = sync.sync_repo_snippets(prepared.variants, prepared.active)

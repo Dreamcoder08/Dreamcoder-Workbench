@@ -83,6 +83,9 @@ def ensure_codex_theme_config(path: Path) -> bool:
     return write_if_changed(path, updated)
 
 
+PI_THEME_PAIR = "dreamcoder-light/dreamcoder-dark"
+
+
 def ensure_pi_theme_settings(path: Path) -> bool:
     data: dict[str, Any] = {}
     if path.exists():
@@ -90,9 +93,9 @@ def ensure_pi_theme_settings(path: Path) -> bool:
             data = json.loads(path.read_text())
         except json.JSONDecodeError:
             data = {}
-    if data.get("theme") == "dreamcoder":
+    if data.get("theme") == PI_THEME_PAIR:
         return False
-    data["theme"] = "dreamcoder"
+    data["theme"] = PI_THEME_PAIR
     return write_if_changed(path, json.dumps(data, indent=2) + "\n", replace_symlink=True)
 
 

@@ -146,12 +146,12 @@ def variants() -> dict[str, dict[str, str]]:
     }
 
 
-def test_sync_active_targets_returns_dict(mock_paths, active):
+def test_sync_active_targets_returns_dict(mock_paths, active, variants):
     patches = [*_writer_patches(), *_patch_renderers()]
     for p in patches:
         p.start()
     try:
-        result = sync.sync_active_targets(mock_paths, active, "dark")
+        result = sync.sync_active_targets(mock_paths, active, "dark", variants)
     finally:
         for p in patches:
             p.stop()
@@ -161,7 +161,7 @@ def test_sync_active_targets_returns_dict(mock_paths, active):
     assert result["bat_theme"] is False
 
 
-def test_sync_active_targets_detects_changes(mock_paths, active):
+def test_sync_active_targets_detects_changes(mock_paths, active, variants):
     def side_effect(path, content, **kwargs):
         return path.name in ("colors.conf", "starship.toml", "tmux.conf")
 
@@ -177,7 +177,7 @@ def test_sync_active_targets_detects_changes(mock_paths, active):
     for p in patches:
         p.start()
     try:
-        result = sync.sync_active_targets(mock_paths, active, "dark")
+        result = sync.sync_active_targets(mock_paths, active, "dark", variants)
     finally:
         for p in patches:
             p.stop()

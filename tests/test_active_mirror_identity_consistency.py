@@ -88,7 +88,11 @@ _ACTIVE_MIRROR_TARGETS = (
     ("lazygit", "DreamcoderLazygit/.config/lazygit/config.yml", lazygit_content),
     ("ls_colors", "DreamcoderThemes/ls-colors-dreamcoder.sh", ls_colors_content),
     ("obsidian", "DreamcoderThemes/obsidian-dreamcoder.css", obsidian_content),
-    ("pi_theme", "DreamcoderPi/.pi/agent/themes/dreamcoder.json", pi_theme_content),
+    (
+        "pi_theme",
+        "DreamcoderPi/.pi/agent/themes/dreamcoder.json",
+        partial(pi_theme_content, name="dreamcoder"),
+    ),
     ("rofi", "DreamcoderThemes/rofi.rasi", rofi_content),
     ("rofi_repo", "DreamcoderThemes/dreamcoder/rofi.rasi", rofi_content),
     ("starship", "DreamcoderShell/.config/starship.toml", starship_content),
@@ -96,6 +100,13 @@ _ACTIVE_MIRROR_TARGETS = (
     ("waybar", "DreamcoderThemes/waybar.css", waybar_content),
     ("waybar_repo", "DreamcoderThemes/dreamcoder/waybar.css", waybar_content),
     ("zsh_syntax", "DreamcoderThemes/zsh-syntax-highlighting-dreamcoder.zsh", zsh_syntax_content),
+)
+
+# Pi ships one stable file plus one file per appearance; each variant declares
+# its own filename as the theme name.
+_PI_VARIANT_ARTIFACTS = (
+    ("dark", "DreamcoderPi/.pi/agent/themes/dreamcoder-dark.json"),
+    ("light", "DreamcoderPi/.pi/agent/themes/dreamcoder-light.json"),
 )
 
 # Ghostty keeps the legacy `dreamcoder` name for standard light.
@@ -177,3 +188,12 @@ def test_antigravity_active_file_is_always_pinned_dark() -> None:
         "requires button.background/foreground to resolve Dark's "
         "accent_2/on_accent)"
     )
+
+
+@pytest.mark.parametrize(("mode", "rel_path"), _PI_VARIANT_ARTIFACTS)
+def test_pi_appearance_variants_match_their_renderer(mode: str, rel_path: str) -> None:
+    expected = pi_theme_content(VARIANTS[mode], name=f"dreamcoder-{mode}")
+    assert (ROOT / rel_path).read_text(encoding="utf-8") == expected
+    theme = json.loads(expected)
+    assert theme["appearance"] == mode
+    assert theme["name"] == Path(rel_path).stem
