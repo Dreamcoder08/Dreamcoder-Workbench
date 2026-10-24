@@ -62,9 +62,6 @@ if status is-interactive; and command -q herdr; and not set -q HERDR_ENV; and no
 end
 
 # ── SDD Profile Aliases ───────────────────────────────────────────
-alias sdd-gpt='~/.pi/gentle-ai/sdd-swap chatgpt'
-alias sdd-deepseek='~/.pi/gentle-ai/sdd-swap deepseek'
-alias sdd-status='~/.pi/gentle-ai/sdd-swap status'
 
 # Redirección de directorios temporales para evitar saturar tmpfs
 set -gx TMPDIR "$HOME/.tmp"
