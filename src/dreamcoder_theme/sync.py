@@ -223,23 +223,49 @@ class PreparedSync:
     render_plan: Mapping[str, str]
 
 
-def sync_pi_targets(paths: Any, active: dict[str, str]) -> dict[str, bool]:
-    """Generate one canonical theme and persist selection in both agent homes."""
-    content = pi_theme_content(active)
+def sync_pi_targets(
+    paths: Any, active: dict[str, str], variants: dict[str, dict[str, str]]
+) -> dict[str, bool]:
+    """Write the stable theme, both mode variants and the pair selection."""
+    stable = pi_theme_content(active, name="dreamcoder")
     changed = {
-        "pi_theme": write_if_changed(paths.pi_theme, content, replace_symlink=True),
+        "pi_theme": write_if_changed(paths.pi_theme, stable, replace_symlink=True),
+        "pi_theme_dark": write_if_changed(
+            paths.pi_theme.parent / "dreamcoder-dark.json",
+            pi_theme_content(variants["dark"]),
+            replace_symlink=True,
+        ),
+        "pi_theme_light": write_if_changed(
+            paths.pi_theme.parent / "dreamcoder-light.json",
+            pi_theme_content(variants["light"]),
+            replace_symlink=True,
+        ),
         "pi_settings": ensure_pi_theme_settings(paths.pi_settings),
     }
     if paths.gentle_shell_theme is not None:
-        changed["gentle_shell_theme"] = write_if_changed(
-            paths.gentle_shell_theme, content, replace_symlink=True
+        gentle = paths.gentle_shell_theme
+        changed["gentle_shell_theme"] = write_if_changed(gentle, stable, replace_symlink=True)
+        changed["gentle_shell_theme_dark"] = write_if_changed(
+            gentle.parent / "dreamcoder-dark.json",
+            pi_theme_content(variants["dark"]),
+            replace_symlink=True,
+        )
+        changed["gentle_shell_theme_light"] = write_if_changed(
+            gentle.parent / "dreamcoder-light.json",
+            pi_theme_content(variants["light"]),
+            replace_symlink=True,
         )
     if paths.gentle_shell_settings is not None:
         changed["gentle_shell_settings"] = ensure_pi_theme_settings(paths.gentle_shell_settings)
     return changed
 
 
-def sync_active_targets(paths: Any, active: dict[str, str], mode: str) -> dict[str, bool]:
+def sync_active_targets(
+    paths: Any,
+    active: dict[str, str],
+    mode: str,
+    variants: dict[str, dict[str, str]],
+) -> dict[str, bool]:
     preflight_toolkit_paths(paths)
     return {
         "kitty": write_if_changed(paths.kitty, kitty_content(active)),
@@ -259,7 +285,7 @@ def sync_active_targets(paths: Any, active: dict[str, str], mode: str) -> dict[s
             paths.bat_theme_dir / "Dreamcoder.tmTheme", codex_tmtheme_content(active)
         ),
         "codex_config": ensure_codex_theme_config(paths.codex_config),
-        **sync_pi_targets(paths, active),
+        **sync_pi_targets(paths, active, variants),
         **sync_toolkit_targets(paths, active, mode),
         "starship": write_if_changed(paths.starship, starship_content(active)),
         "tmux": write_if_changed(paths.tmux, tmux_content(active)),
@@ -1092,7 +1118,7 @@ def render_coverage_plan(
         "opencode": opencode_content(active, transparent_background=True),
         "codex_theme": codex_tmtheme_content(active),
         "bat_theme": codex_tmtheme_content(active),
-        "pi_theme": pi_theme_content(active),
+        "pi_theme": pi_theme_content(active, name="dreamcoder"),
         "starship": starship_content(active),
         "tmux": tmux_content(active),
         "lazygit": lazygit_content(active),
@@ -1220,7 +1246,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     except ThemeGateError as exc:
         raise SystemExit(str(exc)) from None
 
-    changed = sync_active_targets(paths, prepared.active, prepared.mode)
+    changed = sync_active_targets(paths, prepared.active, prepared.mode, prepared.variants)
     bat_variant_changes = sync_bat_theme_variants(paths, prepared.variants)
     repo_changes = (
         sync_repo_snippets(prepared.variants, prepared.active) if write_repo_enabled() else []

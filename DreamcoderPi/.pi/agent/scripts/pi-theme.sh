@@ -47,6 +47,6 @@ from dreamcoder_theme.settings import theme_paths
 from dreamcoder_theme.sync import prepare, sync_pi_targets
 
 prepared = prepare(sys.argv[1])
-sync_pi_targets(theme_paths(), prepared.active)
+sync_pi_targets(theme_paths(), prepared.active, prepared.variants)
 PY
 printf '→ Pi / Gentle Shell theme: %s\n' "${mode}"

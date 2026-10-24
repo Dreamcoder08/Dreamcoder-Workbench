@@ -9,7 +9,7 @@ from .renderers_opencode import opencode_tokens
 from .settings import PI_THEME_SCHEMA
 
 
-def pi_theme_content(c: dict[str, str]) -> str:
+def pi_theme_content(c: dict[str, str], *, name: str | None = None) -> str:
     t = opencode_tokens(c)
     mode_name = detect_mode(c)
     user_bg = mix(c["accent"], c["bg"], 0.96)
@@ -18,7 +18,8 @@ def pi_theme_content(c: dict[str, str]) -> str:
     error_bg = mix(c["error"], c["bg"], 0.84)
     theme = {
         "$schema": PI_THEME_SCHEMA,
-        "name": "dreamcoder",
+        "name": name or f"dreamcoder-{mode_name}",
+        "appearance": mode_name,
         "vars": {
             "cocoa": c["accent_2"],
             "lucuma": c["accent"],

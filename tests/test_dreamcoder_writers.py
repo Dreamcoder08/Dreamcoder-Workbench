@@ -11,6 +11,7 @@ from pathlib import Path
 import pytest
 
 from dreamcoder_theme.writers import (
+    PI_THEME_PAIR,
     cleanup_opencode_themes,
     ensure_codex_theme_config,
     ensure_kitty_ui_include,
@@ -245,26 +246,33 @@ class TestEnsurePiThemeSettings:
         path = tmp_path / "pi.json"
         assert ensure_pi_theme_settings(path) is True
         data = json.loads(path.read_text())
-        assert data["theme"] == "dreamcoder"
+        assert data["theme"] == PI_THEME_PAIR
 
     def test_no_change_when_correct(self, tmp_path: Path) -> None:
         path = tmp_path / "pi.json"
-        path.write_text(json.dumps({"theme": "dreamcoder"}, indent=2) + "\n")
+        path.write_text(json.dumps({"theme": PI_THEME_PAIR}, indent=2) + "\n")
         assert ensure_pi_theme_settings(path) is False
+
+    def test_migrates_single_theme_selection(self, tmp_path: Path) -> None:
+        path = tmp_path / "pi.json"
+        path.write_text(json.dumps({"theme": "dreamcoder"}))
+        assert ensure_pi_theme_settings(path) is True
+        data = json.loads(path.read_text())
+        assert data["theme"] == PI_THEME_PAIR
 
     def test_overwrites_different_theme(self, tmp_path: Path) -> None:
         path = tmp_path / "pi.json"
         path.write_text(json.dumps({"theme": "other"}))
         assert ensure_pi_theme_settings(path) is True
         data = json.loads(path.read_text())
-        assert data["theme"] == "dreamcoder"
+        assert data["theme"] == PI_THEME_PAIR
 
     def test_handles_corrupted_json(self, tmp_path: Path) -> None:
         path = tmp_path / "pi.json"
         path.write_text("{corrupt}")
         assert ensure_pi_theme_settings(path) is True
         data = json.loads(path.read_text())
-        assert data["theme"] == "dreamcoder"
+        assert data["theme"] == PI_THEME_PAIR
 
 
 class TestEnsureKittyUiInclude:

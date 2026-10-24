@@ -195,7 +195,22 @@ class PiThemeGenerationTest(unittest.TestCase):
                     themes.append(json.loads(path.read_text()))
                     self.assertEqual(
                         json.loads((home / "settings.json").read_text()),
-                        {"theme": "dreamcoder", "packages": ["keep"]},
+                        {"theme": "dreamcoder-light/dreamcoder-dark", "packages": ["keep"]},
+                    )
+                    variants = [
+                        json.loads((home / "themes" / f"dreamcoder-{name}.json").read_text())
+                        for name in ("dark", "light")
+                    ]
+                    self.assertEqual(
+                        [variant["name"] for variant in variants],
+                        ["dreamcoder-dark", "dreamcoder-light"],
+                    )
+                    self.assertEqual(
+                        [variant["appearance"] for variant in variants], ["dark", "light"]
+                    )
+                    self.assertEqual(
+                        {themes[-1]["name"], *(variant["name"] for variant in variants)},
+                        {"dreamcoder", "dreamcoder-dark", "dreamcoder-light"},
                     )
                 self.assertEqual(themes[0], themes[1])
                 self.assertEqual(
@@ -254,7 +269,7 @@ class PiThemeGenerationTest(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
             settings = json.loads(settings_path.read_text())
-            self.assertEqual(settings["theme"], "dreamcoder")
+            self.assertEqual(settings["theme"], "dreamcoder-light/dreamcoder-dark")
             self.assertEqual(settings["defaultProvider"], "openai-codex")
             self.assertEqual(settings["packages"], ["gentle-pi"])
 
