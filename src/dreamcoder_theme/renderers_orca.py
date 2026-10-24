@@ -183,6 +183,20 @@ def orca_store() -> tuple[str, Path]:
     return "missing", data_path
 
 
+def _is_orca_main(argv: list[str]) -> bool:
+    """True for the argv of Orca's own main process, not its helpers.
+
+    A packaged ``orca-ide`` binary runs with a bare argv. The AppImage build
+    runs the same main process from the image itself, so its argv is the
+    single AppImage path; Electron's ``--type=`` renderer/gpu/utility children
+    and the long-lived daemon all carry extra arguments and are ignored here.
+    """
+    if len(argv) != 1:
+        return False
+    name = os.path.basename(argv[0])
+    return name == "orca-ide" or (name.startswith("orca") and name.endswith(".AppImage"))
+
+
 def orca_main_window_running(proc_root: Path = Path("/proc")) -> bool:
     """True while Orca's main Electron window holds its profile open.
 
@@ -201,7 +215,7 @@ def orca_main_window_running(proc_root: Path = Path("/proc")) -> bool:
         except OSError:
             continue
         argv = [a for a in argv if a]
-        if len(argv) == 1 and argv[0].decode(errors="replace").endswith("orca-ide"):
+        if _is_orca_main([a.decode(errors="replace") for a in argv]):
             return True
     return False
 
