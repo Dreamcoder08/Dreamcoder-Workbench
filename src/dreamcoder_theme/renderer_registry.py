@@ -6,7 +6,8 @@ Hexagonal-architecture-v2 design §1-§2 / ADR-001 / ADR-002:
   ``REGISTRATIONS`` tuples; this module imports them through an explicit,
   reviewable tuple and sorts by ``consumer_id`` (no dynamic discovery, no
   decorator/import side effects, no unordered assembly);
-- ``EXPECTED_CONSUMER_IDS`` is the explicit frozen 33-ID set; its cardinality is
+- ``EXPECTED_CONSUMER_IDS`` explicitly declares the original IDs plus toolkit IDs;
+  its cardinality is
   never used as policy — diagnostics compare registered vs expected sets;
 - ``validate_registry()`` implements the design §1 checks: unique non-empty
   IDs, contract version, closed mode set, output-ownership validity, port
@@ -43,6 +44,7 @@ from .renderers_codex import REGISTRATIONS as CODEX_REGISTRATIONS
 from .renderers_extra_bat_delta import REGISTRATIONS as BAT_DELTA_REGISTRATIONS
 from .renderers_extra_btop import REGISTRATIONS as BTOP_REGISTRATIONS
 from .renderers_extra_firefox import REGISTRATIONS as FIREFOX_REGISTRATIONS
+from .renderers_extra_gtk_qt import REGISTRATIONS as GTK_QT_REGISTRATIONS
 from .renderers_extra_notify import REGISTRATIONS as NOTIFY_REGISTRATIONS
 from .renderers_extra_nvim import REGISTRATIONS as NVIM_REGISTRATIONS
 from .renderers_extra_obsidian import REGISTRATIONS as OBSIDIAN_REGISTRATIONS
@@ -68,6 +70,7 @@ _REGISTRATION_GROUPS: tuple[tuple[RendererRegistration, ...], ...] = (
     CODEX_REGISTRATIONS,
     FIREFOX_REGISTRATIONS,
     GHOSTTY_WARP_REGISTRATIONS,
+    GTK_QT_REGISTRATIONS,
     HERDR_REGISTRATIONS,
     HYPR_WAYBAR_ROFI_REGISTRATIONS,
     KITTY_REGISTRATIONS,
@@ -87,7 +90,7 @@ REGISTRATIONS: tuple[RendererRegistration, ...] = tuple(
     sorted((r for group in _REGISTRATION_GROUPS for r in group), key=lambda r: r.consumer_id)
 )
 
-# --- Explicit expected 33-consumer set (design §5.1, tasks 0.1/1.6) -----------
+# --- Explicit expected IDs: original design §5.1 set plus GTK/Qt consumers -----
 EXPECTED_CONSUMER_IDS: frozenset[str] = frozenset(
     {
         "kitty",
@@ -123,6 +126,9 @@ EXPECTED_CONSUMER_IDS: frozenset[str] = frozenset(
         "rofi",
         "rofi_matugen",
         "herdr",
+        "gtk3",
+        "gtk4",
+        "qt6ct",
     }
 )
 
@@ -193,6 +199,13 @@ def _check_ownership(reg: RendererRegistration, problems: list[str]) -> None:
 
 
 def _check_strategy_compatibility(reg: RendererRegistration, problems: list[str]) -> None:
+    if reg.sync.mutation == MutationStrategy.REVERSIBLE_OWNERSHIP:
+        if reg.output_kind != "active" or reg.sync.repository != RepositoryStrategy.NO_VARIANTS:
+            problems.append(
+                f"consumer '{reg.consumer_id}' reversible ownership requires active-only output"
+            )
+        if reg.modes != frozenset({"dark"}):
+            problems.append(f"consumer '{reg.consumer_id}' reversible ownership renders Dark only")
     if reg.sync.mutation == MutationStrategy.PROFILE_AWARE_SELECTOR and reg.output_kind not in {
         "active",
         "active-and-repository",

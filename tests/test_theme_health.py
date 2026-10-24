@@ -5,9 +5,12 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 from dreamcoder_theme.palette import load_variants
 from dreamcoder_theme.palette_tokens import VARIANTS
 from dreamcoder_theme.renderers_opencode import opencode_content
+from dreamcoder_theme.sync import COVERAGE
 
 ROOT = Path(__file__).resolve().parents[1]
 HEALTH_SCRIPT = ROOT / "scripts" / "verify-theme-health.py"
@@ -33,10 +36,31 @@ def build_health_fixture(tmp_path: Path) -> Path:
     return fixture_root
 
 
-def run_health(fixture_root: Path) -> subprocess.CompletedProcess[str]:
-    environment = os.environ | {"PYTHONPATH": str(ROOT / "src")}
+def run_health(
+    fixture_root: Path, coverage_ids: list[str] | None = None
+) -> subprocess.CompletedProcess[str]:
+    environment = {
+        "PATH": os.defpath,
+        "HOME": str(fixture_root),
+        "XDG_CONFIG_HOME": str(fixture_root / ".config"),
+        # Preserve the runner's dependency paths when HOME hides user-site packages.
+        "PYTHONPATH": os.pathsep.join([str(ROOT / "src"), *sys.path]),
+        "PYTHONDONTWRITEBYTECODE": "1",
+    }
+    command = [sys.executable, "scripts/verify-theme-health.py"]
+    if coverage_ids is not None:
+        command = [
+            sys.executable,
+            "-c",
+            "import json, runpy, sys; from types import SimpleNamespace; "
+            "from dreamcoder_theme import sync; "
+            "sync.COVERAGE = tuple(SimpleNamespace(consumer_id=i) "
+            "for i in json.loads(sys.argv[1])); "
+            "runpy.run_path('scripts/verify-theme-health.py', run_name='__main__')",
+            json.dumps(coverage_ids),
+        ]
     return subprocess.run(
-        [sys.executable, "scripts/verify-theme-health.py"],
+        command,
         cwd=fixture_root,
         env=environment,
         capture_output=True,
@@ -63,6 +87,46 @@ def test_health_checks_managed_opencode_theme_root_not_application_config(tmp_pa
     result = run_health(fixture_root)
 
     assert result.returncode == 0, result.stderr
+
+
+@pytest.mark.parametrize(
+    ("case", "diagnostics"),
+    [
+        ("current", ()),
+        ("duplicate", ("coverage: duplicate consumer IDs: ['gtk3']",)),
+        ("missing", ("missing consumer IDs: ['gtk3']",)),
+        (
+            "replacement",
+            ("missing consumer IDs: ['gtk3']", "extra consumer IDs: ['unexpected_toolkit']"),
+        ),
+    ],
+)
+def test_health_enforces_exact_coverage_identity(tmp_path, case, diagnostics):
+    fixture_root = build_health_fixture(tmp_path)
+    managed_theme_dir = fixture_root / ".opencode" / "themes"
+    managed_theme_dir.mkdir(parents=True)
+    (managed_theme_dir / "dreamcoder.json").write_text(
+        opencode_content(VARIANTS["light"], transparent_background=True)
+    )
+    ids = [row.consumer_id for row in COVERAGE]
+    assert len(ids) == 36
+    if case == "duplicate":
+        ids.append("gtk3")
+    elif case == "missing":
+        ids.remove("gtk3")
+    elif case == "replacement":
+        ids[ids.index("gtk3")] = "unexpected_toolkit"
+        assert len(ids) == 36
+
+    result = run_health(fixture_root, None if case == "current" else ids)
+
+    if diagnostics:
+        assert result.returncode != 0
+        for diagnostic in diagnostics:
+            assert diagnostic in result.stderr
+    else:
+        assert result.returncode == 0, result.stderr
+        assert "theme health guardrails passed" in result.stdout
 
 
 def test_health_fails_for_design_system_contract_findings(tmp_path):

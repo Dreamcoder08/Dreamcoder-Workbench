@@ -391,6 +391,13 @@ def _mutable_paths(paths: Any) -> list[Path]:
         _herdr_active_config_path(config_home),
         cache_home / "dreamcoder/cursor-cli.env",
     ]
+    mutable += [
+        path for path in (paths.gentle_shell_theme, paths.gentle_shell_settings) if path is not None
+    ]
+    toolkit = sync.toolkit_paths(paths)
+    mutable += toolkit
+    # Link-preserving toolkit writers overwrite referents, not the link itself.
+    mutable += [path.resolve() for path in toolkit if path.is_symlink()]
     if write_repo_enabled():
         mutable += [
             ROOT / "DreamcoderKitty/.config/kitty/dreamcoder-ui.conf",
@@ -576,6 +583,9 @@ def apply_theme(base: str, as_json: bool) -> int:
         _restore_snapshots(snapshots, dir_captures)
         set_nested_setting("terminal.default_mode", prior_base)
         _regenerate_prior(paths, prior_base)
+        # Regeneration is best-effort, never authority over original selections,
+        # ownership state, absence, or referent bytes. Restore the full inventory.
+        _restore_snapshots(snapshots, dir_captures)
         if as_json:
             emit(
                 {

@@ -9,12 +9,22 @@ test fails if any side effect is introduced.
 from __future__ import annotations
 
 import builtins
+import json
 from pathlib import Path
 
 import pytest
 
 from dreamcoder_theme import renderer_registry
 from dreamcoder_theme.renderer_registry import REGISTRATIONS, validate_registry
+
+# Load the independent oracle before the no-file-access guards are installed.
+FROZEN_IDS = frozenset(
+    json.loads(
+        (Path(__file__).resolve().parent / "fixtures" / "expected_consumer_ids.json").read_text()
+    )["expected_consumer_ids"]
+)
+TOOLKIT_IDS = frozenset({"gtk3", "gtk4", "qt6ct"})
+EXPECTED_IDS = FROZEN_IDS | TOOLKIT_IDS
 
 
 @pytest.fixture
@@ -107,4 +117,8 @@ class TestPurity:
         # machinery does not rely on filesystem side effects beyond stdlib.
         mod = importlib.reload(renderer_registry)
         assert mod.REGISTRATIONS
-        assert len({r.consumer_id for r in mod.REGISTRATIONS}) == 33
+        assert len(FROZEN_IDS) == 33
+        assert FROZEN_IDS.isdisjoint(TOOLKIT_IDS)
+        ids = [r.consumer_id for r in mod.REGISTRATIONS]
+        assert set(ids) == EXPECTED_IDS
+        assert len(ids) == len(set(ids)) == len(EXPECTED_IDS)
