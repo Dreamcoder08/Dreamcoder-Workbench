@@ -13,6 +13,8 @@ from dreamcoder_theme.herdr_contract import (
     HERDR_082_PROFILE,
     HERDR_091_PROFILE,
     HERDR_093_PROFILE,
+    HERDR_094_PROFILE,
+    HERDR_095_PROFILE,
     SUPPORTED_PROFILES,
     ContractEvidence,
     ContractStatus,
@@ -89,7 +91,30 @@ def test_release_asset_093_profile_is_complete_and_version_bound() -> None:
     )
     assert detect_profile("herdr 0.9.3").profile is HERDR_093_PROFILE
     assert detect_profile("herdr 0.9.1").profile is HERDR_091_PROFILE
-    assert detect_profile("herdr 0.9.4").status is ContractStatus.UNSUPPORTED_CONTRACT
+    assert detect_profile("herdr 0.9.6").status is ContractStatus.UNSUPPORTED_CONTRACT
+
+
+def test_latest_release_asset_profiles_are_complete_and_version_bound() -> None:
+    for profile, digest, version in (
+        (
+            HERDR_094_PROFILE,
+            "493304fbefb0ed0ea0455f373b47f48d24e8774bc7974f4c916ad2e937675b23",
+            "0.9.4",
+        ),
+        (
+            HERDR_095_PROFILE,
+            "14d9e8bc8b4a9e0118d77c32266f76d461f09b40342eb23752960bd89f59929d",
+            "0.9.5",
+        ),
+    ):
+        assert profile.is_complete
+        assert profile.evidence.version == version
+        assert profile.evidence.source_sha256 == digest
+        assert profile.evidence.light_base_theme_name == "catppuccin-latte"
+        assert profile.evidence.allowed_custom_fields == (
+            HERDR_091_PROFILE.evidence.allowed_custom_fields
+        )
+        assert detect_profile(f"herdr {version}").profile is profile
 
 
 def test_073_and_080_profiles_select_their_own_exact_versions() -> None:

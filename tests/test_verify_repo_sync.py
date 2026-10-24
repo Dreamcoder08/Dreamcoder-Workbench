@@ -15,6 +15,8 @@ from dreamcoder_theme.herdr_contract import (
     HERDR_082_PROFILE,
     HERDR_091_PROFILE,
     HERDR_093_PROFILE,
+    HERDR_094_PROFILE,
+    HERDR_095_PROFILE,
 )
 from dreamcoder_theme.palette_tokens import VARIANTS
 from dreamcoder_theme.renderers_herdr import herdr_content
@@ -38,6 +40,8 @@ def _install_layout(module: ModuleType, root: Path) -> None:
         HERDR_082_PROFILE,
         HERDR_091_PROFILE,
         HERDR_093_PROFILE,
+        HERDR_094_PROFILE,
+        HERDR_095_PROFILE,
     ):
         base = root / "DreamcoderHerdr/.config/herdr/dreamcoder" / profile.evidence.version
         base.mkdir(parents=True)
@@ -174,7 +178,7 @@ def test_host_tool_failure_is_not_masked(
     assert "herdr config check failed" in output
 
 
-@pytest.mark.parametrize("version", ["0.9.1", "0.9.3"])
+@pytest.mark.parametrize("version", ["0.9.1", "0.9.3", "0.9.4", "0.9.5"])
 def test_host_check_validates_the_installed_version_variant(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

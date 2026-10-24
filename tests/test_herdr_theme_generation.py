@@ -163,8 +163,10 @@ def test_repository_sync_writes_only_versioned_variants(
     base_082 = tmp_path / "DreamcoderHerdr/.config/herdr/dreamcoder/0.8.2"
     base_091 = tmp_path / "DreamcoderHerdr/.config/herdr/dreamcoder/0.9.1"
     base_093 = tmp_path / "DreamcoderHerdr/.config/herdr/dreamcoder/0.9.3"
+    base_094 = tmp_path / "DreamcoderHerdr/.config/herdr/dreamcoder/0.9.4"
+    base_095 = tmp_path / "DreamcoderHerdr/.config/herdr/dreamcoder/0.9.5"
 
-    assert changes == [True] * 10
+    assert changes == [True] * 14
     assert (base_073 / "config.dark.toml").is_file()
     assert (base_073 / "config.light.toml").is_file()
     assert (base_080 / "config.dark.toml").is_file()
@@ -175,10 +177,14 @@ def test_repository_sync_writes_only_versioned_variants(
     assert (base_091 / "config.light.toml").is_file()
     assert (base_093 / "config.dark.toml").is_file()
     assert (base_093 / "config.light.toml").is_file()
+    assert (base_094 / "config.dark.toml").is_file()
+    assert (base_094 / "config.light.toml").is_file()
+    assert (base_095 / "config.dark.toml").is_file()
+    assert (base_095 / "config.light.toml").is_file()
     assert selector.read_text() == "onboarding = false\n"
     assert (
         sync.sync_herdr_repo_variants({"dark": VARIANTS["dark"], "light": VARIANTS["light"]})
-        == [False] * 10
+        == [False] * 14
     )
 
 
