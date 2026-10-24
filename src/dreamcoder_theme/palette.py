@@ -172,9 +172,13 @@ def adaptive_palette(
 
 def ansi(palette: dict[str, str]) -> list[str]:
     mode_name = detect_mode(palette)
+    dark_cyan = mix(palette["success"], palette["info"], 0.5) if mode_name == "dark" else None
+    dark_overrides = (
+        {6: dark_cyan, 14: mix(dark_cyan, palette["text"], 0.15)} if dark_cyan is not None else {}
+    )
     safe = []
-    for key in ANSI_KEY_NAMES:
-        color = resolve_color(palette, key)
+    for index, key in enumerate(ANSI_KEY_NAMES):
+        color = dark_overrides[index] if index in dark_overrides else resolve_color(palette, key)
         if not color.startswith("#"):
             raise ValueError(f"ANSI key {key!r} resolved to non-hex {color!r}")
         safe.append(guard(color, palette["bg"], mode_name))
