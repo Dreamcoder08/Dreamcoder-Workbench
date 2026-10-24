@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
 import sys
 from collections.abc import Callable, Mapping, Sequence
@@ -29,6 +30,7 @@ from .renderers import (
     firefox_content,
     fzf_content,
     ghostty_content,
+    gtk_content,
     herdr_content,
     hypr_colors_conf_content,
     hypr_colors_lua_content,
@@ -42,6 +44,7 @@ from .renderers import (
     obsidian_content,
     opencode_content,
     pi_theme_content,
+    qt6ct_content,
     readme_content,
     rofi_content,
     rofi_matugen_content,
@@ -74,6 +77,116 @@ from .writers import (
     write_opencode_tui,
     write_variant_files,
 )
+from .writers_gtk_qt import _same_file, update_gtk_import, update_qt_palette
+
+TOOLKIT_TARGETS = ("gtk3", "gtk4", "qt6ct")
+
+
+def toolkit_paths(paths: Any) -> list[Path]:
+    """All optional config/asset/state paths, including currently absent files."""
+    return [
+        path
+        for target in TOOLKIT_TARGETS
+        for kind in ("config", "canonical", "state")
+        if (path := getattr(paths, f"{target}_{kind}")) is not None
+    ]
+
+
+def preflight_toolkit_paths(paths: Any) -> None:
+    """Reject aliases before ANY pipeline write, not merely selector mutation."""
+    candidates = toolkit_paths(paths)
+    other = [
+        value
+        for name, value in vars(paths).items()
+        if isinstance(value, Path)
+        and name
+        not in {
+            f"{target}_{kind}"
+            for target in TOOLKIT_TARGETS
+            for kind in ("config", "canonical", "state")
+        }
+    ]
+    from .core import settings_path
+
+    other += [
+        settings_path(),
+        *(
+            paths.bat_theme_dir / name
+            for name in (
+                "Dreamcoder.tmTheme",
+                "Dreamcoder-Dark.tmTheme",
+                "Dreamcoder-Light.tmTheme",
+            )
+        ),
+    ]
+    # CLI bridge flips can expose a different referent before active writes.
+    for bridge, template in (
+        (paths.kitty, "colors-dreamcoder-{mode}.conf"),
+        (paths.kitty_ui, "dreamcoder-ui-{mode}.conf"),
+        (paths.waybar_matugen, "colors-{mode}.css"),
+        (paths.rofi_matugen, "colors-{mode}.rasi"),
+        (paths.hypr_colors_lua, "colors-{mode}.lua"),
+        (paths.hypr_colors_conf, "colors-{mode}.conf"),
+    ):
+        if bridge.is_symlink():
+            other.extend(bridge.parent / template.format(mode=mode) for mode in ("dark", "light"))
+    for index, path in enumerate(candidates):
+        if not path.is_absolute() or any(ord(c) < 32 for c in str(path)):
+            raise ValueError(f"{path}: toolkit paths must be absolute without control characters")
+        for right in candidates[index + 1 :] + other:
+            if _same_file(path, right):
+                raise ValueError(f"Toolkit path collision: {path} and {right} must be distinct")
+    for target in TOOLKIT_TARGETS:
+        config, canonical, state = (
+            getattr(paths, f"{target}_{kind}") for kind in ("config", "canonical", "state")
+        )
+        if all(path is None for path in (config, canonical, state)):
+            continue
+        if any(path is None for path in (config, canonical, state)):
+            raise ValueError(f"{target}: config/canonical/state paths must be supplied together")
+        if state.is_symlink():
+            raise ValueError(f"{state}: ownership state must not be a symlink")
+        protected = [
+            parent / name
+            for parent in (config.parent, config.resolve().parent)
+            for name in ("colors.css", "settings.ini")
+        ]
+        if any(
+            path.name in {"colors.css", "settings.ini"}
+            or path.resolve().name in {"colors.css", "settings.ini"}
+            or any(_same_file(path, source) for source in protected)
+            for path in (config, canonical, state)
+        ):
+            raise ValueError(f"{target}: Matugen colors.css and GTK settings.ini are protected")
+        if config.is_symlink() and not config.exists():
+            raise ValueError(f"{config}: dangling config symlink")
+
+
+def sync_toolkit_targets(paths: Any, active: dict[str, str], mode: str) -> dict[str, bool]:
+    """Conditional Dark overlays and Light release; caller owns I/O rollback.
+
+    Existing config or an explicit CONFIG environment override opts in. State
+    always opts in, even after config deletion, so ownership cannot be ignored.
+    """
+    if mode not in {"dark", "light"}:
+        raise ValueError("Only dark/light modes are supported")
+    preflight_toolkit_paths(paths)
+    changed = {}
+    for target in TOOLKIT_TARGETS:
+        config, canonical, state = (
+            getattr(paths, f"{target}_{kind}") for kind in ("config", "canonical", "state")
+        )
+        if config is None:
+            continue
+        opted_in = bool(os.environ.get(f"DREAMCODER_{target.upper()}_CONFIG"))
+        if not (config.exists() or state.exists() or opted_in):
+            continue
+        renderer = qt6ct_content if target == "qt6ct" else gtk_content
+        writer = update_qt_palette if target == "qt6ct" else update_gtk_import
+        if mode == "dark":
+            changed[f"{target}_canonical"] = write_if_changed(canonical, renderer(active))
+        changed[target] = writer(config, canonical, state, mode)
+    return changed
 
 
 class ThemeGateError(RuntimeError):
@@ -98,7 +211,7 @@ class PreparedSync:
 
     ``prepare()`` produces this with ZERO filesystem writes: the validated
     active palette, the dark/light render-variant map, the frozen
-    33-consumer coverage declaration, and the in-memory render of every
+    36-consumer coverage declaration, and the in-memory render of every
     coverage consumer. The caller (``main()`` or the CLI activation
     transaction) owns the commit.
     """
@@ -110,7 +223,24 @@ class PreparedSync:
     render_plan: Mapping[str, str]
 
 
+def sync_pi_targets(paths: Any, active: dict[str, str]) -> dict[str, bool]:
+    """Generate one canonical theme and persist selection in both agent homes."""
+    content = pi_theme_content(active)
+    changed = {
+        "pi_theme": write_if_changed(paths.pi_theme, content, replace_symlink=True),
+        "pi_settings": ensure_pi_theme_settings(paths.pi_settings),
+    }
+    if paths.gentle_shell_theme is not None:
+        changed["gentle_shell_theme"] = write_if_changed(
+            paths.gentle_shell_theme, content, replace_symlink=True
+        )
+    if paths.gentle_shell_settings is not None:
+        changed["gentle_shell_settings"] = ensure_pi_theme_settings(paths.gentle_shell_settings)
+    return changed
+
+
 def sync_active_targets(paths: Any, active: dict[str, str], mode: str) -> dict[str, bool]:
+    preflight_toolkit_paths(paths)
     return {
         "kitty": write_if_changed(paths.kitty, kitty_content(active)),
         "kitty_ui": write_if_changed(paths.kitty_ui, kitty_ui_content(active)),
@@ -129,8 +259,8 @@ def sync_active_targets(paths: Any, active: dict[str, str], mode: str) -> dict[s
             paths.bat_theme_dir / "Dreamcoder.tmTheme", codex_tmtheme_content(active)
         ),
         "codex_config": ensure_codex_theme_config(paths.codex_config),
-        "pi_theme": write_if_changed(paths.pi_theme, pi_theme_content(active)),
-        "pi_settings": ensure_pi_theme_settings(paths.pi_settings),
+        **sync_pi_targets(paths, active),
+        **sync_toolkit_targets(paths, active, mode),
         "starship": write_if_changed(paths.starship, starship_content(active)),
         "tmux": write_if_changed(paths.tmux, tmux_content(active)),
         "lazygit": write_if_changed(paths.lazygit, lazygit_content(active)),
@@ -169,7 +299,7 @@ def sync_active_targets(paths: Any, active: dict[str, str], mode: str) -> dict[s
 D = {"dark": "dark", "light": "light"}
 
 # ------------------------------------------------------------------
-# Exact 33-consumer coverage declaration (design §5 matrix).
+# Original design §5 matrix plus three optional toolkit ownership consumers.
 # ------------------------------------------------------------------
 # ``artifact`` is the deterministic Dark output path (relative to ROOT, POSIX
 # separators) for repo-generation rows; the Light sibling follows the same
@@ -181,7 +311,7 @@ D = {"dark": "dark", "light": "light"}
 
 
 class CoverageRow(NamedTuple):
-    """One row of the 33-consumer coverage contract (design §5)."""
+    """One row of the coverage contract, including conditional consumers."""
 
     consumer_id: str
     klass: str
@@ -459,6 +589,19 @@ COVERAGE: tuple[CoverageRow, ...] = (
 )
 
 
+COVERAGE += tuple(
+    CoverageRow(
+        target,
+        "optional Dark overlay / Light release",
+        "write_if_changed + reversible ownership writer",
+        f"active:{target}_canonical",
+        "managed selection; Light restores baseline",
+        "toolkit",
+    )
+    for target in TOOLKIT_TARGETS
+)
+
+
 def validate_coverage_declaration(rows: tuple[CoverageRow, ...] = COVERAGE) -> list[str]:
     """Fail closed on missing, duplicate, or undeclared consumer coverage.
 
@@ -473,8 +616,13 @@ def validate_coverage_declaration(rows: tuple[CoverageRow, ...] = COVERAGE) -> l
     duplicates = sorted({cid for cid in ids if ids.count(cid) > 1})
     if duplicates:
         problems.append(f"duplicate coverage consumer ids: {duplicates}")
-    if len(rows) != 33:
-        problems.append(f"coverage declares {len(rows)} rows, expected exactly 33")
+    from .renderer_registry import EXPECTED_CONSUMER_IDS
+
+    if set(ids) != EXPECTED_CONSUMER_IDS:
+        problems.append("coverage consumer ids must equal renderer registry ids")
+    toolkit_ids = {row.consumer_id for row in rows if row.source == "toolkit"}
+    if toolkit_ids != set(TOOLKIT_TARGETS):
+        problems.append("toolkit coverage must declare every conditional ownership branch")
 
     registry_dark = {
         (base / names["dark"]).relative_to(ROOT).as_posix()
@@ -895,6 +1043,8 @@ def print_summary(
     print(f"Bat theme dir: {paths.bat_theme_dir}")
     print(f"PI CLI theme: {paths.pi_theme}")
     print(f"PI CLI settings: {paths.pi_settings}")
+    print(f"Gentle Shell theme: {paths.gentle_shell_theme}")
+    print(f"Gentle Shell settings: {paths.gentle_shell_settings}")
     print(f"Starship: {paths.starship}")
     print(f"Lazygit: {paths.lazygit}")
     # New targets
@@ -927,10 +1077,10 @@ def render_coverage_plan(
     mode: str,
     variants: dict[str, dict[str, str]],
 ) -> dict[str, str]:
-    """Render content for every one of the 33 coverage consumers in memory.
+    """Render content for every one of the 36 coverage consumers in memory.
 
     Pure rendering: no writer, selector, or filesystem mutation (R5, ADR-004).
-    This is the preparation boundary's in-memory 33-target render — the subject
+    This is the preparation boundary's in-memory 36-target render — the subject
     of the coverage assertion and the render-variant plan the activation
     transaction commits. Renderers still receive only ``dict[str, str]``.
     """
@@ -972,6 +1122,16 @@ def render_coverage_plan(
         "codex_app": opencode_content(active),
         "antigravity": antigravity_content(variants["dark"]),
     }
+    plan["gentle_shell_theme"] = plan["pi_theme"]
+    # Dark-only assets stay rendered and covered even when optional configs are absent.
+    toolkit_palette = active if mode == "dark" else variants["dark"]
+    plan.update(
+        {
+            "gtk3": gtk_content(toolkit_palette),
+            "gtk4": gtk_content(toolkit_palette),
+            "qt6ct": qt6ct_content(toolkit_palette),
+        }
+    )
     complete = next((p for p in SUPPORTED_PROFILES if p is not None and p.is_complete), None)
     plan["herdr"] = herdr_content(complete, mode, variants[mode]) if complete else ""
     return plan
@@ -981,7 +1141,7 @@ def prepare(base: str) -> PreparedSync:
     """Validate-first preparation boundary (design §4, ADR-004; task 5.1).
 
     Loads canonical variants/guardrails, adapts the base palette, validates
-    it with the independent WCAG 2.2 + APCA dual gate, renders all 33
+    it with the independent WCAG 2.2 + APCA dual gate, renders all 36
     coverage consumers in memory, and asserts the coverage declaration —
     with ZERO filesystem writes. ``main()`` and the CLI activation
     transaction commit the returned immutable plan; a failed gate raises
@@ -992,6 +1152,10 @@ def prepare(base: str) -> PreparedSync:
         raise SystemExit(f"base mode must be 'light' or 'dark' (got '{base}')")
 
     paths = theme_paths()
+    try:
+        preflight_toolkit_paths(paths)
+    except ValueError as exc:
+        raise ThemeGateError([str(exc)], kind="Toolkit preflight failed") from exc
     guardrails = load_guardrails(paths.tokens_file)
     variants = load_variants(DEFAULT_VARIANTS, paths.tokens_file)
     active = adaptive_palette(variants[base], base, paths.wallpaper, adaptive_enabled())
@@ -1048,7 +1212,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     base = theme_mode()
 
     # Validation-first preparation (R4, design §4): the final palette must pass
-    # the independent WCAG 2.2 + APCA dual gate and the 33-consumer coverage
+    # the independent WCAG 2.2 + APCA dual gate and the 36-consumer coverage
     # assertion BEFORE any writer or selector runs. A failed gate exits non-zero
     # with zero writes and no settings mutation.
     try:
@@ -1067,7 +1231,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         raise SystemExit(f"Generated Starship config is invalid: {paths.starship}")
     print_summary(prepared.mode, paths, changed, repo_changes)
 
-    # Best-effort, outside the 33-consumer coverage contract: Orca lives
+    # Best-effort, outside the coverage contract: Orca lives
     # entirely in the user's live settings file, so a failure here must
     # never abort the rest of sync.
     try:

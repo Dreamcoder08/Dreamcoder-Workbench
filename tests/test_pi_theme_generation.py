@@ -6,6 +6,11 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import pytest
+
+from dreamcoder_theme.settings import theme_paths
+from dreamcoder_theme.writers import write_if_changed
+
 ROOT = Path(__file__).resolve().parents[1]
 SYNC = ROOT / "scripts" / "sync-dreamcoder-theme.py"
 
@@ -69,6 +74,12 @@ def run_sync(tmp: Path, mode: str = "dark") -> subprocess.CompletedProcess[str]:
     env = os.environ.copy()
     env.update(
         {
+            "HOME": str(tmp / "home"),
+            "XDG_CACHE_HOME": str(tmp / "cache"),
+            "GENTLE_SHELL_HOME": str(tmp / "gentle-agent"),
+            "PI_CODING_AGENT_DIR": str(pi_agent),
+            "PI_THEME": str(pi_agent / "themes/dreamcoder.json"),
+            "PI_SETTINGS": str(pi_agent / "settings.json"),
             "DREAMCODER_THEME_MODE": mode,
             "DREAMCODER_ADAPTIVE": "0",
             "DREAMCODER_WRITE_REPO": "0",
@@ -116,7 +127,83 @@ def run_sync(tmp: Path, mode: str = "dark") -> subprocess.CompletedProcess[str]:
     )
 
 
+@pytest.mark.parametrize("state", ["missing", "dangling", "matching"])
+def test_stable_theme_replacement_is_idempotent(tmp_path, state):
+    destination = tmp_path / "themes/dreamcoder.json"
+    source = tmp_path / "variant.json"
+    destination.parent.mkdir()
+    if state == "matching":
+        source.write_text("canonical\n")
+    if state != "missing":
+        destination.symlink_to(source)
+    assert write_if_changed(destination, "canonical\n", replace_symlink=True)
+    assert not destination.is_symlink()
+    assert destination.read_text() == "canonical\n"
+    assert not write_if_changed(destination, "canonical\n", replace_symlink=True)
+    if state == "matching":
+        assert source.read_text() == "canonical\n"
+    else:
+        assert not source.exists()
+
+
+@pytest.mark.parametrize("linked", [False, True])
+def test_agent_home_precedence(monkeypatch, tmp_path, linked):
+    monkeypatch.setenv("HOME", str(tmp_path))
+    for key in (
+        "PI_AGENT_DIR",
+        "PI_CODING_AGENT_DIR",
+        "PI_THEME",
+        "PI_SETTINGS",
+        "GENTLE_SHELL_HOME",
+    ):
+        monkeypatch.delenv(key, raising=False)
+    paths = theme_paths()
+    assert paths.pi_theme == tmp_path / ".pi/agent/themes/dreamcoder.json"
+    assert paths.gentle_shell_theme == tmp_path / ".gentle-shell/agent/themes/dreamcoder.json"
+    monkeypatch.setenv("PI_AGENT_DIR", str(tmp_path / "legacy"))
+    monkeypatch.setenv("PI_CODING_AGENT_DIR", str(tmp_path / "runtime"))
+    monkeypatch.setenv("GENTLE_SHELL_HOME", str(tmp_path / ("runtime" if linked else "isolated")))
+    paths = theme_paths()
+    assert paths.pi_settings == tmp_path / "runtime/settings.json"
+    assert paths.gentle_shell_settings is not None
+    assert paths.gentle_shell_settings.parent == tmp_path / ("runtime" if linked else "isolated")
+    monkeypatch.setenv("PI_THEME", str(tmp_path / "custom/theme.json"))
+    monkeypatch.setenv("PI_SETTINGS", str(tmp_path / "custom/settings.json"))
+    assert theme_paths().pi_theme == tmp_path / "custom/theme.json"
+    assert theme_paths().pi_settings == tmp_path / "custom/settings.json"
+
+
 class PiThemeGenerationTest(unittest.TestCase):
+    def test_both_modes_update_both_homes_without_writing_through_legacy_links(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            source = tmp / "repository-variant.json"
+            source.write_text("do not mutate\n")
+            for home in (tmp / "pi-agent", tmp / "gentle-agent"):
+                (home / "themes").mkdir(parents=True)
+                (home / "themes/dreamcoder.json").symlink_to(source)
+                (home / "settings.json").write_text(
+                    json.dumps({"theme": "light", "packages": ["keep"]})
+                )
+            for mode in ("light", "dark"):
+                result = run_sync(tmp, mode)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                themes = []
+                for home in (tmp / "pi-agent", tmp / "gentle-agent"):
+                    path = home / "themes/dreamcoder.json"
+                    self.assertFalse(path.is_symlink())
+                    themes.append(json.loads(path.read_text()))
+                    self.assertEqual(
+                        json.loads((home / "settings.json").read_text()),
+                        {"theme": "dreamcoder", "packages": ["keep"]},
+                    )
+                self.assertEqual(themes[0], themes[1])
+                self.assertEqual(
+                    themes[0]["vars"]["lucuma"],
+                    "#A5B4FC" if mode == "dark" else "#824f16",
+                )
+                self.assertEqual(source.read_text(), "do not mutate\n")
+
     def test_generates_global_pi_theme_with_all_required_tokens(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)

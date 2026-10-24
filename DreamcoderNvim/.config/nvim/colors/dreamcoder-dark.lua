@@ -34,12 +34,12 @@ local function h(name, opts)
 end
 
 -- ── Editor UI ────────────────────────────────────────────────
--- Normal background is opaque in light so dark terminal transparency cannot hide text.
--- Dreamcoder Dark keeps transparent Normal for the glass effect.
+-- Normal and SignColumn use the opaque canonical content canvas.
+-- Floating windows retain near-black functional surfaces and intentional blending.
 
   vim.api.nvim_set_hl(0, "Normal", {
     fg = "#E6E6E6",
-    bg = "none"
+    bg = "#000000"
   })
 
   vim.api.nvim_set_hl(0, "NormalFloat", {
@@ -105,7 +105,7 @@ end
   })
 
   vim.api.nvim_set_hl(0, "SignColumn", {
-    bg = "none"
+    bg = "#000000"
   })
 
 

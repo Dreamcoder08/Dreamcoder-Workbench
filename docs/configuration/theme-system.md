@@ -52,6 +52,29 @@ python scripts/generate-palette-tokens.py --check
 python scripts/generate-dark-css.py --check
 ```
 
+## Pi and Gentle Shell
+
+`dreamcoder light`, `dreamcoder dark`, and `dreamcoder sync` generate the same
+`dreamcoder` theme for Pi and Gentle Shell and select it in each agent's
+`settings.json`. These commands retain wallpaper adaptation when enabled;
+unrelated settings are preserved.
+
+- Pi defaults to `~/.pi/agent`. `PI_CODING_AGENT_DIR` takes precedence over the
+  legacy `PI_AGENT_DIR`; `PI_THEME` and `PI_SETTINGS` override their respective
+  Pi destinations.
+- Gentle Shell defaults to `~/.gentle-shell/agent`. `GENTLE_SHELL_HOME` overrides
+  that agent directory, including when it points to the Pi agent directory.
+- Each active `themes/dreamcoder.json` is a regular generated file. Legacy
+  symlinks are replaced without modifying their repository variant targets.
+
+The theme-only helper `DreamcoderPi/.pi/agent/scripts/pi-theme.sh` uses the same
+validation and destination rules but always generates canonical, non-adaptive
+colors, even with inherited `DREAMCODER_ADAPTIVE=1` and a wallpaper. It disables
+adaptation only for its own generation process so Matugen cannot run templates
+that change unrelated desktop files; normal theme commands remain adaptive.
+Running sessions can reload the active user theme when supported; restart a
+session if it retains its previous theme selection.
+
 ## Quality gates
 
 - WCAG 2.2: body text ≥ 4.5:1 (main text ≥ 7:1)

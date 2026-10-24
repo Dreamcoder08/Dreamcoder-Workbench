@@ -1,6 +1,6 @@
-"""Exact 33-consumer registry bijection tests (hexagonal-architecture-v2 task 1.6).
+"""Exact registry bijection tests (hexagonal-architecture-v2 task 1.6).
 
-Proves the registered consumer-ID set equals the frozen expected set exactly —
+Proves the consumer-ID set equals the frozen original 33 plus GTK/Qt exactly —
 no additions, omissions, or duplicates — and that special consumers are
 adapter-backed while selector-only/excluded/scheduler/maintenance/unrelated
 rollout records are absent. Sample-six or fixture-only coverage is not accepted.
@@ -22,6 +22,8 @@ FIXTURES = Path(__file__).resolve().parent / "fixtures"
 FROZEN_IDS = frozenset(
     json.loads((FIXTURES / "expected_consumer_ids.json").read_text())["expected_consumer_ids"]
 )
+TOOLKIT_IDS = frozenset({"gtk3", "gtk4", "qt6ct"})
+EXPECTED_IDS = FROZEN_IDS | TOOLKIT_IDS
 
 # Selector-only / excluded / scheduler / maintenance / unrelated rollout records
 # from the 37-ID manifest that must NEVER appear as renderer registrations.
@@ -40,12 +42,14 @@ SPECIAL_ADAPTER_CONSUMERS = {"opencode", "zellij", "nvim", "herdr"}
 class TestExactBijection:
     def test_registered_ids_equal_expected_set_exactly(self) -> None:
         ids = {r.consumer_id for r in REGISTRATIONS}
-        assert ids == FROZEN_IDS
+        assert len(FROZEN_IDS) == 33
+        assert FROZEN_IDS.isdisjoint(TOOLKIT_IDS)
+        assert ids == EXPECTED_IDS
         assert ids == set(EXPECTED_CONSUMER_IDS)
 
     def test_no_duplicate_ids(self) -> None:
         ids = [r.consumer_id for r in REGISTRATIONS]
-        assert len(ids) == len(set(ids)) == 33
+        assert len(ids) == len(set(ids)) == len(EXPECTED_IDS)
 
     def test_missing_id_produces_diagnostic(self) -> None:
         subset = tuple(r for r in REGISTRATIONS if r.consumer_id != "kitty")

@@ -124,10 +124,19 @@ class NvimReadabilityTest(unittest.TestCase):
             self.assertIn(f'bg = "{palette["bg"]}"', normal_block)
             self.assertIn(f'bg = "{palette["bg"]}"', sign_block)
 
-    def test_dark_normal_background_stays_transparent(self):
+    def test_dark_content_background_is_opaque_black(self):
         rendered = nvim_content(self.modes["dark"])
-        normal_block = rendered.split('"Normal", {', 1)[1].split("})", 1)[0]
-        self.assertIn('bg = "none"', normal_block)
+        for group in ("Normal", "SignColumn"):
+            block = rendered.split(f'"{group}", {{', 1)[1].split("})", 1)[0]
+            self.assertIn('bg = "#000000"', block)
+
+    def test_dark_floating_surfaces_stay_near_black(self):
+        dark = self.modes["dark"]
+        rendered = nvim_content(dark)
+        self.assertNotEqual(dark["surface0"], "#000000")
+        for group in ("NormalFloat", "FloatBorder"):
+            block = rendered.split(f'"{group}", {{', 1)[1].split("})", 1)[0]
+            self.assertIn(f'bg = "{dark["surface0"]}"', block)
 
 
 if __name__ == "__main__":

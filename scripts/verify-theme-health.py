@@ -397,14 +397,22 @@ def check_dual_gate_candidates():
 
 
 def check_coverage_declaration():
-    """Fail when the sync 33-consumer coverage declaration is missing,
-    duplicated, or not exactly the design matrix's 33 IDs."""
+    """Require unique coverage IDs matching the registry's declared expected set."""
+    from dreamcoder_theme.renderer_registry import EXPECTED_CONSUMER_IDS
     from dreamcoder_theme.sync import COVERAGE
 
     ids = [row.consumer_id for row in COVERAGE]
-    require(len(ids) == 33, f"coverage: expected 33 consumer IDs, got {len(ids)}")
     dupes = sorted({i for i in ids if ids.count(i) > 1})
     require(not dupes, f"coverage: duplicate consumer IDs: {dupes}")
+    registered = set(ids)
+    missing = sorted(EXPECTED_CONSUMER_IDS - registered)
+    extra = sorted(registered - EXPECTED_CONSUMER_IDS)
+    findings = []
+    if missing:
+        findings.append(f"coverage: missing consumer IDs: {missing}")
+    if extra:
+        findings.append(f"coverage: extra consumer IDs: {extra}")
+    require(not findings, "\n".join(findings))
 
 
 def check_antigravity_files():

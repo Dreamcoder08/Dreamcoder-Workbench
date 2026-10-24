@@ -96,6 +96,7 @@ class MutationStrategy(StrEnum):
     """The commit-phase writer/selector strategy for the consumer."""
 
     WRITE_IF_CHANGED = "write_if_changed"
+    REVERSIBLE_OWNERSHIP = "reversible_ownership"
     SYMLINK_SAFE_ACTIVE_WRITE = "symlink_safe_active_write"
     PROFILE_AWARE_SELECTOR = "profile_aware_selector"
     ACTIVE_ONLY_BRIDGE = "active_only_bridge"

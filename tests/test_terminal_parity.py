@@ -54,6 +54,13 @@ class TerminalParityTest(unittest.TestCase):
                 for index in range(16):
                     self.assertEqual(kitty[f"color{index}"], ghostty[f"color{index}"])
 
+    def test_dark_generated_terminal_canvases_are_opaque(self):
+        kitty_ui = parse_kitty(KITTY / "dreamcoder-ui-dark.conf")
+        ghostty = parse_ghostty(GHOSTTY / "dreamcoder-dark")
+        self.assertEqual(kitty_ui["background_opacity"], "1.0")
+        self.assertEqual(ghostty["background-opacity"], "1.0")
+        self.assertEqual(ghostty["background"], "#000000")
+
     def test_kitty_light_readability_has_no_low_opacity_fallback(self):
         config = KITTY / "kitty.conf"
         opacities: list[float] = []

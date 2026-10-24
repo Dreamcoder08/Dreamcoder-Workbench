@@ -124,25 +124,28 @@ def adaptive_palette(
         return base
 
     c = dict(base)
-    bg = mix(c["bg"], scheme.get("background", c["bg"]), 0.18)
-    if contrast(bg, c["text"]) >= 7:
-        c["bg"] = bg
-    c["surface0"] = surface_guard(
-        mix(c["surface0"], scheme.get("surface_container", c["surface0"]), 0.16),
-        c["bg"],
-        mode_name,
-    )
-    c["surface1"] = surface_guard(
-        mix(c["surface1"], scheme.get("surface_container_high", c["surface1"]), 0.18),
-        c["bg"],
-        mode_name,
-    )
-    c["surface2"] = surface_guard(
-        mix(c["surface2"], scheme.get("surface_variant", c["surface2"]), 0.18),
-        c["bg"],
-        mode_name,
-    )
-    c["bg_soft"] = surface_guard(c["bg_soft"], c["bg"], mode_name)
+    # Dark keeps the canonical black canvas and near-black functional surfaces.
+    # Wallpaper adaptation still supplies accents without tinting that hierarchy.
+    if mode_name != "dark":
+        bg = mix(c["bg"], scheme.get("background", c["bg"]), 0.18)
+        if contrast(bg, c["text"]) >= 7:
+            c["bg"] = bg
+        c["surface0"] = surface_guard(
+            mix(c["surface0"], scheme.get("surface_container", c["surface0"]), 0.16),
+            c["bg"],
+            mode_name,
+        )
+        c["surface1"] = surface_guard(
+            mix(c["surface1"], scheme.get("surface_container_high", c["surface1"]), 0.18),
+            c["bg"],
+            mode_name,
+        )
+        c["surface2"] = surface_guard(
+            mix(c["surface2"], scheme.get("surface_variant", c["surface2"]), 0.18),
+            c["bg"],
+            mode_name,
+        )
+        c["bg_soft"] = surface_guard(c["bg_soft"], c["bg"], mode_name)
     c["accent"] = guard(
         mix(c["prompt_accent"], scheme.get("primary", c["accent"]), 0.25),
         c["bg"],

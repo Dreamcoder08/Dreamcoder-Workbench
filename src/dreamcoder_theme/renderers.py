@@ -9,6 +9,7 @@ from .renderers_codex import codex_tmtheme_content
 from .renderers_extra_bat_delta import bat_content, delta_content
 from .renderers_extra_btop import btop_content
 from .renderers_extra_firefox import firefox_content
+from .renderers_extra_gtk_qt import gtk_content, qt6ct_content
 from .renderers_extra_notify import cava_content, dunst_content
 from .renderers_extra_nvim import nvim_content, nvim_dispatcher_content
 from .renderers_extra_obsidian import obsidian_content
@@ -44,6 +45,7 @@ __all__ = [
     "firefox_content",
     "fzf_content",
     "ghostty_content",
+    "gtk_content",
     "herdr_content",
     "hypr_colors_conf_content",
     "hypr_colors_lua_content",
@@ -58,6 +60,7 @@ __all__ = [
     "opencode_content",
     "opencode_tokens",
     "pi_theme_content",
+    "qt6ct_content",
     "readme_content",
     "rofi_content",
     "rofi_matugen_content",
