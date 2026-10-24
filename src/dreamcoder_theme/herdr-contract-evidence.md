@@ -170,6 +170,44 @@ observed for this profile (server not running at capture time). A version
 between two profiles (for example 0.9.0) fails closed; only versions newer than
 the newest profile fall back to it.
 
+## Herdr 0.9.3 release-asset profile
+
+`herdr-0.9.3` is bound to `herdr 0.9.3` from the **official release asset**,
+not from an installed binary: the asset `herdr-linux-x86_64` of the upstream
+`ogulcancelik/herdr` tag `v0.9.3` (latest stable, published
+2026-09-29T19:29:23Z) was downloaded with `gh release download` into a scratch
+directory and executed from there. Its SHA-256 is
+`18a8dc65f1c2fa485884344356dea1cfd911c6f06cf46fa78e193f4087f4dba7` and
+`--version` prints `herdr 0.9.3`. The machine that captured this evidence runs
+an installed `herdr 0.9.1`; that installation, its server, and
+`~/.config/herdr` were not touched, and the scratch binary ran with a throwaway
+`HOME`/`XDG_CONFIG_HOME`.
+
+`config check` stays strict in 0.9.3: a probe with `theme.custom.bogus_bg`
+printed `unknown config key theme.custom.bogus_bg; ignoring key` and a probe
+with an unknown `theme.name` listed the valid themes (including
+`catppuccin-latte`); both exited 1. Each generated
+`0.9.3/config.{dark,light}.toml` passed
+`HERDR_CONFIG_PATH=<variant> herdr config check` with `config: ok` (exit 0),
+so the profile reuses the 0.8.2/0.9.1 theme, custom, and ui field sets exactly
+and adds no new fields. The generated variants are byte-identical to the 0.9.1
+variants.
+
+Observed default-config deltas against 0.9.1 (`herdr --default-config`, 377
+lines, SHA-256
+`ee08ee215f1a98cf61184b27a132502cd36f6b57d51e37e17a3f6cc3427d39b2`): only two
+new commented-out entries, an unbound `[keys] clear_pane` and
+`startup_per_agent_delay_ms = 100` (milliseconds between automatic agent
+restores). Neither is a theme, custom, or ui field, so the variant is
+unaffected. Reload remains `herdr server reload-config` and the config path
+remains `~/.config/herdr/config.toml` (overridable by `HERDR_CONFIG_PATH`); no
+live reload was observed for this profile.
+
+Detection matches the exact installed version, so a host running 0.9.1 keeps
+using the 0.9.1 profile until `herdr update` installs 0.9.3. Adding this
+profile puts 0.9.2 between two profiles: like 0.9.0, it now fails closed
+instead of falling back, and no 0.9.2 evidence was gathered to profile it.
+
 ## Fail-closed boundary
 
 Unknown or malformed version output remains `unsupported-contract`; an absent

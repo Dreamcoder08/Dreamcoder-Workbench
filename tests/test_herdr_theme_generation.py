@@ -13,6 +13,7 @@ from dreamcoder_theme.herdr_contract import (
     HERDR_080_PROFILE,
     HERDR_082_PROFILE,
     HERDR_091_PROFILE,
+    HERDR_093_PROFILE,
 )
 from dreamcoder_theme.palette_tokens import VARIANTS
 from dreamcoder_theme.renderers_herdr import (
@@ -161,8 +162,9 @@ def test_repository_sync_writes_only_versioned_variants(
     base_080 = tmp_path / "DreamcoderHerdr/.config/herdr/dreamcoder/0.8.0"
     base_082 = tmp_path / "DreamcoderHerdr/.config/herdr/dreamcoder/0.8.2"
     base_091 = tmp_path / "DreamcoderHerdr/.config/herdr/dreamcoder/0.9.1"
+    base_093 = tmp_path / "DreamcoderHerdr/.config/herdr/dreamcoder/0.9.3"
 
-    assert changes == [True] * 8
+    assert changes == [True] * 10
     assert (base_073 / "config.dark.toml").is_file()
     assert (base_073 / "config.light.toml").is_file()
     assert (base_080 / "config.dark.toml").is_file()
@@ -171,16 +173,24 @@ def test_repository_sync_writes_only_versioned_variants(
     assert (base_082 / "config.light.toml").is_file()
     assert (base_091 / "config.dark.toml").is_file()
     assert (base_091 / "config.light.toml").is_file()
+    assert (base_093 / "config.dark.toml").is_file()
+    assert (base_093 / "config.light.toml").is_file()
     assert selector.read_text() == "onboarding = false\n"
     assert (
         sync.sync_herdr_repo_variants({"dark": VARIANTS["dark"], "light": VARIANTS["light"]})
-        == [False] * 8
+        == [False] * 10
     )
 
 
 def test_checked_in_repository_variants_match_the_renderer() -> None:
     repo = Path(__file__).parents[1]
-    for profile in (HERDR_073_PROFILE, HERDR_080_PROFILE, HERDR_082_PROFILE, HERDR_091_PROFILE):
+    for profile in (
+        HERDR_073_PROFILE,
+        HERDR_080_PROFILE,
+        HERDR_082_PROFILE,
+        HERDR_091_PROFILE,
+        HERDR_093_PROFILE,
+    ):
         base = repo / "DreamcoderHerdr/.config/herdr/dreamcoder" / profile.evidence.version
 
         assert (base / "config.dark.toml").read_text() == herdr_content(
