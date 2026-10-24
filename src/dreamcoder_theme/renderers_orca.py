@@ -183,39 +183,46 @@ def orca_store() -> tuple[str, Path]:
     return "missing", data_path
 
 
-def _is_orca_main(argv: list[str]) -> bool:
-    """True for the argv of Orca's own main process, not its helpers.
+def _is_orca_main(pid_dir: Path, argv: list[str]) -> bool:
+    """True for Orca's own main process, not its helpers or launcher.
 
-    A packaged ``orca-ide`` binary runs with a bare argv. The AppImage build
-    runs the same main process from the image itself, so its argv is the
-    single AppImage path; Electron's ``--type=`` renderer/gpu/utility children
-    and the long-lived daemon all carry extra arguments and are ignored here.
+    The process that owns the profile is the ``orca-ide`` binary itself: for a
+    packaged build that is the extracted binary, and for the AppImage build it
+    is the same binary inside the mount, so its executable name is
+    ``orca-ide`` either way. Electron's ``--type=`` children and the daemon
+    carry extra arguments, and the AppImage runtime parent keeps the bare
+    image path as both its argv and its executable long after the window
+    closes, so neither of those counts.
     """
+    try:
+        exe = os.path.basename(os.readlink(pid_dir / "exe"))
+    except OSError:
+        exe = ""
+    if exe == "orca-ide":
+        return True
     if len(argv) != 1:
         return False
-    name = os.path.basename(argv[0])
-    return name == "orca-ide" or (name.startswith("orca") and name.endswith(".AppImage"))
+    return os.path.basename(argv[0]) == "orca-ide"
 
 
 def orca_main_window_running(proc_root: Path = Path("/proc")) -> bool:
     """True while Orca's main Electron window holds its profile open.
 
     Orca's daemon and helper processes (crashpad, session-scanner, the
-    parcel watcher) stay alive after the window closes and never rewrite
-    the profile; only the main process does, spawned with no extra argv
-    (its `--type=...` child processes are renderer/gpu/utility helpers,
-    not the window that owns the write). Detecting anything less specific
-    than that (e.g. any process named orca-ide) would treat those harmless
-    helpers as if the window were still open and skip real sync
-    opportunities for no reason.
+    parcel watcher, the AppImage runtime) stay alive after the window closes
+    and never rewrite the profile; only the main process does, spawned with no
+    extra argv (its `--type=...` child processes are renderer/gpu/utility
+    helpers, not the window that owns the write). Detecting anything less
+    specific than that would treat those harmless helpers as if the window
+    were still open and skip real sync opportunities for no reason.
     """
     for entry in proc_root.glob("[0-9]*/cmdline"):
         try:
-            argv = entry.read_bytes().split(b"\0")
+            raw = entry.read_bytes().split(b"\0")
         except OSError:
             continue
-        argv = [a for a in argv if a]
-        if _is_orca_main([a.decode(errors="replace") for a in argv]):
+        argv = [a.decode(errors="replace") for a in raw if a]
+        if _is_orca_main(entry.parent, argv):
             return True
     return False
 
