@@ -178,6 +178,31 @@ def test_orca_main_window_not_running_when_only_helpers_present(tmp_path: Path) 
     assert orca_main_window_running(proc_root) is False
 
 
+def test_orca_main_window_running_detects_appimage_cmdline(tmp_path: Path) -> None:
+    """The AppImage build runs its main process from the image path itself."""
+    proc_root = tmp_path / "proc"
+    running = proc_root / "1234"
+    running.mkdir(parents=True)
+    (running / "cmdline").write_bytes(b"/home/u/Downloads/orca-linux.AppImage\x00")
+
+    daemon = proc_root / "5678"
+    daemon.mkdir(parents=True)
+    (daemon / "cmdline").write_bytes(
+        b"/home/u/.cache/orca/node\x00--spawner-exec-path\x00/tmp/.mount_orca/orca-ide\x00"
+    )
+
+    assert orca_main_window_running(proc_root) is True
+
+
+def test_orca_main_window_not_running_for_unrelated_appimage(tmp_path: Path) -> None:
+    proc_root = tmp_path / "proc"
+    other = proc_root / "1234"
+    other.mkdir(parents=True)
+    (other / "cmdline").write_bytes(b"/home/u/Apps/other.AppImage\x00")
+
+    assert orca_main_window_running(proc_root) is False
+
+
 def test_orca_theme_settings_select_by_custom_id_and_keep_both_variants() -> None:
     settings = orca_theme_settings(VARIANTS["dark"], VARIANTS, "dark")
     ids = [t["id"] for t in settings["terminalCustomThemes"]]
