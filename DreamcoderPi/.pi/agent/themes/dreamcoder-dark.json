@@ -1,6 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/earendil-works/pi/main/packages/coding-agent/src/modes/interactive/theme/theme-schema.json",
-  "name": "dreamcoder",
+  "name": "dreamcoder-dark",
+  "appearance": "dark",
   "vars": {
     "cocoa": "#D4B5FD",
     "lucuma": "#A5B4FC",
@@ -33,8 +34,8 @@
     "customMessageBg": "#0B0B0B",
     "customMessageText": "",
     "customMessageLabel": "lucuma",
-    "toolPendingBg": "#050505",
-    "toolSuccessBg": "#09261c",
+    "toolPendingBg": "#0B0B0B",
+    "toolSuccessBg": "#0D0D0F",
     "toolErrorBg": "#281515",
     "toolTitle": "lucuma",
     "toolOutput": "",

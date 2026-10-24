@@ -5,11 +5,13 @@ from __future__ import annotations
 import json
 import shutil
 import subprocess
+import tomllib
 from pathlib import Path
 
 import pytest
 
 from dreamcoder_theme.writers import (
+    PI_THEME_PAIR,
     cleanup_opencode_themes,
     ensure_codex_theme_config,
     ensure_kitty_ui_include,
@@ -244,26 +246,33 @@ class TestEnsurePiThemeSettings:
         path = tmp_path / "pi.json"
         assert ensure_pi_theme_settings(path) is True
         data = json.loads(path.read_text())
-        assert data["theme"] == "dreamcoder"
+        assert data["theme"] == PI_THEME_PAIR
 
     def test_no_change_when_correct(self, tmp_path: Path) -> None:
         path = tmp_path / "pi.json"
-        path.write_text(json.dumps({"theme": "dreamcoder"}, indent=2) + "\n")
+        path.write_text(json.dumps({"theme": PI_THEME_PAIR}, indent=2) + "\n")
         assert ensure_pi_theme_settings(path) is False
+
+    def test_migrates_single_theme_selection(self, tmp_path: Path) -> None:
+        path = tmp_path / "pi.json"
+        path.write_text(json.dumps({"theme": "dreamcoder"}))
+        assert ensure_pi_theme_settings(path) is True
+        data = json.loads(path.read_text())
+        assert data["theme"] == PI_THEME_PAIR
 
     def test_overwrites_different_theme(self, tmp_path: Path) -> None:
         path = tmp_path / "pi.json"
         path.write_text(json.dumps({"theme": "other"}))
         assert ensure_pi_theme_settings(path) is True
         data = json.loads(path.read_text())
-        assert data["theme"] == "dreamcoder"
+        assert data["theme"] == PI_THEME_PAIR
 
     def test_handles_corrupted_json(self, tmp_path: Path) -> None:
         path = tmp_path / "pi.json"
         path.write_text("{corrupt}")
         assert ensure_pi_theme_settings(path) is True
         data = json.loads(path.read_text())
-        assert data["theme"] == "dreamcoder"
+        assert data["theme"] == PI_THEME_PAIR
 
 
 class TestEnsureKittyUiInclude:
@@ -367,7 +376,7 @@ class TestUpdateWarpSettings:
         assert update_warp_settings(path, "dark") is True
         content = path.read_text()
         assert "[appearance.window]" in content
-        assert "override_opacity = 76" in content
+        assert "override_opacity = 100" in content
         assert "override_blur = 20" in content
         assert "override_blur_texture = true" in content
 
@@ -383,7 +392,7 @@ class TestUpdateWarpSettings:
         path = tmp_path / "settings.toml"
         content = (
             "[appearance.window]\n"
-            "override_opacity = 76\n"
+            "override_opacity = 100\n"
             "override_blur = 20\n"
             "override_blur_texture = true\n"
         )
@@ -400,7 +409,111 @@ class TestUpdateWarpSettings:
         )
         assert update_warp_settings(path, "dark") is True
         content = path.read_text()
-        assert "override_opacity = 76" in content
+        assert "override_opacity = 100" in content
+
+    @pytest.mark.parametrize("mode, opacity", [("dark", 100), ("light", 96)])
+    def test_preserves_personal_window_settings(self, tmp_path: Path, mode, opacity) -> None:
+        path = tmp_path / "settings.toml"
+        path.write_text(
+            "# Personal settings\n[appearance.window]\n"
+            "# Keep my padding\npadding = 12\noverride_opacity = 76\n"
+            "override_blur = 5\noverride_blur_texture = false\n"
+            "[other]\nkey = true\n"
+        )
+        assert update_warp_settings(path, mode) is True
+        content = path.read_text()
+        assert f"override_opacity = {opacity}\n" in content
+        assert "# Keep my padding\npadding = 12\n" in content
+        assert content.startswith("# Personal settings\n")
+        assert content.endswith("[other]\nkey = true\n")
+        assert update_warp_settings(path, mode) is False
+
+    @pytest.mark.parametrize(
+        "mode, opacity, blur, texture", [("dark", 100, 20, True), ("light", 96, 1, False)]
+    )
+    @pytest.mark.parametrize("quote", ['"', "'"])
+    @pytest.mark.parametrize(
+        "header",
+        ["[appearance.window]", '  [appearance."window"]', "\t['appearance'.'window']"],
+    )
+    def test_quoted_owned_keys(self, tmp_path, mode, opacity, blur, texture, quote, header):
+        path = tmp_path / "settings.toml"
+        original = (
+            f"{header} # window\n"
+            "padding = 12 # personal\n"
+            f"{quote}override_opacity{quote} =76 # opacity\n"
+            f"{quote}override_blur{quote}=5 # blur\n"
+            f"{quote}override_blur_texture{quote} = false # texture\n"
+            "[other]\nkey = true\n"
+        )
+        expected = tomllib.loads(original)
+        expected["appearance"]["window"].update(
+            override_opacity=opacity, override_blur=blur, override_blur_texture=texture
+        )
+        path.write_text(original)
+        assert update_warp_settings(path, mode) is True
+        output = path.read_text()
+        assert tomllib.loads(output) == expected
+        assert output == original.replace("=76 # opacity", f"={opacity} # opacity").replace(
+            "=5 # blur", f"={blur} # blur"
+        ).replace("= false # texture", f"= {str(texture).lower()} # texture")
+        assert update_warp_settings(path, mode) is False
+        assert path.read_text() == output
+
+    @pytest.mark.parametrize(
+        "mode, opacity, blur, texture", [("dark", 100, 20, True), ("light", 96, 1, False)]
+    )
+    @pytest.mark.parametrize(
+        "following", ["  [other]", "\t[[other]]", "  [appearance.window.child]"]
+    )
+    @pytest.mark.parametrize("missing", [False, True])
+    def test_indented_table_boundaries(
+        self, tmp_path, mode, opacity, blur, texture, following, missing
+    ):
+        path = tmp_path / "settings.toml"
+        suffix = f"{following} # preserve\noverride_opacity = 42\noverride_blur = 7\nkey = true\n"
+        original = "[appearance.window]\npadding = 12 # personal\n"
+        if not missing:
+            original += "override_opacity = 76\noverride_blur = 5\noverride_blur_texture = false\n"
+        original += suffix
+        expected = tomllib.loads(original)
+        expected["appearance"]["window"].update(
+            override_opacity=opacity, override_blur=blur, override_blur_texture=texture
+        )
+        path.write_text(original)
+        assert update_warp_settings(path, mode) is True
+        output = path.read_text()
+        assert tomllib.loads(output) == expected
+        assert output.endswith(suffix)
+        assert "padding = 12 # personal\n" in output
+        assert update_warp_settings(path, mode) is False
+        assert path.read_text() == output
+
+    @pytest.mark.parametrize("mode", ["dark", "light"])
+    @pytest.mark.parametrize(
+        "original",
+        [
+            "appearance.window = { override_opacity = 76 }\n",
+            '[appearance.window]\nnote = """\noverride_opacity = 76\n"""\n',
+            "[appearance.window]\noverride_opacity = 76\ninvalid =\n",
+            '[appearance.window]\n"override_\\u006fpacity" = 76\n',
+            'appearance = "personal"\n',
+            "[appearance]\nwindow = 76\n",
+        ],
+    )
+    def test_preserves_unsupported_or_invalid_toml(self, tmp_path, original, mode):
+        path = tmp_path / "settings.toml"
+        path.write_text(original)
+        before = path.stat().st_mtime_ns
+        with (
+            mock.patch("dreamcoder_theme.writers.write_if_changed") as writer,
+            pytest.raises(ValueError, match="Warp settings rejected") as exc,
+        ):
+            update_warp_settings(path, mode)
+        assert str(path) in str(exc.value)
+        writer.assert_not_called()
+        assert path.read_text() == original
+        assert path.stat().st_mtime_ns == before
 
     def test_preserves_other_sections(self, tmp_path: Path) -> None:
         path = tmp_path / "settings.toml"

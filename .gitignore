@@ -11,6 +11,8 @@ build/
 .coverage.*
 # Coverage
 dist/
+# GTK/Qt ownership state written at runtime with absolute paths
+DreamcoderFastfetch/.config/dreamcoder/*-ownership.json
 DreamcoderKitty/.config/kitty/colors-matugen.conf
 DreamcoderShell/.config/fish/fish_variables
 DreamcoderShell/.config/fish/functions/
@@ -35,6 +37,8 @@ installer/dreamcoder-dots-*
 node_modules/
 # OS files
 .pi-subagents/
+# Pi local MCP registry
+.pi/mcp.json
 __pycache__/
 *.py[cod]
 *.py,cover

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import inspect
 import json
+import os
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 from unittest import mock
@@ -144,12 +146,12 @@ def variants() -> dict[str, dict[str, str]]:
     }
 
 
-def test_sync_active_targets_returns_dict(mock_paths, active):
+def test_sync_active_targets_returns_dict(mock_paths, active, variants):
     patches = [*_writer_patches(), *_patch_renderers()]
     for p in patches:
         p.start()
     try:
-        result = sync.sync_active_targets(mock_paths, active, "dark")
+        result = sync.sync_active_targets(mock_paths, active, "dark", variants)
     finally:
         for p in patches:
             p.stop()
@@ -159,8 +161,8 @@ def test_sync_active_targets_returns_dict(mock_paths, active):
     assert result["bat_theme"] is False
 
 
-def test_sync_active_targets_detects_changes(mock_paths, active):
-    def side_effect(path, content):
+def test_sync_active_targets_detects_changes(mock_paths, active, variants):
+    def side_effect(path, content, **kwargs):
         return path.name in ("colors.conf", "starship.toml", "tmux.conf")
 
     patches = [
@@ -175,7 +177,7 @@ def test_sync_active_targets_detects_changes(mock_paths, active):
     for p in patches:
         p.start()
     try:
-        result = sync.sync_active_targets(mock_paths, active, "dark")
+        result = sync.sync_active_targets(mock_paths, active, "dark", variants)
     finally:
         for p in patches:
             p.stop()
@@ -531,3 +533,175 @@ def test_variant_registry_active_paths_use_the_symlink_safe_writer() -> None:
     source = inspect.getsource(sync.sync_repo_snippets)
     assert "write_active_repo_file(active_path" in source
     assert sum(1 for _, _, _, ap in sync.VARIANT_REGISTRY if ap is not None) >= 1
+
+
+@pytest.mark.parametrize("mode", ["dark", "light"])
+def test_toolkit_optional_absence_is_untouched(mock_paths, tmp_path, mode):
+    paths = replace(
+        mock_paths,
+        **{
+            f"{target}_{kind}": tmp_path / target / kind
+            for target in ("gtk3", "gtk4", "qt6ct")
+            for kind in ("config", "canonical", "state")
+        },
+    )
+    assert sync.sync_toolkit_targets(paths, dict(V[mode]), mode) == {}
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_toolkit_dark_then_light_restores_selection(mock_paths, tmp_path):
+    paths = replace(
+        mock_paths,
+        **{
+            f"{target}_{kind}": tmp_path / target / kind
+            for target in ("gtk3", "gtk4", "qt6ct")
+            for kind in ("config", "canonical", "state")
+        },
+    )
+    originals = {}
+    for target in ("gtk3", "gtk4", "qt6ct"):
+        config = getattr(paths, f"{target}_config")
+        config.parent.mkdir()
+        original = (
+            "[Appearance]\ncustom_palette=false\n"
+            if target == "qt6ct"
+            else '@import "colors.css";\nbutton { color: red; }\n'
+        )
+        config.write_text(original)
+        originals[target] = original
+    changes = sync.sync_toolkit_targets(paths, dict(V["dark"]), "dark")
+    assert all(changes.values())
+    for target in originals:
+        assert getattr(paths, f"{target}_canonical").is_file()
+        assert getattr(paths, f"{target}_state").is_file()
+    sync.sync_toolkit_targets(paths, dict(V["light"]), "light")
+    for target, original in originals.items():
+        assert getattr(paths, f"{target}_config").read_text() == original
+        assert not getattr(paths, f"{target}_state").exists()
+
+
+@pytest.mark.parametrize("alias", ["hardlink", "symlink", "cross-target"])
+def test_toolkit_alias_rejected_before_canonical_generation(mock_paths, tmp_path, alias):
+    config = tmp_path / "gtk.css"
+    config.write_text("/* original */\n")
+    canonical = tmp_path / "canonical.css"
+    if alias == "hardlink":
+        os.link(config, canonical)
+    elif alias == "symlink":
+        canonical.symlink_to(config)
+    else:
+        canonical.write_text("prior canonical")
+    paths = replace(
+        mock_paths,
+        gtk3_config=config,
+        gtk3_canonical=canonical,
+        gtk3_state=tmp_path / "state.json",
+        gtk4_config=canonical,
+        gtk4_canonical=tmp_path / "four.css",
+        gtk4_state=tmp_path / "four.json",
+    )
+    before = {p: p.read_bytes() for p in (config, canonical)}
+    with (
+        mock.patch.object(sync, "write_if_changed") as writer,
+        pytest.raises(ValueError, match=r"distinct|alias|collision"),
+    ):
+        sync.sync_toolkit_targets(paths, dict(V["dark"]), "dark")
+    writer.assert_not_called()
+    assert all(p.read_bytes() == content for p, content in before.items())
+
+
+@pytest.mark.parametrize("target", ["gtk3", "gtk4", "qt6ct"])
+@pytest.mark.parametrize("problem", ["deleted", "drift", "unsupported"])
+def test_toolkit_light_never_silently_ignores_owned_problem(mock_paths, tmp_path, target, problem):
+    config = tmp_path / "user.conf"
+    config.write_text(
+        "[Appearance]\ncustom_palette=false\n" if target == "qt6ct" else "/* original */\n"
+    )
+    paths = replace(
+        mock_paths,
+        **{
+            f"{target}_config": config,
+            f"{target}_canonical": tmp_path / "canonical",
+            f"{target}_state": tmp_path / "ownership.json",
+        },
+    )
+    sync.sync_toolkit_targets(paths, dict(V["dark"]), "dark")
+    if problem == "deleted":
+        config.unlink()
+    else:
+        config.write_text(
+            "[Appearance]\ncustom_palette=invalid\n"
+            if target == "qt6ct"
+            else '@charset "utf-8";\n'
+            if problem == "unsupported"
+            else "/* replaced */\n"
+        )
+    before = {p.name: p.read_bytes() for p in tmp_path.iterdir()}
+    with pytest.raises(ValueError):
+        sync.sync_toolkit_targets(paths, dict(V["light"]), "light")
+    assert {p.name: p.read_bytes() for p in tmp_path.iterdir()} == before
+
+
+def test_toolkit_explicit_override_creates_and_light_releases_missing_config(
+    mock_paths, tmp_path, monkeypatch
+):
+    config = tmp_path / "gtk.css"
+    monkeypatch.setenv("DREAMCODER_GTK3_CONFIG", str(config))
+    paths = replace(
+        mock_paths,
+        gtk3_config=config,
+        gtk3_canonical=tmp_path / "canonical.css",
+        gtk3_state=tmp_path / "state.json",
+    )
+    sync.sync_toolkit_targets(paths, dict(V["dark"]), "dark")
+    assert config.exists()
+    sync.sync_toolkit_targets(paths, dict(V["light"]), "light")
+    assert not config.exists()
+    assert not paths.gtk3_state.exists()
+
+
+@pytest.mark.parametrize("alias", ["hardlink", "symlink"])
+def test_toolkit_protects_matugen_referents_before_output(mock_paths, tmp_path, alias):
+    colors = tmp_path / "colors.css"
+    colors.write_text("/* Matugen */\n")
+    canonical = tmp_path / "innocent.css"
+    if alias == "hardlink":
+        os.link(colors, canonical)
+    else:
+        canonical.symlink_to(colors)
+    config = tmp_path / "gtk.css"
+    config.write_text('@import "colors.css";\n')
+    paths = replace(
+        mock_paths, gtk3_config=config, gtk3_canonical=canonical, gtk3_state=tmp_path / "state.json"
+    )
+    with (
+        mock.patch.object(sync, "write_if_changed") as writer,
+        pytest.raises(ValueError, match=r"protected|Matugen"),
+    ):
+        sync.sync_toolkit_targets(paths, dict(V["dark"]), "dark")
+    writer.assert_not_called()
+    assert colors.read_text() == "/* Matugen */\n"
+
+
+def test_integrated_gtk_selection_survives_matugen_fixture_overwrites(mock_paths, tmp_path):
+    config = tmp_path / "gtk.css"
+    original = '@import "colors.css";\nlabel { background-color: @view_bg_color; }\n'
+    config.write_text(original)
+    paths = replace(
+        mock_paths,
+        gtk3_config=config,
+        gtk3_canonical=tmp_path / "canonical.css",
+        gtk3_state=tmp_path / "state.json",
+    )
+    sync.sync_toolkit_targets(paths, dict(V["dark"]), "dark")
+    selected = config.read_bytes()
+    canonical = paths.gtk3_canonical.read_bytes()
+    for background in ("#654321", "#fedcba"):
+        (tmp_path / "colors.css").write_text(f"@define-color view_bg_color {background};\n")
+        assert not any(sync.sync_toolkit_targets(paths, dict(V["dark"]), "dark").values())
+        assert config.read_bytes() == selected
+        assert paths.gtk3_canonical.read_bytes() == canonical
+        assert b"@define-color view_bg_color #000000;" in canonical
+        assert config.read_text().index("colors.css") < config.read_text().index("canonical.css")
+    sync.sync_toolkit_targets(paths, dict(V["light"]), "light")
+    assert config.read_text() == original

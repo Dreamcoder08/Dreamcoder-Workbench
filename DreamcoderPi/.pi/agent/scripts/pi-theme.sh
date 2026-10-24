@@ -3,7 +3,6 @@ set -euo pipefail
 
 DD="${DOTS_DIR:-$HOME/Documents/PROYECTOS/dreamcoder-dots}"
 DC="${DREAMCODER_DOTS_DIR:-$DD}"
-LN="$HOME/.pi/agent/themes/dreamcoder.json"
 
 detect() {
   # First check env var (e.g. called from apply-theme-mode.sh)
@@ -38,11 +37,16 @@ detect() {
 }
 
 mode="$(detect)"
-src="$DC/DreamcoderPi/.pi/agent/themes/dreamcoder-$mode.json"
-[[ -f "$src" ]] || {
-  echo "✗ $src not found" >&2
-  exit 1
-}
-mkdir -p "$(dirname "$LN")"
-ln -sf "$src" "$LN"
-echo "→ pi-theme: $mode"
+# Use canonical validated colors and the same destination precedence as sync.
+# Disable adaptation locally: Matugen can write unrelated desktop templates.
+# This helper touches only Pi/Gentle Shell themes and settings, not the desktop.
+DREAMCODER_ADAPTIVE=0 PYTHONPATH="${DC}/src${PYTHONPATH:+:${PYTHONPATH}}" \
+  python3 - "${mode}" <<'PY'
+import sys
+from dreamcoder_theme.settings import theme_paths
+from dreamcoder_theme.sync import prepare, sync_pi_targets
+
+prepared = prepare(sys.argv[1])
+sync_pi_targets(theme_paths(), prepared.active, prepared.variants)
+PY
+printf '→ Pi / Gentle Shell theme: %s\n' "${mode}"

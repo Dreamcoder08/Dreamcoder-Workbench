@@ -91,12 +91,9 @@ if [[ -d "${KITTY_DIR}" ]]; then
 fi
 # Ghostty uses native dual-mode (light:dreamcoder-light,dark:dreamcoder-dark)
 # No symlink flipping needed — Ghostty auto-detects system theme
-# --- Pi CLI: flip theme symlink ---
-PI_SCRIPT="${DREAMCODER_DOTS_DIR}/DreamcoderPi/.pi/agent/scripts/pi-theme.sh"
-if [[ -f "${PI_SCRIPT}" ]]; then
-  DREAMCODER_THEME_MODE="${MODE}" bash "${PI_SCRIPT}" &>/dev/null || true
-  printf '  pi theme switched to %s mode\n' "${MODE}"
-fi
+# Pi and Gentle Shell stable themes/settings were committed by Python above.
+# Do not repoint their active files to repository variants after generation.
+printf '  Pi / Gentle Shell theme switched to %s mode\n' "${MODE}"
 
 # The Python preparation + validation + settings persistence + commit ran
 # above (or, when invoked by the control transaction, in that caller). This

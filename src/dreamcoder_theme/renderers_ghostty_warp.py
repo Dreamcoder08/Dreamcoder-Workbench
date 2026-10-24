@@ -9,7 +9,7 @@ def ghostty_content(c: dict[str, str]) -> str:
     is_dark = detect_mode(c) == "dark"
     sel_bg = c["selection_bg"]
     sel_fg = c["selection_fg"]
-    opacity = "0.76" if is_dark else "0.96"
+    opacity = "1.0" if is_dark else "0.96"
     blur = "true" if is_dark else "false"
     lines = [
         f"# {c['name']}",

@@ -15,6 +15,7 @@ import sys
 from pathlib import Path
 from typing import cast
 
+from dreamcoder_theme import sync
 from dreamcoder_theme.palette_tokens import VARIANTS
 from dreamcoder_theme.renderer_contract import (
     SUPPORTED_CONTRACT_VERSION,
@@ -36,6 +37,7 @@ from dreamcoder_theme.renderer_registry import (
 )
 from dreamcoder_theme.renderers_codex import REGISTRATIONS as CODEX_REGISTRATIONS
 from dreamcoder_theme.renderers_codex import codex_tmtheme_content
+from dreamcoder_theme.renderers_extra_gtk_qt import gtk_content, qt6ct_content
 from dreamcoder_theme.renderers_hypr_waybar_rofi import (
     REGISTRATIONS as HYPR_WAYBAR_ROFI_REGISTRATIONS,
 )
@@ -78,14 +80,15 @@ def make_registration(
 
 
 class TestExpectedSet:
-    def test_expected_set_is_the_frozen_33(self) -> None:
-        assert len(EXPECTED_CONSUMER_IDS) == 33
-        assert EXPECTED_CONSUMER_IDS == FROZEN_IDS
+    def test_expected_set_extends_original_33_with_three_toolkits(self) -> None:
+        assert len(EXPECTED_CONSUMER_IDS) == 36
+        expected = FROZEN_IDS.union({"gtk3", "gtk4", "qt6ct"})
+        assert expected == EXPECTED_CONSUMER_IDS
 
     def test_registrations_are_an_exact_bijection(self) -> None:
         ids = [r.consumer_id for r in REGISTRATIONS]
-        assert len(ids) == 33
-        assert set(ids) == FROZEN_IDS
+        assert len(ids) == 36
+        assert set(ids) == FROZEN_IDS | {"gtk3", "gtk4", "qt6ct"}
         assert len(set(ids)) == len(ids)
         assert validate_registry(REGISTRATIONS) == []
 
@@ -373,3 +376,33 @@ class TestSliceARegistrationFixes:
 
     def test_full_registry_still_validates_clean_after_slice_a_fixes(self) -> None:
         assert validate_registry(REGISTRATIONS) == []
+
+
+def test_toolkit_registrations_truthfully_declare_dark_only_reversible_outputs():
+    by_id = {registration.consumer_id: registration for registration in REGISTRATIONS}
+    rows = {row.consumer_id: row for row in sync.COVERAGE}
+    for target in ("gtk3", "gtk4", "qt6ct"):
+        registration = by_id[target]
+        assert registration.renderer is (qt6ct_content if target == "qt6ct" else gtk_content)
+        assert registration.modes == frozenset({"dark"})
+        assert registration.output_kind == "active"
+        assert registration.sync.repository == RepositoryStrategy.NO_VARIANTS
+        assert registration.sync.mutation == MutationStrategy.REVERSIBLE_OWNERSHIP
+        assert rows[target].source == "toolkit"
+        assert rows[target].artifact == f"active:{target}_canonical"
+    assert sync.validate_coverage_declaration() == []
+    assert sync.validate_coverage_declaration(
+        tuple(row for row in sync.COVERAGE if row.consumer_id != "gtk3")
+    )
+
+
+def test_reversible_ownership_rejects_light_render_and_repository_variants():
+    definition = SyncDefinition(
+        renderer=RendererStrategy.DIRECT_CONTENT,
+        active=ActiveStrategy.RESOLVED_ACTIVE_PATH,
+        repository=RepositoryStrategy.MODE_VARIANTS,
+        mutation=MutationStrategy.REVERSIBLE_OWNERSHIP,
+    )
+    problems = validate_registry((make_registration(sync=definition),))
+    assert any("reversible ownership requires active-only" in problem for problem in problems)
+    assert any("reversible ownership renders Dark only" in problem for problem in problems)

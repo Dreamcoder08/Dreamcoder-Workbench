@@ -124,25 +124,28 @@ def adaptive_palette(
         return base
 
     c = dict(base)
-    bg = mix(c["bg"], scheme.get("background", c["bg"]), 0.18)
-    if contrast(bg, c["text"]) >= 7:
-        c["bg"] = bg
-    c["surface0"] = surface_guard(
-        mix(c["surface0"], scheme.get("surface_container", c["surface0"]), 0.16),
-        c["bg"],
-        mode_name,
-    )
-    c["surface1"] = surface_guard(
-        mix(c["surface1"], scheme.get("surface_container_high", c["surface1"]), 0.18),
-        c["bg"],
-        mode_name,
-    )
-    c["surface2"] = surface_guard(
-        mix(c["surface2"], scheme.get("surface_variant", c["surface2"]), 0.18),
-        c["bg"],
-        mode_name,
-    )
-    c["bg_soft"] = surface_guard(c["bg_soft"], c["bg"], mode_name)
+    # Dark keeps the canonical black canvas and near-black functional surfaces.
+    # Wallpaper adaptation still supplies accents without tinting that hierarchy.
+    if mode_name != "dark":
+        bg = mix(c["bg"], scheme.get("background", c["bg"]), 0.18)
+        if contrast(bg, c["text"]) >= 7:
+            c["bg"] = bg
+        c["surface0"] = surface_guard(
+            mix(c["surface0"], scheme.get("surface_container", c["surface0"]), 0.16),
+            c["bg"],
+            mode_name,
+        )
+        c["surface1"] = surface_guard(
+            mix(c["surface1"], scheme.get("surface_container_high", c["surface1"]), 0.18),
+            c["bg"],
+            mode_name,
+        )
+        c["surface2"] = surface_guard(
+            mix(c["surface2"], scheme.get("surface_variant", c["surface2"]), 0.18),
+            c["bg"],
+            mode_name,
+        )
+        c["bg_soft"] = surface_guard(c["bg_soft"], c["bg"], mode_name)
     c["accent"] = guard(
         mix(c["prompt_accent"], scheme.get("primary", c["accent"]), 0.25),
         c["bg"],
@@ -172,9 +175,13 @@ def adaptive_palette(
 
 def ansi(palette: dict[str, str]) -> list[str]:
     mode_name = detect_mode(palette)
+    dark_cyan = mix(palette["success"], palette["info"], 0.5) if mode_name == "dark" else None
+    dark_overrides = (
+        {6: dark_cyan, 14: mix(dark_cyan, palette["text"], 0.15)} if dark_cyan is not None else {}
+    )
     safe = []
-    for key in ANSI_KEY_NAMES:
-        color = resolve_color(palette, key)
+    for index, key in enumerate(ANSI_KEY_NAMES):
+        color = dark_overrides[index] if index in dark_overrides else resolve_color(palette, key)
         if not color.startswith("#"):
             raise ValueError(f"ANSI key {key!r} resolved to non-hex {color!r}")
         safe.append(guard(color, palette["bg"], mode_name))

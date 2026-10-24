@@ -30,6 +30,7 @@ from dreamcoder_theme.docs_report import docs_markdown, docs_report, write_docs_
 from dreamcoder_theme.installer import installer_plan
 from dreamcoder_theme.motion import MOTION_PRESETS, apply_motion_files
 from dreamcoder_theme.profiles import apply_profile_files, load_profiles, profile_changes
+from dreamcoder_theme.renderers_orca import sync_orca_theme
 from dreamcoder_theme.repair_engine import apply_safe_repairs, repair_catalog, repair_plan
 from dreamcoder_theme.settings import theme_paths, write_repo_enabled
 from dreamcoder_theme.settings_store import (
@@ -391,6 +392,13 @@ def _mutable_paths(paths: Any) -> list[Path]:
         _herdr_active_config_path(config_home),
         cache_home / "dreamcoder/cursor-cli.env",
     ]
+    mutable += [
+        path for path in (paths.gentle_shell_theme, paths.gentle_shell_settings) if path is not None
+    ]
+    toolkit = sync.toolkit_paths(paths)
+    mutable += toolkit
+    # Link-preserving toolkit writers overwrite referents, not the link itself.
+    mutable += [path.resolve() for path in toolkit if path.is_symlink()]
     if write_repo_enabled():
         mutable += [
             ROOT / "DreamcoderKitty/.config/kitty/dreamcoder-ui.conf",
@@ -473,7 +481,7 @@ def _regenerate_prior(paths: Any, prior_base: str) -> None:
     # original activation error this rollback is recovering from.
     with contextlib.suppress(Exception):
         prepared = sync.prepare(prior_base)
-        sync.sync_active_targets(paths, prepared.active, prior_base)
+        sync.sync_active_targets(paths, prepared.active, prior_base, prepared.variants)
         sync.sync_bat_theme_variants(paths, prepared.variants)
         if write_repo_enabled():
             sync.sync_repo_snippets(prepared.variants, prepared.active)
@@ -498,7 +506,7 @@ def _commit_activation(
     _flip_bridge_symlinks(paths, base)
     # 6. Commit variants, active files, and selectors. write_if_changed()
     #    semantics are preserved — each entry reports bool changed.
-    changed.update(sync.sync_active_targets(paths, prepared.active, base))
+    changed.update(sync.sync_active_targets(paths, prepared.active, base, prepared.variants))
     bat_changes = sync.sync_bat_theme_variants(paths, prepared.variants)
     if write_repo_enabled():
         repo_changes = sync.sync_repo_snippets(prepared.variants, prepared.active)
@@ -576,6 +584,9 @@ def apply_theme(base: str, as_json: bool) -> int:
         _restore_snapshots(snapshots, dir_captures)
         set_nested_setting("terminal.default_mode", prior_base)
         _regenerate_prior(paths, prior_base)
+        # Regeneration is best-effort, never authority over original selections,
+        # ownership state, absence, or referent bytes. Restore the full inventory.
+        _restore_snapshots(snapshots, dir_captures)
         if as_json:
             emit(
                 {
@@ -600,6 +611,13 @@ def apply_theme(base: str, as_json: bool) -> int:
         "changed": changed,
         "rollback_state": rollback_state,
     }
+    # Orca owns its profile outside this transaction: it is skipped while its
+    # window runs and is never a rollback reason, so a theme activation that
+    # already succeeded is never undone by an external app's state.
+    try:
+        status["orca"] = sync_orca_theme(prepared.active, prepared.variants, prepared.mode)
+    except Exception as exc:
+        status["orca"] = f"skipped-error: {exc}"
     emit(status, as_json)
     return 0
 

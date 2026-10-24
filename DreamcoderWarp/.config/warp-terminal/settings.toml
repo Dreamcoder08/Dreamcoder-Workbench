@@ -57,7 +57,7 @@ agent_mode_codebase_context_auto_indexing = true
 input_mode = "waterfall"
 
 [appearance.window]
-zoom_level = 70
+zoom_level = 90
 override_opacity = 96
 
 [appearance.themes]
@@ -66,7 +66,7 @@ selected_system_themes = {
   light = "Dreamcoder-Light",
 }
 system_theme = false
-theme = { custom = { name = "Dreamcoder Light", path = "Dreamcoder-Light.yaml" } }
+theme = { custom = { name = "Dreamcoder Dark", path = "Dreamcoder-Dark.yaml" } }
 
 [appearance.text]
 font_name = "JetBrainsMono Nerd Font"

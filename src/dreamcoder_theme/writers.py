@@ -7,6 +7,8 @@ import os
 import re
 import shutil
 import subprocess
+import tempfile
+import tomllib
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -23,13 +25,23 @@ def _ensure_single_trailing_newline(content: str) -> str:
     return content.rstrip() + "\n"
 
 
-def write_if_changed(path: Path, content: str) -> bool:
+def write_if_changed(path: Path, content: str, *, replace_symlink: bool = False) -> bool:
     content = _ensure_single_trailing_newline(content)
     old = path.read_text() if path.exists() else ""
-    if old == content:
+    if old == content and not (replace_symlink and path.is_symlink()):
         return False
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(content)
+    if replace_symlink:
+        # Replace the directory entry, never the repository variant behind a link.
+        with tempfile.NamedTemporaryFile(mode="w", dir=path.parent, delete=False) as stream:
+            temporary = Path(stream.name)
+            stream.write(content)
+        try:
+            temporary.replace(path)
+        finally:
+            temporary.unlink(missing_ok=True)
+    else:
+        path.write_text(content)
     return True
 
 
@@ -71,6 +83,9 @@ def ensure_codex_theme_config(path: Path) -> bool:
     return write_if_changed(path, updated)
 
 
+PI_THEME_PAIR = "dreamcoder-light/dreamcoder-dark"
+
+
 def ensure_pi_theme_settings(path: Path) -> bool:
     data: dict[str, Any] = {}
     if path.exists():
@@ -78,10 +93,10 @@ def ensure_pi_theme_settings(path: Path) -> bool:
             data = json.loads(path.read_text())
         except json.JSONDecodeError:
             data = {}
-    if data.get("theme") == "dreamcoder":
+    if data.get("theme") == PI_THEME_PAIR:
         return False
-    data["theme"] = "dreamcoder"
-    return write_if_changed(path, json.dumps(data, indent=2) + "\n")
+    data["theme"] = PI_THEME_PAIR
+    return write_if_changed(path, json.dumps(data, indent=2) + "\n", replace_symlink=True)
 
 
 def valid_starship(path: Path) -> bool:
@@ -158,9 +173,14 @@ def update_zellij_config(path: Path, mode: str) -> bool:
 
 
 def update_warp_settings(path: Path, mode: str) -> bool:
-    """Patch Warp settings.toml with mode-aware opacity/blur for glass coherence."""
+    """Patch owned Warp opacity/blur keys without replacing personal settings.
+
+    Dark opacity covers the whole canvas; retained blur does not add region glass.
+    Missing files are created. False means a verified successful no-op; rejected
+    documents raise ValueError before writing so activation can roll back.
+    """
     if mode == "dark":
-        opacity_val = 76
+        opacity_val = 100
         blur_val = 20
         blur_texture = True
     else:
@@ -176,23 +196,87 @@ def update_warp_settings(path: Path, mode: str) -> bool:
         f"override_blur_texture = {str(blur_texture).lower()}\n"
     )
 
-    if path.exists():
-        content = path.read_text()
-        # Check if section exists and already correct
-        sec_re = re.compile(r"^\[appearance\.window\].*?(?=^\[|\Z)", re.MULTILINE | re.DOTALL)
+    content = path.read_text() if path.exists() else ""
+    try:
+        intended = tomllib.loads(content)
+    except tomllib.TOMLDecodeError as exc:
+        raise ValueError(f"Warp settings rejected: {path}: invalid TOML; file unchanged") from exc
+    appearance = intended.setdefault("appearance", {})
+    if not isinstance(appearance, dict):
+        raise ValueError(
+            f"Warp settings rejected: {path}: appearance is not a table; file unchanged"
+        )
+    window_exists = "window" in appearance
+    window = appearance.setdefault("window", {})
+    if not isinstance(window, dict):
+        raise ValueError(
+            f"Warp settings rejected: {path}: appearance.window is not a table; file unchanged"
+        )
+    window.update(
+        override_opacity=opacity_val,
+        override_blur=blur_val,
+        override_blur_texture=blur_texture,
+    )
+
+    patched = _patch_warp_window(content, expected, window_exists, window)
+    if patched is None:
+        raise ValueError(
+            f"Warp settings rejected: {path}: unsupported appearance.window layout; file unchanged"
+        )
+
+    # Regexes locate a conservative text patch, not a TOML parser. Reject false
+    # matches inside multiline strings, duplicates, or any unrelated semantic edit.
+    try:
+        verified = tomllib.loads(patched)
+    except tomllib.TOMLDecodeError as exc:
+        raise ValueError(
+            f"Warp settings rejected: {path}: patch would produce invalid TOML; file unchanged"
+        ) from exc
+    if verified != intended:
+        raise ValueError(
+            f"Warp settings rejected: {path}: patch would alter unrelated settings; file unchanged"
+        )
+    return write_if_changed(path, patched)
+
+
+def _patch_warp_window(
+    content: str, expected: str, window_exists: bool, window: dict[str, Any]
+) -> str | None:
+    """Locate only Warp's explicit window table; leave unsupported layouts alone."""
+    if content:
+        # Horizontal whitespace only: include indented regular/array table boundaries.
+        sec_re = re.compile(
+            r"^[ \t]*\[(?:appearance|\"appearance\"|'appearance')[ \t]*\.[ \t]*"
+            r"(?:window|\"window\"|'window')\][^\n]*\n?.*?(?=^[ \t]*\[|\Z)",
+            re.MULTILINE | re.DOTALL,
+        )
         existing_section = sec_re.search(content)
-        if existing_section and existing_section.group().strip() == expected.strip():
-            return False
-        # Replace or append section
         if existing_section:
-            patched = content.replace(existing_section.group(), expected)
+            section = existing_section.group()
+            for key, value in (
+                ("override_opacity", str(window["override_opacity"])),
+                ("override_blur", str(window["override_blur"])),
+                ("override_blur_texture", str(window["override_blur_texture"]).lower()),
+            ):
+                pattern = re.compile(
+                    rf"^([ \t]*(?:{key}|\"{key}\"|'{key}')[ \t]*=[ \t]*)[^\s#]+",
+                    re.MULTILINE,
+                )
+                if pattern.search(section):
+                    section = pattern.sub(lambda m: m.group(1) + value, section)
+                else:
+                    section += ("" if section.endswith("\n") else "\n") + f"{key} = {value}\n"
+            patched = (
+                content[: existing_section.start()] + section + content[existing_section.end() :]
+            )
         else:
-            patched = content.rstrip() + "\n\n" + expected
+            if window_exists:
+                return None  # Inline/dotted or unsupported quoted table: preserve it.
+            patched = content + ("\n" if content.endswith("\n") else "\n\n") + expected
     else:
         patched = expected
 
-    path.parent.mkdir(parents=True, exist_ok=True)
-    return write_if_changed(path, patched)
+    return patched
 
 
 def write_variant_files(
