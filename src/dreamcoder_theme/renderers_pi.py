@@ -14,7 +14,9 @@ def pi_theme_content(c: dict[str, str], *, name: str | None = None) -> str:
     mode_name = detect_mode(c)
     user_bg = mix(c["accent"], c["bg"], 0.96)
     pending_bg = c["surface0"]
-    success_bg = c["surface1"]
+    # Gentle Shell also uses successful-tool surfaces for its chrome and editor.
+    # Light chrome stays cream; the deeper surface remains a selection cue.
+    success_bg = c["surface0"] if mode_name == "light" else c["surface1"]
     error_bg = mix(c["error"], c["bg"], 0.84)
     theme = {
         "$schema": PI_THEME_SCHEMA,
@@ -37,7 +39,7 @@ def pi_theme_content(c: dict[str, str], *, name: str | None = None) -> str:
         "colors": {
             "accent": "lucuma",
             "border": "borderUi",
-            "borderAccent": "diagnostic",
+            "borderAccent": "lucuma" if mode_name == "light" else "diagnostic",
             "borderMuted": "borderMuted",
             "success": "sage",
             "error": "coral",
@@ -82,7 +84,7 @@ def pi_theme_content(c: dict[str, str], *, name: str | None = None) -> str:
             "thinkingOff": "comment",
             "thinkingMinimal": "borderUi",
             "thinkingLow": make_guard(c)(mix(c["diagnostic"], c["text"], 0.12)),
-            "thinkingMedium": "diagnostic",
+            "thinkingMedium": "lucuma" if mode_name == "light" else "diagnostic",
             "thinkingHigh": "mauve",
             "thinkingXhigh": "coral",
             "bashMode": "lucuma",
