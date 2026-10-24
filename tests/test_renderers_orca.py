@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import sqlite3
 from pathlib import Path
 from typing import Any
@@ -178,27 +179,26 @@ def test_orca_main_window_not_running_when_only_helpers_present(tmp_path: Path) 
     assert orca_main_window_running(proc_root) is False
 
 
-def test_orca_main_window_running_detects_appimage_cmdline(tmp_path: Path) -> None:
-    """The AppImage build runs its main process from the image path itself."""
+def test_orca_main_window_running_detects_appimage_main_exe(tmp_path: Path) -> None:
+    """The AppImage build's main process is the extracted `orca-ide` binary."""
     proc_root = tmp_path / "proc"
-    running = proc_root / "1234"
-    running.mkdir(parents=True)
-    (running / "cmdline").write_bytes(b"/home/u/Downloads/orca-linux.AppImage\x00")
-
-    daemon = proc_root / "5678"
-    daemon.mkdir(parents=True)
-    (daemon / "cmdline").write_bytes(
-        b"/home/u/.cache/orca/node\x00--spawner-exec-path\x00/tmp/.mount_orca/orca-ide\x00"
-    )
+    main = proc_root / "1234"
+    main.mkdir(parents=True)
+    (main / "cmdline").write_bytes(b"/tmp/.mount_orca-abc123/orca-ide\x00")
+    os.symlink("/tmp/.mount_orca-abc123/orca-ide", main / "exe")
 
     assert orca_main_window_running(proc_root) is True
 
 
-def test_orca_main_window_not_running_for_unrelated_appimage(tmp_path: Path) -> None:
+def test_orca_main_window_not_running_for_lingering_appimage_launcher(
+    tmp_path: Path,
+) -> None:
+    """The AppImage runtime parent outlives the window and must not count."""
     proc_root = tmp_path / "proc"
-    other = proc_root / "1234"
-    other.mkdir(parents=True)
-    (other / "cmdline").write_bytes(b"/home/u/Apps/other.AppImage\x00")
+    launcher = proc_root / "1234"
+    launcher.mkdir(parents=True)
+    (launcher / "cmdline").write_bytes(b"/home/u/Downloads/orca-linux.AppImage\x00")
+    os.symlink("/home/u/Downloads/orca-linux.AppImage", launcher / "exe")
 
     assert orca_main_window_running(proc_root) is False
 
