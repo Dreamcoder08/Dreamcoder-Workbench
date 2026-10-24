@@ -8,21 +8,38 @@
 | Ghostty | Custom | Custom shaders, blur effects |
 | WezTerm | `.lua` | Cross-platform, Lua config |
 | Alacritty | `.toml` | Minimal, fast |
-| Orca | Live settings JSON | Written into Orca's own profile, not a repo file |
+| Orca | Live profile state (SQLite) | Written into Orca's own profile, not a repo file |
 
 ### Orca
 
-Orca keeps its themes in its own per-profile settings file
-(`~/.config/orca/profiles/local-default/orca-data.json`, overridable with
-`ORCA_DATA_PATH`). `dreamcoder sync` writes both `Dreamcoder Dark` and
-`Dreamcoder Light` into `terminalCustomThemes`, points
-`terminalThemeDark`/`terminalThemeLight` at them, enables
-`terminalUseSeparateLightTheme`, sets the per-appearance divider colors from
-the palette `border_ui` token, and sets the app chrome `theme` to the active
-Dreamcoder mode.
+Orca migrated its profile from JSON to SQLite. The authoritative store is
+`~/.config/orca/profiles/local-default/profile-state.db`, and the
+`profile-state.db.authority` marker says `sqlite`. The neighbouring
+`orca-data.json` is only an export Orca rewrites on save — editing it changes
+nothing Orca reads. `ORCA_DATA_PATH` overrides the profile directory and
+`ORCA_STATE_DB_PATH` overrides the database path directly.
 
-Orca holds its settings in memory while its main window is open and flushes
-that copy over external edits, so the sync skips the file and reports
+Both `dreamcoder dark` and `dreamcoder sync` write the profile's `settings`
+document: they define `Dreamcoder Dark` and `Dreamcoder Light` in
+`terminalCustomThemes`, select them through `terminalThemeDark` /
+`terminalThemeLight`, enable `terminalUseSeparateLightTheme`, set the
+per-appearance divider colors from the palette `border_ui` token, and set the
+app chrome `theme` to the active Dreamcoder mode.
+
+A custom theme is addressed by id, not by display name: Orca reads the
+selection as `custom:<id>` and takes the colors from the entry's nested
+`terminal` object. The managed ids are `manual:dreamcoder-dark` and
+`manual:dreamcoder-light`. Entries missing usable colors are silently
+discarded by Orca, which is why a name-only entry leaves Orca on a built-in
+scheme while still showing the configured name.
+
+The database row records the profile revision it was written at and a
+`content_hash` of the exact payload bytes, and the profile revision in
+`profile_state_meta` moves with it; the previous database is copied to
+`profile-state.db.dreamcoder-backup.<timestamp>` before each write.
+
+Orca holds its profile in memory while its main window is open and flushes
+that copy over external edits, so the sync skips the store and reports
 `skipped-running` instead of writing something that would be discarded.
 Close Orca, then re-run `dreamcoder dark` or `dreamcoder light` to apply.
 

@@ -722,11 +722,15 @@ VARIANT_REGISTRY: list[tuple[Path, dict[str, str], Callable[..., str], Path | No
         ROOT / "DreamcoderBat/.config/bat/themes/Dreamcoder.tmTheme",
     ),
     # -- Pi CLI --
+    # active_path is None here: the unsuffixed dreamcoder.json keeps the
+    # stable identity name "dreamcoder" so pi's own selection keeps resolving,
+    # while the -dark/-light siblings carry their mode-suffixed names. The
+    # stable file is written explicitly below with that name.
     (
         ROOT / "DreamcoderPi/.pi/agent/themes",
         {k: f"dreamcoder-{v}.json" for k, v in D.items()},
         pi_theme_content,
-        ROOT / "DreamcoderPi/.pi/agent/themes/dreamcoder.json",
+        None,
     ),
     # -- Antigravity --
     # active_path is None here: the unsuffixed Dreamcoder.json is pinned to
@@ -895,6 +899,14 @@ def sync_repo_snippets(variants: dict[str, dict[str, str]], active: dict[str, st
         write_active_repo_file(
             ROOT / ".opencode/themes/dreamcoder.json",
             opencode_content(active, transparent_background=True),
+        )
+    )
+
+    # Pi CLI active file: stable identity name, independent of the mode.
+    repo_changes.append(
+        write_active_repo_file(
+            ROOT / "DreamcoderPi/.pi/agent/themes/dreamcoder.json",
+            pi_theme_content(active, name="dreamcoder"),
         )
     )
 
