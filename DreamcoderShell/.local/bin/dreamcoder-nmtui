@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Read data, never execute the persisted shell fragment. Last valid mode wins.
+mode="${DREAMCODER_THEME_MODE:-dark}"
+case "${mode}" in light|dark) ;; *) mode=dark ;; esac
+mode_cache="${XDG_CACHE_HOME:-${HOME}/.cache}/dreamcoder/cursor-cli.env"
+if [[ -f "${mode_cache}" && -r "${mode_cache}" ]]; then
+    while IFS= read -r line || [[ -n "${line}" ]]; do
+        case "${line}" in
+            'export DREAMCODER_THEME_MODE=light'|'export DREAMCODER_THEME_MODE="light"'|"export DREAMCODER_THEME_MODE='light'") mode=light ;;
+            'export DREAMCODER_THEME_MODE=dark'|'export DREAMCODER_THEME_MODE="dark"'|"export DREAMCODER_THEME_MODE='dark'") mode=dark ;;
+        esac
+    done < "${mode_cache}"
+fi
+focus=blue
+[[ "${mode}" != light ]] || focus=brown
+
+# Prefer native reverse-video selection unless any explicit style opts out.
+if [[ ! -v NEWT_MONO && ! -v NEWT_COLORS && ! -v NEWT_COLORS_FILE && ! -v NMT_NEWT_COLORS && ! -v NMT_NEWT_COLORS_FILE ]]; then
+    export NEWT_MONO=1
+fi
+
+# Use terminal defaults, not a separate blue canvas or an unverified RGB syntax.
+# A deliberate override (even empty) opts out of its entire color family.
+if [[ ! -v NEWT_COLORS && ! -v NEWT_COLORS_FILE ]]; then
+    colors=()
+    for role in root border window shadow title button checkbox entry label listbox textbox helpline roottext emptyscale compactbutton; do
+        colors+=("${role}=default,default")
+    done
+    for role in actbutton actcheckbox actlistbox acttextbox fullscale sellistbox actsellistbox; do
+        colors+=("${role}=${focus},default")
+    done
+    colors+=("disentry=gray,default")
+    export NEWT_COLORS="${colors[*]}"
+fi
+if [[ ! -v NMT_NEWT_COLORS && ! -v NMT_NEWT_COLORS_FILE ]]; then
+    export NMT_NEWT_COLORS="badLabel=red,default plainLabel=default,default disabledButton=gray,default textboxWithBackground=default,default"
+fi
+
+exec nmtui "$@"

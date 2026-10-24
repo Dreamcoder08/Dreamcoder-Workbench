@@ -15,8 +15,9 @@ dist/
 DreamcoderFastfetch/.config/dreamcoder/*-ownership.json
 DreamcoderKitty/.config/kitty/colors-matugen.conf
 DreamcoderShell/.config/fish/fish_variables
-DreamcoderShell/.config/fish/functions/
+DreamcoderShell/.config/fish/functions/*
 !DreamcoderShell/.config/fish/functions/dev-dots.fish
+!DreamcoderShell/.config/fish/functions/nmtui.fish
 .DS_Store
 # Editor
 .editorconfig-unreal
