@@ -328,7 +328,47 @@ HERDR_091_EVIDENCE = ContractEvidence(
     restoration=ProcedureEvidence(available=True, unambiguous=True),
 )
 HERDR_091_PROFILE = HerdrProfile(evidence=HERDR_091_EVIDENCE)
-SUPPORTED_PROFILES = (HERDR_073_PROFILE, HERDR_080_PROFILE, HERDR_082_PROFILE, HERDR_091_PROFILE)
+
+# Herdr v0.9.3 official-release-asset evidence. Observed exactly from the
+# upstream release asset `herdr-linux-x86_64` (tag v0.9.3,
+# ogulcancelik/herdr), executed from a scratch directory, NOT from an installed
+# binary: version `0.9.3`, binary SHA-256
+# 18a8dc65f1c2fa485884344356dea1cfd911c6f06cf46fa78e193f4087f4dba7.
+# `herdr config check` stays strict on unknown keys and theme names, and it
+# accepts each generated variant through HERDR_CONFIG_PATH, so the field set is
+# the 0.8.2/0.9.1 set unchanged. Reload command is `herdr server reload-config`
+# (not observed live); see herdr-contract-evidence.md.
+HERDR_093_EVIDENCE = ContractEvidence(
+    profile_id="herdr-0.9.3",
+    executable="herdr",
+    version="0.9.3",
+    source_identity=(
+        "Herdr v0.9.3 official release asset herdr-linux-x86_64 run from a scratch "
+        "directory: `herdr config check` (strict on unknown keys) accepts every "
+        "generated field; reload `herdr server reload-config`; HERDR_CONFIG_PATH override"
+    ),
+    source_sha256="18a8dc65f1c2fa485884344356dea1cfd911c6f06cf46fa78e193f4087f4dba7",
+    default_config_path="<HOME>/.config/herdr/config.toml",
+    config_path_environment="HERDR_CONFIG_PATH",
+    color_representation="hex (#RRGGBB)",
+    base_theme_name="catppuccin",
+    light_base_theme_name="catppuccin-latte",
+    allowed_theme_fields=HERDR_091_EVIDENCE.allowed_theme_fields,
+    allowed_custom_fields=HERDR_091_EVIDENCE.allowed_custom_fields,
+    allowed_ui_fields=HERDR_091_EVIDENCE.allowed_ui_fields,
+    candidate_validation=ProcedureEvidence(available=True, unambiguous=True),
+    server_applicability=ProcedureEvidence(available=True, unambiguous=True),
+    reload=ProcedureEvidence(available=True, unambiguous=True, observable=True),
+    restoration=ProcedureEvidence(available=True, unambiguous=True),
+)
+HERDR_093_PROFILE = HerdrProfile(evidence=HERDR_093_EVIDENCE)
+SUPPORTED_PROFILES = (
+    HERDR_073_PROFILE,
+    HERDR_080_PROFILE,
+    HERDR_082_PROFILE,
+    HERDR_091_PROFILE,
+    HERDR_093_PROFILE,
+)
 
 
 def detect_profile(

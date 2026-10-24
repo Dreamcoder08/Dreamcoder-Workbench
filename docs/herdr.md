@@ -27,6 +27,7 @@ configuration.
 | `herdr-0.8.0` | 0.8.0 | `herdr config check` | `herdr server reload-config` | `~/.config/herdr/config.toml` (overridable by `HERDR_CONFIG_PATH`) | Installed-binary evidence |
 | `herdr-0.8.2` | 0.8.2 | Source-derived | `herdr server reload-config` | XDG config path (overridable by `HERDR_CONFIG_PATH`) | Public upstream source; no local runtime observation |
 | `herdr-0.9.1` | 0.9.1 | `herdr config check` | `herdr server reload-config` | `~/.config/herdr/config.toml` (overridable by `HERDR_CONFIG_PATH`) | Installed-binary evidence |
+| `herdr-0.9.3` | 0.9.3 | `herdr config check` | `herdr server reload-config` | `~/.config/herdr/config.toml` (overridable by `HERDR_CONFIG_PATH`) | Official release-asset evidence; not the installed binary |
 
 ### Herdr 0.8.0 installed-binary evidence
 
@@ -77,6 +78,30 @@ The 0.9.1 variants carry the same field set as 0.8.2 (catppuccin base,
 generated variant passed `HERDR_CONFIG_PATH=<variant> herdr config check`. A
 live reload was not observed (the server was not running when captured).
 
+### Herdr 0.9.3 release-asset evidence
+
+Observed from the official `v0.9.3` release asset `herdr-linux-x86_64`
+(`ogulcancelik/herdr`), executed from a scratch directory with a throwaway
+`HOME`. This is **not** installed-binary evidence: the host still runs 0.9.1.
+
+- Asset SHA-256:
+  `18a8dc65f1c2fa485884344356dea1cfd911c6f06cf46fa78e193f4087f4dba7`,
+  `--version` prints `herdr 0.9.3`
+- Config validation: `herdr config check`, still strict on unknown keys and
+  theme names (exit 1). Each generated variant passed
+  `HERDR_CONFIG_PATH=<variant> herdr config check` with `config: ok`.
+- Reload command: `herdr server reload-config` (not observed live)
+- Config path: `~/.config/herdr/config.toml`, overridable via `HERDR_CONFIG_PATH`
+- Default-config deltas against 0.9.1: an unbound `[keys] clear_pane` and a
+  commented `startup_per_agent_delay_ms = 100`; neither touches the theme,
+  custom, or ui fields the variant emits.
+
+The 0.9.3 variants carry the 0.9.1 field set and are byte-identical to it.
+Detection matches the exact installed version, so on a 0.9.1 host the 0.9.1
+profile stays active; the 0.9.3 profile applies after `herdr update`. With both
+profiles present, 0.9.2 sits between them and fails closed (as 0.9.0 does); no
+0.9.2 evidence exists to profile it.
+
 ## Generated repository variants
 
 Versioned variants are generated from the Dreamcoder Workbench canonical tokens
@@ -93,14 +118,16 @@ DreamcoderHerdr/.config/herdr/dreamcoder/
   0.8.2/config.light.toml
   0.9.1/config.dark.toml
   0.9.1/config.light.toml
+  0.9.3/config.dark.toml
+  0.9.3/config.light.toml
 ```
 
 - Each variant carries the header `# Managed by Dreamcoder; repository variant only.`
 - Light renders Dreamcoder Light; dark renders Dreamcoder dark.
 - The 0.8.0 variants include `pane_scrollbars = false`.
-- The 0.8.2 and 0.9.1 Light variants use `catppuccin-latte`; all 0.8.2 and
-  0.9.1 variants explicitly map sidebar, active-row, and navigation-selection
-  backgrounds.
+- The 0.8.2, 0.9.1, and 0.9.3 Light variants use `catppuccin-latte`; all
+  0.8.2, 0.9.1, and 0.9.3 variants explicitly map sidebar, active-row, and
+  navigation-selection backgrounds.
 - Active/live configuration (`~/.config/herdr/config.toml`, or whatever
   `HERDR_CONFIG_PATH` points to) stays out of git. The repository only ever
   ships static, versioned variants.
