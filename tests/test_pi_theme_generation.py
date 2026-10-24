@@ -234,6 +234,20 @@ class PiThemeGenerationTest(unittest.TestCase):
             self.assertEqual(theme["colors"]["accent"], "lucuma")
             self.assertEqual(theme["vars"]["lucuma"], "#A5B4FC")
 
+    def test_tool_card_backgrounds_stay_on_the_neutral_surface_ladder(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            result = run_sync(tmp, "dark")
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+            theme = json.loads((tmp / "pi-agent" / "themes" / "dreamcoder.json").read_text())
+
+            # Gentle Shell paints floating cards and the prompt frame with
+            # toolSuccessBg/toolPendingBg, so those roles must stay neutral
+            # instead of borrowing the success hue.
+            self.assertEqual(theme["colors"]["toolSuccessBg"], "#0D0D0F")
+            self.assertEqual(theme["colors"]["toolPendingBg"], "#0B0B0B")
+
     def test_opencode_preserves_terminal_transparent_background(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)
