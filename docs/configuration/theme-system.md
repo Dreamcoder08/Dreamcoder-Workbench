@@ -75,6 +75,31 @@ that change unrelated desktop files; normal theme commands remain adaptive.
 Running sessions can reload the active user theme when supported; restart a
 session if it retains its previous theme selection.
 
+## GTK and Qt
+
+The Dark GTK surfaces write `dreamcoder-dark.css` into `~/.config/gtk-3.0` and
+`~/.config/gtk-4.0` and add a managed import to each `gtk.css`. That file is a
+named-colour sheet (`@define-color` only), not a widget stylesheet.
+
+Measured reach (headless GTK 3.24.52, GTK 4.22.5, libadwaita 1.9):
+
+- libadwaita applications adopt the Dark names, so their windows, headers and
+  controls follow the palette.
+- Plain GTK 3 applications and GTK 4 applications that do not use libadwaita
+  keep the colours of their active GTK theme. A `@define-color` name resolves
+  inside the sheet that defines it, so an import-only sheet never overrides the
+  widget styles those applications already set.
+- Qt applications read `qt6ct-dark.conf`, a palette file with 21 ARGB roles per
+  state, and are not affected by the GTK sheets.
+
+Ownership is reversible. The canonical file, the managed import and an
+`*-ownership.json` record change together, and Light removes the import and
+restores the previous content instead of writing a Light GTK asset.
+
+Growing this coverage to plain GTK 3 and non-Adw GTK 4 would require explicit
+widget rules in `gtk-dark.css`. That is a visible design change, not a
+documentation gap.
+
 ## Quality gates
 
 - WCAG 2.2: body text ≥ 4.5:1 (main text ≥ 7:1)
