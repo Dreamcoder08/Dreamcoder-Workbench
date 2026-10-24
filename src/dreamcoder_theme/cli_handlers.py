@@ -30,6 +30,7 @@ from dreamcoder_theme.docs_report import docs_markdown, docs_report, write_docs_
 from dreamcoder_theme.installer import installer_plan
 from dreamcoder_theme.motion import MOTION_PRESETS, apply_motion_files
 from dreamcoder_theme.profiles import apply_profile_files, load_profiles, profile_changes
+from dreamcoder_theme.renderers_orca import sync_orca_theme
 from dreamcoder_theme.repair_engine import apply_safe_repairs, repair_catalog, repair_plan
 from dreamcoder_theme.settings import theme_paths, write_repo_enabled
 from dreamcoder_theme.settings_store import (
@@ -610,6 +611,13 @@ def apply_theme(base: str, as_json: bool) -> int:
         "changed": changed,
         "rollback_state": rollback_state,
     }
+    # Orca owns its profile outside this transaction: it is skipped while its
+    # window runs and is never a rollback reason, so a theme activation that
+    # already succeeded is never undone by an external app's state.
+    try:
+        status["orca"] = sync_orca_theme(prepared.active, prepared.variants, prepared.mode)
+    except Exception as exc:
+        status["orca"] = f"skipped-error: {exc}"
     emit(status, as_json)
     return 0
 
