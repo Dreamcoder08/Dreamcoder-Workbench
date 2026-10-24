@@ -4,6 +4,7 @@
 
 ### Added
 
+- Process-local `dreamcoder-nmtui` launcher with terminal-native inverse selection, Fish/Zsh routing, and a Waybar default entry point; explicit Newt style overrides remain supported.
 - PEP 621 packaging: `pyproject.toml` with setuptools build backend, `__version__` in package.
 - `dreamcoder-theme` CLI entry point (`dreamcoder-theme sync|doctor|paths`).
 - `Makefile` with targets: install, test, coverage, build, clean, lint.
@@ -22,6 +23,7 @@
 
 ### Changed
 
+- Refreshed the active generated theme snapshot to Dreamcoder Light while retaining the named Dark variants.
 - **Prefix restructure**: 22 directories renamed with the `Dreamcoder*` prefix (Gentleman.Dots style). Config tools (Alacritty → DreamcoderAlacritty, Kitty → DreamcoderKitty, etc.), AI configs (Pi → DreamcoderPi, Codex-*→ DreamcoderCodex*, Antigravity → DreamcoderAntigravity), and assets (themes → DreamcoderThemes, Wallpapers → DreamcoderWallpapers, profiles → DreamcoderProfiles). Infra (src, tests, installer, scripts, docs) keeps standard names.
 - Updated all internal references: Go installer, Python theme engine, scripts, tests, docs, CI workflows, .gitignore, CODEOWNERS.
 - Symlink `unknown` converted from absolute to relative.
@@ -38,6 +40,9 @@
 
 ### Fixed
 
+- Zsh sources Bun completions only from nonempty regular files, preserving support for symlinks to regular files.
+- Pi and Gentle Shell Light use cream chrome surfaces and brown focus roles, including the medium-thinking editor border, without changing Dark.
+- Zsh checks the optional Starship transience function with native syntax instead of Fish's unsupported `functions -q` option.
 - **Hyprland rgba converter**: `_rgba_to_argb` used `zfill(2)`, which only pads and never truncates, generating invalid 10-char `rgba()` values (e.g. `rgba(13811588ed)`). Now clamps with `int():02x` + conversion guard + regression tests.
 - **Anthracite Steel migration**: the dark palette propagated to the 24 tracked consumers (opencode, firefox, waybar, dunst, rofi, btop, obsidian, hyprland, zsh-syntax, etc.), regenerated with the engine and verified by idempotency.
 - **Engine writers**: `write_if_changed` normalizes to exactly one final newline (POSIX), removing the `end-of-file-fixer` hook churn on every commit.
