@@ -367,20 +367,35 @@ def test_ownership_conflict_is_rejected(
     assert "ownership conflict" in output
 
 
+@pytest.mark.parametrize("repinned", [False, True])
 def test_manifest_docs_mismatch_is_rejected(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    repinned: bool,
 ) -> None:
     module = _load_verifier()
     _install_layout(module, tmp_path)
     _point_module_at(module, monkeypatch, tmp_path)
     monkeypatch.setattr(module.shutil, "which", lambda _: None)
     sources = tmp_path / "docs/sources.md"
+    if repinned:
+        manifest = json.loads(module.UPSTREAM_MANIFEST.read_text())
+        upstream = manifest["upstreams"]["ml4w"]
+        text = sources.read_text().replace(upstream["pinned_ref"], "2" * 40)
+        upstream["pinned_ref"] = "2" * 40
+        sources.write_text(text)
+        module.UPSTREAM_MANIFEST.write_text(json.dumps(manifest))
+    baseline_code, baseline_output = _run(module, capsys)
+    assert baseline_code == 0, baseline_output
     stale_ref = "1" * 40
-    sources.write_text(
-        sources.read_text().replace("3960570f47f4f691c424ff46b387d389a8e69bca", stale_ref)
-    )
+    invalid_sources = sources.read_text() + f"\nStale upstream reference: `{stale_ref}`.\n"
+    sources.write_text(invalid_sources)
+    manifest_before = module.UPSTREAM_MANIFEST.read_bytes()
 
     code, output = _run(module, capsys)
 
     assert code == 1
-    assert "refs absent from the upstream manifest" in output
+    assert f"refs absent from the upstream manifest: {stale_ref}" in output
+    assert sources.read_text() == invalid_sources
+    assert module.UPSTREAM_MANIFEST.read_bytes() == manifest_before
