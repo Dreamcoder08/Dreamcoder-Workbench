@@ -22,6 +22,8 @@ def starship_content(c: dict[str, str]) -> str:
     lavender_col = c["lavender"]
     mauve_col = c["mauve"]
     palette_id = "dreamcoder"
+    # Dark compatibility alias for the existing runtime/AI styles; other modes stay unchanged.
+    diag_alias = f'diag = "{diag}"\n' if mode == "dark" else ""
 
     return f'''# ========================================================
 # {c["name"]} — Starship prompt
@@ -66,7 +68,7 @@ prompt_accent_2 = "{c["prompt_accent_2"]}"
 sage = "{c["sage"]}"
 success = "{c["success"]}"
 diagnostic = "{diag}"
-info = "{c["info"]}"
+{diag_alias}info = "{c["info"]}"
 lavender = "{lavender_col}"
 mauve = "{mauve_col}"
 error = "{error}"
