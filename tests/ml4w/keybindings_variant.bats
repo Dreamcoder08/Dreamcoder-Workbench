@@ -1,11 +1,12 @@
 # ============================================================================
 # BATS tests: ml4w_assets/hypr/conf/keybindings/dreamcoder.lua
 # ============================================================================
-# The curated variant tracks upstream ML4W default.lua (tag 2.16) minus the
-# binds the machine profile owns. These checks keep it aligned with the 2.16
+# The curated variant tracks upstream ML4W default.lua (tag 2.16.1) minus the
+# binds the machine profile owns. These checks keep it aligned with the 2.16.1
 # layout and free of collisions with the profile.
 
 load '../helpers/setup'
+bats_require_minimum_version 1.5.0
 
 variant() { printf '%s' "${DREAMCODER_DOTS_DIR}/ml4w_assets/hypr/conf/keybindings/dreamcoder.lua"; }
 profile() { printf '%s' "${DREAMCODER_DOTS_DIR}/DreamcoderProfiles/dreamcoder/asus-vivobook15.json"; }
@@ -14,6 +15,29 @@ profile() { printf '%s' "${DREAMCODER_DOTS_DIR}/DreamcoderProfiles/dreamcoder/as
   command -v luac >/dev/null || skip "luac not installed"
   run luac -p "$(variant)"
   [ "$status" -eq 0 ]
+}
+
+capture_command() {
+  run --separate-stderr lua "${DREAMCODER_DOTS_DIR}/tests/fixtures/ml4w/capture-keybindings.lua" "$(variant)" "$1"
+  [ "$status" -eq 0 ]
+  [ -z "$stderr" ]
+}
+
+@test "keybindings variant: SUPER+CTRL+P uses the standalone 2.16.1 power menu" {
+  capture_command 'SUPER + CTRL + P'
+  [ "$output" = 'ml4w-powermenu toggle' ]
+}
+
+@test "keybindings variant: SUPER+CTRL+RETURN uses the supported launcher entry point" {
+  capture_command 'SUPER + CTRL + RETURN'
+  [ "$output" = '~/.config/ml4w/scripts/ml4w-launcher' ]
+}
+
+@test "keybindings variant: preserves supported Waybar and statusbar commands" {
+  capture_command 'SUPER + CTRL + T'
+  [ "$output" = '~/.config/waybar/themeswitcher.sh' ]
+  capture_command 'SUPER + CTRL + B'
+  [ "$output" = '~/.config/ml4w/scripts/ml4w-toggle-statusbar' ]
 }
 
 @test "keybindings variant: SUPER+Tab opens the 2.16 overview location" {

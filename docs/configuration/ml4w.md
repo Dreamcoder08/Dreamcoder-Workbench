@@ -75,18 +75,28 @@ updates, so custom bindings live in a separate **variant**. `conf/keybinding.lua
 If you add a keybinding, add it to the profile JSON and re-run the generator —
 never to `dreamcoder.lua` unless it is a native-only bind.
 
-### Tracking upstream `default.lua` (ML4W 2.16)
+### Tracking upstream `default.lua` (ML4W 2.16.1)
 
 `dreamcoder.lua` follows upstream `default.lua` minus the profile-owned binds.
-The ML4W 2.16 delta is ported as follows:
+The verified release pin and upstream sources are recorded in the
+[source manifest](../sources.md). The integration retains the
+2.16 changes below and updates the confirmed 2.16.1 entry points:
 
-| Upstream 2.16 change | In `dreamcoder.lua` |
+| Upstream change | In `dreamcoder.lua` |
 | --- | --- |
+| Standalone power menu (2.16.1) | `SUPER + CTRL + P` runs `ml4w-powermenu toggle`, replacing `qs ipc call power toggle` |
+| Launcher selection (2.16.1) | `SUPER + CTRL + RETURN` runs `~/.config/ml4w/scripts/ml4w-launcher`, replacing the compatibility shim `hypr/scripts/launcher.sh` |
 | Overview moved to `~/.local/share/quickshell-overview` | `SUPER + Tab` runs `qs -p ~/.local/share/quickshell-overview ipc call overview toggle` |
 | `SUPER + ALT + B` statusbar autohide | Ported |
 | `SUPER + ALT + D` dock autohide | Ported |
 | Reload Dock moved to `SUPER + SHIFT + D` | Not bound — the profile owns that combo (theme toggle) |
 | Rewritten AZERTY detection (`fr`, `be`) | Ported; binds the AZERTY keysyms only on AZERTY layouts, since the profile owns the digit workspace binds |
+
+Waybar and Rofi remain supported, not obsolete: ML4W's statusbar dispatcher
+selects Waybar or Quickshell, and `ml4w-launcher` selects Walker or Rofi with a
+Rofi fallback when Walker is unavailable. The Waybar theme-switcher binding
+remains unchanged. The standalone power-menu command must be installed by the
+upstream setup; this repository does not install or start it during tests.
 
 `tests/ml4w/keybindings_variant.bats` fails on any new collision between the
 variant and the profile; there are no exceptions. The profile owns
@@ -233,7 +243,7 @@ tests/ml4w/
 ├── apply_ml4w_hooks.bats      # wallpaper + GTK listener hooks (ML4W 2.16 fixtures)
 ├── args.bats                  # script argument handling
 ├── generate_custom_lua.bats   # generator, incl. the dreamcoder-colors loader
-├── keybindings_variant.bats   # dreamcoder.lua vs ML4W 2.16 and the profile
+├── keybindings_variant.bats   # dreamcoder.lua vs ML4W 2.16.1 and the profile
 ├── ml4w_managed.bats          # ML4W ownership + colour-file predicates
 ├── setup_hyprland.bats        # orchestrator
 ├── profile_validation.bats    # JSON profiles

@@ -1,17 +1,17 @@
 {
   "version": 1,
   "provenance": {
-    "verified_on": "2026-09-30T07:27:46Z",
-    "method": "Resolved each upstream HTTPS remote with git ls-remote and recorded the exact returned commit. ML4W is pinned to tag 2.16 (lightweight tag, 3960570f47f4f691c424ff46b387d389a8e69bca), which was also the remote HEAD at verification; Gentleman.Dots is pinned to main HEAD. No ref was ever filled without verification.",
-    "command": "git ls-remote https://github.com/mylinuxforwork/dotfiles.git HEAD refs/tags/2.16; git ls-remote https://github.com/Gentleman-Programming/Gentleman.Dots.git HEAD refs/heads/main"
+    "verified_on": "2026-10-24T20:53:20Z",
+    "method": "Resolved ML4W tag 2.16.1 with git ls-remote: b95bd010eabc9c58a1a275ab0cca179b358aa9e3, with no peeled tag ref returned. Verified release notes at https://github.com/mylinuxforwork/dotfiles/releases/tag/2.16.1 and shipped interfaces at that commit. Gentleman.Dots retains its 2026-09-30 main HEAD verification and pin; it was not re-resolved. No ref was ever filled without verification.",
+    "command": "git ls-remote https://github.com/mylinuxforwork/dotfiles.git refs/tags/2.16.1 'refs/tags/2.16.1^{}'"
   },
   "upstreams": {
     "ml4w": {
       "name": "ML4W (Hyprland desktop dotfiles)",
       "url": "https://github.com/mylinuxforwork/dotfiles.git",
       "status": "pinned",
-      "pinned_ref": "3960570f47f4f691c424ff46b387d389a8e69bca",
-      "verified_on": "2026-09-30T07:27:46Z"
+      "pinned_ref": "b95bd010eabc9c58a1a275ab0cca179b358aa9e3",
+      "verified_on": "2026-10-24T20:53:20Z"
     },
     "gentleman-dots": {
       "name": "Gentleman.Dots (shell / editor / terminal base configuration)",
