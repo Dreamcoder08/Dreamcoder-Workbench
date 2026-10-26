@@ -108,6 +108,8 @@ documentation gap.
 
 ## Quality gates
 
+Use the [Dark state validation reference](dark-theme-validation.md) for cross-application checks, repeatable capture scenarios and limits of generated-color evidence.
+
 - WCAG 2.2: body text ≥ 4.5:1 (main text ≥ 7:1)
 - APCA: body Lc ≥ 75 light / ≥ 50 dark; `on_accent` Lc ≥ 54 on filled accent
 - CI validates **both** light and dark Kitty, Starship, Ghostty, Waybar, Hypr, Rofi, Btop, Dunst, Fzf
