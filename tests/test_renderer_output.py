@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from dreamcoder_theme.palette import guard, make_guard
+from dreamcoder_theme.palette import detect_mode, guard, make_guard
 from dreamcoder_theme.renderers_codex import codex_tmtheme_content
 from dreamcoder_theme.renderers_extra_nvim import nvim_content
 from dreamcoder_theme.renderers_kitty import kitty_content, kitty_ui_content
@@ -141,7 +141,15 @@ class TestOpencodeContent:
         data = json.loads(content)
         theme = data["theme"]
         assert theme["syntaxKeyword"] == t["keyword"]
-        assert theme["syntaxFunction"] == t["function"]
+        expected_function = t["function"]
+        if detect_mode(variant) == "light":
+            expected_function = guard(
+                expected_function,
+                theme["backgroundCode"],
+                "light",
+                minimum=4.5,
+            )
+        assert theme["syntaxFunction"] == expected_function
         assert theme["syntaxVariable"] == t["variable"]
         assert theme["syntaxString"] == t["string"]
         assert theme["syntaxType"] == t["type"]
