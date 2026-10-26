@@ -16,7 +16,7 @@
 #   2. Symlinks swaync/colors.css  → waybar/colors.css
 #   3. Generates ~/.config/hypr/custom.lua from machine profile
 #   4. Installs dreamcoder-toggle-theme.sh to ~/.config/hypr/scripts/
-#   5. Applies wallpaper hooks (calls apply-ml4w-hooks.sh)
+#   5. Installs the optional ML4W network route and applies wallpaper hooks
 #   6. Reloads Hyprland configuration
 #   7. Logs a summary of the integration
 #
@@ -31,6 +31,7 @@ set -euo pipefail
 DREAMCODER_DOTS_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 [[ -f "${DREAMCODER_DOTS_DIR}/lib/ml4w.sh" ]] && source "${DREAMCODER_DOTS_DIR}/lib/ml4w.sh"
 [[ -f "${DREAMCODER_DOTS_DIR}/lib/waybar.sh" ]] && source "${DREAMCODER_DOTS_DIR}/lib/waybar.sh"
+[[ -f "${DREAMCODER_DOTS_DIR}/lib/nmtui_route.sh" ]] && source "${DREAMCODER_DOTS_DIR}/lib/nmtui_route.sh"
 ASSETS_DIR="${DREAMCODER_DOTS_DIR}/ml4w_assets"
 GENERATOR="${DREAMCODER_DOTS_DIR}/scripts/generate-custom-lua.sh"
 ML4W_HOOKS="${DREAMCODER_DOTS_DIR}/scripts/apply-ml4w-hooks.sh"
@@ -109,7 +110,7 @@ else
 fi
 
 # ── pre-flight validation ──────────────────────────────────────────────────
-if $DRY_RUN; then
+if [[ "${DRY_RUN}" == true ]]; then
   step "Dry-run mode — no files will be modified"
   echo ""
 fi
@@ -161,11 +162,11 @@ if command -v check-json >/dev/null; then
     SCHEMA_VALID=true
   fi
 elif command -v python3 >/dev/null && python3 -c "import jsonschema" 2>/dev/null; then
-  if python3 -c "
+  if python3 - "${SCHEMA_FILE}" "${PROFILE_FILE}" <<'PY' 2>/dev/null
 import json, sys
-with open('${SCHEMA_FILE}') as f:
+with open(sys.argv[1]) as f:
     schema = json.load(f)
-with open('${PROFILE_FILE}') as f:
+with open(sys.argv[2]) as f:
     profile = json.load(f)
 import jsonschema
 try:
@@ -174,12 +175,13 @@ try:
 except jsonschema.ValidationError as e:
     print(e.message, file=sys.stderr)
     sys.exit(1)
-" 2>/dev/null; then
+PY
+  then
     SCHEMA_VALID=true
   fi
 fi
 
-if $SCHEMA_VALID; then
+if [[ "${SCHEMA_VALID}" == true ]]; then
   ok "Profile matches schema"
   ((++PASS))
 else
@@ -209,9 +211,9 @@ echo "  Pre-flight: ${PASS} passed"
 # ── 1. Symlink wlogout → waybar colors ────────────────────────────────────
 echo ""
 echo "═══ Step 1: Symlink Wlogout colors → Waybar ═══"
-if $DRY_RUN; then
-  step "Would symlink: ${WLOGOUT_DIR}/colors.css → ../../waybar/colors.css"
-  step "Would symlink: ${SWAYNC_DIR}/colors.css  → ../../waybar/colors.css"
+if [[ "${DRY_RUN}" == true ]]; then
+  step "Would symlink: ${WLOGOUT_DIR}/colors.css → ../waybar/colors.css"
+  step "Would symlink: ${SWAYNC_DIR}/colors.css  → ../waybar/colors.css"
 else
   for target_dir in "${WLOGOUT_DIR}" "${SWAYNC_DIR}"; do
     local_colors="${target_dir}/colors.css"
@@ -219,7 +221,7 @@ else
 
     if [[ -L "${local_colors}" ]]; then
       current_target=$(readlink "${local_colors}")
-      if [[ "${current_target}" == "../../waybar/colors.css" ]]; then
+      if [[ "${current_target}" == "../waybar/colors.css" ]]; then
         ok "Already linked: ${local_colors} → ${current_target}"
         continue
       fi
@@ -232,7 +234,7 @@ else
     fi
 
     rm -f "${local_colors}"
-    ln -sf "../../waybar/colors.css" "${local_colors}"
+    ln -sf "../waybar/colors.css" "${local_colors}"
     info "Linked:  ${local_colors} → $(readlink "${local_colors}")"
   done
 fi
@@ -240,7 +242,7 @@ fi
 # ── 2. Generate custom.lua from profile ───────────────────────────────────
 echo ""
 echo "═══ Step 2: Generate custom.lua from profile ═══"
-if $DRY_RUN; then
+if [[ "${DRY_RUN}" == true ]]; then
   bash "${GENERATOR}" --profile "${PROFILE_NAME}" --dry-run 2>&1
 else
   if [[ ! -f "${GENERATOR}" ]]; then
@@ -273,7 +275,7 @@ KEYBIND_SELECTOR_TARGET="${HYPR_DIR}/conf/keybinding.lua"
 KEYBIND_VARIANT_TARGET="${HYPR_DIR}/conf/keybindings/dreamcoder.lua"
 echo ""
 echo "═══ Step 3: Install keybindings variant (dreamcoder.lua) ═══"
-if $DRY_RUN; then
+if [[ "${DRY_RUN}" == true ]]; then
   step "Would install keybindings selector + variant"
 elif [[ -f "${KEYBIND_VARIANT}" ]] && grep -q "CONTRACT: This file only defines keybindings NOT managed" "${KEYBIND_VARIANT}" 2>/dev/null; then
   mkdir -p "$(dirname "${KEYBIND_SELECTOR_TARGET}")" "$(dirname "${KEYBIND_VARIANT_TARGET}")"
@@ -286,7 +288,7 @@ fi
 
 # ML4W's launch.sh prefers style-custom.css in the selected style theme dir.
 # Optional: a machine without the ML4W selector must not fail setup.
-if $DRY_RUN; then
+if [[ "${DRY_RUN}" == true ]]; then
   step "Would install Waybar accent override (style-custom.css)"
 else
   install_waybar_override "${DREAMCODER_DOTS_DIR}" || true
@@ -295,7 +297,7 @@ fi
 # ── 4. Install dreamcoder-toggle-theme.sh ─────────────────────────────────
 echo ""
 echo "═══ Step 4: Install dreamcoder-toggle-theme.sh ═══"
-if $DRY_RUN; then
+if [[ "${DRY_RUN}" == true ]]; then
   step "Would install: ${TOGGLE_TARGET}"
 else
   mkdir -p "${HYPR_SCRIPTS}"
@@ -309,10 +311,13 @@ else
   fi
 fi
 
+# The network menu uses the terminal-aware launcher; custom routes are skipped.
+install_nmtui_route "${DREAMCODER_DOTS_DIR}"
+
 # ── 5. Apply ML4W wallpaper hooks ─────────────────────────────────────────
 echo ""
 echo "═══ Step 5: Apply ML4W wallpaper hooks ═══"
-if $DRY_RUN; then
+if [[ "${DRY_RUN}" == true ]]; then
   step "Would run: ${ML4W_HOOKS}"
 else
   if [[ -f "${ML4W_HOOKS}" ]]; then
@@ -326,7 +331,7 @@ fi
 # ── 6. Reload Hyprland ────────────────────────────────────────────────────
 echo ""
 echo "═══ Step 6: Reload Hyprland ═══"
-if $DRY_RUN; then
+if [[ "${DRY_RUN}" == true ]]; then
   step "Would run: hyprctl reload"
 else
   if command -v hyprctl >/dev/null; then
