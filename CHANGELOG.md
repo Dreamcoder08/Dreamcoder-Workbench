@@ -40,6 +40,7 @@
 
 ### Fixed
 
+- Repository sync regression tests derive the current upstream pin instead of relying on a historical hash.
 - Zsh sources Bun completions only from nonempty regular files, preserving support for symlinks to regular files.
 - Pi and Gentle Shell Light use cream chrome surfaces and brown focus roles, including the medium-thinking editor border, without changing Dark.
 - Zsh checks the optional Starship transience function with native syntax instead of Fish's unsupported `functions -q` option.

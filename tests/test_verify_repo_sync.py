@@ -375,10 +375,13 @@ def test_manifest_docs_mismatch_is_rejected(
     _point_module_at(module, monkeypatch, tmp_path)
     monkeypatch.setattr(module.shutil, "which", lambda _: None)
     sources = tmp_path / "docs/sources.md"
+    manifest = json.loads(module.UPSTREAM_MANIFEST.read_text())
+    pinned_ref = manifest["upstreams"]["ml4w"]["pinned_ref"]
     stale_ref = "1" * 40
-    sources.write_text(
-        sources.read_text().replace("3960570f47f4f691c424ff46b387d389a8e69bca", stale_ref)
-    )
+    original = sources.read_text()
+    assert pinned_ref in original
+    assert stale_ref not in module.UPSTREAM_MANIFEST.read_text()
+    sources.write_text(original.replace(pinned_ref, stale_ref))
 
     code, output = _run(module, capsys)
 
