@@ -64,8 +64,8 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y jq bats
-          # luac may not be available on Ubuntu CI — that's fine, tests handle it
+          sudo apt-get install -y jq bats lua5.4
+          # The public keybinding capture fixture requires the Lua interpreter.
 
       # Run the whole directory, not an enumerated file list: naming each
       # file means a new test file silently never executes in CI.
