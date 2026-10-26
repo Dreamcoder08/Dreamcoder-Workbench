@@ -76,6 +76,24 @@ def run_sync(tmp: Path, mode: str = "dark") -> subprocess.CompletedProcess[str]:
         {
             "HOME": str(tmp / "home"),
             "XDG_CACHE_HOME": str(tmp / "cache"),
+            "BAT_CACHE_PATH": str(tmp / "cache/bat"),
+            "BAT_THEME_DIR": str(tmp / "config/bat/themes"),
+            "BAT_CONFIG_PATH": os.devnull,
+            "GHOSTTY_CONFIG": str(tmp / "ghostty/config"),
+            "TMUX_THEME": str(tmp / "config/tmux/theme.conf"),
+            "ZELLIJ_CONFIG": str(tmp / "config/zellij/config.kdl"),
+            "WARP_SETTINGS": str(tmp / "warp/settings.toml"),
+            "ORCA_DATA_PATH": str(tmp / "config/orca/orca-data.json"),
+            "ORCA_STATE_DB_PATH": str(tmp / "config/orca/profile-state.db"),
+            "DREAMCODER_HYPR_COLORS_LUA": str(tmp / "config/hypr/colors.lua"),
+            "DREAMCODER_HYPR_COLORS_CONF": str(tmp / "config/hypr/colors.conf"),
+            "DREAMCODER_WAYBAR_MATUGEN": str(tmp / "config/waybar/colors.css"),
+            "DREAMCODER_ROFI_MATUGEN": str(tmp / "config/rofi/colors.rasi"),
+            **{
+                f"DREAMCODER_{target}_{kind}": str(tmp / "toolkits" / target / kind)
+                for target in ("GTK3", "GTK4", "QT6CT")
+                for kind in ("CONFIG", "CANONICAL", "STATE")
+            },
             "GENTLE_SHELL_HOME": str(tmp / "gentle-agent"),
             "PI_CODING_AGENT_DIR": str(pi_agent),
             "PI_THEME": str(pi_agent / "themes/dreamcoder.json"),
@@ -258,7 +276,8 @@ class PiThemeGenerationTest(unittest.TestCase):
             theme = json.loads(theme_path.read_text())["theme"]
 
             self.assertEqual(theme["background"], "none")
-            self.assertEqual(theme["backgroundPanel"], "#0D0D0F")
+            self.assertEqual(theme["backgroundPanel"], "none")
+            self.assertEqual(theme["backgroundElement"], "#0B0B0B")
             self.assertEqual(theme["primary"], "#A5B4FC")
             self.assertEqual(theme["secondary"], "#D4B5FD")
 
