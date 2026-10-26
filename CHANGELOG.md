@@ -42,6 +42,7 @@
 ### Fixed
 
 - OpenCode surfaces follow the active mode with readable syntax and interface states.
+- Managed OpenCode agent colors follow the active mode while preserving unrelated configuration.
 - Dark Starship diagnostic styles resolve through the palette.
 - Repository sync regression tests derive the current upstream pin instead of relying on a historical hash.
 - Zsh sources Bun completions only from nonempty regular files, preserving support for symlinks to regular files.
