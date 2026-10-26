@@ -96,6 +96,15 @@ def opencode_content(c: dict[str, str], transparent_background: bool = False) ->
     muted = c["muted"]
     subtle = guard(c["subtle"], c["bg"], mode_name, minimum=5.5)
     placeholder = c["comment"]
+    if transparent_background:
+        # OpenCode shares the terminal canvas; only functional blocks get a fill.
+        # Shared syntax tokens stay unchanged; rendered Light roles guard below.
+        panel_bg = "none"
+        element_bg = code_bg = line_bg = c["bg_soft"]
+        for surface in (c["bg"], c["bg_soft"]):
+            muted = guard(muted, surface, mode_name)
+            subtle = guard(subtle, surface, mode_name)
+            placeholder = guard(placeholder, surface, mode_name)
     added, removed = c["sage"], c["error"]
     hunk, fold, markdown_code = c["lavender"], c["comment"], c["sage"]
     if mode_name == "light":
