@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any, NamedTuple
 
 from .herdr_contract import SUPPORTED_PROFILES, HerdrProfile
+from .opencode_colors import update_opencode_agent_colors
 from .palette import (
     adaptive_palette,
     load_guardrails,
@@ -279,6 +280,9 @@ def sync_active_targets(
             paths.opencode, opencode_content(active, transparent_background=True)
         ),
         "opencode_tui": write_opencode_tui(paths.opencode_tui),
+        "opencode_agent_colors": update_opencode_agent_colors(
+            paths.opencode_tui.parent / "opencode.json", active, variants
+        ),
         "opencode_cleanup": cleanup_opencode_themes(paths.opencode),
         "codex_theme": write_if_changed(paths.codex_theme, codex_tmtheme_content(active)),
         "bat_theme": write_if_changed(
