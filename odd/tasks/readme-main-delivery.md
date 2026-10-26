@@ -31,7 +31,7 @@ Branch: feat/dreamcoder-dark-cross-app-quality. Delivery: auto-chain, stacked-to
 - T11 [S2,S3,S7] inline | done | Existing7c3761f plus source-preserving merge fa1cf478 published as PR37; all13 hosted checks SUCCESS; exact-head merge confirmed6f0c3682e5a6e36665d838369a1cc52859b2dcf3.
 - T12 [S2,S3,S7] inline | done | 05a e425880 and05b6991b1b committed/pushed; focused94/92 cases and all normal hooks PASS. PR38/39 each passed all8 hosted checks and merged exact-head into main. Combined source independently verified; both surface units delivered.
 - T13 [S2,S3,S7] inline | done | bd0622c committed/pushed,10 focused cases/normal hooks PASS; PR40 all8 hosted checks SUCCESS and exact-head merge confirmed.
-- T14 [S2,S3,S7] inline | in_progress | bd8acca committed/pushed,38 focused cases and normal full-suite/type/docs/health hooks PASS; main PR queued.
+- T14 [S2,S3,S7] inline | done | bd8acca committed/pushed,38 focused cases/normal hooks PASS; PR41 all8 hosted checks SUCCESS and exact-head merge confirmed.
 - T15 [S2,S3,S7] inline | in_progress | 532a990 committed/pushed,18 focused Bat/Pi cases and normal full-suite/type/docs/health hooks PASS; main PR queued.
 - T16 [S1,S2,S7] inline | in_progress | Commit/publish screenshot and recovery records (slice09); verify clean original status and pushed refs.
 
@@ -85,3 +85,5 @@ Branch: feat/dreamcoder-dark-cross-app-quality. Delivery: auto-chain, stacked-to
 - L39 All intended original changes committed/pushed29226283db3496a1649a1c51d337e0c7c5367fec. Second guarded index/fast-forward operation preserves all32 remaining path bytes/modes; original git status--porcelain EMPTY and HEAD==upstream2922628 verified. PR38 all8checks PASS/merged49bb6729; PR39 all8checks PASS/exact-head merge confirmed. Surface tasks delivered; PR40 created forbd0622c, remaining07/08/09 queued. No sourcebyte changes after independent verification. Tracking updates are committed/pushed separately so the original tree stays clean between delivery steps.
 
 - L40 PR40 Dark diagnostic slice all8checks COMPLETED/SUCCESS at exactbd0622c; parent normal merge with expected head and GitHub MERGED readback. PR41 created for agent-color commitbd8acca. Original feature tree remains clean/pushed between bookkeeping commits; remaining requested main delivery:41agents,42Bat,43README/evidence (numbers after41 are anticipated, not identities until creation readback). No code changes or test reruns.
+
+- L41 PR41 agent-color slice all8checks COMPLETED/SUCCESS at exactbd8acca; normal expected-head merge and GitHub MERGED readback confirmed. PR42 created for Bat commit532a990. Remaining source main integration: Bat then README/recovery records; no runtime edits.
