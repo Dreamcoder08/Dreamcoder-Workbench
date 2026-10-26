@@ -18,10 +18,10 @@ Branch: feat/dreamcoder-dark-cross-app-quality. Delivery: auto-chain, stacked-to
 ## Tasks
 - T1 [S1] inline | done | README and dreamcoder.webp committed/pushed2922628; links, whitespace,1920x1080 dimensions/source similarity pass; final main PR pending.
 - T2 [S3] delegated | done | Clean RED 5 failures; GREEN 9 route cases plus 17 existing setup/keybinding cases. Five isolated dry-run differential scenarios pass; commit 7c3761fc1a54cd24159b6365a446647d509161b5.
-- T3 [S3] delegated | done | RED 4 Bat failures; GREEN 7 cache cases and 15 Pi/sync cases. Differential preserves exit/stderr; summary differences stem from authorized OpenCode changes; commit532a990 pushed, main PR pending.
+- T3 [S3] delegated | done | RED 4 Bat failures; GREEN 7 cache cases and 15 Pi/sync cases. Differential preserves exit/stderr; authorized summary changes documented; commit532a990 delivered to main via PR42.
 - T4 [S3] inline | done | Fixture now derives current ML4W ref and asserts a real mismatch; all 16 verifier tests pass; commit ca11337c2ca9bd7b9fff039fec8c963c72ba1503.
 - T5 [S2,S3] inline + independent verification | done | All hooks pass; coverage 86.32% exceeds 80%; ML4W 137/137; independent final audit PASS with isolated boundary probes; no live activation claimed.
-- T6 [S2,S3,S7] inline | in_progress | PRs #33/#34 merged; PR #35 CLOSED, replaced by merged PR #36. ca11337 and 7c3761f committed. Installer hooks accepted. Slice03 merged via PR36; slices04-09 remain pending; screenshot not published.
+- T6 [S2,S3,S7] inline | in_progress | PRs #33/#34 merged; PR #35 CLOSED, replaced by merged PR #36. ca11337 and 7c3761f committed. Installer hooks accepted. Slices04-08 merged via PR37-42 after exact-head CI; screenshot and recovery-record main delivery remains pending (source already committed/pushed).
 - T7 [S3] delegated | done | Profile11/11, limited recheck and real GGA/normal hooks PASS; commit 7c3761fc1a54cd24159b6365a446647d509161b5.
 - T8 [S2,S3,S5,S6] inline + independent verification (risk item 5, CI dependency) | done | Replacement 1cdcfdbdbfffedcff7089443ba666dc136467263 published via normal push as PR #36; identical tree independently verified, hooks pass. PR #35 closed only after replacement readback; original branch retained. First hosted watch timed out after600s (exit124), retained as historical evidence. User authorized continuation; fresh readback confirms all13 checks SUCCESS. PR36 MERGED into main at d312bc6ecd85cdcfd7dcfec73877fe26e9be41be, expected head enforced. Todo#10 complete.
 
@@ -32,7 +32,7 @@ Branch: feat/dreamcoder-dark-cross-app-quality. Delivery: auto-chain, stacked-to
 - T12 [S2,S3,S7] inline | done | 05a e425880 and05b6991b1b committed/pushed; focused94/92 cases and all normal hooks PASS. PR38/39 each passed all8 hosted checks and merged exact-head into main. Combined source independently verified; both surface units delivered.
 - T13 [S2,S3,S7] inline | done | bd0622c committed/pushed,10 focused cases/normal hooks PASS; PR40 all8 hosted checks SUCCESS and exact-head merge confirmed.
 - T14 [S2,S3,S7] inline | done | bd8acca committed/pushed,38 focused cases/normal hooks PASS; PR41 all8 hosted checks SUCCESS and exact-head merge confirmed.
-- T15 [S2,S3,S7] inline | in_progress | 532a990 committed/pushed,18 focused Bat/Pi cases and normal full-suite/type/docs/health hooks PASS; main PR queued.
+- T15 [S2,S3,S7] inline | done | 532a990 committed/pushed,18 focused cases/normal hooks PASS; PR42 all8 hosted checks SUCCESS and exact-head merge confirmed.
 - T16 [S1,S2,S7] inline | in_progress | Commit/publish screenshot and recovery records (slice09); verify clean original status and pushed refs.
 
 ## Log
@@ -87,3 +87,5 @@ Branch: feat/dreamcoder-dark-cross-app-quality. Delivery: auto-chain, stacked-to
 - L40 PR40 Dark diagnostic slice all8checks COMPLETED/SUCCESS at exactbd0622c; parent normal merge with expected head and GitHub MERGED readback. PR41 created for agent-color commitbd8acca. Original feature tree remains clean/pushed between bookkeeping commits; remaining requested main delivery:41agents,42Bat,43README/evidence (numbers after41 are anticipated, not identities until creation readback). No code changes or test reruns.
 
 - L41 PR41 agent-color slice all8checks COMPLETED/SUCCESS at exactbd8acca; normal expected-head merge and GitHub MERGED readback confirmed. PR42 created for Bat commit532a990. Remaining source main integration: Bat then README/recovery records; no runtime edits.
+
+- L42 PR42 Bat-cache slice all8checks COMPLETED/SUCCESS at exact532a990; normal expected-head merge and GitHub MERGED readback confirmed. All runtime slices04-08 now in main. Final screenshot/recovery-record slice next; original status is verified clean after each normal documentation commit/push. No failed or bypassed hosted check.
