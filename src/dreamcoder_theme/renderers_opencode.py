@@ -57,7 +57,7 @@ def opencode_content(c: dict[str, str], transparent_background: bool = False) ->
         user_bg = mix(c["bg"], c["accent"], 0.12)
         tool_bg = mix(c["bg"], c["lavender"], 0.12)
         accent_muted = mix(c["accent"], c["bg"], 0.25)
-        inline_code_bg = mix(c["sage"], c["border_ui"], 0.45)
+        inline_code_bg = c["surface1"]
         mix_base = c["border_ui"]
     else:
         panel_bg = c["surface0"]
@@ -70,7 +70,7 @@ def opencode_content(c: dict[str, str], transparent_background: bool = False) ->
         user_bg = mix(c["bg"], c["accent"], 0.15)
         tool_bg = mix(c["bg"], c["lavender"], 0.12)
         accent_muted = mix(c["accent"], c["bg"], 0.3)
-        inline_code_bg = mix(c["sage"], c["bg"], 0.18)
+        inline_code_bg = mix(c["bg"], c["sage"], 0.06)
         mix_base = c["bg"]
 
     diff_mix = 0.35 if mode_name == "dark" else 0.58
@@ -81,9 +81,33 @@ def opencode_content(c: dict[str, str], transparent_background: bool = False) ->
         c["bg"],
         mode_name,
     )
+    if mode_name == "dark":
+        # Quiet tinted canvases preserve syntax and gutter ink without whitening.
+        added_bg = surface_guard(mix(c["bg"], c["sage"], 0.18), c["bg"], mode_name)
+        removed_bg = surface_guard(mix(c["bg"], c["error"], 0.18), c["bg"], mode_name)
+    if mode_name == "light":
+        # Diff bodies retain syntax ink: use pale canonical code canvases rather
+        # than surface_guard, whose surface delta makes Light fills too dark.
+        added_bg = mix(c["surface0"], c["sage"], 0.03)
+        removed_bg = mix(c["surface0"], c["error"], 0.03)
     assistant = guard(mix(c["diagnostic"], c["text"], 0.18), c["bg"], mode_name)
     user = guard(mix(c["accent"], c["text"], 0.15), c["bg"], mode_name)
     background = "none" if transparent_background else c["bg"]
+    muted = c["muted"]
+    subtle = guard(c["subtle"], c["bg"], mode_name, minimum=5.5)
+    placeholder = c["comment"]
+    added, removed = c["sage"], c["error"]
+    hunk, fold, markdown_code = c["lavender"], c["comment"], c["sage"]
+    if mode_name == "light":
+        # Body-text roles must clear their actual rendered fill, not just canvas.
+        placeholder = guard(placeholder, element_bg, mode_name, minimum=4.5)
+        markdown_code = guard(markdown_code, inline_code_bg, mode_name, minimum=4.5)
+        added = guard(added, added_bg, mode_name, minimum=4.5)
+        removed = guard(removed, removed_bg, mode_name, minimum=4.5)
+        hunk = guard(hunk, hunk_bg, mode_name, minimum=4.5)
+        fold = guard(fold, line_bg, mode_name, minimum=4.5)
+        for role in ("comment", "function", "method", "operator"):
+            t[role] = guard(t[role], code_bg, mode_name, minimum=4.5)
     return f"""{{
   "$schema": "https://opencode.ai/theme.json",
   "defs": {{
@@ -115,9 +139,9 @@ def opencode_content(c: dict[str, str], transparent_background: bool = False) ->
     "backgroundUser": "{user_bg}",
     "backgroundTool": "{tool_bg}",
     "text": "{c["text"]}",
-    "textMuted": "{c["muted"]}",
-    "textSubtle": "{guard(c["subtle"], c["bg"], mode_name, minimum=5.5)}",
-    "textPlaceholder": "{c["comment"]}",
+    "textMuted": "{muted}",
+    "textSubtle": "{subtle}",
+    "textPlaceholder": "{placeholder}",
     "textAssistant": "{assistant}",
     "textUser": "{user}",
     "textTool": "{t["type"]}",
@@ -134,12 +158,12 @@ def opencode_content(c: dict[str, str], transparent_background: bool = False) ->
     "borderSubtle": "{c["border"]}",
     "borderFocus": "{c["focus"]}",
     "shadow": "{mix(c["bg"], "#000000", 0.25)}",
-    "diffAdded": "{c["sage"]}",
-    "diffRemoved": "{c["error"]}",
+    "diffAdded": "{added}",
+    "diffRemoved": "{removed}",
     "diffContext": "{c["muted"]}",
-    "diffHunkHeader": "{c["lavender"]}",
-    "diffHighlightAdded": "{c["sage"]}",
-    "diffHighlightRemoved": "{c["error"]}",
+    "diffHunkHeader": "{hunk}",
+    "diffHighlightAdded": "{added}",
+    "diffHighlightRemoved": "{removed}",
     "diffAddedBg": "{added_bg}",
     "diffRemovedBg": "{removed_bg}",
     "diffContextBg": "{background}",
@@ -147,13 +171,13 @@ def opencode_content(c: dict[str, str], transparent_background: bool = False) ->
     "diffAddedLineNumberBg": "{added_bg}",
     "diffRemovedLineNumberBg": "{removed_bg}",
     "diffHunkHeaderBg": "{hunk_bg}",
-    "diffFold": "{c["comment"]}",
+    "diffFold": "{fold}",
     "diffFoldBg": "{line_bg}",
     "markdownText": "{c["text"]}",
     "markdownHeading": "{c["accent"]}",
     "markdownLink": "{c["diagnostic"]}",
     "markdownLinkText": "{c["accent"]}",
-    "markdownCode": "{c["sage"]}",
+    "markdownCode": "{markdown_code}",
     "markdownBlockQuote": "{c["accent_2"]}",
     "markdownEmph": "{c["diagnostic"]}",
     "markdownStrong": "{c["accent"]}",
