@@ -52,6 +52,21 @@ python scripts/generate-palette-tokens.py --check
 python scripts/generate-dark-css.py --check
 ```
 
+## Bat cache maintenance
+
+`dreamcoder sync`, `dreamcoder dark`, and `dreamcoder light` maintain Bat's
+compiled cache after writing the active theme and both named variants. Missing,
+empty or older cache files trigger a rebuild; unchanged sources reuse the cache.
+Bat is optional: if it is not installed, theme generation still succeeds.
+
+The cache destination is `BAT_CACHE_PATH`, otherwise `XDG_CACHE_HOME/bat`,
+otherwise `~/.cache/bat`. Builds use the generated theme directory as their
+explicit source and ignore personal Bat command-line defaults. The summary
+reports `Bat cache: rebuilt`, `unchanged`, or `skipped (bat not installed)`.
+A failed build, or one that produces incomplete cache files, exits nonzero with
+a diagnostic. Theme files may already have been updated; sync does not roll
+back those writes.
+
 ## Pi and Gentle Shell
 
 `dreamcoder light`, `dreamcoder dark`, and `dreamcoder sync` generate the same
@@ -107,6 +122,8 @@ widget rules in `gtk-dark.css`. That is a visible design change, not a
 documentation gap.
 
 ## Quality gates
+
+Use the [Dark state validation reference](dark-theme-validation.md) for cross-application checks, repeatable capture scenarios and limits of generated-color evidence.
 
 - WCAG 2.2: body text ≥ 4.5:1 (main text ≥ 7:1)
 - APCA: body Lc ≥ 75 light / ≥ 50 dark; `on_accent` Lc ≥ 54 on filled accent
