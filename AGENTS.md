@@ -8,6 +8,9 @@
 - Sourced files must NOT set shell options: `lib/*.sh` and everything under
   `DreamcoderShell/.config/shell/` run inside the caller's shell, and `errexit`/`nounset`
   there closes an interactive terminal on the first failing command
+- Explicit interactive-startup exception: `DreamcoderShell/.zshrc` may set only
+  `HIST_IGNORE_DUPS`, `SHARE_HISTORY`, and `AUTO_CD` as intentional user preferences.
+  This does not permit `errexit`/`nounset` or option changes in shared sourced fragments.
 - Shell fragments loaded by interactive shells (aliases, small functions) stay short;
   scripts and libraries have one purpose per file and functions that fit on a screen
 - Quote all variables: `"${var}"`

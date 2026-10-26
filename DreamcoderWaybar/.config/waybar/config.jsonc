@@ -82,7 +82,7 @@
     "format-disconnected": "󰖪  Offline",
     "tooltip-format-wifi": "{essid} — {ipaddr}/{cidr}",
     "max-length": 20,
-    "on-click": "kitty nmtui"
+    "on-click": "kitty dreamcoder-nmtui"
   },
 
   // ── PulseAudio ─────────────────────────────────────────────────────

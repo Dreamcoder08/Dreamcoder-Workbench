@@ -7,7 +7,7 @@ export EDITOR="nvim" VISUAL="nvim" COLORTERM="${COLORTERM:-truecolor}"
 typeset -U path PATH
 path=("${HOME}/.local/bin" "${HOME}/.opencode/bin" "${HOME}/.cargo/bin" "${HOME}/.volta/bin" "${HOME}/.bun/bin" "${HOME}/.nix-profile/bin" "${path[@]}")
 BUN_INSTALL="${HOME}/.bun"
-[[ -s "${BUN_INSTALL}/_bun" ]] && source "${BUN_INSTALL}/_bun"
+[[ -f "${BUN_INSTALL}/_bun" && -s "${BUN_INSTALL}/_bun" ]] && source "${BUN_INSTALL}/_bun"
 [[ -d "${BUN_INSTALL}/bin" ]] && path=("${BUN_INSTALL}/bin" "${path[@]}")
 export BUN_INSTALL
 # gga reviews: Codex provider with the pinned model shim first (docs/configuration/gga.md).
@@ -17,6 +17,15 @@ if [[ -d "${_dc_gga_bin}" ]]; then
   path=("${_dc_gga_bin}" "${path[@]}")
 fi
 unset _dc_gga_bin
+
+# Keep Newt overrides local to nmtui, never the interactive shell.
+nmtui() {
+  if command -v dreamcoder-nmtui >/dev/null 2>&1; then
+    command dreamcoder-nmtui "$@"
+  else
+    command nmtui "$@"
+  fi
+}
 
 # ── Dreamcoder Theme Hooks ─────────────────────────────────────
 # Source shell-level theme snippets based on current mode.
@@ -50,7 +59,7 @@ shell_dir="${XDG_CONFIG_HOME:-${HOME}/.config}/shell"
 for group in core aliases functions; do for file in "${shell_dir}/${group}"/*.sh(N); do [[ -f "${file}" ]] && source "${file}"; done; done
 command -v fzf >/dev/null 2>&1 && eval "$(fzf --zsh)"
 command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"
-command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)" && functions -q enable_transience && enable_transience
+command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)" && (( $+functions[enable_transience] )) && enable_transience
 command -v starship >/dev/null 2>&1 || { [[ -f "${HOME}/.p10k.zsh" ]] && source "${HOME}/.p10k.zsh"; }
 [[ -f "${HOME}/.cargo/env" ]] && source "${HOME}/.cargo/env"
 [[ "${DREAMCODER_FASTFETCH_ON_START:-0}" == "1" ]] && command -v fastfetch >/dev/null 2>&1 && fastfetch
