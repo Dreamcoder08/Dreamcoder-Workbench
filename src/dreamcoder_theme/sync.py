@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, NamedTuple
 
+from .bat_cache import BatCacheError, ensure_bat_cache
 from .herdr_contract import SUPPORTED_PROFILES, HerdrProfile
 from .opencode_colors import update_opencode_agent_colors
 from .palette import (
@@ -1268,6 +1269,13 @@ def main(argv: Sequence[str] | None = None) -> None:
         sync_repo_snippets(prepared.variants, prepared.active) if write_repo_enabled() else []
     )
     changed["bat_theme_variants"] = any(bat_variant_changes)
+
+    # Repository mirrors can share the live Bat sources through symlinks.
+    # Compile only after every source/variant write, even when nothing changed.
+    try:
+        ensure_bat_cache(paths)
+    except BatCacheError as exc:
+        raise SystemExit(str(exc)) from None
 
     if not valid_starship(paths.starship):
         raise SystemExit(f"Generated Starship config is invalid: {paths.starship}")

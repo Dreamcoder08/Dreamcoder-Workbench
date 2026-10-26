@@ -52,6 +52,18 @@ python scripts/generate-palette-tokens.py --check
 python scripts/generate-dark-css.py --check
 ```
 
+## Bat compiled cache
+
+`dreamcoder sync` checks Bat's compiled cache after all theme source and variant
+writes. Missing `themes.bin` or `syntaxes.bin`, or theme sources newer than either
+binary, trigger `bat cache --build`; an up-to-date cache is left unchanged.
+`BAT_THEME_DIR` selects the sources (default: `$XDG_CONFIG_HOME/bat/themes`, or
+`~/.config/bat/themes`). `BAT_CACHE_PATH` selects the compiled cache (default:
+`$XDG_CACHE_HOME/bat`, or `~/.cache/bat`). Builds ignore user Bat options by setting
+`BAT_CONFIG_PATH` to the null device. Bat is optional: when it is absent, sync
+continues without compiling. A build failure stops sync with a diagnostic and
+paths to check before retrying; generated theme sources remain available.
+
 ## Pi and Gentle Shell
 
 `dreamcoder light`, `dreamcoder dark`, and `dreamcoder sync` generate the same

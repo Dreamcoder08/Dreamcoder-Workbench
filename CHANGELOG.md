@@ -41,6 +41,7 @@
 
 ### Fixed
 
+- Bat caches rebuild after all theme writes and recover missing or stale compiled themes, including custom theme directories.
 - OpenCode surfaces follow the active mode with readable syntax and interface states.
 - Managed OpenCode agent colors follow the active mode while preserving unrelated configuration.
 - Dark Starship diagnostic styles resolve through the palette.

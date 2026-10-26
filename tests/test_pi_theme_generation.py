@@ -76,6 +76,9 @@ def run_sync(tmp: Path, mode: str = "dark") -> subprocess.CompletedProcess[str]:
         {
             "HOME": str(tmp / "home"),
             "XDG_CACHE_HOME": str(tmp / "cache"),
+            "BAT_CACHE_PATH": str(tmp / "cache/bat"),
+            "BAT_CONFIG_PATH": os.devnull,
+            "BAT_THEME_DIR": str(tmp / "config/bat/themes"),
             "GENTLE_SHELL_HOME": str(tmp / "gentle-agent"),
             "PI_CODING_AGENT_DIR": str(pi_agent),
             "PI_THEME": str(pi_agent / "themes/dreamcoder.json"),
