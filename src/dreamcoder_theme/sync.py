@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, NamedTuple
 
+from .bat_cache import BatCacheError, ensure_bat_cache
 from .herdr_contract import SUPPORTED_PROFILES, HerdrProfile
 from .opencode_colors import update_opencode_agent_colors
 from .palette import (
@@ -1239,7 +1240,9 @@ def _parse_args(argv: Sequence[str] | None) -> None:
         epilog=(
             "environment: DREAMCODER_THEME_MODE=light|dark selects the mode (default: the "
             "persisted live mode, then dark); DREAMCODER_WRITE_REPO=0 skips repo-tracked "
-            "outputs and writes live targets only."
+            "outputs and writes live targets only. Bat caches are maintained after theme "
+            "writes when bat is available; BAT_CACHE_PATH overrides XDG_CACHE_HOME/bat "
+            "and ~/.cache/bat."
         ),
     )
     parser.parse_args(argv)
@@ -1271,7 +1274,14 @@ def main(argv: Sequence[str] | None = None) -> None:
 
     if not valid_starship(paths.starship):
         raise SystemExit(f"Generated Starship config is invalid: {paths.starship}")
+    try:
+        bat_cache_status = (
+            ensure_bat_cache(paths) if paths.bat_theme_dir.is_dir() else "skipped (no themes)"
+        )
+    except BatCacheError as exc:
+        raise SystemExit(str(exc)) from None
     print_summary(prepared.mode, paths, changed, repo_changes)
+    print(f"Bat cache: {bat_cache_status}")
 
     # Best-effort, outside the coverage contract: Orca lives
     # entirely in the user's live settings file, so a failure here must
