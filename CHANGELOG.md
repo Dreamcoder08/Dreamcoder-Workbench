@@ -4,6 +4,7 @@
 
 ### Added
 
+- Conservative setup integration for the ML4W network launcher, preserving custom scripts, existing backups, and write-free dry runs.
 - Process-local `dreamcoder-nmtui` launcher with terminal-native inverse selection, Fish/Zsh routing, and a Waybar default entry point; explicit Newt style overrides remain supported.
 - PEP 621 packaging: `pyproject.toml` with setuptools build backend, `__version__` in package.
 - `dreamcoder-theme` CLI entry point (`dreamcoder-theme sync|doctor|paths`).

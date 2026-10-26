@@ -191,11 +191,23 @@ After every ML4W upgrade:
 
 ## What setup-hyprland.sh does
 
-1. **Symlinks** wlogout + swaync `colors.css` → waybar (single theme toggle point)
+1. **Symlinks** wlogout + swaync `colors.css` → `../waybar/colors.css`
+   (inside `~/.config`, a single theme toggle point). Regular files are backed
+   up before linking; existing incorrect links are repaired and current links
+   remain unchanged. `--dry-run` previews the same target without writing.
 2. **Generates** `custom.lua` from JSON profile via `generate-custom-lua.sh`
 3. **Installs** toggle script (`dreamcoder-toggle-theme.sh`) to `~/.config/hypr/scripts/`
-4. **Applies** ML4W hooks (wallpaper, theme regeneration)
-5. **Reloads** Hyprland
+4. **Routes** the optional `~/.config/ml4w/scripts/ml4w-network` menu through
+   `~/.local/bin/dreamcoder-nmtui`, installed first. Only the two bare `nmtui`
+   calls in the recognized NetworkManager start/check script are replaced;
+   comments and formatting remain intact. Custom scripts, symlinks and conflicting
+   launchers are skipped with a warning. The original route is backed up to
+   `ml4w-network.bak` only when patched; existing backups are preserved.
+   Re-running setup repairs a missing launcher without rewriting an already
+   patched route. Re-run setup after an ML4W upgrade to restore the route.
+   `--dry-run` previews this installation without writes or network actions.
+5. **Applies** ML4W hooks (wallpaper, theme regeneration)
+6. **Reloads** Hyprland
 
 ## Theme Toggle
 
@@ -245,6 +257,7 @@ tests/ml4w/
 ├── generate_custom_lua.bats   # generator, incl. the dreamcoder-colors loader
 ├── keybindings_variant.bats   # dreamcoder.lua vs ML4W 2.16.1 and the profile
 ├── ml4w_managed.bats          # ML4W ownership + colour-file predicates
+├── nmtui_route.bats           # safe optional network-menu route installation
 ├── setup_hyprland.bats        # orchestrator
 ├── profile_validation.bats    # JSON profiles
 └── waybar_override.bats       # Waybar accent override
