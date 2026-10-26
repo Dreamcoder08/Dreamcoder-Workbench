@@ -17,7 +17,7 @@ Terminal-native, health-first engineering environment built on Gentleman.Dots + 
 
 ## Demo
 
-<img src="dreamcoder.webp" width="600" alt="Dreamcoder Workbench" />
+<img src="dreamcoder.webp" width="600" alt="Dreamcoder Workbench in light mode with Gentle Shell and its agent workspace" />
 
 ## Índice
 
