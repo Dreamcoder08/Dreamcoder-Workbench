@@ -16,12 +16,12 @@ Branch: feat/dreamcoder-dark-cross-app-quality. Delivery: auto-chain, stacked-to
 - S7: "cuando ejecuto git status aun hay cambios, te dije que quiero que comites todos los cambios hagas push , siguiendo el flujo y filosofia de gentleman". Acceptance: every intended original working-tree change committed and pushed, original git status clean, normal hooks and existing chain delivery preserved.
 
 ## Tasks
-- T1 [S1] inline | done | README and dreamcoder.webp committed/pushed2922628; links, whitespace,1920x1080 dimensions/source similarity pass; final main PR pending.
+- T1 [S1] inline | done | README/image committed2922628 and delivered via PR43; links, whitespace,1920x1080 dimensions/source comparison PASS.
 - T2 [S3] delegated | done | Clean RED 5 failures; GREEN 9 route cases plus 17 existing setup/keybinding cases. Five isolated dry-run differential scenarios pass; commit 7c3761fc1a54cd24159b6365a446647d509161b5.
 - T3 [S3] delegated | done | RED 4 Bat failures; GREEN 7 cache cases and 15 Pi/sync cases. Differential preserves exit/stderr; authorized summary changes documented; commit532a990 delivered to main via PR42.
 - T4 [S3] inline | done | Fixture now derives current ML4W ref and asserts a real mismatch; all 16 verifier tests pass; commit ca11337c2ca9bd7b9fff039fec8c963c72ba1503.
-- T5 [S2,S3] inline + independent verification | done | All hooks pass; coverage 86.32% exceeds 80%; ML4W 137/137; independent final audit PASS with isolated boundary probes; no live activation claimed.
-- T6 [S2,S3,S7] inline | in_progress | PRs #33/#34 merged; PR #35 CLOSED, replaced by merged PR #36. ca11337 and 7c3761f committed. Installer hooks accepted. Slices04-08 merged via PR37-42 after exact-head CI; screenshot and recovery-record main delivery remains pending (source already committed/pushed).
+- T5 [S2,S3] inline + independent verification | done | Fresh1119 pytest PASS, coverage86.47%; links/health PASS; exact intermediate normal hooks PASS. Full isolated Bats138/140 failed two schema cases only because harness HOME hid jsonschema; corrected existing-venv PATH focusedroute12/12 PASS. Hosted source slices all applicable checks PASS; no live activation claimed.
+- T6 [S2,S3,S7] inline | done | All requested source/docs/image delivered through PR33/34/36/37-43 after exact-head hosted checks. PR43 merge28fa61441d2eaef70f9ecff84b4b2d5f8ae78113; issue32 CLOSED. Original checkout fast-forwarded/pushed; status empty and HEAD==origin/main==upstream28fa614 verified. Final passive recovery closure follows normal delivery.
 - T7 [S3] delegated | done | Profile11/11, limited recheck and real GGA/normal hooks PASS; commit 7c3761fc1a54cd24159b6365a446647d509161b5.
 - T8 [S2,S3,S5,S6] inline + independent verification (risk item 5, CI dependency) | done | Replacement 1cdcfdbdbfffedcff7089443ba666dc136467263 published via normal push as PR #36; identical tree independently verified, hooks pass. PR #35 closed only after replacement readback; original branch retained. First hosted watch timed out after600s (exit124), retained as historical evidence. User authorized continuation; fresh readback confirms all13 checks SUCCESS. PR36 MERGED into main at d312bc6ecd85cdcfd7dcfec73877fe26e9be41be, expected head enforced. Todo#10 complete.
 
@@ -33,7 +33,7 @@ Branch: feat/dreamcoder-dark-cross-app-quality. Delivery: auto-chain, stacked-to
 - T13 [S2,S3,S7] inline | done | bd0622c committed/pushed,10 focused cases/normal hooks PASS; PR40 all8 hosted checks SUCCESS and exact-head merge confirmed.
 - T14 [S2,S3,S7] inline | done | bd8acca committed/pushed,38 focused cases/normal hooks PASS; PR41 all8 hosted checks SUCCESS and exact-head merge confirmed.
 - T15 [S2,S3,S7] inline | done | 532a990 committed/pushed,18 focused cases/normal hooks PASS; PR42 all8 hosted checks SUCCESS and exact-head merge confirmed.
-- T16 [S1,S2,S7] inline | in_progress | Commit/publish screenshot and recovery records (slice09); verify clean original status and pushed refs.
+- T16 [S1,S2,S7] inline | done | Screenshot and historical recovery records committed/pushed2922628 plus verified progress commits; PR43 all8checks SUCCESS/merged28fa614. Original clean/ref-equality proof observed after final main fast-forward and push.
 
 ## Log
 - L1 User request verbatim: /home/dreamcoder08/.tmp/gpnJJW46/pi-clipboard-43cc0d6e-05a4-4b32-b21d-e0ec492b83c1.png agrega esta imagen actualizada al readme del proyecto , commit + push y todos los cambios a main , siguienod el buen flujo y buenas practicas correspondientes
@@ -89,3 +89,7 @@ Branch: feat/dreamcoder-dark-cross-app-quality. Delivery: auto-chain, stacked-to
 - L41 PR41 agent-color slice all8checks COMPLETED/SUCCESS at exactbd8acca; normal expected-head merge and GitHub MERGED readback confirmed. PR42 created for Bat commit532a990. Remaining source main integration: Bat then README/recovery records; no runtime edits.
 
 - L42 PR42 Bat-cache slice all8checks COMPLETED/SUCCESS at exact532a990; normal expected-head merge and GitHub MERGED readback confirmed. All runtime slices04-08 now in main. Final screenshot/recovery-record slice next; original status is verified clean after each normal documentation commit/push. No failed or bypassed hosted check.
+
+- L43 Final passive PR creation initially refused missing type:docs; definitive head lookup confirmed no PR existed. Necessary label created under full-delivery authorization and exact API/PR readback confirmed it (label-search results alone were misleading). PR43 created at49385b2 with exactlytype:docs,265textlines+image,Closes32. All8 hosted checks PASS; normal expected-head merge confirmed28fa61441d2eaef70f9ecff84b4b2d5f8ae78113, issue32 CLOSED. Original fast-forward to main/push PASS: git status--porcelain EMPTY; HEAD==origin/main==upstream28fa614. Whole intended tree remains identical to initial full-source commit2922628 except evolving delivery record. All requested implementation and publication outcomes are now observed.
+
+- L44 This passive recovery closure records already-observed completion, preserves every historical failed/timeout/harness result, and introduces no runtime change. It follows normal documentation hooks, push and PR checks. RDD remains disabled/unmanaged; no force push, discarded file, hook bypass or live activation.
