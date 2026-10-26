@@ -4,8 +4,8 @@
 
 ### Added
 
-- Conservative setup integration for the ML4W network launcher, preserving custom scripts, existing backups, and write-free dry runs.
 - Process-local `dreamcoder-nmtui` launcher with terminal-native inverse selection, Fish/Zsh routing, and a Waybar default entry point; explicit Newt style overrides remain supported.
+- Conservative setup integration for the ML4W network launcher, preserving custom scripts, existing backups, and write-free dry runs.
 - PEP 621 packaging: `pyproject.toml` with setuptools build backend, `__version__` in package.
 - `dreamcoder-theme` CLI entry point (`dreamcoder-theme sync|doctor|paths`).
 - `Makefile` with targets: install, test, coverage, build, clean, lint.
@@ -24,6 +24,7 @@
 
 ### Changed
 
+- Updated the README screenshot to show Dreamcoder Workbench in Light mode with Gentle Shell and its agent workspace.
 - Refreshed the active generated theme snapshot to Dreamcoder Light while retaining the named Dark variants.
 - **Prefix restructure**: 22 directories renamed with the `Dreamcoder*` prefix (Gentleman.Dots style). Config tools (Alacritty → DreamcoderAlacritty, Kitty → DreamcoderKitty, etc.), AI configs (Pi → DreamcoderPi, Codex-*→ DreamcoderCodex*, Antigravity → DreamcoderAntigravity), and assets (themes → DreamcoderThemes, Wallpapers → DreamcoderWallpapers, profiles → DreamcoderProfiles). Infra (src, tests, installer, scripts, docs) keeps standard names.
 - Updated all internal references: Go installer, Python theme engine, scripts, tests, docs, CI workflows, .gitignore, CODEOWNERS.
