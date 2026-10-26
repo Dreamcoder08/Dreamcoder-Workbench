@@ -1,5 +1,5 @@
 # ========================================================
-# Dreamcoder Dark — Git Delta theme
+# Dreamcoder Light — Git Delta theme
 # ========================================================
 # Include from ~/.config/git/config:
 #   [include]
@@ -7,39 +7,39 @@
 
 [delta]
     # Syntax highlighting theme for diff content
-    syntax-theme = Dreamcoder-Dark
+    syntax-theme = Dreamcoder-Light
 
     # Line colors
-    plus-color = "#227a5b"
-    minus-color = "#904f50"
-    plus-emph-color = "#34D399"
-    minus-emph-color = "#FB8585"
+    plus-color = "#d6d5c2"
+    minus-color = "#e2cec0"
+    plus-emph-color = "#315b31"
+    minus-emph-color = "#842f24"
 
     # Diff UI
-    file-style = "#A5B4FC"
+    file-style = "#824f16"
     file-decoration-style = "bold yellow box ul"
     hunk-header-style = "file line-number syntax"
     hunk-header-decoration-style = "yellow box"
-    hunk-header-file-style = "#A5B4FC"
-    hunk-header-line-number-style = "#C7C7C7"
-    hunk-header-color = "#868687"
+    hunk-header-file-style = "#824f16"
+    hunk-header-line-number-style = "#352e22"
+    hunk-header-color = "#d6cec0"
 
     # Commit decorations
-    commit-style = "#A5B4FC bold"
+    commit-style = "#824f16 bold"
     commit-decoration-style = "bold yellow box ul"
 
     # Line numbers
     line-numbers = true
-    line-numbers-left-style = "#C7C7C7"
-    line-numbers-right-style = "#C7C7C7"
-    line-numbers-minus-style = "#FB8585"
-    line-numbers-plus-style = "#34D399"
+    line-numbers-left-style = "#352e22"
+    line-numbers-right-style = "#352e22"
+    line-numbers-minus-style = "#842f24"
+    line-numbers-plus-style = "#315b31"
 
     # Side-by-side
     side-by-side = true
 
     # Whitespace highlighting
-    whitespace-error-style = "#FBBF24"
+    whitespace-error-style = "#654300"
 
     # Navigation
     navigate = true

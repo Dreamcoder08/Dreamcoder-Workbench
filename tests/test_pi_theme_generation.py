@@ -248,6 +248,30 @@ class PiThemeGenerationTest(unittest.TestCase):
             self.assertEqual(theme["colors"]["toolSuccessBg"], "#0D0D0F")
             self.assertEqual(theme["colors"]["toolPendingBg"], "#0B0B0B")
 
+    def test_light_shell_chrome_uses_cream_surfaces_and_brown_focus(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            result = run_sync(tmp, "light")
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertEqual(result.stderr, "")
+
+            for home in (tmp / "pi-agent", tmp / "gentle-agent"):
+                for filename in ("dreamcoder.json", "dreamcoder-light.json"):
+                    with self.subTest(home=home.name, theme=filename):
+                        theme = json.loads((home / "themes" / filename).read_text())
+                        colors = theme["colors"]
+                        # Shell header, status cards and editor share this role.
+                        self.assertEqual(colors["toolSuccessBg"], "#fff7ea")
+                        self.assertEqual(colors["toolPendingBg"], "#fff7ea")
+                        self.assertEqual(colors["customMessageBg"], "#fff7ea")
+                        self.assertEqual(colors["borderAccent"], "lucuma")
+                        self.assertEqual(colors["thinkingMedium"], "lucuma")
+                        self.assertEqual(theme["vars"][colors["borderAccent"]], "#824f16")
+                        # Selection and diagnostics retain their distinct roles.
+                        self.assertEqual(colors["selectedBg"], "#decbb1")
+                        self.assertEqual(colors["mdLink"], "diagnostic")
+                        self.assertEqual(theme["vars"]["diagnostic"], "#0d4a68")
+
     def test_opencode_preserves_terminal_transparent_background(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)

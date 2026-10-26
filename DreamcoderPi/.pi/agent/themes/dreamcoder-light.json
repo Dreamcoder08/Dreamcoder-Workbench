@@ -19,7 +19,7 @@
   "colors": {
     "accent": "lucuma",
     "border": "borderUi",
-    "borderAccent": "diagnostic",
+    "borderAccent": "lucuma",
     "borderMuted": "borderMuted",
     "success": "sage",
     "error": "coral",
@@ -35,7 +35,7 @@
     "customMessageText": "",
     "customMessageLabel": "lucuma",
     "toolPendingBg": "#fff7ea",
-    "toolSuccessBg": "#decbb1",
+    "toolSuccessBg": "#fff7ea",
     "toolErrorBg": "#e1ccbf",
     "toolTitle": "lucuma",
     "toolOutput": "",
@@ -64,7 +64,7 @@
     "thinkingOff": "comment",
     "thinkingMinimal": "borderUi",
     "thinkingLow": "#0e435d",
-    "thinkingMedium": "diagnostic",
+    "thinkingMedium": "lucuma",
     "thinkingHigh": "mauve",
     "thinkingXhigh": "coral",
     "bashMode": "lucuma"
