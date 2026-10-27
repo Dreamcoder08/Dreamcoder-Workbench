@@ -36,4 +36,4 @@ plugins {
 }
 
 // Theme
-theme "dreamcoder-light"
+theme "dreamcoder-dark"
