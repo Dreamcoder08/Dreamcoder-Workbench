@@ -1,43 +1,13 @@
-# Editor Configuration
+# Configure Neovim
 
-## Neovim (LazyVim)
+The repository provides a thin Neovim layer over Gentleman.Dots, not a standalone LazyVim installation. Complete the upstream setup and review the [desktop installation guide](../../INSTALL.md) or a component guide before using it.
 
-### Structure
+## Use the theme
 
-```
-DreamcoderNvim/.config/nvim/
-├── init.lua           # Bootstrap
-├── lua/
-│   ├── config/        # Core config
-│   ├── plugins/       # Plugin specs
-│   └── colors/        # Dreamcoder colorscheme
-```
+`DreamcoderNvim/.config/nvim/init.lua` loads `$HOME/Gentleman.Dots/GentlemanNvim/nvim/init.lua` and then selects the `dreamcoder` colorscheme. The `colors/` directory contains the dispatcher and generated dark and light variants. Ensure the configuration and colors directory are installed where Neovim reads them; generation alone does not install the editor configuration.
 
-### Theme
+The dispatcher uses the mode and cached selection; an already running editor may need a reload or restart. To change mode, use the wrapper described in the [theme system guide](theme-system.md), with its configuration write and reload implications. If the upstream clone lives elsewhere, inspect the configured path before loading this layer.
 
-Dreamcoder colorscheme generated from `tokens.json`:
+## Customize the editor
 
-```lua
--- lua/plugins/colorscheme.lua
-return {
-  "dreamcoder.nvim",
-  opts = {
-    variant = "dark", -- or "light"
-  },
-}
-```
-
-### Key Maps
-
-LazyVim provides the default keymaps for this setup. See the [Theme](#theme) section above for the Dreamcoder colorscheme setup.
-
-### Plugins
-
-Core plugins:
-
-- LazyVim (framework)
-- LSP (nvim-lspconfig)
-- Treesitter (syntax)
-- Telescope (fuzzy finder)
-- Git signs
-- Which-key (key hints)
+Gentleman.Dots owns the bootstrap, keymaps and plugin configuration loaded by this layer. Consult that upstream configuration for installed plugins and bindings rather than assuming that this repository supplies them. For terminal appearance, continue to [terminal configuration](terminal-config.md), or return to the [documentation hub](../README.md).

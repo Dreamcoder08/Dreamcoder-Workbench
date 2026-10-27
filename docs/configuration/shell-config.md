@@ -1,20 +1,13 @@
-# Shell Configuration
+# Configure your shell
 
-## Supported Shells
+Choose the shell you use, then review its configuration before installing it. The [installation guide](../../INSTALL.md) covers the desktop overlay; individual integrations and platforms have different prerequisites.
 
-- **Fish** — Default shell, friendly interactive shell
-- **Zsh** — Z shell with Oh My Zsh
-- **Nushell** — Modern structured shell
+## Fish and Zsh
 
-## Theme Integration
+- Fish uses `DreamcoderShell/.config/fish/config.fish` and its `conf.d` fragments. Its theme fragment reads generated LS_COLORS and fzf values through Bash and selects a Bat theme. Set `DREAMCODER_DOTS_DIR` to your clone: its fallback is a machine-specific path and may not exist on your system. Interactive Fish can start Herdr when it is installed and no multiplexer is already active.
+- Interactive Zsh uses `DreamcoderShell/.zshrc`, optionally loads Oh My Zsh and available plugins, and sources existing generated snippets from `themes/dreamcoder` in the clone. It initializes optional fzf, zoxide and Starship when available. It resolves the clone from `DREAMCODER_DOTS_DIR` or the installed `.zshrc` link.
 
-Each shell config sources Dreamcoder Workbench themes based on `DREAMCODER_THEME_MODE`:
-
-```bash
-# In .zshrc
-source ~/.config/shell/fzf-dreamcoder-${DREAMCODER_THEME_MODE}.sh
-source ~/.config/shell/ls-colors-dreamcoder-${DREAMCODER_THEME_MODE}.sh
-```
+Both configurations prefer a cached live mode over an inherited `DREAMCODER_THEME_MODE`, defaulting to dark when no mode is set. Fish and Zsh have different cache lookup details; inspect their fragments if using a custom cache location. Restart the shell to pick up installed configuration. The [theme system guide](theme-system.md) explains generation and mode changes; generating snippets does not install shell configuration.
 
 ## NetworkManager TUI colors
 
@@ -57,16 +50,6 @@ All arguments, including `--help`, are forwarded to the original `nmtui`.
 Restart the shell after installing its integration and relaunch `nmtui` after a
 mode change; an already open TUI does not update in place.
 
-## Aliases
+## Customize shortcuts
 
-Common aliases across all shells:
-
-| Alias | Command | Description |
-|-------|---------|-------------|
-| `g` | `git` | Git shortcut |
-| `gs` | `git status` | Git status |
-| `gp` | `git push` | Git push |
-| `ll` | `ls -la` | Long listing |
-| `cat` | `bat` | Syntax highlighting |
-| `find` | `fd` | Find files |
-| `grep` | `rg` | Ripgrep |
+Shell-specific aliases and functions live under `DreamcoderShell/.config/fish/` and `DreamcoderShell/.config/shell/`. Review the relevant file and optional tool requirements before relying on a shortcut; aliases are not guaranteed to match across shells. Continue with [terminal configuration](terminal-config.md) or the [documentation hub](../README.md).
