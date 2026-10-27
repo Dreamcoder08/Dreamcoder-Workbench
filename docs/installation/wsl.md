@@ -1,53 +1,40 @@
-# Installing Dreamcoder Workbench on Windows WSL
+# Dreamcoder Workbench on WSL
 
-## Prerequisites
+Use this component-only path inside a WSL distribution, not as a full desktop
+setup. WSL distributions, Windows versions and individual integrations have not
+been established as compatible. The full installer applies Linux desktop hooks
+and attempts a systemd user timer; do not run it as a general WSL host setup.
 
-- Windows 10/11 with WSL2 enabled
-- Ubuntu or Debian on WSL
-- GNU Stow
+## Install the Python package only
 
-## Install
-
-```bash
-# Install dependencies
-sudo apt update && sudo apt install -y stow git python3 python3-venv
-
-# Clone and install
-git clone https://github.com/Dreamcoder08/Dreamcoder-Workbench.git ~/Dreamcoder-Workbench
-cd ~/Dreamcoder-Workbench
-
-# Install the Python theme engine
-pip install -e .
-# or, with uv:
-uv sync
-
-# Run the installer
-./scripts/dreamcoder install
-```
-
-## Verify
+Make Git and Python 3.11 or newer, including virtual environment and pip
+support, available in the distribution. Then run inside WSL:
 
 ```bash
-./scripts/dreamcoder doctor    # Health check
-./scripts/dreamcoder status    # System status
+git clone https://github.com/Dreamcoder08/Dreamcoder-Workbench.git
+cd Dreamcoder-Workbench
+python3 --version
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e .
+dreamcoder-theme --help
 ```
 
-If the installer was skipped, you can still use the theme engine directly:
+If `python3` is older, create the environment with an available Python 3.11+
+interpreter. Pip installs the declared Jinja2 dependency in that environment.
+The help output lists the control CLI commands; the package CLI has no `sync`
+subcommand. Reactivate the environment when returning: the repository wrapper
+calls `python3` and needs its dependencies available.
 
-```bash
-dreamcoder-theme sync
-```
+## Before generating configuration
 
-## Using Windows Terminal
+The repository's `./scripts/dreamcoder sync` writes generated configuration and
+may write repository files. Back up affected configuration and review the
+[theme system guide](../configuration/theme-system.md) before running it.
+Generated files do not automatically configure Windows Terminal or ensure an
+application loads a theme. User systemd availability depends on the WSL setup;
+do not assume the timer or desktop integrations work. Installing the package
+alone does not apply the full overlay.
 
-After install, configure Windows Terminal to use:
-
-- Shell: `wsl -d Ubuntu`
-- Font: JetBrainsMono Nerd Font
-- Theme: use the Dreamcoder theme in Windows Terminal settings
-
-## Rollback
-
-The installer writes a backup manifest under `~/.local/share/dreamcoder/backups/` before changing configs. To restore, run `./scripts/dreamcoder backup restore <backup_id> --json` with the backup id shown during install. Remove the `~/Dreamcoder-Workbench` directory to uninstall the environment.
-
-> **Note**: WSL has no systemd by default, so the auto-theme timer is unavailable unless systemd is enabled in WSL (systemd-enabled WSL distros support `systemctl --user`).
+For the intended Linux desktop, see the [full installation guide](../../INSTALL.md);
+return to the [documentation hub](../README.md) for other guides.
