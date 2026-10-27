@@ -1,73 +1,26 @@
-# Terminal Configuration
+# Configure a terminal
 
-## Supported Terminals
+Choose the terminal you actually use and review its configuration before installing or changing it. The [desktop installation guide](../../INSTALL.md) covers the full overlay; component availability varies by platform. Theme generation does not install a terminal or guarantee that an open window reloads its colors.
 
-| Terminal | Theme Format | Notes |
-|----------|-------------|-------|
-| Kitty | `.conf` | GPU-accelerated, primary terminal |
-| Ghostty | Custom | Custom shaders, blur effects |
-| WezTerm | `.lua` | Cross-platform, Lua config |
-| Alacritty | `.toml` | Minimal, fast |
-| Orca | Live profile state (SQLite) | Written into Orca's own profile, not a repo file |
+## Apply and verify a theme
 
-### Orca
+With the repository virtual environment active, the [theme system guide](theme-system.md) explains the wrapper's `dark`, `light` and `sync` operations and their writes. Check the application's selected theme and reload or restart it if needed.
 
-Orca migrated its profile from JSON to SQLite. The authoritative store is
-`~/.config/orca/profiles/local-default/profile-state.db`, and the
-`profile-state.db.authority` marker says `sqlite`. The neighbouring
-`orca-data.json` is only an export Orca rewrites on save — editing it changes
-nothing Orca reads. `ORCA_DATA_PATH` overrides the profile directory and
-`ORCA_STATE_DB_PATH` overrides the database path directly.
+| Integration | What the repository provides |
+|------------|-------------------------------|
+| Kitty | Generated color and UI configuration; sync manages the UI include. |
+| Ghostty | Generated theme and a configuration selector. |
+| Warp | Generated theme and settings updates. |
+| Orca IDE | Best-effort update of an existing live profile, not a repository theme file. |
 
-Both `dreamcoder dark` and `dreamcoder sync` write the profile's `settings`
-document: they define `Dreamcoder Dark` and `Dreamcoder Light` in
-`terminalCustomThemes`, select them through `terminalThemeDark` /
-`terminalThemeLight`, enable `terminalUseSeparateLightTheme`, set the
-per-appearance divider colors from the palette `border_ui` token, and set the
-app chrome `theme` to the active Dreamcoder mode.
+A generated file is not evidence that other terminals, fonts, shortcuts or platform combinations are configured. Consult the terminal's own documentation for its font, keybindings and reload behavior.
 
-A custom theme is addressed by id, not by display name: Orca reads the
-selection as `custom:<id>` and takes the colors from the entry's nested
-`terminal` object. The managed ids are `manual:dreamcoder-dark` and
-`manual:dreamcoder-light`. Entries missing usable colors are silently
-discarded by Orca, which is why a name-only entry leaves Orca on a built-in
-scheme while still showing the configured name.
+## Orca IDE profile
 
-The database row records the profile revision it was written at and a
-`content_hash` of the exact payload bytes, and the profile revision in
-`profile_state_meta` moves with it; the previous database is copied to
-`profile-state.db.dreamcoder-backup.<timestamp>` before each write.
+Orca IDE is distinct from the GNOME screen reader. Sync and mode activation attempt to update its existing profile; missing or malformed profiles are skipped. When `profile-state.db.authority` says `sqlite`, the database at `~/.config/orca/profiles/local-default/profile-state.db` is authoritative and the adjacent JSON is an export. The integration also supports a legacy JSON store. `ORCA_DATA_PATH` overrides the JSON path and thereby the default database directory; `ORCA_STATE_DB_PATH` overrides the database path directly.
 
-Orca holds its profile in memory while its main window is open and flushes
-that copy over external edits, so the sync skips the store and reports
-`skipped-running` instead of writing something that would be discarded.
-Close Orca, then re-run `dreamcoder dark` or `dreamcoder light` to apply.
+The managed entries use IDs `manual:dreamcoder-dark` and `manual:dreamcoder-light`, selected as `custom:<id>` with colors in each entry's nested `terminal` object. The settings also select separate light and dark themes, set divider colors and update the app chrome mode. Existing unrelated theme entries are retained. SQLite updates advance the profile revision and payload hash and back up the database first; editing the JSON export does not change the authoritative SQLite profile.
 
-## Theme Switching
+Orca's main window holds a profile in memory and can overwrite external edits. A `skipped-running` result means close the window and retry the wrapper's `dark` or `light` command, then reopen Orca. Other skipped results require inspecting the profile rather than assuming it was updated.
 
-Terminals auto-detect `DREAMCODER_THEME_MODE` env var:
-
-```bash
-export DREAMCODER_THEME_MODE="dark"  # or "light"
-```
-
-## Font Configuration
-
-All terminals use JetBrainsMono Nerd Font:
-
-```
-Font: JetBrainsMono Nerd Font
-Size: 14pt
-Ligatures: Enabled
-```
-
-## Key Bindings
-
-Common key bindings across terminals:
-
-| Action | Kitty | Ghostty | WezTerm | Alacritty |
-|--------|-------|---------|---------|-----------|
-| New tab | Ctrl+Shift+T | Ctrl+Shift+T | Ctrl+Shift+T | Ctrl+Shift+T |
-| Close tab | Ctrl+Shift+W | Ctrl+Shift+W | Ctrl+Shift+W | Ctrl+Shift+W |
-| Split horizontal | Ctrl+Shift+5 | Ctrl+Shift+5 | Ctrl+Shift+5 | Ctrl+Shift+5 |
-| Split vertical | Ctrl+Shift+6 | Ctrl+Shift+6 | Ctrl+Shift+6 | Ctrl+Shift+6 |
+Next, configure your [shell](shell-config.md) or [multiplexer](multiplexer-config.md), or return to the [documentation hub](../README.md).

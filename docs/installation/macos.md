@@ -1,48 +1,38 @@
-# Installing Dreamcoder Workbench on macOS
+# Dreamcoder Workbench on macOS
 
-## Prerequisites
+This is a component-only path, not the full ML4W desktop installation. macOS
+versions and individual integrations have not been established as compatible.
+The full installer applies Linux desktop hooks and attempts a systemd user timer;
+do not run it on the host as a general macOS setup.
 
-- macOS 12+
-- Homebrew
-- Git
+## Install the Python package only
 
-## Install
-
-Dreamcoder Workbench is distributed as a git repository, not a Homebrew formula.
-
-```bash
-# Install base dependencies
-brew install stow git python
-
-# Clone and install
-git clone https://github.com/Dreamcoder08/Dreamcoder-Workbench.git ~/Dreamcoder-Workbench
-cd ~/Dreamcoder-Workbench
-
-# Install the Python theme engine
-pip install -e .
-# or, with uv:
-uv sync
-
-# Run the installer
-./scripts/dreamcoder install
-```
-
-## Verify
+Install Git and Python 3.11 or newer using your preferred trusted source. Then:
 
 ```bash
-./scripts/dreamcoder doctor    # Health check
-./scripts/dreamcoder status    # System status
+git clone https://github.com/Dreamcoder08/Dreamcoder-Workbench.git
+cd Dreamcoder-Workbench
+python3 --version
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e .
+dreamcoder-theme --help
 ```
 
-If the installer was skipped, you can still use the theme engine directly:
+Use a Python 3.11+ interpreter to create the environment if `python3` is older.
+The package declares Jinja2; pip installs it in the virtual environment. The
+help output lists the control CLI commands, not a package `sync` subcommand.
+Reactivate the environment when returning to the clone; the repository wrapper
+calls `python3` and needs its dependencies available.
 
-```bash
-dreamcoder-theme sync
-```
+## Before generating configuration
 
-## Rollback
+The repository's `./scripts/dreamcoder sync` writes generated configuration and
+may write repository files. Back up affected configuration and review the
+[theme system guide](../configuration/theme-system.md) before running it. A
+generated theme does not mean an installed application will load it, and Linux
+hooks, desktop integration and timer behavior should not be assumed to work on
+macOS. Package installation alone does not apply the full overlay.
 
-- The installer writes a backup manifest under `~/.local/share/dreamcoder/backups/` before changing configs. To restore, run `./scripts/dreamcoder backup restore <backup_id> --json` with the backup id shown during install.
-- To remove the environment entirely, delete the symlinks the installer created (listed in the backup manifest) and remove the `~/Dreamcoder-Workbench` directory.
-
-> **Note**: terminal, shell, and multiplexer overlays assume a Linux-style environment; GUI and systemd-timer features are limited on macOS.
+For the intended Linux desktop, see the [full installation guide](../../INSTALL.md);
+for other topics, return to the [documentation hub](../README.md).
