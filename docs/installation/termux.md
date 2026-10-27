@@ -1,47 +1,39 @@
-# Installing Dreamcoder Workbench on Termux (Android)
+# Dreamcoder Workbench on Termux
 
-## Prerequisites
+This is a component-only path, not an ML4W desktop setup. Android and Termux
+versions and individual integrations have not been established as compatible.
+The full installer applies Linux desktop hooks and attempts a systemd user
+timer; do not run it as a general Termux host setup.
 
-- Termux app (from F-Droid, NOT Play Store)
-- Android 7+
+## Install the Python package only
 
-## Install
-
-```bash
-pkg update && pkg upgrade
-pkg install stow git python nodejs
-
-git clone https://github.com/Dreamcoder08/Dreamcoder-Workbench.git ~/Dreamcoder-Workbench
-cd ~/Dreamcoder-Workbench
-
-# Install the Python theme engine
-pip install -e .
-# or, with uv:
-uv sync
-
-# Run the installer
-./scripts/dreamcoder install
-```
-
-## Verify
+Make Git and Python 3.11 or newer, with virtual environment and pip support,
+available in Termux. Then:
 
 ```bash
-./scripts/dreamcoder doctor    # Health check
-./scripts/dreamcoder status    # System status
+git clone https://github.com/Dreamcoder08/Dreamcoder-Workbench.git
+cd Dreamcoder-Workbench
+python3 --version
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e .
+dreamcoder-theme --help
 ```
 
-If the installer was skipped, you can still use the theme engine directly:
+If `python3` is older, create the environment with an available Python 3.11+
+interpreter. Pip installs the declared Jinja2 dependency in that environment.
+The help output lists the control CLI commands; the package CLI has no `sync`
+subcommand. Reactivate the environment when returning: the repository wrapper
+calls `python3` and needs its dependencies available.
 
-```bash
-dreamcoder-theme sync
-```
+## Before generating configuration
 
-## Limitations
+The repository's `./scripts/dreamcoder sync` writes generated configuration and
+may write repository files. Back up affected configuration and review the
+[theme system guide](../configuration/theme-system.md) before running it.
+Generated themes do not guarantee that Termux or any application consumes them;
+do not assume Linux desktop hooks or systemd timer integration work. Installing
+the package alone does not apply the full overlay.
 
-- No systemd (light/dark automation unavailable)
-- No GUI apps (Kitty/Ghostty unavailable)
-- Limited shader support
-
-## Rollback
-
-The installer writes a backup manifest under `~/.local/share/dreamcoder/backups/` before changing configs. To restore, run `./scripts/dreamcoder backup restore <backup_id> --json` with the backup id shown during install. Remove the `~/Dreamcoder-Workbench` directory to uninstall the environment.
+For the intended Linux desktop, see the [full installation guide](../../INSTALL.md);
+return to the [documentation hub](../README.md) for other guides.

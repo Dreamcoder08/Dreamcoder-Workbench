@@ -1,51 +1,25 @@
-# Terminal Multiplexer Configuration
+# Configure a terminal multiplexer
 
-## Supported Multiplexers
-
-- **Tmux** — Classic terminal multiplexer
-- **Zellij** — Modern terminal workspace
+Choose Tmux or Zellij and inspect the corresponding repository configuration before installing it. The canonical desktop installer does not list either as a Stow module; generating a theme is not the same as installing a multiplexer configuration. See [INSTALL.md](../../INSTALL.md) for the desktop path and platform-specific component guides.
 
 ## Tmux
 
-### Key Bindings
+`DreamcoderTmux/.tmux.conf` conditionally sources the Gentleman.Dots Tmux configuration from `$HOME/Gentleman.Dots/GentlemanTmux/tmux.conf`, then loads `~/.config/tmux/tmux-dreamcoder-base.conf`. Make both paths available if using this layer. The upstream configuration supplies the base and its prefix; the local config adds:
 
-| Action | Key |
-|--------|-----|
-| Prefix | Ctrl+a |
-| Split horizontal | prefix + \| |
-| Split vertical | prefix + - |
-| Navigate panes | Alt+Arrow |
-| Vi mode | prefix + [ |
+| Action | Binding |
+|--------|---------|
+| Horizontal / vertical split | prefix + `\|` / prefix + `-` |
+| Navigate panes | Alt + h/j/k/l |
+| Reload configuration | prefix + r |
+| Detach | prefix + D or prefix + Ctrl+d |
+| Session picker | prefix + f (requires fzf) |
 
-### Plugins (TPM)
-
-- `tmux-resurrect` — Session save/restore
-- `tmux-continuum` — Auto-save
-- `tmux-sensible` — Better defaults
-- `tmux-yank` — System clipboard
-
-### Theme
-
-Tmux auto-detects theme mode:
-
-```bash
-if-shell '[ "$DREAMCODER_THEME_MODE" = "light" ]' \
-    'source-file ~/.config/tmux/dreamcoder-light.conf' \
-    'source-file ~/.config/tmux/dreamcoder-dark.conf'
-```
+The local config declares `tmux-continuum`; other plugin setup belongs to the upstream base. The generated active theme is `~/.config/tmux/tmux-dreamcoder.conf` by default. Ensure the installed configuration reads the relevant theme files, then reload it or restart the session as needed.
 
 ## Zellij
 
-### Key Bindings
+`DreamcoderZellij/.config/zellij/config.kdl` declares Alt+n for a new tab, Alt+j/k for previous/next tab, Alt+1–5 for tab selection and Ctrl+t for tab mode. The `dreamcoder` layout has a base pane and a top tab/time bar using `zjstatus`; it is a layout file, not a claim that it is selected by default.
 
-| Action | Key |
-|--------|-----|
-| New tab | Alt+N |
-| Next tab | Alt+K |
-| Previous tab | Alt+J |
-| Go to tab 1-5 | Alt+1-5 |
-| Toggle tab | Ctrl+T |
+The theme sync updates the Zellij selector and generates dark/light KDL themes. Make those themes available to the installed Zellij configuration and restart or reload as supported by your version; writing files alone does not ensure a running session changes.
 
-### Layout
-
-Default layout: `dreamcoder` — vertical split with 20% sidebar.
+For mode selection and synchronization, see the [theme system guide](theme-system.md); for terminal setup, see [terminal configuration](terminal-config.md).

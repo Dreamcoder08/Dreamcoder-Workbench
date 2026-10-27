@@ -1,26 +1,32 @@
 # Dreamcoder Workbench Theme System
 
+## Choose a mode or regenerate
+
+From the repository root, activate the Python environment described in [INSTALL.md](../../INSTALL.md), then choose the operation you need:
+
+```bash
+./scripts/dreamcoder dark  # or light: activate a mode
+./scripts/dreamcoder sync  # regenerate using the selected active mode
+```
+
+Mode activation prepares and validates the theme, persists the choice, writes configurations and invokes reload adapters. Sync regenerates palette tokens and writes live targets and, by default, repository outputs; it can also update selectors and the Bat cache. Both can affect your existing configuration. Inspect changes and reload or restart applications where needed. Neither operation installs applications or their configuration. For the desktop installation and recovery path, see [INSTALL.md](../../INSTALL.md).
+
+`dreamcoder-theme` is the installed control CLI: its parser offers `theme apply dark` and `theme apply light`, but no `sync` command. Use the repository wrapper above for sync. `DREAMCODER_THEME_MODE=light` or `dark` selects sync's mode; otherwise it uses the persisted live mode, then dark. `DREAMCODER_WRITE_REPO=0` skips repository theme outputs, not live configuration writes.
+
 ## Architecture
 
-Three-layer design system:
-
-```txt
-primitives (OKLCH ramps) → semantic tokens (tokens.json) → component themes (renderers)
-```
-
-Pipeline:
-
-```txt
+```text
 tokens.json → generate-palette-tokens.py → palette_tokens.py
-           → dreamcoder sync → generated theme files for every configured renderer
+            → palette and renderers → sync writers → live and repository outputs
 ```
+
+Semantic roles are derived from canonical tokens; optional wallpaper adaptation can modify the active palette. The coverage declaration and registry in `src/dreamcoder_theme/sync.py` describe rendered consumers, not proof that every application is installed or tested on every platform.
 
 ## Canonical tokens
 
 Single source of truth: [`DreamcoderThemes/dreamcoder/tokens.json`](../../DreamcoderThemes/dreamcoder/tokens.json)
 
-The canonical modes are exactly **Dreamcoder Dark**, **Dreamcoder Light**, and
-**Dreamcoder Dusk**; only Dark and Light are user-facing. Dark's `surface_policy` permits pure black only for the canvas; functional
+The user-facing modes are **dark** and **light**. The token data also contains an internal legacy variant. Dark's `surface_policy` permits pure black only for the canvas; functional
 and scrollable surfaces use the near-black ladder (`surface0`–`surface3`) to
 reduce OLED smear.
 
@@ -39,10 +45,10 @@ reduce OLED smear.
 After editing `tokens.json`:
 
 ```bash
-./scripts/generate-palette-tokens.py       # sync palette_tokens.py + derived tokens
-python scripts/generate-dark-css.py        # sync dreamcoder-dark.css variables
-./scripts/dreamcoder sync                  # propagate to all targets
-./scripts/verify-theme-health.py           # WCAG + APCA gates (light and dark)
+python scripts/generate-palette-tokens.py  # write generated palette_tokens.py
+python scripts/generate-dark-css.py         # write dreamcoder-dark.css variables
+./scripts/dreamcoder sync                  # write live and repository outputs
+python scripts/verify-theme-health.py      # check theme health
 ```
 
 CI or local drift checks can use:
@@ -137,7 +143,4 @@ Use the [Dark state validation reference](dark-theme-validation.md) for cross-ap
 
 ## Adding new targets
 
-1. Create renderer in `src/dreamcoder_theme/renderers_<target>.py`
-2. Map semantic tokens (never raw hex in renderers)
-3. Register in `src/dreamcoder_theme/sync.py`
-4. Run `./scripts/dreamcoder sync`
+Follow the renderer and testing workflow in [Contributing](../../CONTRIBUTING.md), under “Add or change a theme renderer”. Review target-specific output and application behavior separately from generation.

@@ -1,91 +1,71 @@
-# Dreamcoder Workbench — Documentation
+# Dreamcoder Workbench documentation
 
-Welcome to the Dreamcoder Workbench documentation hub. This index centralizes
-all the technical documentation for the project.
+Find the next guide for your task, then use the technical references when you
+need implementation details. For the project overview and ownership of the
+upstream environments, start with the [main README](../README.md).
 
-## New here? Quick path
+## Get started
 
-New to Dreamcoder Workbench? Here is the shortest path:
+1. Read the [installation guide](../INSTALL.md) for the full desktop journey,
+   verification and troubleshooting.
+2. Choose the component guides below for the tools you actually use.
+3. Read the [source manifest](sources.md) to understand what Dreamcoder
+   Workbench owns and what comes from Gentleman.Dots and ML4W.
 
-1. Start with the [main README](../README.md): overview, badges, and the 3-step install.
-2. Read the [Source Manifest](sources.md) to understand what is upstream and what the repo owns.
-3. Go deeper into the [Theme System](configuration/theme-system.md) if you work with colors or tokens.
-4. Review the [Design System](DREAMCODER_DESIGN_SYSTEM.md) for the identity and contrast guidelines.
+The full desktop path targets Arch Linux or a derivative with ML4W. The other
+platform guides describe component-specific approaches, not a guarantee of a
+complete desktop or compatibility for every component.
 
----
+| Platform guide | Use it for |
+| --- | --- |
+| [Linux](installation/linux.md) | Linux setup and distribution-specific notes |
+| [macOS](installation/macos.md) | macOS components |
+| [WSL](installation/wsl.md) | Components in Windows Subsystem for Linux |
+| [Termux](installation/termux.md) | Components on Android through Termux |
 
-## Architecture
+## Configure your workspace
 
-High-level documentation on how the system is built and how it works.
+| Task | Guide |
+| --- | --- |
+| Configure a terminal | [Terminal configuration](configuration/terminal-config.md) |
+| Configure an editor | [Editor configuration](configuration/editor-config.md) |
+| Configure a shell or prompt | [Shell configuration](configuration/shell-config.md) |
+| Configure a multiplexer | [Tmux and Zellij](configuration/multiplexer-config.md) |
+| Set up ML4W profiles and keybindings | [ML4W integration](configuration/ml4w.md) |
+| Understand or regenerate themes | [Theme system](configuration/theme-system.md) and [theme preview](generated/dreamcoder-theme-preview.md) |
+| Configure the review model | [gga model pin](configuration/gga.md) |
+| Explore AI tool integrations | [AI integration](ai-integration.md) and [Herdr integration](herdr.md) |
+| Move from an upstream setup | [Gentleman.Dots migration](migration/from-gentleman.md) or [ML4W migration](migration/from-ml4w.md) |
 
-| Document | Description |
-|-----------|-------------|
-| [Theme Pipeline](architecture/theme-pipeline.mmd) | How tokens from `tokens.json` flow through the renderers to the final theme files |
-| [AI Integration](ai-integration.md) | How Dreamcoder Workbench integrates with Claude Code, OpenCode, Pi, and other AI tools |
-| [Monorepo Structure](architecture/monorepo-structure.mmd) | Visual map of the repository: `src/`, `scripts/`, `tests/`, and every top-level directory |
-| [Data Flow](architecture/data-flow.mmd) | Full flow of `dreamcoder-theme sync`: palette → tokens → renderers → writers → disk |
-| [Source Manifest](sources.md) | Upstream inputs (ML4W, Gentleman.Dots), ownership boundaries, and prohibitions on secrets/runtime state |
-| [Herdr Integration](herdr.md) | Herdr 0.7.3/0.8.0/0.8.2/0.9.1/0.9.3/0.9.4/0.9.5 contracts, versioned generated variants, and deployment profiles |
-| [Design System](DREAMCODER_DESIGN_SYSTEM.md) | Design principles, color philosophy, and visual identity guidelines |
-| [Control Center](DREAMCODER_CONTROL_CENTER.md) | Central control dashboard for the Dreamcoder Workbench ecosystem |
+## Develop and maintain
 
-### Architecture Decision Records (ADRs)
+- [Contributing](../CONTRIBUTING.md) covers development setup, tests and pull requests.
+- [Design system](DREAMCODER_DESIGN_SYSTEM.md) describes visual identity and
+  color guidelines; [dark theme validation](configuration/dark-theme-validation.md)
+  records validation details.
+- [Control Center](DREAMCODER_CONTROL_CENTER.md) describes the control dashboard.
+- [PyPI publishing](pypi-publishing.md) covers package release maintenance.
+- [Operator report](generated/DREAMCODER_OPERATOR_REPORT.md) is a generated
+  technical report, not an installation guide.
 
-| ADR | Title | Status |
-|-----|--------|--------|
-| [ADR-001](adr/0001-project-structure.md) | Monorepo Project Structure Layout | Accepted |
-| [ADR-002](adr/0002-toolchain-selection.md) | Python and Shell Quality Toolchain | Accepted |
-| [ADR-003](adr/0003-python-quality-strategy.md) | Python Quality Strategy | Accepted |
-| [ADR-004](adr/0004-shell-test-strategy.md) | Shell Test Strategy | Accepted |
-| [ADR-005](adr/0005-ci-cd-quality-gates.md) | CI/CD Quality Gates | Accepted |
+## Architecture and reference
 
----
+These resources explain implementation and decisions rather than the onboarding path.
 
-## Installation
+- [Theme pipeline](architecture/theme-pipeline.mmd), [data flow](architecture/data-flow.mmd)
+  and [monorepo structure](architecture/monorepo-structure.mmd) are Mermaid diagrams.
+- [Source manifest](sources.md) describes upstream pins and ownership;
+  its [machine-readable manifest](upstream-manifest.json) and
+  [schema](upstream-manifest.schema.json) support maintenance.
+- Architecture decision records: [project structure](adr/0001-project-structure.md),
+  [toolchain selection](adr/0002-toolchain-selection.md),
+  [Python quality](adr/0003-python-quality-strategy.md),
+  [shell testing](adr/0004-shell-test-strategy.md) and
+  [CI/CD quality gates](adr/0005-ci-cd-quality-gates.md).
 
-Step-by-step guides to install Dreamcoder Workbench on different platforms.
+## Historical designs and plans
 
-| Guide | Platform |
-|------|-----------|
-| [Linux](installation/linux.md) | Arch Linux (recommended), Fedora, Debian-based |
-| [macOS](installation/macos.md) | macOS Sonoma+ |
-| [WSL](installation/wsl.md) | Windows Subsystem for Linux |
-| [Termux](installation/termux.md) | Android via Termux |
-
----
-
-## Configuration
-
-Configuration guides for individual components.
-
-| Guide | Component |
-|------|-----------|
-| [Terminal](configuration/terminal-config.md) | Kitty, Ghostty, WezTerm, Alacritty |
-| [Editor](configuration/editor-config.md) | Neovim, VS Code / Antigravity |
-| [Shell](configuration/shell-config.md) | Zsh, Bash, Starship, Fish, Nushell |
-| [Multiplexer](configuration/multiplexer-config.md) | Tmux, Zellij |
-| [ML4W Integration](configuration/ml4w.md) | Profile-driven keybindings, native dispatchers, file layout |
-| [Theme System](configuration/theme-system.md) | Theme engine architecture, tokens, variants |
-| [gga Model Pin](configuration/gga.md) | Gentleman Guardian Angel reviews pinned to Codex `gpt-6.1-sol` (medium) |
-
----
-
-## Development
-
-Guides for contributors and developers.
-
-| Resource | Description |
-|---------|-------------|
-| [CONTRIBUTING](../CONTRIBUTING.md) | How to contribute: setup, tests, PR guidelines |
-| [Design Docs](superpowers/specs/) | Design specs and implementation plans (SDD) |
-| [Theme Preview](generated/dreamcoder-theme-preview.md) | Automatically generated preview of all themes |
-| [PyPI Publishing](pypi-publishing.md) | Publishing `dreamcoder-theme` to PyPI with Trusted Publisher |
-| [Migration Guides](migration/) | Migrating from ML4W and Gentleman.Dots |
-
----
-
-## Root Links
-
-- [Main README](../README.md) — overview, badges, quick start
-- [GitHub Repository](https://github.com/Dreamcoder08/Dreamcoder-Workbench)
-- [PyPI Package](https://pypi.org/project/dreamcoder-theme/)
+[Design specifications](superpowers/specs/) and [implementation plans](superpowers/plans/)
+record project proposals and past work. They are context, not necessarily current
+setup instructions. The [prefix restructure proposal](architecture/sdd-prefix-restructure/01-proposal.md)
+is also architectural history; use the current guides above for onboarding.
