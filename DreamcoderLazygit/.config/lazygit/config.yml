@@ -1,41 +1,40 @@
-# Dreamcoder Light — Lazygit theme
+# Dreamcoder Dark — Lazygit theme
 # https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md
 
 gui:
   theme:
     activeBorderColor:
-      - "#824f16" # accent
+      - "#A5B4FC" # accent
       - "bold"
     inactiveBorderColor:
-      - "#8a7358" # border
+      - "#6B6B6B" # border
     searchingActiveBorderColor:
-      - "#a7471c" # accent-2
+      - "#D4B5FD" # accent-2
       - "bold"
     optionsTextColor:
-      - "#0d4a68" # diagnostic
+      - "#7DD3FC" # diagnostic
     selectedLineBgColor:
-      - "#decbb1" # selection
+      - "#3A3A3A" # selection
     inactiveViewSelectedLineBgColor:
-      - "#c8ad89" # surface-2
+      - "#1F1F1F" # surface-2
     cherryPickedCommitFgColor:
-      - "#0d4a68"
+      - "#7DD3FC"
     cherryPickedCommitBgColor:
-      - "#a7471c"
+      - "#D4B5FD"
     markedBaseCommitFgColor:
-      - "#0d4a68"
+      - "#7DD3FC"
     markedBaseCommitBgColor:
-      - "#824f16"
+      - "#A5B4FC"
     unstagedChangesColor:
-      - "#842f24" # error
+      - "#FB8585" # error
     defaultFgColor:
-      - "#17120d" # text
+      - "#E6E6E6" # text
   authorColors:
-        "#824f16": "#f3eadc"
-        "#a7471c": "#f3eadc"
-        "#0d4a68": "#f3eadc"
-        "#315b31": "#f3eadc"
-        "#57478b": "#f3eadc"
-        "#7d3e64": "#f3eadc"
+        "#A5B4FC": "#000000"
+        "#D4B5FD": "#000000"
+        "#7DD3FC": "#000000"
+        "#34D399": "#000000"
+        "#D8B4FE": "#000000"
   showFileTree: true
   showRandomTip: false
   nerdFontsVersion: "3"
@@ -46,12 +45,12 @@ gui:
 git:
   diffRenderers:
     - colorArg: always
-      command: delta --syntax-theme "Catppuccin Latte" --paging=never
+      command: delta --syntax-theme "Catppuccin Mocha" --paging=never
   merging:
     manualCommit: false
   skipHookPrefix: WIP
   autoFetch: true
   autoRefresh: true
-  branchLogCmd: "git log --graph --pretty=format:'%C(#824f16)%h%Creset -%C(#a7471c)%d%Creset %s %C(#725e4c)(%cr) %C(#0d4a68)<%an>%Creset' --date=relative"
+  branchLogCmd: "git log --graph --pretty=format:'%C(#A5B4FC)%h%Creset -%C(#D4B5FD)%d%Creset %s %C(#D0D0D0)(%cr) %C(#7DD3FC)<%an>%Creset' --date=relative"
 update:
   method: never
