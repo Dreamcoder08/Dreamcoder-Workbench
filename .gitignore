@@ -19,6 +19,7 @@ DreamcoderShell/.config/fish/functions/*
 !DreamcoderShell/.config/fish/functions/dev-dots.fish
 !DreamcoderShell/.config/fish/functions/nmtui.fish
 !DreamcoderShell/.config/fish/functions/hsquad.fish
+!DreamcoderShell/.config/fish/functions/hwt.fish
 .DS_Store
 # Editor
 .editorconfig-unreal

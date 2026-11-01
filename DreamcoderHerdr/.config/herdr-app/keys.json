@@ -57,6 +57,8 @@
     "ctrl-shift-l": "layout.switch",
     "alt-g": "layout.switch:gentleman",
     "alt-m": "layout.switch:main",
+    "alt-n": "needs-you.jump",
+    "alt-a": "needs-you.squad",
     "alt-z": "pane.zoom",
     "alt-x": "layout.toggle:panel",
     "ctrl-shift-down": "agent.next",
