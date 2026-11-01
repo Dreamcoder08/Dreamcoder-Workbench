@@ -89,6 +89,7 @@ func FindDotfilesDir() (string, error) {
 	// 3. Common locations
 	home, _ := os.UserHomeDir()
 	candidates := []string{
+		filepath.Join(home, "Documents", "PROYECTOS", "dreamcoder08", "dreamcoder-workbench"),
 		filepath.Join(home, "Documents", "PROYECTOS", "dreamcoder-dots"),
 		filepath.Join(home, "Projects", "dreamcoder-dots"),
 		filepath.Join(home, "code", "dreamcoder-dots"),
@@ -110,7 +111,7 @@ func FindDotfilesDirOrDefault(homeDir string) string {
 	if dir, err := FindDotfilesDir(); err == nil {
 		return dir
 	}
-	return filepath.Join(homeDir, "Documents", "PROYECTOS", "dreamcoder-dots")
+	return filepath.Join(homeDir, "Documents", "PROYECTOS", "dreamcoder08", "dreamcoder-workbench")
 }
 
 // ResolveComponentModules maps selected component name list to stow module names.
