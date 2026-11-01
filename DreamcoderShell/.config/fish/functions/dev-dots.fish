@@ -1,6 +1,6 @@
 # Launch Dreamcoder-dots dev workspace with Herdr
 function dev-dots
-    set -l project_dir "$HOME/Documents/PROYECTOS/dreamcoder-dots"
+    set -l project_dir "$HOME/Documents/PROYECTOS/dreamcoder08/dreamcoder-workbench"
     set -l herdr_lib "$project_dir/scripts/herdr-lib.sh"
 
     if not test -d "$project_dir"

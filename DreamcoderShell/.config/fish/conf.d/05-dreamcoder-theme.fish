@@ -15,7 +15,7 @@ set -gx FORCE_COLOR 3
 set -gx CLICOLOR_FORCE 1
 set -e NO_COLOR
 
-set -q DREAMCODER_DOTS_DIR; or set -gx DREAMCODER_DOTS_DIR "$HOME/Documents/PROYECTOS/dreamcoder-dots"
+set -q DREAMCODER_DOTS_DIR; or set -gx DREAMCODER_DOTS_DIR "$HOME/Documents/PROYECTOS/dreamcoder08/dreamcoder-workbench"
 set -l theme_dir "$DREAMCODER_DOTS_DIR/themes/dreamcoder"
 
 # BAT — simple mode toggle

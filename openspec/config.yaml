@@ -2,7 +2,7 @@
 schema: spec-driven
 
 project: dreamcoder-dots
-workspace: /home/dreamcoder08/Documents/PROYECTOS/dreamcoder-dots
+workspace: /home/dreamcoder08/Documents/PROYECTOS/dreamcoder08/dreamcoder-workbench
 
 context: |
   Tech stack: Python 3.11+ (setuptools, Jinja2) + Go 1.26 (installer CLI)

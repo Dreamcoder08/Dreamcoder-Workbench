@@ -4,4 +4,4 @@ Description=Apply Dreamcoder theme based on local time
 [Service]
 Type=oneshot
 EnvironmentFile=-%h/.config/systemd/user/dreamcoder-env.conf
-ExecStart=%h/Documents/PROYECTOS/dreamcoder-dots/scripts/theme-auto.sh
+ExecStart=%h/Documents/PROYECTOS/dreamcoder08/dreamcoder-workbench/scripts/theme-auto.sh

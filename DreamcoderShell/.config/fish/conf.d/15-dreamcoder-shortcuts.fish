@@ -4,7 +4,7 @@ if status is-interactive
     alias cls='clear'
     alias q='exit'
 
-    set -q DREAMCODER_DOTS_DIR; or set -gx DREAMCODER_DOTS_DIR $HOME/Documents/PROYECTOS/dreamcoder-dots
+    set -q DREAMCODER_DOTS_DIR; or set -gx DREAMCODER_DOTS_DIR $HOME/Documents/PROYECTOS/dreamcoder08/dreamcoder-workbench
 
     # Dreamcoder theme switcher — updates shell env vars after sync
     function dreamcoder --description 'Switch Dreamcoder theme and reload shell colors'

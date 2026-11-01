@@ -1,7 +1,7 @@
 # Dreamcoder Dots SDD Project Context
 
 - **Project:** dreamcoder-dots
-- **Workspace:** `/home/dreamcoder08/Documents/PROYECTOS/dreamcoder-dots`
+- **Workspace:** `/home/dreamcoder08/Documents/PROYECTOS/dreamcoder08/dreamcoder-workbench`
 - **Artifact store:** OpenSpec
 - **Execution mode:** Interactive
 - **Delivery strategy:** Auto-forecast chained PRs
