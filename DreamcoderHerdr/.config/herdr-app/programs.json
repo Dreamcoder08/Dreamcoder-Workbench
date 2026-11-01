@@ -6,8 +6,37 @@
       "tint": true,
       "tile": "#A5B4FC",
       "color": "#000000",
-      "match": ["gentle-shell"],
-      "run": ["gentle-shell"]
+      "match": [
+        "gentle-shell"
+      ],
+      "run": [
+        "gentle-shell"
+      ]
+    },
+    "lazygit": {
+      "run": [
+        "lazygit"
+      ]
+    },
+    "yazi": {
+      "name": "Yazi",
+      "icon": "icons/program.svg",
+      "tint": true,
+      "tile": "#7DD3FC",
+      "color": "#000000",
+      "run": [
+        "yazi"
+      ]
+    },
+    "btop": {
+      "name": "btop",
+      "icon": "icons/htop.svg",
+      "tint": true,
+      "tile": "#34D399",
+      "color": "#000000",
+      "run": [
+        "btop"
+      ]
     }
   }
 }

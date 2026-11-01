@@ -53,7 +53,6 @@
     "ctrl-shift-o": "pane.split:right",
     "ctrl-shift-e": "pane.split:down",
     "ctrl-shift-w": "tab.close",
-    "ctrl-shift-x": "pane.close",
     "ctrl-shift-z": "pane.zoom",
     "ctrl-shift-l": "layout.switch",
     "alt-g": "layout.switch:gentleman",
@@ -63,7 +62,11 @@
     "ctrl-shift-down": "agent.next",
     "ctrl-shift-up": "agent.prev",
     "f2": "tab.rename",
-    "shift-f2": "space.rename"
+    "shift-f2": "space.rename",
+    "alt-v": "pane.split:right",
+    "alt-d": "pane.split:down",
+    "ctrl-t": "tab.new",
+    "ctrl-shift-q": "pane.close"
   },
   "terminal": {
     "ctrl-backspace": "send:\u0017",
@@ -71,6 +74,8 @@
     "ctrl-right": "send:\u001bf",
     "ctrl-shift-c": "terminal.copy",
     "ctrl-shift-v": "terminal.paste",
-    "ctrl-v": "terminal.paste_image"
+    "ctrl-v": "terminal.paste_image",
+    "ctrl-shift-x": "terminal",
+    "shift-enter": "send:\u001b\r"
   }
 }
