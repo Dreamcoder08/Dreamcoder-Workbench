@@ -1,0 +1,20 @@
+# Herdr app home: the app rewrites shipped layouts, mods, docs and state on
+# every start. Track only the personal files below.
+/*
+!/.gitignore
+!/settings.json
+!/keys.json
+!/programs.json
+!/themes/
+/themes/*
+!/themes/dreamcoder-dark.json
+!/themes/dreamcoder-light.json
+!/layouts/
+/layouts/*
+!/layouts/gentleman.json
+!/layouts/gentleman.svg
+!/mods/
+/mods/*
+!/mods/needs-you/
+/mods/needs-you/gpui-kit.d.ts
+/mods/needs-you/jsconfig.json

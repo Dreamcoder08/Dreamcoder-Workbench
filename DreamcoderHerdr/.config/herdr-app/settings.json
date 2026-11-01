@@ -1,0 +1,14 @@
+{
+  "zoom": 1.3,
+  "sounds": {
+    "enabled": true
+  },
+  "font": "IosevkaTerm NF",
+  "font_size": 14.0,
+  "telemetry": false,
+  "minimum_contrast": 4.5,
+  "theme": {
+    "light": "dreamcoder-light",
+    "dark": "dreamcoder-dark"
+  }
+}

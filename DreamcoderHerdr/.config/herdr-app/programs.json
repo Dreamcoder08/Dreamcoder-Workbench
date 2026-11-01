@@ -1,0 +1,13 @@
+{
+  "programs": {
+    "gentle-shell": {
+      "name": "Gentle Shell",
+      "icon": "icons/pi.svg",
+      "tint": true,
+      "tile": "#A5B4FC",
+      "color": "#000000",
+      "match": ["gentle-shell"],
+      "run": ["gentle-shell"]
+    }
+  }
+}
