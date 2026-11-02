@@ -68,7 +68,8 @@
     "alt-v": "pane.split:right",
     "alt-d": "pane.split:down",
     "ctrl-t": "tab.new",
-    "ctrl-shift-q": "pane.close"
+    "ctrl-shift-q": "pane.close",
+    "alt-p": "dc-tabs.panel-prs"
   },
   "terminal": {
     "ctrl-backspace": "send:\u0017",

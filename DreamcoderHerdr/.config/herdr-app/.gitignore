@@ -18,3 +18,10 @@
 !/mods/needs-you/
 /mods/needs-you/gpui-kit.d.ts
 /mods/needs-you/jsconfig.json
+# Dreamcoder cockpit mods (generated .d.ts/jsconfig stay untracked)
+!/mods/dc-tabs/
+/mods/dc-tabs/gpui-kit.d.ts
+/mods/dc-tabs/jsconfig.json
+!/mods/prs/
+/mods/prs/gpui-kit.d.ts
+/mods/prs/jsconfig.json
