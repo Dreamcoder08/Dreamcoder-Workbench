@@ -54,8 +54,9 @@ alias zd="zen-browser -P Dev"
 alias zf="zen-browser -P Founder"
 # Default browser = Zen Personal (for pi login OAuth, git, etc.)
 set -gx BROWSER "zen-browser -P Personal"
-# Start selected terminal multiplexer (Herdr)
-if status is-interactive; and command -q herdr; and not set -q HERDR_ENV; and not set -q TMUX; and not set -q ZELLIJ; and not set -q ORCA_PANE_KEY
+# Start selected terminal multiplexer (Herdr).
+# Skipped inside herdr-core terminals (Herdr desktop app), which already host the shell.
+if status is-interactive; and command -q herdr; and not set -q HERDR_ENV; and not set -q HC_TERMINAL_ID; and not set -q TMUX; and not set -q ZELLIJ; and not set -q ORCA_PANE_KEY
     # Herdr spawns panes with $SHELL; pin it to this fish so panes never inherit
     # a foreign login shell (e.g. zsh from the session environment).
     env SHELL=(status fish-path) herdr; or echo "⚠️  Herdr failed to start; continuing in Fish."

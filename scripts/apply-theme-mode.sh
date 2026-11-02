@@ -196,7 +196,7 @@ printf '✓ Dreamcoder %s mode applied\n' "${MODE}"
 # are written by the activation transaction (which owns the bridge symlink
 # selection before commit). Only Dunst needs a symlink check since its
 # config is a plain file in the repo.
-DOTS_DIR="${DREAMCODER_DOTS_DIR:-${HOME}/Documents/PROYECTOS/dreamcoder-dots}"
+DOTS_DIR="${DREAMCODER_DOTS_DIR:-${HOME}/Documents/PROYECTOS/dreamcoder08/dreamcoder-workbench}"
 DUNST_CONF="${HOME}/.config/dunst/dreamcoder-dunst.conf"
 WARP_THEME="${HOME}/.local/share/warp-terminal/themes/Dreamcoder.yaml"
 WARP_VARIANT="${DOTS_DIR}/DreamcoderWarp/.local/share/warp-terminal/themes/Dreamcoder-${MODE^}.yaml"

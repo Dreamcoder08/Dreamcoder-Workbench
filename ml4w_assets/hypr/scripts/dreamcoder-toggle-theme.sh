@@ -15,7 +15,7 @@
 set -euo pipefail
 
 # --- paths ---
-DREAMCODER_DOTS_DIR="${DREAMCODER_DOTS_DIR:-${HOME}/Documents/PROYECTOS/dreamcoder-dots}"
+DREAMCODER_DOTS_DIR="${DREAMCODER_DOTS_DIR:-${HOME}/Documents/PROYECTOS/dreamcoder08/dreamcoder-workbench}"
 CACHE_DIR="${XDG_CACHE_HOME:-${HOME}/.cache}/dreamcoder"
 ENV_FILE="${CACHE_DIR}/cursor-cli.env"
 TOGGLE_SCRIPT="${DREAMCODER_DOTS_DIR}/scripts/apply-theme-mode.sh"

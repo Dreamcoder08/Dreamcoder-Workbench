@@ -20,7 +20,7 @@ func NewInstaller(platform Platform, components []string, themeMode string) *Ins
 		Platform:    platform,
 		Components:  components,
 		ThemeMode:   themeMode,
-		DotfilesDir: filepath.Join(home, "Documents", "PROYECTOS", "dreamcoder-dots"),
+		DotfilesDir: filepath.Join(home, "Documents", "PROYECTOS", "dreamcoder08", "dreamcoder-workbench"),
 	}
 }
 

@@ -18,6 +18,8 @@ DreamcoderShell/.config/fish/fish_variables
 DreamcoderShell/.config/fish/functions/*
 !DreamcoderShell/.config/fish/functions/dev-dots.fish
 !DreamcoderShell/.config/fish/functions/nmtui.fish
+!DreamcoderShell/.config/fish/functions/hsquad.fish
+!DreamcoderShell/.config/fish/functions/hwt.fish
 .DS_Store
 # Editor
 .editorconfig-unreal
@@ -29,6 +31,7 @@ DreamcoderShell/.config/fish/functions/*
 # Installer binaries
 installer/dreamcoder-dots
 installer/dreamcoder-dots-*
+installer/installer
 # Local AI session metadata
 # Local AI sessions / usage cache
 .local-backups/

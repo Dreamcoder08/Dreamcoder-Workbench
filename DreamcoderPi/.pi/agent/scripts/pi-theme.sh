@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-DD="${DOTS_DIR:-$HOME/Documents/PROYECTOS/dreamcoder-dots}"
+DD="${DOTS_DIR:-$HOME/Documents/PROYECTOS/dreamcoder08/dreamcoder-workbench}"
 DC="${DREAMCODER_DOTS_DIR:-$DD}"
 
 detect() {

@@ -1,0 +1,5 @@
+# herdr-core settings home: track only personal templates and config.
+/*
+!/.gitignore
+!/config.toml
+!/templates/

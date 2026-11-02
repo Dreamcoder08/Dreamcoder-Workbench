@@ -56,7 +56,7 @@ alias home='cd ~'
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
-alias docs='cd "${DREAMCODER_DOTS_DIR:-$HOME/Documents/PROYECTOS/dreamcoder-dots}/docs"'
+alias docs='cd "${DREAMCODER_DOTS_DIR:-$HOME/Documents/PROYECTOS/dreamcoder08/dreamcoder-workbench}/docs"'
 
 ## ─── Extract function ─────────────────────────────────
 extract() {
