@@ -92,6 +92,13 @@
                       "content": {
                         "mod": "prs"
                       }
+                    },
+                    {
+                      "id": "flow",
+                      "type": "block",
+                      "content": {
+                        "mod": "flow"
+                      }
                     }
                   ],
                   "active": "files"

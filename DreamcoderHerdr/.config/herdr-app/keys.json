@@ -74,7 +74,8 @@
     "alt-s": "mod.open:dispatch",
     "alt-f": "layout.switch:dreamcoder-focus",
     "alt-r": "layout.switch:dreamcoder-review",
-    "alt-q": "layout.switch:dreamcoder-squad"
+    "alt-q": "layout.switch:dreamcoder-squad",
+    "alt-o": "dc-tabs.panel-flow"
   },
   "terminal": {
     "ctrl-backspace": "send:\u0017",

@@ -33,3 +33,6 @@
 !/mods/dispatch/
 /mods/dispatch/gpui-kit.d.ts
 /mods/dispatch/jsconfig.json
+!/mods/flow/
+/mods/flow/gpui-kit.d.ts
+/mods/flow/jsconfig.json

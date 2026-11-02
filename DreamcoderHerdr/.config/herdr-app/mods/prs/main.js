@@ -2,7 +2,7 @@
 // Click a PR to expand its checks; click a check to open its CI logs.
 import { View, div } from "gpui-kit";
 import { v_flex, h_flex } from "gpui-base";
-import { spaces, panes, focused, exec, theme, notify, nextCommand } from "herdr";
+import { spaces, panes, focused, exec, theme, notify, nextCommand, home } from "herdr";
 import { checkState, parseGhJson, prSize, REVIEWABLE_LINES, rollup } from "./ci.js";
 
 const FIELDS = "number,title,url,isDraft,headRefName,author,reviewDecision,statusCheckRollup,additions,deletions";
@@ -36,7 +36,7 @@ export default class Prs extends View {
     cx.spawn(async (cx) => {
       try {
         const top = await exec("git", ["rev-parse", "--show-toplevel"], { cwd, on });
-        if (top.code !== 0) { this.repo = null; this.prs = []; this.error = "Not a git repository"; return; }
+        if (top.code !== 0) { this.repo = null; this.prs = []; this.error = `Not a git repository: ${cwd.replace(home(), "~")}`; return; }
         const root = top.stdout.trim();
         this.repo = root.split("/").pop();
         const r = await exec("gh", ["pr", "list", "--state", "open", "--limit", "30", "--json", FIELDS], { cwd: root, on });

@@ -8,6 +8,7 @@ const PANELS = [
   { id: "files", label: "Files", icon: "mods/files/file.svg" },
   { id: "changes", label: "Changes", icon: "mods/changes/changes.svg" },
   { id: "prs", label: "PRs", icon: "mods/prs/prs.svg" },
+  { id: "flow", label: "Flow", icon: "mods/flow/flow.svg" },
 ];
 
 function togglePanel(id) {
