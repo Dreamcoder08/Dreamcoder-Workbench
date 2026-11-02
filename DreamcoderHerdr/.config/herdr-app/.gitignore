@@ -25,3 +25,6 @@
 !/mods/prs/
 /mods/prs/gpui-kit.d.ts
 /mods/prs/jsconfig.json
+!/mods/verify/
+/mods/verify/gpui-kit.d.ts
+/mods/verify/jsconfig.json
