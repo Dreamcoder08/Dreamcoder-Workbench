@@ -23,7 +23,7 @@ Run the checks relevant to your work before opening a pull request:
 ```bash
 make python-lint   # Ruff lint and format check
 make shell-lint    # ShellCheck on shell scripts recursively under scripts/
-make type-check    # mypy src/
+make type-check    # mypy src/ via the pinned pre-commit hook
 make lint          # all three above
 make test          # pytest tests/ -v
 make coverage      # pytest with coverage report

@@ -25,7 +25,8 @@ shell-lint:
 	find scripts/ -name '*.sh' -exec shellcheck --shell=bash {} +
 
 type-check:
-	mypy src/
+	# Same pinned mypy, stubs and config as the commit hook; no global mypy needed.
+	pre-commit run mypy --all-files
 
 format:
 	ruff format src/ tests/
