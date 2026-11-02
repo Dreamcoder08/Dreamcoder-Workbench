@@ -133,47 +133,58 @@ def _check_ml4w_hooks(ch: Path) -> list[HealthCheck]:
             )
         )
 
-    # Waybar/Rofi symlinks
-    for comp, symlink, variant in [
-        ("waybar", ch / "waybar" / "colors.css", "colors-{mode}.css"),
-        ("rofi", ch / "rofi" / "colors.rasi", "colors-{mode}.rasi"),
-    ]:
-        sl_status = "ok"
-        sl_detail = f"{symlink}"
-        if symlink.is_symlink():
-            target = symlink.readlink()
-            sl_detail = f"{symlink} -> {target}"
-        elif symlink.exists():
-            sl_status = "warn"
-            sl_detail = f"{symlink} exists but is NOT a symlink"
-        else:
-            sl_status = "fail"
-            sl_detail = f"{symlink} missing"
-        ml4w_checks.append(
-            HealthCheck(
-                name=f"{comp} colors symlink",
-                status=sl_status,
-                detail=sl_detail,
-                repair=f"ln -sf {variant} {symlink}",
-            )
-        )
+    # Waybar/Rofi colors: a mode symlink or a regular file written by sync.
+    ml4w_checks.append(
+        _check_colors_file("waybar", ch / "waybar" / "colors.css", "colors-{mode}.css")
+    )
+    ml4w_checks.append(
+        _check_colors_file("rofi", ch / "rofi" / "colors.rasi", "colors-{mode}.rasi")
+    )
 
     return ml4w_checks
 
 
+def _check_colors_file(comp: str, path: Path, variant: str) -> HealthCheck:
+    """Accept a mode symlink or a regular file (sync writes the mode directly)."""
+    if path.is_symlink() and path.exists():
+        status, detail = "ok", f"{path} -> {path.readlink()}"
+    elif path.is_file():
+        status, detail = "ok", f"{path} (regular file written by sync)"
+    else:
+        status, detail = "fail", f"{path} missing"
+    return HealthCheck(
+        name=f"{comp} colors",
+        status=status,
+        detail=detail,
+        repair=f"dreamcoder sync (or: ln -sf {variant} {path})",
+    )
+
+
+# Firefox keeps profiles under XDG (~/.config/mozilla) or the legacy ~/.mozilla.
+_FIREFOX_PROFILE_ROOTS = (".config/mozilla/firefox", ".mozilla/firefox")
+
+
+def _check_firefox_theme(home: Path) -> HealthCheck:
+    """Find the Dreamcoder Firefox theme in any XDG or legacy profile."""
+    found = [
+        css
+        for root in _FIREFOX_PROFILE_ROOTS
+        for css in (home / root).glob("*.default*/chrome/dreamcoder*.css")
+    ]
+    return HealthCheck(
+        name="firefox dreamcoder theme",
+        status="ok" if found else "warn",
+        detail=f"{len(found)} file(s)" if found else "not found",
+        repair=(
+            "Link DreamcoderThemes/firefox-dreamcoder.css as chrome/dreamcoder.css in "
+            "~/.config/mozilla/firefox/<profile>/ and @import it from userChrome.css"
+        ),
+    )
+
+
 def _check_optional_themes() -> list[HealthCheck]:
     """Check optional app theme files."""
-    opt_checks: list[HealthCheck] = []
-
-    firefox_dirs = list(Path.home().glob(".mozilla/firefox/*.default*/chrome/dreamcoder*.css"))
-    opt_checks.append(
-        HealthCheck(
-            name="firefox dreamcoder theme",
-            status="ok" if firefox_dirs else "warn",
-            detail=f"{len(firefox_dirs)} file(s)" if firefox_dirs else "not found",
-            repair="Copy DreamcoderThemes/firefox-dreamcoder.css to ~/.mozilla/firefox/*.default/chrome/",
-        )
-    )
+    opt_checks: list[HealthCheck] = [_check_firefox_theme(Path.home())]
 
     obsidian_css = Path.home() / ".config/obsidian/dreamcoder.css"
     opt_checks.append(
