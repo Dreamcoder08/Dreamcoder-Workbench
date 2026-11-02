@@ -579,3 +579,73 @@ def test_semantically_identical_owned_representation_drift_is_explicit(paths, wr
     with pytest.raises(ValueError, match="drift"):
         writer(config, canonical, state, "light")
     assert (read(config), read(state)) == before
+
+
+def _moved_repo_state(tmp_path):
+    """State lives behind a stowed dir symlink whose repo checkout then moves."""
+    old_repo = tmp_path / "old-repo"
+    old_repo.mkdir()
+    stowed = tmp_path / "stowed-dreamcoder"
+    stowed.symlink_to(old_repo)
+    return old_repo, stowed, stowed / "ownership.json"
+
+
+def _move_repo(tmp_path, old_repo, stowed):
+    new_repo = tmp_path / "new-repo"
+    old_repo.rename(new_repo)
+    stowed.unlink()
+    stowed.symlink_to(new_repo)
+
+
+@pytest.mark.parametrize("writer", [update_gtk_import, update_qt_palette])
+def test_repo_move_behind_stowed_state_dir_is_accepted(paths, writer):
+    config, canonical, _ = paths
+    config.write_text("")
+    old_repo, stowed, state = _moved_repo_state(config.parent)
+    writer(config, canonical, state, "dark")
+    owned_config = read(config)
+    _move_repo(config.parent, old_repo, stowed)
+
+    assert writer(config, canonical, state, "dark") is False
+    assert read(config) == owned_config
+
+    writer(config, canonical, state, "light")
+    assert read(config) == b""
+    assert not state.exists()
+
+    writer(config, canonical, state, "dark")
+    stored = json.loads(state.read_text())["binding"]["paths"][2]
+    assert stored == [str(state), str(state.resolve())]
+
+
+@pytest.mark.parametrize("writer", [update_gtk_import, update_qt_palette])
+def test_repo_move_does_not_excuse_other_binding_drift(paths, writer):
+    config, canonical, _ = paths
+    config.write_text("")
+    old_repo, stowed, state = _moved_repo_state(config.parent)
+    writer(config, canonical, state, "dark")
+    _move_repo(config.parent, old_repo, stowed)
+    copied = config.with_name("copied-config")
+    copied.write_bytes(config.read_bytes())
+    before = read(copied), read(state)
+
+    with pytest.raises(ValueError, match="binding mismatch"):
+        writer(copied, canonical, state, "light")
+    assert (read(copied), read(state)) == before
+
+
+@pytest.mark.parametrize("writer", [update_gtk_import, update_qt_palette])
+def test_repo_move_with_tampered_state_is_still_corrupt(paths, writer):
+    config, canonical, _ = paths
+    config.write_text("")
+    old_repo, stowed, state = _moved_repo_state(config.parent)
+    writer(config, canonical, state, "dark")
+    _move_repo(config.parent, old_repo, stowed)
+    envelope = json.loads(state.read_text())
+    envelope["existed"] = not envelope["existed"]
+    state.write_text(json.dumps(envelope))
+    before = read(config), read(state)
+
+    with pytest.raises(ValueError, match="Corrupt state"):
+        writer(config, canonical, state, "light")
+    assert (read(config), read(state)) == before

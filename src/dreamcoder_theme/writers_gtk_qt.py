@@ -49,6 +49,31 @@ def _digest(data: dict[str, Any]) -> str:
     return hashlib.sha256(json.dumps(data, sort_keys=True).encode()).hexdigest()
 
 
+def _binding_matches(stored: Any, current: dict[str, Any]) -> bool:
+    """Match the stored binding, tolerating only a relocated state referent.
+
+    The state file may sit behind a stowed directory symlink into the repo
+    checkout; moving that checkout changes only the state's resolved path.
+    Its lexical path, the target and the config/canonical identities must
+    still match exactly, so ownership never transfers to other files.
+    """
+    if stored == current:
+        return True
+    if not isinstance(stored, dict) or set(stored) != {"target", "paths"}:
+        return False
+    old, new = stored["paths"], current["paths"]
+    return (
+        stored["target"] == current["target"]
+        and isinstance(old, list)
+        and len(old) == len(new) == 3
+        and old[:2] == new[:2]
+        and isinstance(old[2], list)
+        and len(old[2]) == 2
+        and all(isinstance(part, str) for part in old[2])
+        and old[2][0] == new[2][0]
+    )
+
+
 def _unique_json(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     result: dict[str, Any] = {}
     for key, value in pairs:
@@ -90,7 +115,7 @@ def _prepare(
                 or type(envelope["existed"]) is not bool
             ):
                 raise ValueError("Unsupported ownership version")
-            if checksum != _digest(envelope) or envelope["binding"] != binding:
+            if checksum != _digest(envelope) or not _binding_matches(envelope["binding"], binding):
                 raise ValueError("Corrupt state or path binding mismatch")
             if not config.exists():
                 raise ValueError("Owned config is missing")
