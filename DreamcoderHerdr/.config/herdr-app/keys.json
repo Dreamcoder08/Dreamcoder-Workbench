@@ -55,7 +55,7 @@
     "ctrl-shift-w": "tab.close",
     "ctrl-shift-z": "pane.zoom",
     "ctrl-shift-l": "layout.switch",
-    "alt-g": "layout.switch:gentleman",
+    "alt-g": "layout.switch:dreamcoder",
     "alt-m": "layout.switch:main",
     "alt-n": "needs-you.jump",
     "alt-a": "needs-you.squad",
