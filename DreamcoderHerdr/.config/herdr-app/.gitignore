@@ -28,3 +28,6 @@
 !/mods/verify/
 /mods/verify/gpui-kit.d.ts
 /mods/verify/jsconfig.json
+!/mods/dispatch/
+/mods/dispatch/gpui-kit.d.ts
+/mods/dispatch/jsconfig.json

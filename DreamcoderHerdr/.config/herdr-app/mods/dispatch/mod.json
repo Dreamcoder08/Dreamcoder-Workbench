@@ -1,0 +1,10 @@
+{
+  "place": "none",
+  "title": "Dispatch",
+  "overlay": {
+    "kind": "popup",
+    "at": "top",
+    "offset": 80,
+    "width": 600
+  }
+}

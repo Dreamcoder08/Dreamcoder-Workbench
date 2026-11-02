@@ -70,7 +70,8 @@
     "ctrl-t": "tab.new",
     "ctrl-shift-q": "pane.close",
     "alt-p": "dc-tabs.panel-prs",
-    "alt-t": "verify.run"
+    "alt-t": "verify.run",
+    "alt-s": "mod.open:dispatch"
   },
   "terminal": {
     "ctrl-backspace": "send:\u0017",
