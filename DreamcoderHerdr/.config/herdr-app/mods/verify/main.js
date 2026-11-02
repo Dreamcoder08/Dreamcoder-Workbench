@@ -1,11 +1,12 @@
 // One-key verify: runs the focused repo's lint+test command in herdr-core
 // (`hc run --bg`, so it is not bound by exec's 30 s limit) and shows the
 // result per space in the status bar. Key: `verify.run`. Click a finished
-// result to read its log.
+// result to read its log. `verify.auto` opts the focused space in or out of
+// auto-verify: it then runs by itself whenever one of its agents finishes.
 import { View, div } from "gpui-kit";
 import { h_flex } from "gpui-base";
-import { spaces, panes, focused, exec, readTextFile, theme, notify, run, nextCommand } from "herdr";
-import { detectVerify, elapsed, parseMakeTargets } from "./detect.js";
+import { spaces, panes, focused, exec, readTextFile, theme, notify, run, nextCommand, agents } from "herdr";
+import { detectVerify, elapsed, finishedAgents, parseMakeTargets, shouldAutoVerify } from "./detect.js";
 
 const ANSI = /\u001b\[[0-9;]*m/g;
 const POLL_MS = 1000;
@@ -33,16 +34,44 @@ export default class Verify extends View {
   init(_props, cx) {
     try { this.runs = JSON.parse(localStorage.getItem("runs") ?? "{}"); } catch { this.runs = {}; }
     for (const r of Object.values(this.runs)) if (r.state === "fail" && r.code == null) r.state = "stopped";
+    try { this.auto = new Set(JSON.parse(localStorage.getItem("auto") ?? "[]")); } catch { this.auto = new Set(); }
+    this.statuses = Object.fromEntries(agents().map((a) => [a.address, a.status]));
     cx.timer.every(POLL_MS, (cx) => this.poll(cx));
     cx.spawn(async (cx) => {
-      for (;;) if ((await nextCommand()) === "run") this.start(cx);
+      for (;;) {
+        const command = await nextCommand();
+        if (command === "run") this.start(cx);
+        else if (command === "auto") this.toggleAuto(cx);
+      }
     });
   }
 
   save() { localStorage.setItem("runs", JSON.stringify(this.runs)); }
 
-  start(cx) {
-    const { space, cwd } = location();
+  toggleAuto(cx) {
+    const { space } = location();
+    if (!space) return;
+    const on = !this.auto.has(space.id);
+    on ? this.auto.add(space.id) : this.auto.delete(space.id);
+    localStorage.setItem("auto", JSON.stringify([...this.auto]));
+    notify({ title: `Auto-verify ${on ? "on" : "off"} · ${space.name}`, body: on ? "Runs when an agent in this space finishes." : undefined, level: "info", timeout: 2500 });
+    cx.notify();
+  }
+
+  // Starts auto-verify for spaces whose agents just finished.
+  watchAgents(cx) {
+    const now = agents();
+    for (const a of finishedAgents(this.statuses, now)) {
+      if (!shouldAutoVerify(a.space, this.auto, this.runs[a.space], Date.now())) continue;
+      const space = spaces().find((s) => s.id === a.space);
+      const cwd = panes().find((p) => p.pane === a.pane)?.cwd || space?.folder;
+      if (space && cwd) this.start(cx, { space, cwd, auto: true });
+    }
+    this.statuses = Object.fromEntries(now.map((a) => [a.address, a.status]));
+  }
+
+  start(cx, target = null) {
+    const { space, cwd } = target ?? location();
     if (!space || !cwd) return notify({ title: "Verify: no folder", level: "warning" });
     if (space.machine) return notify({ title: "Verify runs on this computer only", body: space.name, level: "warning" });
     if (this.runs[space.id]?.state === "running") return notify({ title: "Verify already running", body: this.runs[space.id].label, level: "info", timeout: 2000 });
@@ -57,8 +86,9 @@ export default class Verify extends View {
         const r = await exec("hc", ["run", "--bg", "--json", "--no-parent", "--no-notify", "--name", name,
           "--label", "dreamcoder=verify", "--cwd", root, "--", "bash", "-c", found.command]);
         if (r.code !== 0) throw new Error(r.stderr.trim().split("\n")[0] || `hc run exited ${r.code}`);
-        this.runs[space.id] = { state: "running", name, root, label: found.label, space: space.name, started: Date.now() };
+        this.runs[space.id] = { state: "running", name, root, label: found.label, space: space.name, started: Date.now(), auto: Boolean(target?.auto) };
         this.save();
+        if (target?.auto) notify({ title: `Auto-verify · ${space.name}`, body: `An agent finished: ${found.label}`, level: "info", timeout: 2500 });
       } catch (e) {
         notify({ title: "Verify failed to start", body: String(e?.message || e), level: "error" });
       } finally { cx.notify(); }
@@ -66,6 +96,7 @@ export default class Verify extends View {
   }
 
   poll(cx) {
+    this.watchAgents(cx);
     const running = Object.entries(this.runs).filter(([, r]) => r.state === "running");
     if (!running.length) return;
     if (this.polling) return;
@@ -107,7 +138,10 @@ export default class Verify extends View {
       stopped: ["■", t.dim, "verify stopped"],
       error: ["?", t.blocked, "verify lost"],
     }[r?.state] ?? ["▶", t.dim, "verify  alt-t"];
+    const auto = Boolean(space && this.auto.has(space.id));
     return h_flex().id("verify").size_full().px(10).gap(6).items_center().justify_end().text_size(12)
+      .when(auto, (el) => el.child(div().flex_none().px(5).rounded(4).text_size(10.5).bg(t.accent + "26").text_color(t.accent)
+        .tooltip("Auto-verify on: runs when an agent here finishes (alt-shift-t)").child("auto")))
       .when(Boolean(r) && r.state !== "running", (el) => el.cursor_pointer().hover((s) => s.bg(t.hover)))
       .tooltip(r ? `${r.label}\n${r.root}` : "Run lint and tests (alt-t)")
       .on_click(() => (r && r.state !== "running" ? this.showLog(r) : null))

@@ -75,7 +75,8 @@
     "alt-f": "layout.switch:dreamcoder-focus",
     "alt-r": "layout.switch:dreamcoder-review",
     "alt-q": "layout.switch:dreamcoder-squad",
-    "alt-o": "dc-tabs.panel-flow"
+    "alt-o": "dc-tabs.panel-flow",
+    "alt-shift-t": "verify.auto"
   },
   "terminal": {
     "ctrl-backspace": "send:\u0017",
