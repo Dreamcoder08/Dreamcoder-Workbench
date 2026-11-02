@@ -2,10 +2,10 @@
 // Click a PR to expand its checks; click a check to open its CI logs.
 import { View, div } from "gpui-kit";
 import { v_flex, h_flex } from "gpui-base";
-import { spaces, panes, focused, exec, theme, notify, nextCommand } from "herdr";
-import { checkState, parseGhJson, rollup } from "./ci.js";
+import { spaces, panes, focused, exec, theme, notify, nextCommand, home } from "herdr";
+import { checkState, parseGhJson, prSize, REVIEWABLE_LINES, rollup } from "./ci.js";
 
-const FIELDS = "number,title,url,isDraft,headRefName,author,reviewDecision,statusCheckRollup";
+const FIELDS = "number,title,url,isDraft,headRefName,author,reviewDecision,statusCheckRollup,additions,deletions";
 const REFRESH_MS = 60000;
 
 function location() {
@@ -36,7 +36,7 @@ export default class Prs extends View {
     cx.spawn(async (cx) => {
       try {
         const top = await exec("git", ["rev-parse", "--show-toplevel"], { cwd, on });
-        if (top.code !== 0) { this.repo = null; this.prs = []; this.error = "Not a git repository"; return; }
+        if (top.code !== 0) { this.repo = null; this.prs = []; this.error = `Not a git repository: ${cwd.replace(home(), "~")}`; return; }
         const root = top.stdout.trim();
         this.repo = root.split("/").pop();
         const r = await exec("gh", ["pr", "list", "--state", "open", "--limit", "30", "--json", FIELDS], { cwd: root, on });
@@ -44,7 +44,7 @@ export default class Prs extends View {
         const previous = new Map(this.prs.map((p) => [p.number, p.ci]));
         this.prs = parseGhJson(r.stdout).map((p) => {
           const checks = (p.statusCheckRollup || []).map(checkState);
-          return { ...p, checks, ci: rollup(checks) };
+          return { ...p, checks, ci: rollup(checks), size: prSize(p) };
         });
         this.error = null;
         for (const p of this.prs) {
@@ -82,6 +82,11 @@ export default class Prs extends View {
       .child(div().flex_none().text_color(t.dim).child(`#${p.number}`))
       .child(div().flex_1().min_w(0).truncate().text_color(p.isDraft ? t.muted : t.foreground).child(p.title))
       .when(p.isDraft, (el) => el.child(div().flex_none().text_size(10.5).text_color(t.dim).child("draft")))
+      .child(div().id(`pr-size-${p.number}`).flex_none().px(5).rounded(4).text_size(10.5)
+        .when(p.size.over, (el) => el.bg(t.blocked + "26").font_semibold())
+        .text_color(p.size.over ? t.blocked : t.dim)
+        .tooltip(p.size.over ? `${p.size.lines} changed lines: over ${REVIEWABLE_LINES}, consider splitting` : `${p.size.lines} changed lines`)
+        .child(`±${p.size.label}`))
       .when(Boolean(reviewLabel), (el) => el.child(div().flex_none().text_size(10.5).text_color(t[reviewColor]).child(reviewLabel)))
       .child(div().id(`pr-open-${p.number}`).flex_none().px(4).text_color(t.accent).cursor_pointer()
         .tooltip("Open PR")

@@ -37,6 +37,22 @@ export function parseMakeTargets(text) {
   return targets;
 }
 
+// Agents that finished since the last look: working -> done/idle. Blocked is
+// not finished (it needs the user). prev = { address: status }.
+export function finishedAgents(prev, agents) {
+  return agents.filter((a) => prev[a.address] === "working" && (a.status === "done" || a.status === "idle"));
+}
+
+const AUTO_COOLDOWN_MS = 60_000;
+
+// Auto-verify only opted-in spaces, never over a running verify, and not
+// again within a minute of the last start (several agents may finish together).
+export function shouldAutoVerify(spaceId, autoSpaces, lastRun, now) {
+  if (!autoSpaces.has(spaceId)) return false;
+  if (lastRun?.state === "running") return false;
+  return !lastRun || now - lastRun.started >= AUTO_COOLDOWN_MS;
+}
+
 export function elapsed(ms) {
   const s = Math.floor(ms / 1000);
   return s < 60 ? `${s}s` : `${Math.floor(s / 60)}m${String(s % 60).padStart(2, "0")}s`;
