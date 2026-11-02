@@ -13,6 +13,8 @@
 /layouts/*
 !/layouts/dreamcoder.json
 !/layouts/dreamcoder.svg
+!/layouts/dreamcoder-*.json
+!/layouts/dreamcoder-*.svg
 !/mods/
 /mods/*
 !/mods/needs-you/

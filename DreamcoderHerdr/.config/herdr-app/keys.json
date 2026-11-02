@@ -71,7 +71,10 @@
     "ctrl-shift-q": "pane.close",
     "alt-p": "dc-tabs.panel-prs",
     "alt-t": "verify.run",
-    "alt-s": "mod.open:dispatch"
+    "alt-s": "mod.open:dispatch",
+    "alt-f": "layout.switch:dreamcoder-focus",
+    "alt-r": "layout.switch:dreamcoder-review",
+    "alt-q": "layout.switch:dreamcoder-squad"
   },
   "terminal": {
     "ctrl-backspace": "send:\u0017",

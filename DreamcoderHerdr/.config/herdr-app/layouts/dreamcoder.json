@@ -177,32 +177,32 @@
         {
           "id": "status-row",
           "type": "row",
-          "size": {
-            "px": 28
-          },
-          "background": "chrome",
           "children": [
             {
               "id": "status",
               "type": "block",
-              "size": {
-                "weight": 1
-              },
               "content": {
                 "mod": "workspace-status"
+              },
+              "size": {
+                "weight": 1
               }
             },
             {
               "id": "verify",
               "type": "block",
-              "size": {
-                "px": 260
-              },
               "content": {
                 "mod": "verify"
+              },
+              "size": {
+                "px": 260
               }
             }
-          ]
+          ],
+          "size": {
+            "px": 28
+          },
+          "background": "chrome"
         }
       ],
       "resizable": false

@@ -1,6 +1,6 @@
 import { View, div, svg, image } from "gpui-kit";
 import { h_flex } from "gpui-base";
-import { spaces, panes, run, openOverlay, theme, window, shared, layout, settings, nextCommand } from "herdr";
+import { spaces, panes, run, openOverlay, theme, window, shared, layout, settings, nextCommand, props } from "herdr";
 
 // Dreamcoder cockpit: side panels that get a tab-bar button, in display order.
 // Keys reach them as `dc-tabs.panel-<id>` (this bar is always shown).
@@ -99,7 +99,8 @@ export default class Tabs extends View {
       : 10;
     const panel = find(root, "panel"), body = find(root, "panel-body");
     const enabled = shared("workspace.panels") ?? ["files", "changes"];
-    this.syncPanel(space, panel, body, enabled);
+    // Mode layouts (focus, review) pin their panel: `remember: false` skips the per-space restore.
+    if (props()?.remember !== false) this.syncPanel(space, panel, body, enabled);
     const panelButton = (id, label, icon) => {
       const on = panel && !panel.hidden && body?.active === id;
       return h_flex().id(`panel-${id}`).h(26).px(8).gap(5).flex_none().items_center().rounded(6)
