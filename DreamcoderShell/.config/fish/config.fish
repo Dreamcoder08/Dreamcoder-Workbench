@@ -55,8 +55,9 @@ alias zf="zen-browser -P Founder"
 # Default browser = Zen Personal (for pi login OAuth, git, etc.)
 set -gx BROWSER "zen-browser -P Personal"
 # Start selected terminal multiplexer (Herdr).
-# Skipped inside herdr-core terminals (Herdr desktop app), which already host the shell.
-if status is-interactive; and command -q herdr; and not set -q HERDR_ENV; and not set -q HC_TERMINAL_ID; and not set -q TMUX; and not set -q ZELLIJ; and not set -q ORCA_PANE_KEY
+# Skipped inside herdr-core terminals (Herdr desktop app), which already host the shell,
+# and over SSH so Moshi follows the Herdr Core window instead of a nested herdr TUI.
+if status is-interactive; and command -q herdr; and not set -q HERDR_ENV; and not set -q HC_TERMINAL_ID; and not set -q TMUX; and not set -q ZELLIJ; and not set -q ORCA_PANE_KEY; and not set -q SSH_CONNECTION
     # Herdr spawns panes with $SHELL; pin it to this fish so panes never inherit
     # a foreign login shell (e.g. zsh from the session environment).
     env SHELL=(status fish-path) herdr; or echo "⚠️  Herdr failed to start; continuing in Fish."
@@ -67,7 +68,11 @@ end
 # Redirección de directorios temporales para evitar saturar tmpfs
 set -gx TMPDIR "$HOME/.tmp"
 set -gx BUN_TMPDIR "$HOME/.tmp"
-set -gx ENGRAM_URL http://127.0.0.1:7437
+# Let Gentle Shell verify the default Engram server through /compatibility.
+# Clear the legacy default inherited from older terminal processes; keep custom URLs.
+if set -q ENGRAM_URL; and test "$ENGRAM_URL" = "http://127.0.0.1:7437"
+    set -eg ENGRAM_URL
+end
 
 # Enable OpenCode background subagents for new sessions.
 set -gx OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS true

@@ -2,8 +2,10 @@
 *~
 .atl/
 *.backup
+*.backup-*
 # Backups
 *.bak
+*.bak-*
 build/
 # Build artifacts
 *.cover
