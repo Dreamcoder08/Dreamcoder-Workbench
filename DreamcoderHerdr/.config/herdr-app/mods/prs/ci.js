@@ -22,6 +22,15 @@ export function checkState(c) {
   return { name, state: "pass", url };
 }
 
+// Reviewable PRs stay at or under ~400 changed lines (additions + deletions).
+export const REVIEWABLE_LINES = 400;
+
+export function prSize(pr) {
+  const lines = (pr.additions ?? 0) + (pr.deletions ?? 0);
+  const label = lines >= 1000 ? `${(lines / 1000).toFixed(1)}k` : String(lines);
+  return { lines, over: lines > REVIEWABLE_LINES, label };
+}
+
 export function rollup(checks) {
   if (!checks.length) return "none";
   if (checks.some((c) => c.state === "fail")) return "fail";

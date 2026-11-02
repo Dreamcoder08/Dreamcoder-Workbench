@@ -1,7 +1,7 @@
 // Pure CI helpers of the Herdr `prs` mod. Run: node --test tests/herdr_mods
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { checkState, parseGhJson, rollup } from "../../DreamcoderHerdr/.config/herdr-app/mods/prs/ci.js";
+import { checkState, parseGhJson, prSize, rollup } from "../../DreamcoderHerdr/.config/herdr-app/mods/prs/ci.js";
 
 test("parseGhJson strips forced ANSI colors before parsing", () => {
   const colored = '\u001b[1;37m[\u001b[m\n  \u001b[1;37m{\u001b[m\u001b[1;34m"number"\u001b[m\u001b[1;37m:\u001b[m 62\u001b[1;37m}\u001b[m\u001b[1;37m]\u001b[m';
@@ -38,4 +38,11 @@ test("rollup ranks fail over pending over pass, and none when empty", () => {
   assert.equal(rollup([s("pass"), s("skip")]), "pass");
   assert.equal(rollup([s("pass"), s("pending")]), "pending");
   assert.equal(rollup([s("pending"), s("fail"), s("pass")]), "fail");
+});
+
+test("prSize sums additions and deletions and flags PRs over 400 lines", () => {
+  assert.deepEqual(prSize({ additions: 3, deletions: 2 }), { lines: 5, over: false, label: "5" });
+  assert.deepEqual(prSize({ additions: 300, deletions: 100 }), { lines: 400, over: false, label: "400" });
+  assert.deepEqual(prSize({ additions: 1200, deletions: 364 }), { lines: 1564, over: true, label: "1.6k" });
+  assert.deepEqual(prSize({}), { lines: 0, over: false, label: "0" });
 });
