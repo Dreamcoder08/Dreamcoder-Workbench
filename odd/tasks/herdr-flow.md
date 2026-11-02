@@ -13,9 +13,9 @@ Branch: `feat/herdr-flow` from `main`. Delivery: one work-unit commit per task, 
 
 | ID | Specs | Route | Status | Evidence |
 |----|-------|-------|--------|----------|
-| T1 | S1 | inline | pending | |
-| T2 | S2 | inline | pending | |
-| T3 | S3 | inline | pending | |
+| T1 | S1 | inline | done | `d71e6f4`; 1 node test (4 cases); real PRs: #64 1.6k and #63 748 flagged over 400 |
+| T2 | S2 | inline | done | `a802acd`; 6 node tests; real 14 days: 28 merged, 14/week, lead median 7m, p90 32m, 46% over 400 |
+| T3 | S3 | inline | done | `185aaf3`; 4 node tests; toggle verified live (badge + toast), left off |
 
 Route declaration: all inline; units share `keys.json`, `layouts/*.json` and the live app.
 
@@ -24,3 +24,6 @@ Route declaration: all inline; units share `keys.json`, `layouts/*.json` and the
 - **L1 (2026-11-02, user):** "ummm y que mas me reocmiendas personalizar ?? objetivo estar en la vanguardia , productividad y mas , en base a la informacion de la web de esta semana , mes"
 - **L2 (research):** 2026 sources: review is the bottleneck (Faros: PR size +51%, bugs/PR +28%, review time 5x in high-adoption teams; METR: experienced devs 19% slower on large unfamiliar codebases). Installed tools already current: Claude Code 2.1.316, Ghostty 1.4.0, gentle-ai 4.2.0.
 - **L3 (2026-11-02, user):** "te autorizo todo" — all three recommendations.
+- **L4 (discovery):** Herdr rejects imports outside a mod's folder (`module ... resolves outside the application directory`), so `parseGhJson` is repeated in `flow/stats.js` with a parity test against `prs/ci.js`.
+- **L5 (finding for the user):** lead median 7 minutes means PRs merge as soon as CI passes, without human review; 46% exceed 400 lines. The panel makes that visible.
+- **L6 (verification):** full suite 1133 passed; `node --test` 29 passed; `herdr-app check` passes for prs, flow, verify, dc-tabs; `herdr-app status` errors empty. Not exercised live: an actual agent finishing with auto-verify on (needs a real agent run); covered by `finishedAgents`/`shouldAutoVerify` tests.

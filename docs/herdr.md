@@ -261,8 +261,10 @@ The `dreamcoder` layout is the default; the cockpit adds:
 
 | Key | Action |
 |-----|--------|
-| `alt-p` | Toggle the **PRs** panel: open PRs of the focused repo with CI rollup and review state. Click a PR to expand its checks, a check to open its CI logs, `↗` to open the PR. Refreshes every minute and notifies when CI settles. |
+| `alt-p` | Toggle the **PRs** panel: open PRs of the focused repo with CI rollup, review state and changed lines (red over 400, the reviewable-size rule). Click a PR to expand its checks, a check to open its CI logs, `↗` to open the PR. Refreshes every minute and notifies when CI settles. |
 | `alt-t` | **Verify** the focused repo in the background (`hc run --bg`). The status bar shows the result per space; click it to read the log. |
+| `alt-shift-t` | Toggle **auto-verify** for the focused space: verify runs when one of its agents finishes (blocked agents don't count; at most one run per minute). Off by default. |
+| `alt-o` | Toggle the **Flow** panel: last 14 days of merged PRs per week, median and p90 open-to-merge lead time, median size and share over 400 lines, slowest PRs. |
 | `alt-s` | **Dispatch** an agent: type a task, pick Claude Code or an explorer, reviewer or verifier role. Claude Code defaults to a new worktree (`hwt`) on a branch derived from the task. Warns from the fourth working agent. |
 | `alt-g` | `dreamcoder` layout |
 | `alt-f` | `dreamcoder-focus`: no sidebar, the agent fills the window |
@@ -277,6 +279,10 @@ scripts, `python3 -m pytest -q`, `go vet ./... && go test ./...`, or
 Mods live in `mods/<name>/`. Write `mod.json` with `"place": "none"` before
 `main.js`: the first time Herdr sees a mod folder without it, it docks the mod
 into the shown layout. Pure helpers (`mods/prs/ci.js`, `mods/verify/detect.js`,
-`mods/dispatch/plan.js`) are tested with `node --test tests/herdr_mods/*.test.mjs`,
+`mods/dispatch/plan.js`, `mods/flow/stats.js`) are tested with `node --test tests/herdr_mods/*.test.mjs`,
 which `tests/test_herdr_mods_node.py` runs in the Python suite. Validate a mod
 with `herdr-app check ~/.config/herdr-app/mods/<name>`.
+
+A mod cannot import files from another mod's folder (`herdr-app check` rejects
+it), so a shared one-liner such as `parseGhJson` is repeated per mod and its
+copies are tested against each other.
