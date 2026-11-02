@@ -91,7 +91,9 @@ export default class Verify extends View {
 
   showLog(r) {
     if (!r?.name) return;
-    run("tab.new", { name: "verify log", folder: r.root, argv: ["bash", "-c", `hc read ${r.name} | less -R +G`] });
+    // No pager: `less` is not always installed, and tab.new keeps the shell open
+    // after the command, so the log stays in the terminal's scrollback.
+    run("tab.new", { name: "verify log", folder: r.root, argv: ["hc", "read", r.name] });
   }
 
   render() {

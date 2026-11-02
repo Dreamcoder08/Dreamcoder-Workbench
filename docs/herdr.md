@@ -252,3 +252,31 @@ starts the agent with a bounded retry, so a busy pane never leaves a lost
 `shell-tests/test_herdr_workspace.bats`
 and `shell-tests/test_herdr_review.bats`, which drive a fake `herdr` CLI
 (including a retry scenario); run them with `bats shell-tests/test_herdr_*.bats`.
+
+## Herdr app cockpit
+
+The Herdr desktop app config lives in `DreamcoderHerdr/.config/herdr-app/`,
+symlinked to `~/.config/herdr-app`, so the app reads the working tree live.
+The `dreamcoder` layout is the default; the cockpit adds:
+
+| Key | Action |
+|-----|--------|
+| `alt-p` | Toggle the **PRs** panel: open PRs of the focused repo with CI rollup and review state. Click a PR to expand its checks, a check to open its CI logs, `↗` to open the PR. Refreshes every minute and notifies when CI settles. |
+| `alt-t` | **Verify** the focused repo in the background (`hc run --bg`). The status bar shows the result per space; click it to read the log. |
+| `alt-s` | **Dispatch** an agent: type a task, pick Claude Code or an explorer, reviewer or verifier role. Claude Code defaults to a new worktree (`hwt`) on a branch derived from the task. Warns from the fourth working agent. |
+| `alt-g` | `dreamcoder` layout |
+| `alt-f` | `dreamcoder-focus`: no sidebar, the agent fills the window |
+| `alt-r` | `dreamcoder-review`: Changes open beside the agent |
+| `alt-q` | `dreamcoder-squad`: wider sidebar, agents list first |
+
+Verify runs, in order of precedence: the command in `<repo>/.herdr/verify`,
+`make verify`, `make check`, `make lint test`, `make test`, the matching npm
+scripts, `python3 -m pytest -q`, `go vet ./... && go test ./...`, or
+`cargo test`.
+
+Mods live in `mods/<name>/`. Write `mod.json` with `"place": "none"` before
+`main.js`: the first time Herdr sees a mod folder without it, it docks the mod
+into the shown layout. Pure helpers (`mods/prs/ci.js`, `mods/verify/detect.js`,
+`mods/dispatch/plan.js`) are tested with `node --test tests/herdr_mods/*.test.mjs`,
+which `tests/test_herdr_mods_node.py` runs in the Python suite. Validate a mod
+with `herdr-app check ~/.config/herdr-app/mods/<name>`.
