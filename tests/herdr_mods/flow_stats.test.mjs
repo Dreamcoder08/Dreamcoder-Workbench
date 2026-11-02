@@ -1,8 +1,8 @@
 // Pure flow metrics of the Herdr `flow` mod. Run: node --test tests/herdr_mods
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseGhJson as prsParse } from "../../DreamcoderHerdr/.config/herdr-app/mods/prs/ci.js";
-import { duration, flowStats, parseGhJson } from "../../DreamcoderHerdr/.config/herdr-app/mods/flow/stats.js";
+import { parseGhJson as prsParse, prSize as prsSize } from "../../DreamcoderHerdr/.config/herdr-app/mods/prs/ci.js";
+import { duration, flowStats, largestPrs, parseGhJson } from "../../DreamcoderHerdr/.config/herdr-app/mods/flow/stats.js";
 
 const NOW = Date.parse("2026-11-02T18:00:00Z");
 const H = 3600_000;
@@ -44,5 +44,23 @@ test("duration formats minutes, hours and days", () => {
 test("parseGhJson matches the prs mod copy on colored and plain gh output", () => {
   for (const text of ['\u001b[1;37m[\u001b[m{"number":64}\u001b[1;37m]\u001b[m', '[{"number":1}]']) {
     assert.deepEqual(parseGhJson(text), prsParse(text));
+  }
+});
+
+test("largestPrs ranks merged PRs by changed lines and flags those over 400", () => {
+  const prs = [
+    { number: 1, additions: 50, deletions: 0 },
+    { number: 2, additions: 900, deletions: 100 },
+    { number: 3, additions: 200, deletions: 200 },
+    { number: 4, additions: 380, deletions: 30 },
+  ];
+  assert.deepEqual(largestPrs(prs, 3).map((p) => [p.number, p.lines, p.over]), [[2, 1000, true], [4, 410, true], [3, 400, false]]);
+  assert.deepEqual(largestPrs([], 5), []);
+  assert.deepEqual(largestPrs(prs, 4).map((p) => p.label), ["1.0k", "410", "400", "50"]);
+});
+
+test("largestPrs labels match the prs panel size labels", () => {
+  for (const pr of [{ additions: 13000, deletions: 123 }, { additions: 5, deletions: 0 }, { additions: 999, deletions: 1 }]) {
+    assert.equal(largestPrs([pr], 1)[0].label, prsSize(pr).label);
   }
 });

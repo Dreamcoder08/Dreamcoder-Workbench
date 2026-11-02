@@ -1,10 +1,11 @@
 // Flow metrics for the focused repo over the last 14 days, from gh:
-// merged PRs per week, open-to-merge lead time, and PR size vs the 400-line rule.
+// merged PRs per week, open-to-merge lead time, PR size vs the 400-line rule,
+// and the largest PRs (the ones worth splitting next time).
 // Measure instead of trusting the feeling of speed.
 import { View, div } from "gpui-kit";
 import { v_flex, h_flex } from "gpui-base";
 import { spaces, panes, focused, exec, theme, nextCommand, home } from "herdr";
-import { duration, flowStats, parseGhJson } from "./stats.js";
+import { duration, flowStats, largestPrs, parseGhJson } from "./stats.js";
 
 const DAYS = 14;
 const REFRESH_MS = 10 * 60000;
@@ -18,7 +19,7 @@ function location() {
 
 export default class Flow extends View {
   init(_props, cx) {
-    this.stats = null; this.slowest = []; this.error = null; this.repo = null;
+    this.stats = null; this.largest = []; this.error = null; this.repo = null;
     this.refresh(cx);
     cx.timer.every(REFRESH_MS, (cx) => this.refresh(cx));
     cx.timer.every(5000, (cx) => { if (JSON.stringify(location()) !== this.context) this.refresh(cx); });
@@ -42,9 +43,8 @@ export default class Flow extends View {
         if (r.code !== 0) { this.error = r.stderr.trim().split("\n")[0] || "gh pr list failed"; return; }
         const prs = parseGhJson(r.stdout);
         this.stats = flowStats(prs, Date.now(), DAYS);
-        this.slowest = prs.filter((p) => p.mergedAt)
-          .map((p) => ({ ...p, leadH: (Date.parse(p.mergedAt) - Date.parse(p.createdAt)) / 3600_000 }))
-          .sort((a, b) => b.leadH - a.leadH).slice(0, 5);
+        // Size, not slowness, is the risk to act on: list the PRs worth splitting.
+        this.largest = largestPrs(prs.filter((p) => p.mergedAt), 5);
         this.error = null;
       } catch (e) {
         this.error = String(e?.message || e);
@@ -75,12 +75,14 @@ export default class Flow extends View {
         .child(h_flex().gap(8)
           .child(this.tile(t, "flow-size", "PR size", s.sizeMedian == null ? "—" : `±${Math.round(s.sizeMedian)}`, "median changed lines"))
           .child(this.tile(t, "flow-over", "Over 400", `${Math.round(s.overShare * 100)}%`, "of merged PRs", s.overShare > 0.25)))
-        .child(div().pt(4).text_size(11).text_color(t.dim).child("Slowest to merge"))
-        .children(this.slowest.map((p) => h_flex().id(`flow-pr-${p.number}`).gap(8).px(6).h(26).items_center().rounded(6).cursor_pointer()
+        .child(div().pt(4).text_size(11).text_color(t.dim).child("Largest PRs"))
+        .children(this.largest.map((p) => h_flex().id(`flow-pr-${p.number}`).gap(8).px(6).h(26).items_center().rounded(6).cursor_pointer()
           .hover((st) => st.bg(t.hover)).on_click((_e, cx) => { try { cx.open_url(p.url); } catch { exec("xdg-open", [p.url]).catch(() => {}); } })
           .child(div().flex_none().w(44).text_color(t.dim).child(`#${p.number}`))
           .child(div().flex_1().min_w(0).truncate().text_color(t.foreground).child(p.title))
-          .child(div().flex_none().text_color(t.muted).child(duration(p.leadH))))));
+          .child(div().flex_none().px(5).rounded(4).text_size(10.5)
+            .when(p.over, (el) => el.bg(t.blocked + "26").font_semibold())
+            .text_color(p.over ? t.blocked : t.muted).child(`±${p.label}`)))));
     return v_flex().id("flow").size_full().bg(t.surface).text_size(12.5).child(header).child(body);
   }
 }
