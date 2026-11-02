@@ -264,7 +264,7 @@ The `dreamcoder` layout is the default; the cockpit adds:
 | `alt-p` | Toggle the **PRs** panel: open PRs of the focused repo with CI rollup, review state and changed lines (red over 400, the reviewable-size rule). Click a PR to expand its checks, a check to open its CI logs, `↗` to open the PR. Refreshes every minute and notifies when CI settles. |
 | `alt-t` | **Verify** the focused repo in the background (`hc run --bg`). The status bar shows the result per space; click it to read the log. |
 | `alt-shift-t` | Toggle **auto-verify** for the focused space: verify runs when one of its agents finishes (blocked agents don't count; at most one run per minute). Off by default. |
-| `alt-o` | Toggle the **Flow** panel: last 14 days of merged PRs per week, median and p90 open-to-merge lead time, median size and share over 400 lines, slowest PRs. |
+| `alt-o` | Toggle the **Flow** panel: last 14 days of merged PRs per week, median and p90 open-to-merge lead time, median size and share over 400 lines, and the largest PRs (the ones worth splitting). |
 | `alt-s` | **Dispatch** an agent: type a task, pick Claude Code or an explorer, reviewer or verifier role. Claude Code defaults to a new worktree (`hwt`) on a branch derived from the task. Warns from the fourth working agent. |
 | `alt-g` | `dreamcoder` layout |
 | `alt-f` | `dreamcoder-focus`: no sidebar, the agent fills the window |

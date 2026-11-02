@@ -38,6 +38,19 @@ export function flowStats(prs, now, days) {
   };
 }
 
+// The n biggest PRs by changed lines: the ones worth splitting next time.
+export function largestPrs(prs, n) {
+  return prs
+    .map((p) => {
+      const lines = (p.additions ?? 0) + (p.deletions ?? 0);
+      // Same label rule as prs/ci.js prSize: 1.6k above a thousand lines.
+      const label = lines >= 1000 ? `${(lines / 1000).toFixed(1)}k` : String(lines);
+      return { ...p, lines, label, over: lines > REVIEWABLE_LINES };
+    })
+    .sort((a, b) => b.lines - a.lines)
+    .slice(0, n);
+}
+
 export function duration(hours) {
   if (hours == null) return "—";
   if (hours < 1) return `${Math.round(hours * 60)}m`;
