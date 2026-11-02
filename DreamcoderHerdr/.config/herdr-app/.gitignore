@@ -11,10 +11,25 @@
 !/themes/dreamcoder-light.json
 !/layouts/
 /layouts/*
-!/layouts/gentleman.json
-!/layouts/gentleman.svg
+!/layouts/dreamcoder.json
+!/layouts/dreamcoder.svg
+!/layouts/dreamcoder-*.json
+!/layouts/dreamcoder-*.svg
 !/mods/
 /mods/*
 !/mods/needs-you/
 /mods/needs-you/gpui-kit.d.ts
 /mods/needs-you/jsconfig.json
+# Dreamcoder cockpit mods (generated .d.ts/jsconfig stay untracked)
+!/mods/dc-tabs/
+/mods/dc-tabs/gpui-kit.d.ts
+/mods/dc-tabs/jsconfig.json
+!/mods/prs/
+/mods/prs/gpui-kit.d.ts
+/mods/prs/jsconfig.json
+!/mods/verify/
+/mods/verify/gpui-kit.d.ts
+/mods/verify/jsconfig.json
+!/mods/dispatch/
+/mods/dispatch/gpui-kit.d.ts
+/mods/dispatch/jsconfig.json
