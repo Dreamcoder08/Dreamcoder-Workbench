@@ -11,6 +11,9 @@ from .palette import ansi
 _HEX_COLOR = re.compile(r"#[0-9a-fA-F]{6}\Z")
 _PALETTE_UI_FIELDS: dict[str, str] = {}
 _UI_FIELD_RHS = {"pane_scrollbars": "false", "accent": '"#6FA0AF"'}
+# Upstream's accent reaches only ~2.6:1 on Dreamcoder Light paper, so Light
+# takes the palette accent; Dark keeps the upstream value (7.4:1 on black).
+_LIGHT_PALETTE_UI_FIELDS = {"accent": "accent"}
 _KEYS_LINES = (
     'prefix = "ctrl+a"',
     'previous_agent = "prefix+alt+k"',
@@ -86,6 +89,8 @@ def herdr_content(profile: HerdrProfile, mode: str, palette: dict[str, str]) -> 
     ui_lines: list[str] = []
     for field in evidence.allowed_ui_fields:
         mapped_token = _PALETTE_UI_FIELDS.get(field)
+        if mode == "light":
+            mapped_token = _LIGHT_PALETTE_UI_FIELDS.get(field, mapped_token)
         rhs = f'"{palette[mapped_token]}"' if mapped_token is not None else _UI_FIELD_RHS.get(field)
         if rhs is None:
             raise HerdrContractUnavailableError(
