@@ -40,14 +40,14 @@ class DreamcoderThemeQualityTest(unittest.TestCase):
 
     def test_light_has_stronger_editor_readability_tiers(self):
         light = self.modes["light"]
-        self.assertEqual(light["surface0"], "#fff7ea")
-        self.assertEqual(light["surface2"], "#c8ad89")
+        self.assertEqual(light["surface0"], "#fefaf2")
+        self.assertEqual(light["surface2"], "#d5c1a9")
         self.assertGreaterEqual(contrast(light["subtle"], light["bg"]), 4.5)
         self.assertGreaterEqual(contrast(light["comment"], light["bg"]), 4.5)
 
     def test_light_selection_uses_explicit_pair(self):
         light = self.modes["light"]
-        self.assertEqual(light["selection_bg"], "#decbb1")
+        self.assertEqual(light["selection_bg"], "#eadcc9")
         self.assertEqual(light["selection_fg"], light["text"])
         self.assertGreaterEqual(contrast(light["selection_fg"], light["selection_bg"]), 7.0)
 

@@ -126,17 +126,17 @@ if command -v tmux >/dev/null 2>&1; then
     light)
       KANAGAWA_VARIANT="lotus"
       # Dreamcoder Light palette — source: tokens.json modes.light.{text,accent,error,...}
-      tmux set-option -g @ukiyo-color-text "#17120d" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-bg-bar "#e6d7c4" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-bg-pane "#f3eadc" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-info "#0d4a68" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-notice "#a7471c" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-accent "#824f16" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-muted "#352e22" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-error "#842f24" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-alert "#654300" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-highlight "#0f6570" 2>/dev/null || true
-      tmux set-option -g @ukiyo-color-selection "#c8ad89" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-text "#1c1611" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-bg-bar "#eadfcf" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-bg-pane "#f5ede2" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-info "#08557e" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-notice "#af4318" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-accent "#8c4d04" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-muted "#3d352c" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-error "#902822" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-alert "#724800" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-highlight "#00616a" 2>/dev/null || true
+      tmux set-option -g @ukiyo-color-selection "#d5c1a9" 2>/dev/null || true
       # Restore default plugin color order (fg=bg_pane claro sobre bg=color)
       tmux set-option -gu "@ukiyo-git-colors" 2>/dev/null || true
       tmux set-option -gu "@ukiyo-cpu-usage-colors" 2>/dev/null || true

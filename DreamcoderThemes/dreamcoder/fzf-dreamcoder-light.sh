@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 # Sourced snippet: never set shell options here.
 # Dreamcoder Light — fzf
-export FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS:-} --color=bg:#f3eadc,bg+:#fff7ea,fg:#17120d,fg+:#17120d,hl:#824f16,hl+:#824f16,info:#0d4a68,marker:#315b31,prompt:#824f16,spinner:#57478b,pointer:#a7471c,header:#352e22,border:#8a7358,label:#352e22,query:#17120d,gutter:#f3eadc,scrollbar:#8a7358,separator:#8a7358,preview-bg:#f3eadc,preview-border:#8a7358"
+export FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS:-} --color=bg:#f5ede2,bg+:#fefaf2,fg:#1c1611,fg+:#1c1611,hl:#8c4d04,hl+:#8c4d04,info:#08557e,marker:#215d27,prompt:#8c4d04,spinner:#594399,pointer:#af4318,header:#3d352c,border:#9f8f7d,label:#3d352c,query:#1c1611,gutter:#f5ede2,scrollbar:#9f8f7d,separator:#9f8f7d,preview-bg:#f5ede2,preview-border:#9f8f7d"

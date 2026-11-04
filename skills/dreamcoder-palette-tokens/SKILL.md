@@ -9,7 +9,7 @@ Defined in `DreamcoderThemes/dreamcoder/tokens.json` with validation schema at `
 | Mode    | Name             | BG        | Accent    | Use Case    |
 | ------- | ---------------- | --------- | --------- | ----------- |
 | `dark`  | Dreamcoder Dark  | `#000000` | `#A5B4FC` | 18:00-07:00 |
-| `light` | Dreamcoder Light | `#f3eadc` | `#824f16` | 07:00-16:00 |
+| `light` | Dreamcoder Light | `#f5ede2` | `#8c4d04` | 07:00-16:00 |
 | `dusk`  | Dreamcoder Dusk  | `#ebe4d6` | `#8a5520` | 16:00-18:00 |
 
 These are the only canonical modes; Dark and Light are the user-facing ones. OLED behavior belongs to `modes.dark.surface_policy`.

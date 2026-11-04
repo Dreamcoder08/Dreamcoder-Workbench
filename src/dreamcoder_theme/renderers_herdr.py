@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import json
 import re
 
 from .herdr_contract import SUPPORTED_PROFILES, HerdrProfile
+from .palette import ansi
 
 _HEX_COLOR = re.compile(r"#[0-9a-fA-F]{6}\Z")
 _PALETTE_UI_FIELDS: dict[str, str] = {}
@@ -108,6 +110,50 @@ def herdr_content(profile: HerdrProfile, mode: str, palette: dict[str, str]) -> 
             "",
         )
     )
+
+
+_APP_COLOR_MAPPING = (
+    ("canvas", "bg"),
+    ("chrome", "bg"),
+    ("surface", "surface0"),
+    ("raised", "surface1"),
+    ("selected", "surface0"),
+    ("selection", "selection"),
+    ("foreground", "text"),
+    ("muted", "muted"),
+    ("dim", "border_ui"),
+    ("accent", "accent"),
+    ("blocked", "error"),
+    ("done", "success"),
+    ("working", "warning"),
+)
+
+
+def herdr_app_theme_content(palette: dict[str, str]) -> str:
+    """Render a herdr-app desktop ``themes/<name>.json`` from canonical tokens."""
+    slots = [color.upper() for color in ansi(palette)]
+    header = {
+        "background": palette["bg"].upper(),
+        "foreground": palette["text"].upper(),
+        "selection": palette["selection"].upper(),
+        "cursor": palette["accent"].upper(),
+    }
+    lines = ["{"]
+    lines += [f"  {json.dumps(key)}: {json.dumps(value)}," for key, value in header.items()]
+    lines.append('  "ansi": [')
+    lines.append("    " + ", ".join(json.dumps(c) for c in slots[:8]) + ",")
+    lines.append("    " + ", ".join(json.dumps(c) for c in slots[8:]))
+    lines.append("  ],")
+    lines.append('  "colors": {')
+    lines.append(
+        ",\n".join(
+            f"    {json.dumps(field)}: {json.dumps(palette[token].upper())}"
+            for field, token in _APP_COLOR_MAPPING
+        )
+    )
+    lines.append("  }")
+    lines.append("}")
+    return "\n".join(lines) + "\n"
 
 
 def herdr_token_mapping() -> tuple[tuple[str, str], ...]:

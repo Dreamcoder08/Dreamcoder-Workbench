@@ -33,6 +33,7 @@ from .renderers import (
     fzf_content,
     ghostty_content,
     gtk_content,
+    herdr_app_theme_content,
     herdr_content,
     hypr_colors_conf_content,
     hypr_colors_lua_content,
@@ -1043,6 +1044,13 @@ def sync_repo_snippets(variants: dict[str, dict[str, str]], active: dict[str, st
 
     # Herdr repository variants are intentionally separate from live selection.
     repo_changes += sync_herdr_repo_variants(variants)
+    for mode_name in ("dark", "light"):
+        repo_changes.append(
+            write_active_repo_file(
+                ROOT / f"DreamcoderHerdr/.config/herdr-app/themes/dreamcoder-{mode_name}.json",
+                herdr_app_theme_content(variants[mode_name]),
+            )
+        )
 
     # README
     repo_changes.append(

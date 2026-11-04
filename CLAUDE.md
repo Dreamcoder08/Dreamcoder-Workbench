@@ -62,12 +62,12 @@ compatibility token set, and OLED behavior is defined by
 **Light — Cocoa/Lúcuma**
 
 ```txt
-bg          #f3eadc
-text        #17120d
-accent      #824f16
-accent_2    #a7471c
-error       #842f24
-focus       #0f6570
+bg          #f5ede2
+text        #1c1611
+accent      #8c4d04
+accent_2    #af4318
+error       #902822
+focus       #00616a
 opacity     0.96
 ```
 
