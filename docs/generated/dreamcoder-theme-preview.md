@@ -56,37 +56,37 @@ Semantic tokens are intentionally distinct:
 
 | Role | Color |
 | --- | --- |
-| `bg` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#f3eadc'></span> `#f3eadc` |
-| `bg_soft` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#e6d7c4'></span> `#e6d7c4` |
-| `surface0` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#fff7ea'></span> `#fff7ea` |
-| `surface1` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#decbb1'></span> `#decbb1` |
-| `surface2` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#c8ad89'></span> `#c8ad89` |
-| `surface3` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#b89d7a'></span> `#b89d7a` |
-| `text` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#17120d'></span> `#17120d` |
-| `text_heading` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#100c07'></span> `#100c07` |
-| `muted` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#352e22'></span> `#352e22` |
-| `subtle` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#554638'></span> `#554638` |
-| `comment` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#725e4c'></span> `#725e4c` |
-| `accent` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#824f16'></span> `#824f16` |
-| `accent_2` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#a7471c'></span> `#a7471c` |
-| `diagnostic` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#0d4a68'></span> `#0d4a68` |
-| `sage` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#315b31'></span> `#315b31` |
-| `success` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#315b31'></span> `#315b31` |
-| `info` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#0d4a68'></span> `#0d4a68` |
-| `lavender` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#57478b'></span> `#57478b` |
-| `mauve` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#7d3e64'></span> `#7d3e64` |
-| `error` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#842f24'></span> `#842f24` |
-| `warning` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#654300'></span> `#654300` |
-| `on_accent` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#fff7ea'></span> `#fff7ea` |
-| `on_error` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#fff7ea'></span> `#fff7ea` |
-| `link` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#824f16'></span> `#824f16` |
-| `link_hover` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#a7471c'></span> `#a7471c` |
-| `selection_bg` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#decbb1'></span> `#decbb1` |
-| `selection_fg` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#17120d'></span> `#17120d` |
-| `border` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#8a7358'></span> `#8a7358` |
-| `border_ui` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#66513b'></span> `#66513b` |
-| `border_hi` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#3e2f20'></span> `#3e2f20` |
-| `focus` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#0f6570'></span> `#0f6570` |
+| `bg` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#f5ede2'></span> `#f5ede2` |
+| `bg_soft` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#eadfcf'></span> `#eadfcf` |
+| `surface0` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#fefaf2'></span> `#fefaf2` |
+| `surface1` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#eadcc9'></span> `#eadcc9` |
+| `surface2` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#d5c1a9'></span> `#d5c1a9` |
+| `surface3` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#c5ae93'></span> `#c5ae93` |
+| `text` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#1c1611'></span> `#1c1611` |
+| `text_heading` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#100b07'></span> `#100b07` |
+| `muted` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#3d352c'></span> `#3d352c` |
+| `subtle` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#5a4d41'></span> `#5a4d41` |
+| `comment` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#796755'></span> `#796755` |
+| `accent` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#8c4d04'></span> `#8c4d04` |
+| `accent_2` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#af4318'></span> `#af4318` |
+| `diagnostic` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#08557e'></span> `#08557e` |
+| `sage` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#215d27'></span> `#215d27` |
+| `success` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#215d27'></span> `#215d27` |
+| `info` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#08557e'></span> `#08557e` |
+| `lavender` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#594399'></span> `#594399` |
+| `mauve` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#853361'></span> `#853361` |
+| `error` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#902822'></span> `#902822` |
+| `warning` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#724800'></span> `#724800` |
+| `on_accent` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#fefaf2'></span> `#fefaf2` |
+| `on_error` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#fefaf2'></span> `#fefaf2` |
+| `link` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#8c4d04'></span> `#8c4d04` |
+| `link_hover` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#af4318'></span> `#af4318` |
+| `selection_bg` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#eadcc9'></span> `#eadcc9` |
+| `selection_fg` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#1c1611'></span> `#1c1611` |
+| `border` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#9f8f7d'></span> `#9f8f7d` |
+| `border_ui` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#695745'></span> `#695745` |
+| `border_hi` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#403225'></span> `#403225` |
+| `focus` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#00616a'></span> `#00616a` |
 
 ### Dreamcoder Dusk
 
@@ -168,39 +168,39 @@ Semantic tokens are intentionally distinct:
 
 | Token | Ratio vs bg | Target |
 | --- | ---: | --- |
-| `text` | 15.60:1 | AAA |
-| `muted` | 11.25:1 | AA |
-| `comment` | 5.15:1 | AA |
-| `accent` | 5.72:1 | AA |
-| `accent_2` | 4.95:1 | AA |
-| `diagnostic` | 8.02:1 | AA |
-| `sage` | 6.59:1 | AA |
-| `error` | 7.30:1 | AA |
-| `warning` | 7.48:1 | AA |
+| `text` | 15.44:1 | AAA |
+| `muted` | 10.38:1 | AA |
+| `comment` | 4.66:1 | AA |
+| `accent` | 5.69:1 | AA |
+| `accent_2` | 4.97:1 | AA |
+| `diagnostic` | 6.93:1 | AA |
+| `sage` | 6.80:1 | AA |
+| `error` | 7.20:1 | AA |
+| `warning` | 6.85:1 | AA |
 
 ### Dreamcoder Light APCA
 
 | Token | Lc vs bg | Target |
 | --- | ---: | --- |
-| `text` | 93.3 | ≥75 (body) |
-| `muted` | 88.0 | ≥75 (body) |
-| `comment` | 68.8 | ≥75 (FAIL) |
-| `accent` | 71.4 | ≥75 (FAIL) |
-| `accent_2` | 66.9 | ≥75 (FAIL) |
-| `diagnostic` | 79.9 | ≥75 (body) |
-| `sage` | 75.3 | ≥75 (body) |
-| `error` | 77.2 | ≥75 (body) |
-| `warning` | 78.3 | ≥75 (body) |
-| `border_ui` | 74.1 | ≥60 (UI) |
-| `focus` | 71.0 | ≥60 (UI) |
+| `text` | 94.6 | ≥75 (body) |
+| `muted` | 87.5 | ≥75 (body) |
+| `comment` | 66.8 | ≥75 (FAIL) |
+| `accent` | 72.1 | ≥75 (FAIL) |
+| `accent_2` | 67.9 | ≥75 (FAIL) |
+| `diagnostic` | 77.3 | ≥75 (body) |
+| `sage` | 77.0 | ≥75 (body) |
+| `error` | 77.6 | ≥75 (body) |
+| `warning` | 77.1 | ≥75 (body) |
+| `border_ui` | 73.7 | ≥60 (UI) |
+| `focus` | 74.3 | ≥60 (UI) |
 
 ### Dreamcoder Light UI affordance contrast
 
 | Token | Ratio vs bg | Target |
 | --- | ---: | --- |
-| `border_ui` | 6.28:1 | PASS |
-| `border_hi` | 10.79:1 | PASS |
-| `focus` | 5.65:1 | PASS |
+| `border_ui` | 5.93:1 | PASS |
+| `border_hi` | 10.64:1 | PASS |
+| `focus` | 6.20:1 | PASS |
 
 ### Dreamcoder Dusk contrast (WCAG 2)
 

@@ -218,7 +218,7 @@ class PiThemeGenerationTest(unittest.TestCase):
                 self.assertEqual(themes[0], themes[1])
                 self.assertEqual(
                     themes[0]["vars"]["lucuma"],
-                    "#A5B4FC" if mode == "dark" else "#824f16",
+                    "#A5B4FC" if mode == "dark" else "#8c4d04",
                 )
                 self.assertEqual(source.read_text(), "do not mutate\n")
 
@@ -264,16 +264,16 @@ class PiThemeGenerationTest(unittest.TestCase):
                         theme = json.loads((home / "themes" / filename).read_text())
                         colors = theme["colors"]
                         # Shell header, status cards and editor share this role.
-                        self.assertEqual(colors["toolSuccessBg"], "#fff7ea")
-                        self.assertEqual(colors["toolPendingBg"], "#fff7ea")
-                        self.assertEqual(colors["customMessageBg"], "#fff7ea")
+                        self.assertEqual(colors["toolSuccessBg"], "#fefaf2")
+                        self.assertEqual(colors["toolPendingBg"], "#fefaf2")
+                        self.assertEqual(colors["customMessageBg"], "#fefaf2")
                         self.assertEqual(colors["borderAccent"], "lucuma")
                         self.assertEqual(colors["thinkingMedium"], "lucuma")
-                        self.assertEqual(theme["vars"][colors["borderAccent"]], "#824f16")
+                        self.assertEqual(theme["vars"][colors["borderAccent"]], "#8c4d04")
                         # Selection and diagnostics retain their distinct roles.
-                        self.assertEqual(colors["selectedBg"], "#decbb1")
+                        self.assertEqual(colors["selectedBg"], "#eadcc9")
                         self.assertEqual(colors["mdLink"], "diagnostic")
-                        self.assertEqual(theme["vars"]["diagnostic"], "#0d4a68")
+                        self.assertEqual(theme["vars"]["diagnostic"], "#08557e")
 
     def test_opencode_preserves_terminal_transparent_background(self):
         with tempfile.TemporaryDirectory() as tmpdir:

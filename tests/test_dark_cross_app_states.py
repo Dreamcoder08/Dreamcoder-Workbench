@@ -213,7 +213,7 @@ def test_starship_emitted_text_pairs():
 @pytest.mark.parametrize(
     "mode, expected",
     [
-        ("light", "93f971c4ad02eef751a3e169f5f8e4a796c0910310bdeb8a90d610e174553b1e"),
+        ("light", "e593fd39c43417b5fd8918bf099ac845cd2f692f9491e210117b07de77a21e2b"),
         ("dusk", "581c6c4b0b90ea880c2cd94af6cffd1f660b45555a07c037af1f8128679340df"),
     ],
 )

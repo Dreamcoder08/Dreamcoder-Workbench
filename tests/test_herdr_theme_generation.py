@@ -95,7 +95,7 @@ def test_herdr_080_light_renders_dreamcoder_light() -> None:
     content = herdr_content(HERDR_080_PROFILE, "light", VARIANTS["light"])
     parsed = tomllib.loads(content)
 
-    assert parsed["theme"]["custom"]["panel_bg"] == VARIANTS["light"]["bg"] == "#f3eadc"
+    assert parsed["theme"]["custom"]["panel_bg"] == VARIANTS["light"]["bg"] == "#f5ede2"
     assert parsed["theme"]["custom"]["text"] == VARIANTS["light"]["text"]
     assert parsed["theme"]["custom"]["surface1"] == VARIANTS["light"]["surface1"]
     assert parsed["ui"]["accent"] == "#6FA0AF"

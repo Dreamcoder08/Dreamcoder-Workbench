@@ -72,7 +72,7 @@ def test_apca_pass_wcag_fail_is_blocking():
 def test_light_wcag_pass_apca_fail_is_blocking():
     """Light body floor (75): a WCAG pass alone must not waive APCA."""
     pal = _clean_palette("light")
-    pal["diagnostic"] = "#545454"  # WCAG 6.35, APCA 74.5 < body 75
+    pal["diagnostic"] = "#5a5a5a"  # WCAG 5.94, APCA 73.8 < body 75
     assert contrast(pal["bg"], pal["diagnostic"]) >= 4.5
     assert abs(apca_lc(pal["diagnostic"], pal["bg"])) < _guardrails()["minimum_apca_body"]
 

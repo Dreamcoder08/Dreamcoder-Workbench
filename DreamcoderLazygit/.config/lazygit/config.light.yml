@@ -4,38 +4,38 @@
 gui:
   theme:
     activeBorderColor:
-      - "#824f16" # accent
+      - "#8c4d04" # accent
       - "bold"
     inactiveBorderColor:
-      - "#8a7358" # border
+      - "#9f8f7d" # border
     searchingActiveBorderColor:
-      - "#a7471c" # accent-2
+      - "#af4318" # accent-2
       - "bold"
     optionsTextColor:
-      - "#0d4a68" # diagnostic
+      - "#08557e" # diagnostic
     selectedLineBgColor:
-      - "#decbb1" # selection
+      - "#eadcc9" # selection
     inactiveViewSelectedLineBgColor:
-      - "#c8ad89" # surface-2
+      - "#d5c1a9" # surface-2
     cherryPickedCommitFgColor:
-      - "#0d4a68"
+      - "#08557e"
     cherryPickedCommitBgColor:
-      - "#a7471c"
+      - "#af4318"
     markedBaseCommitFgColor:
-      - "#0d4a68"
+      - "#08557e"
     markedBaseCommitBgColor:
-      - "#824f16"
+      - "#8c4d04"
     unstagedChangesColor:
-      - "#842f24" # error
+      - "#902822" # error
     defaultFgColor:
-      - "#17120d" # text
+      - "#1c1611" # text
   authorColors:
-        "#824f16": "#f3eadc"
-        "#a7471c": "#f3eadc"
-        "#0d4a68": "#f3eadc"
-        "#315b31": "#f3eadc"
-        "#57478b": "#f3eadc"
-        "#7d3e64": "#f3eadc"
+        "#8c4d04": "#f5ede2"
+        "#af4318": "#f5ede2"
+        "#08557e": "#f5ede2"
+        "#215d27": "#f5ede2"
+        "#594399": "#f5ede2"
+        "#853361": "#f5ede2"
   showFileTree: true
   showRandomTip: false
   nerdFontsVersion: "3"
@@ -52,6 +52,6 @@ git:
   skipHookPrefix: WIP
   autoFetch: true
   autoRefresh: true
-  branchLogCmd: "git log --graph --pretty=format:'%C(#824f16)%h%Creset -%C(#a7471c)%d%Creset %s %C(#725e4c)(%cr) %C(#0d4a68)<%an>%Creset' --date=relative"
+  branchLogCmd: "git log --graph --pretty=format:'%C(#8c4d04)%h%Creset -%C(#af4318)%d%Creset %s %C(#796755)(%cr) %C(#08557e)<%an>%Creset' --date=relative"
 update:
   method: never

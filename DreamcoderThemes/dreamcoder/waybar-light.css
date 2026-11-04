@@ -1,29 +1,29 @@
 /* Dreamcoder color layer for Waybar. */
-@define-color bg #f3eadc;
-@define-color bg-soft #e6d7c4;
-@define-color surface #fff7ea;
-@define-color surface-2 #c8ad89;
-@define-color surface-3 #b89d7a;
-@define-color text #17120d;
-@define-color text-heading #100c07;
-@define-color muted #352e22;
-@define-color subtle #554638;
-@define-color comment #725e4c;
-@define-color border #8a7358;
-@define-color border-ui #66513b;
-@define-color focus #0f6570;
-@define-color accent #824f16;
-@define-color accent-2 #a7471c;
-@define-color diagnostic #0d4a68;
-@define-color lavender #57478b;
-@define-color error #842f24;
-@define-color success #315b31;
-@define-color warning #654300;
-@define-color link #824f16;
-@define-color link-hover #a7471c;
+@define-color bg #f5ede2;
+@define-color bg-soft #eadfcf;
+@define-color surface #fefaf2;
+@define-color surface-2 #d5c1a9;
+@define-color surface-3 #c5ae93;
+@define-color text #1c1611;
+@define-color text-heading #100b07;
+@define-color muted #3d352c;
+@define-color subtle #5a4d41;
+@define-color comment #796755;
+@define-color border #9f8f7d;
+@define-color border-ui #695745;
+@define-color focus #00616a;
+@define-color accent #8c4d04;
+@define-color accent-2 #af4318;
+@define-color diagnostic #08557e;
+@define-color lavender #594399;
+@define-color error #902822;
+@define-color success #215d27;
+@define-color warning #724800;
+@define-color link #8c4d04;
+@define-color link-hover #af4318;
 
 window#waybar {
-  background: rgba(243, 234, 220, 0.96);
+  background: rgba(245, 237, 226, 0.96);
   color: @text;
   border-bottom: 1px solid alpha(@accent, 0.26);
 }
@@ -36,7 +36,7 @@ window#waybar {
 
 #workspaces button.active {
   color: @accent;
-  background: rgba(130, 79, 22, 0.34);
+  background: rgba(140, 77, 4, 0.34);
   border-color: alpha(@focus, 0.82);
 }
 
@@ -47,7 +47,7 @@ window#waybar {
 #cpu,
 #memory,
 #tray {
-  background: rgba(222, 203, 177, 0.80);
+  background: rgba(234, 220, 201, 0.80);
   color: @text;
   border: 1px solid alpha(@border-ui, 0.78);
 }

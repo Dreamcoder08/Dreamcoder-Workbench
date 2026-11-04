@@ -3,37 +3,37 @@
 
 themes {
     dreamcoder-light {
-        bg "#f3eadc"
-        fg "#17120d"
-        black "#f3eadc"
-        red "#842f24"
-        green "#315b31"
-        yellow "#654300"
-        blue "#0d4a68"
-        magenta "#7d3e64"
-        cyan "#0d4a68"
-        white "#17120d"
-        orange "#654300"
-        gray "#352e22"
+        bg "#f5ede2"
+        fg "#1c1611"
+        black "#f5ede2"
+        red "#902822"
+        green "#215d27"
+        yellow "#724800"
+        blue "#08557e"
+        magenta "#853361"
+        cyan "#08557e"
+        white "#1c1611"
+        orange "#724800"
+        gray "#3d352c"
 
         // UI elements
-        border "#8a7358"
-        border_active "#824f16"
-        border_unfocused "#8a7358"
+        border "#9f8f7d"
+        border_active "#8c4d04"
+        border_unfocused "#9f8f7d"
 
         // Tab bar
-        tab_bar_bg "#decbb1"
-        tab_active_bg "#8a7358"
-        tab_active_fg "#824f16"
-        tab_inactive_bg "#decbb1"
-        tab_inactive_fg "#352e22"
+        tab_bar_bg "#eadcc9"
+        tab_active_bg "#9f8f7d"
+        tab_active_fg "#8c4d04"
+        tab_inactive_bg "#eadcc9"
+        tab_inactive_fg "#3d352c"
 
         // Pane frames
-        pane_frame_bg "#decbb1"
-        pane_frame_fg "#8a7358"
+        pane_frame_bg "#eadcc9"
+        pane_frame_fg "#9f8f7d"
 
         // Selection
-        selection_bg "#824f16"
-        selection_fg "#f3eadc"
+        selection_bg "#8c4d04"
+        selection_fg "#f5ede2"
     }
 }
