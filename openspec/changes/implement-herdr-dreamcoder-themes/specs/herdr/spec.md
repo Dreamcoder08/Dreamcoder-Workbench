@@ -39,15 +39,16 @@ The system MUST resolve the active configuration from `HERDR_CONFIG_PATH` when i
 
 ### Requirement: Complete bounded variants
 
-The system MUST produce exactly two managed variants: Dreamcoder Light and Dreamcoder Dark. The variants MUST preserve canonical upstream `[ui]` and `[keys]` values exactly. Dreamcoder palette ownership MUST be limited to `[theme]` and `[theme.custom]`; no other sections MAY be palette-driven.
+The system MUST produce exactly two managed variants: Dreamcoder Light and Dreamcoder Dark. The variants MUST preserve canonical upstream `[ui]` and `[keys]` values exactly, except that Dreamcoder Light MUST set `[ui].accent` to the palette `accent`: upstream's `#6FA0AF` reaches only about 2.6:1 on the Light background. Dreamcoder palette ownership MUST be limited to `[theme]`, `[theme.custom]` and that one Light `[ui].accent` field; no other sections MAY be palette-driven.
 
 #### Scenario: Light and Dark preserve canonical non-theme values
 
 - GIVEN the canonical upstream Herdr configuration
 - WHEN Dreamcoder Light and Dreamcoder Dark variants are generated
-- THEN both variants MUST contain the canonical `[ui]` values exactly, including `accent = "#6FA0AF"`
+- THEN Dreamcoder Dark MUST contain the canonical `[ui]` values exactly, including `accent = "#6FA0AF"`
+- AND Dreamcoder Light MUST contain the canonical `[ui]` values except `accent`, which MUST equal the Light palette `accent`
 - AND both variants MUST contain the canonical `[keys]` values exactly: `prefix = "ctrl+a"`, `previous_agent = "prefix+alt+k"`, `next_agent = "prefix+alt+j"`, and `focus_agent = "prefix+ctrl+1..9"`
-- AND palette differences MUST occur only in `[theme]` and `[theme.custom]`
+- AND palette differences MUST occur only in `[theme]`, `[theme.custom]` and the Light `[ui].accent`
 - AND no third variant MAY be produced
 
 ### Requirement: Backup-before-mutation and atomic replacement
