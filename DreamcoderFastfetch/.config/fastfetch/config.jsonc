@@ -9,7 +9,7 @@
     "logo": {
         "source": "~/.config/dreamcoder/Dreamcoder01.jpg",
         "type": "kitty",
-        "recache": true,
+        "cache": "regen",
         "height": 14,
          "padding": {
             "top": 1,
