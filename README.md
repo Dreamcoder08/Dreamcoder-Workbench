@@ -10,7 +10,7 @@ configurations, machine profiles and health checks for a consistent workspace.
 It builds on, rather than replaces, [Gentleman.Dots](https://github.com/Gentleman-Programming/Gentleman.Dots)
 and [ML4W](https://ml4w.com/).
 
-<img src="dreamcoder.webp" width="600" alt="Dreamcoder Workbench in light mode with Gentle Shell and its agent workspace" />
+<img src="dreamcoder.webp" width="600" alt="Dreamcoder Workbench in dark mode with Herdr, Gentle Shell and its agent workspace" />
 
 ## Contents
 
