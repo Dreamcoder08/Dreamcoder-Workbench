@@ -36,3 +36,6 @@
 !/mods/flow/
 /mods/flow/gpui-kit.d.ts
 /mods/flow/jsconfig.json
+!/mods/dc-status/
+/mods/dc-status/gpui-kit.d.ts
+/mods/dc-status/jsconfig.json

@@ -277,6 +277,17 @@ Shell rail already lists the files a session changed, so the cockpit does not
 repeat it. Committing from Herdr is therefore not offered; commit in the
 terminal. Files, PRs and Flow stay hidden until their panel button is used.
 
+The status bar is the `dc-status` mod: machine, branch and agent count as
+Herdr's shipped bar showed them, plus the **work-unit budget** — the authored
+changed lines on the focused space's branch (additions plus deletions) against
+its base, in red past 400. Hover it for the base, the rule and one row per
+commit over that base. It measures `git diff <base>...HEAD` plus the
+uncommitted and untracked work in that checkout, so the number is what a work
+unit would carry if committed now. The base is the first of `main`, `master`,
+`origin/HEAD`, `origin/main`, `origin/master` that exists; a repo with none of
+them shows no chip rather than a misleading zero. It refreshes every 15
+seconds and immediately on a space switch.
+
 Verify runs, in order of precedence: the command in `<repo>/.herdr/verify`,
 `make verify`, `make check`, `make lint test`, `make test`, the matching npm
 scripts, `python3 -m pytest -q`, `go vet ./... && go test ./...`, or
@@ -285,7 +296,8 @@ scripts, `python3 -m pytest -q`, `go vet ./... && go test ./...`, or
 Mods live in `mods/<name>/`. Write `mod.json` with `"place": "none"` before
 `main.js`: the first time Herdr sees a mod folder without it, it docks the mod
 into the shown layout. Pure helpers (`mods/prs/ci.js`, `mods/verify/detect.js`,
-`mods/dispatch/plan.js`, `mods/flow/stats.js`) are tested with `node --test tests/herdr_mods/*.test.mjs`,
+`mods/dispatch/plan.js`, `mods/flow/stats.js`, `mods/dc-status/budget.js`) are
+tested with `node --test tests/herdr_mods/*.test.mjs`,
 which `tests/test_herdr_mods_node.py` runs in the Python suite. Validate a mod
 with `herdr-app check ~/.config/herdr-app/mods/<name>`.
 
