@@ -48,7 +48,11 @@ export default class Tabs extends View {
       const first = this.space === undefined;
       this.space = space.id; this.pending = null;
       if (!(first && !(space.id in this.panels))) {
-        const stored = this.panels[space.id] ?? null, want = enabled.includes(stored) ? stored : null;
+        // A panel dropped from the layout (Changes, once Gentle Shell shows it)
+        // must not be restored from an older per-space choice.
+        const present = new Set((body?.children ?? []).map((c) => c.id));
+        const stored = this.panels[space.id] ?? null;
+        const want = enabled.includes(stored) && present.has(stored) ? stored : null;
         if (want !== now) {
           this.pending = { want, until: Date.now() + 1000 };
           if (want) { run("layout.select", { stack: "panel-body", child: want }); run("layout.show", { id: "panel" }); }

@@ -268,8 +268,14 @@ The `dreamcoder` layout is the default; the cockpit adds:
 | `alt-s` | **Dispatch** an agent: type a task, pick Claude Code or an explorer, reviewer or verifier role. Claude Code defaults to a new worktree (`hwt`) on a branch derived from the task. Warns from the fourth working agent. |
 | `alt-g` | `dreamcoder` layout |
 | `alt-f` | `dreamcoder-focus`: no sidebar, the agent fills the window |
-| `alt-r` | `dreamcoder-review`: Changes open beside the agent |
+| `alt-r` | `dreamcoder-review`: PRs open beside the agent |
 | `alt-q` | `dreamcoder-squad`: wider sidebar, agents list first |
+
+The right panel keeps only what Gentle Shell does not show: **Files**, **PRs**
+and **Flow**. The **Changes** panel was removed on purpose — the Gentle
+Shell rail already lists the files a session changed, so the cockpit does not
+repeat it. Committing from Herdr is therefore not offered; commit in the
+terminal. Files, PRs and Flow stay hidden until their panel button is used.
 
 Verify runs, in order of precedence: the command in `<repo>/.herdr/verify`,
 `make verify`, `make check`, `make lint test`, `make test`, the matching npm

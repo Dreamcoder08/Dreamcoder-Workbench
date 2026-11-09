@@ -142,13 +142,6 @@
                       }
                     },
                     {
-                      "id": "changes",
-                      "type": "block",
-                      "content": {
-                        "mod": "changes"
-                      }
-                    },
-                    {
                       "id": "prs",
                       "type": "block",
                       "content": {
