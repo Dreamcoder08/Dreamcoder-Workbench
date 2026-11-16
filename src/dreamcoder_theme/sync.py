@@ -26,6 +26,7 @@ from .renderers import (
     bat_content,
     btop_content,
     cava_content,
+    claude_code_theme_content,
     codex_tmtheme_content,
     delta_content,
     dunst_content,
@@ -262,6 +263,12 @@ def sync_pi_targets(
         )
     if paths.gentle_shell_settings is not None:
         changed["gentle_shell_settings"] = ensure_pi_theme_settings(paths.gentle_shell_settings)
+    claude_theme = getattr(paths, "claude_theme", None)
+    if claude_theme is not None:
+        # One live slug (custom:dreamcoder) that follows the active mode.
+        changed["claude_theme"] = write_if_changed(
+            claude_theme, claude_code_theme_content(active), replace_symlink=True
+        )
     return changed
 
 
@@ -1058,6 +1065,12 @@ def sync_repo_snippets(variants: dict[str, dict[str, str]], active: dict[str, st
                 ROOT
                 / f"DreamcoderHerdr/.config/herdr-app/themes/dreamcoder-shell-{mode_name}.json",
                 gentle_shell_theme_content(variants[mode_name], mode_name),
+            )
+        )
+        repo_changes.append(
+            write_active_repo_file(
+                ROOT / f"DreamcoderClaudeCode/.claude/themes/dreamcoder-{mode_name}.json",
+                claude_code_theme_content(variants[mode_name]),
             )
         )
     # Vendored Gentle Shell Desktop mods: recolour their tokens.js tables.

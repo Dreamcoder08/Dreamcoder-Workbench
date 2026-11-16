@@ -5,6 +5,7 @@ directly from its leaf module. No intermediate passthrough registries.
 """
 
 from .renderers_antigravity import antigravity_content
+from .renderers_claude_code import claude_code_theme_content
 from .renderers_codex import codex_tmtheme_content
 from .renderers_extra_bat_delta import bat_content, delta_content
 from .renderers_extra_btop import btop_content
@@ -43,6 +44,7 @@ __all__ = [
     "bat_content",
     "btop_content",
     "cava_content",
+    "claude_code_theme_content",
     "codex_tmtheme_content",
     "delta_content",
     "dunst_content",

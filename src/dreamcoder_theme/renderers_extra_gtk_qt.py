@@ -88,10 +88,15 @@ _QT_TOKENS = (
 _QT_GROUP_TEXT = frozenset({"WindowText", "Text", "ButtonText", "ToolTipText"})
 
 
+# Light sidebars are recessed paper, below the view canvas, as in libadwaita.
+_LIGHT_GTK = {"sidebar_bg_color": "bg_soft", "sidebar_backdrop_color": "bg_soft"}
+
+
 def gtk_content(p: dict[str, str]) -> str:
     """Named colors only; import after Matugen and before user widget rules."""
     return "/* Dreamcoder Workbench canonical GTK colors */\n" + "".join(
-        f"@define-color {role} {p[token]};\n" for role, token in _GTK_TOKENS
+        f"@define-color {role} {p[_LIGHT_GTK.get(role, token) if p.get('details') == 'lighter' else token]};\n"
+        for role, token in _GTK_TOKENS
     )
 
 

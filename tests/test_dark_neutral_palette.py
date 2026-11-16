@@ -67,7 +67,7 @@ def test_adaptive_light_modes_remain_unchanged(mode, wallpaper_scheme):
     assert (
         fingerprint
         == {
-            "light": "1907481b31120a29d8446c5b5e5d7f7119c67dbc3fd2eb9e9e725b299575c80c",
+            "light": "0b065fdfe8dcb9f5c8ea47f9176fddcc0d9b904fde1b9109e20c363294c02273",
             "dusk": "4489a603fff0e4131bd0379426d288b8ebcc59e3281d864fe8131b5b3556160e",
         }[mode]
     )

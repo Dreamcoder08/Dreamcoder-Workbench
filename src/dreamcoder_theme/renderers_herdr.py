@@ -43,6 +43,9 @@ _OPTIONAL_TOKEN_MAPPING = (
     ("active_row_bg", "surface0"),
     ("selection_bg", "selection"),
 )
+# Lucuma paper: the sidebar is recessed (bg_soft) and the active row takes the
+# selection tint; Light surface0 sits ~1.03:1 from the canvas and would vanish.
+_LIGHT_TOKEN_OVERRIDES = {"sidebar_bg": "bg_soft", "active_row_bg": "selection"}
 
 
 class HerdrContractUnavailableError(RuntimeError):
@@ -72,7 +75,8 @@ def herdr_content(profile: HerdrProfile, mode: str, palette: dict[str, str]) -> 
     )
     if {field for field, _token in mappings} != set(evidence.allowed_custom_fields):
         raise HerdrContractUnavailableError("Herdr profile requests unsupported custom fields")
-    for field, token in mappings:
+    for field, base_token in mappings:
+        token = _LIGHT_TOKEN_OVERRIDES.get(field, base_token) if mode == "light" else base_token
         color = palette.get(token)
         if not isinstance(color, str) or _HEX_COLOR.fullmatch(color) is None:
             raise HerdrContractUnavailableError(
@@ -134,6 +138,18 @@ _APP_COLOR_MAPPING = (
 )
 
 
+# UI secondary labels use subtle (~6.6:1, Primer/Geist range); Light muted stays
+# dark (~11:1) for editors, where comment must stay 2:1 away from it.
+_LIGHT_APP_OVERRIDES = {"chrome": "bg_soft", "selected": "selection", "muted": "subtle"}
+
+
+def _app_token(palette: dict[str, str], field: str, token: str) -> str:
+    """Light chrome is recessed and the selected row is tinted (see above)."""
+    if palette.get("details") == "lighter":
+        return _LIGHT_APP_OVERRIDES.get(field, token)
+    return token
+
+
 def herdr_app_theme_content(palette: dict[str, str]) -> str:
     """Render a herdr-app desktop ``themes/<name>.json`` from canonical tokens."""
     slots = [color.upper() for color in ansi(palette)]
@@ -152,7 +168,7 @@ def herdr_app_theme_content(palette: dict[str, str]) -> str:
     lines.append('  "colors": {')
     lines.append(
         ",\n".join(
-            f"    {json.dumps(field)}: {json.dumps(palette[token].upper())}"
+            f"    {json.dumps(field)}: {json.dumps(palette[_app_token(palette, field, token)].upper())}"
             for field, token in _APP_COLOR_MAPPING
         )
     )

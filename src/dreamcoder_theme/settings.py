@@ -58,6 +58,8 @@ class ThemePaths:
     rofi_matugen: Path
     # Optional toolkits opt in through existing configs or explicit CONFIG overrides.
     gtk3_config: Path | None = None
+    # Claude Code custom theme, rewritten with the active mode (live-reloaded).
+    claude_theme: Path | None = None
     gtk3_canonical: Path | None = None
     gtk3_state: Path | None = None
     gtk4_config: Path | None = None
@@ -166,6 +168,13 @@ def theme_paths() -> ThemePaths:
         pi_theme=Path(os.environ.get("PI_THEME", pi_agent_home / "themes/dreamcoder.json")),
         pi_settings=Path(os.environ.get("PI_SETTINGS", pi_agent_home / "settings.json")),
         gentle_shell_theme=gentle_shell_home / "themes/dreamcoder.json",
+        claude_theme=Path(
+            os.environ.get(
+                "CLAUDE_THEME",
+                Path(os.environ.get("CLAUDE_CONFIG_DIR", Path.home() / ".claude"))
+                / "themes/dreamcoder.json",
+            )
+        ).expanduser(),
         gentle_shell_settings=gentle_shell_home / "settings.json",
         wallpaper=Path(os.environ.get("DREAMCODER_WALLPAPER", "")),
         tokens_file=Path(

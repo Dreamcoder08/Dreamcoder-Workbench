@@ -32,7 +32,9 @@ def antigravity_content(c: dict[str, str]) -> str:
                 "tab.inactiveBackground": c["surface0"],
                 "tab.inactiveForeground": c["comment"],
                 "tab.border": c["border_ui"],
-                "editor.lineHighlightBackground": c["surface0"],
+                "editor.lineHighlightBackground": c["surface1"]
+                if c.get("details") == "lighter"
+                else c["surface0"],
                 "editorLineNumber.foreground": c["comment"],
                 "editorLineNumber.activeForeground": c["accent"],
                 "editorWidget.background": c["surface1"],
@@ -42,10 +44,16 @@ def antigravity_content(c: dict[str, str]) -> str:
                 "input.border": c["focus"],
                 "button.background": c["accent_2"],
                 "button.foreground": c["on_accent"],
-                "list.activeSelectionBackground": c["surface1"],
+                "list.activeSelectionBackground": c["selection"]
+                if c.get("details") == "lighter"
+                else c["surface1"],
                 "list.activeSelectionForeground": c["text"],
-                "list.hoverBackground": c["surface0"],
-                "editor.selectionBackground": c["surface1"],
+                "list.hoverBackground": c["surface1"]
+                if c.get("details") == "lighter"
+                else c["surface0"],
+                "editor.selectionBackground": c["selection"]
+                if c.get("details") == "lighter"
+                else c["surface1"],
                 "terminal.background": c["bg"],
                 "terminal.foreground": c["text"],
                 "terminal.ansiBlack": c["surface0"],

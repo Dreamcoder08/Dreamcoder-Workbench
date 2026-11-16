@@ -9,8 +9,10 @@ def codex_tmtheme_content(c: dict[str, str]) -> str:
     t = opencode_tokens(c)
     selection = t["selection"]
     sel_fg = t["selection_fg"]
-    line_highlight = c["surface1"]  # subtle, not same as selection
-    gutter = c["surface2"]
+    # Subtle, not the selection. Light paper's hover step (surface1) sits
+    # ~1.10:1 from the canvas, under the 1.15 line-highlight floor.
+    line_highlight = c["surface2"] if c.get("details") == "lighter" else c["surface1"]
+    gutter = c["surface3"] if c.get("details") == "lighter" else c["surface2"]
     return f"""<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">

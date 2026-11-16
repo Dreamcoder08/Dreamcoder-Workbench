@@ -100,7 +100,7 @@ def test_herdr_080_light_renders_dreamcoder_light() -> None:
     content = herdr_content(HERDR_080_PROFILE, "light", VARIANTS["light"])
     parsed = tomllib.loads(content)
 
-    assert parsed["theme"]["custom"]["panel_bg"] == VARIANTS["light"]["bg"] == "#f5ede2"
+    assert parsed["theme"]["custom"]["panel_bg"] == VARIANTS["light"]["bg"] == "#f9f6f2"
     assert parsed["theme"]["custom"]["text"] == VARIANTS["light"]["text"]
     assert parsed["theme"]["custom"]["surface1"] == VARIANTS["light"]["surface1"]
     assert parsed["ui"]["accent"] == VARIANTS["light"]["accent"]
@@ -113,8 +113,10 @@ def test_herdr_082_uses_mode_aware_base_and_sidebar_tokens(mode: str) -> None:
 
     expected_base = "catppuccin-latte" if mode == "light" else "catppuccin"
     assert parsed["theme"]["name"] == expected_base
-    assert parsed["theme"]["custom"]["sidebar_bg"] == palette["bg"]
-    assert parsed["theme"]["custom"]["active_row_bg"] == palette["surface0"]
+    # Light paper recesses the sidebar and tints the active row.
+    sidebar, active = ("bg_soft", "selection") if mode == "light" else ("bg", "surface0")
+    assert parsed["theme"]["custom"]["sidebar_bg"] == palette[sidebar]
+    assert parsed["theme"]["custom"]["active_row_bg"] == palette[active]
     assert parsed["theme"]["custom"]["selection_bg"] == palette["selection"]
 
 
