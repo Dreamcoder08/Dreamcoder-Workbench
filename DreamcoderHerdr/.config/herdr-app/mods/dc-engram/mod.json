@@ -1,0 +1,5 @@
+{
+  "place": "none",
+  "title": "Engram recall",
+  "overlay": { "kind": "popup", "at": "top", "offset": 80, "width": 600, "height": 0.7 }
+}

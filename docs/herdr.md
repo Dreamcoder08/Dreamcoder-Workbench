@@ -267,6 +267,7 @@ folded into it. The cockpit adds:
 | `alt-t` | **Verify** the focused repo in the background (`hc run --bg`). The status bar shows the result per space; click it to read the log. |
 | `alt-shift-t` | Toggle **auto-verify** for the focused space: verify runs when one of its agents finishes (blocked agents don't count; at most one run per minute). Off by default. |
 | `alt-o` | Toggle the **Flow** panel: last 14 days of merged PRs per week, median and p90 open-to-merge lead time, median size and share over 400 lines, and the largest PRs (the ones worth splitting). |
+| `alt-e` | Open **Engram recall** for the focused local project. Context loads initially; enter a search and press Enter. Esc closes the read-only overlay. The project is the one Engram recorded for that folder, not the folder's current name, so a renamed checkout still finds its memory. The local Engram HTTP service must already be running; remote spaces are not queried. |
 | `alt-s` | **Dispatch** an agent: type a task, pick Claude Code or an explorer, reviewer or verifier role. Claude Code defaults to a new worktree (`hwt`) on a branch derived from the task. Warns from the fourth working agent. |
 | `alt-b` | Toggle the **Files** panel |
 | `alt-x` | Hide or show the whole right column |

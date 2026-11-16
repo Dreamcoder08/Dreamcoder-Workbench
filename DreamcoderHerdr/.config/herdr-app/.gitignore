@@ -39,6 +39,9 @@
 !/mods/dc-status/
 /mods/dc-status/gpui-kit.d.ts
 /mods/dc-status/jsconfig.json
+!/mods/dc-engram/
+/mods/dc-engram/gpui-kit.d.ts
+/mods/dc-engram/jsconfig.json
 # Gentle Shell Desktop mods (vendored from Gentle Shell, MIT; tokens.js generated)
 !/mods/gentle-*/
 /mods/gentle-*/gpui-kit.d.ts
