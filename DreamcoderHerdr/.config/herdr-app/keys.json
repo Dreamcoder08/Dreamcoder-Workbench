@@ -76,7 +76,8 @@
     "alt-r": "layout.switch:dreamcoder-review",
     "alt-q": "layout.switch:dreamcoder-squad",
     "alt-o": "dc-tabs.panel-flow",
-    "alt-shift-t": "verify.auto"
+    "alt-shift-t": "verify.auto",
+    "alt-c": "layout.switch:gentle-shell"
   },
   "terminal": {
     "ctrl-backspace": "send:\u0017",
@@ -87,5 +88,17 @@
     "ctrl-v": "terminal.paste_image",
     "ctrl-shift-x": "terminal",
     "shift-enter": "send:\u001b\r"
+  },
+  "layout:gentle-shell": {
+    "ctrl-shift-g": "mod.open:gentle-palette",
+    "ctrl-shift-j": "gentle-status.toggle",
+    "ctrl-shift-.": "gentle-status.stop",
+    "ctrl-shift-i": "gentle-chat.expand",
+    "ctrl-alt-1": "gentle-inspector.tab-changes",
+    "ctrl-alt-2": "gentle-inspector.tab-todo",
+    "ctrl-alt-3": "gentle-inspector.tab-agents",
+    "ctrl-alt-4": "gentle-inspector.tab-jobs",
+    "ctrl-alt-5": "gentle-inspector.tab-review",
+    "ctrl-alt-6": "gentle-inspector.tab-session"
   }
 }
