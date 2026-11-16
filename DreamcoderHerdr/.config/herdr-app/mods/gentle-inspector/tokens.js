@@ -54,7 +54,7 @@ export const HEX_LIGHT = {
   line: "#E3DDD4",
   lineStrong: "#8E8479",
   text: "#1E1814",
-  muted: "#352F29",
+  muted: "#5E574F",
   faint: "#645C53",
   accent: "#8B440C",
   accentSoft: "#A73B15",

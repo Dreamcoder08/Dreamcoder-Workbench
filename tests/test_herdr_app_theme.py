@@ -35,7 +35,7 @@ def test_light_theme_maps_canonical_light_tokens() -> None:
         "selected": light["selection"].upper(),
         "selection": light["selection"].upper(),
         "foreground": light["text"].upper(),
-        "muted": light["muted"].upper(),
+        "muted": light["subtle"].upper(),
         "dim": light["border_ui"].upper(),
         "accent": light["accent"].upper(),
         "blocked": light["error"].upper(),

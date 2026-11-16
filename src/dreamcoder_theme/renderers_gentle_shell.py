@@ -60,7 +60,8 @@ def gentle_shell_tokens(palette: dict[str, str], mode: str) -> dict[str, str]:
         "line": palette["surface3"] if dark else palette["surface2"],
         "lineStrong": palette["border"],
         "text": palette["text"],
-        "muted": palette["muted"],
+        # Light UI secondary text uses subtle; Light muted is an editor tone.
+        "muted": palette["muted"] if dark else palette["subtle"],
         # Dark border_ui is only 3.6:1 on the raised surfaces; subtle keeps AA.
         "faint": palette["subtle"] if dark else palette["border_ui"],
         "accent": accent,

@@ -71,7 +71,7 @@ const LIGHT = {
   line: "#E3DDD4",
   lineStrong: "#8E8479",
   text: "#1E1814",
-  muted: "#352F29",
+  muted: "#5E574F",
   faint: "#645C53",
   accent: "#8B440C",
   accentSoft: "#A73B15",
@@ -90,7 +90,7 @@ export const LIGHT_COLORS = {
   accent_foreground: "#FEFDFA",
   solid: "#8B440C",
   solid_foreground: "#FEFDFA",
-  idle: "#352F29",
+  idle: "#5E574F",
   selection: "#8B440C33",
 };
 

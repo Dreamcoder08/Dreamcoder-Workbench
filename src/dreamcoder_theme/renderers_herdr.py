@@ -138,7 +138,9 @@ _APP_COLOR_MAPPING = (
 )
 
 
-_LIGHT_APP_OVERRIDES = {"chrome": "bg_soft", "selected": "selection"}
+# UI secondary labels use subtle (~6.6:1, Primer/Geist range); Light muted stays
+# dark (~11:1) for editors, where comment must stay 2:1 away from it.
+_LIGHT_APP_OVERRIDES = {"chrome": "bg_soft", "selected": "selection", "muted": "subtle"}
 
 
 def _app_token(palette: dict[str, str], field: str, token: str) -> str:
