@@ -18,7 +18,7 @@ from unittest import mock
 import pytest
 
 from dreamcoder_theme import cli_handlers, control
-from dreamcoder_theme.settings import theme_paths
+from dreamcoder_theme.settings import read_active_mode, theme_paths
 from dreamcoder_theme.settings_store import settings_get
 
 # Map of env vars whose default path lives inside the repository, so the
@@ -96,6 +96,7 @@ def theme_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / ".local" / "share"))
     monkeypatch.setenv("HOME", str(tmp_path))
     monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path / ".cache"))
+    monkeypatch.setenv("XDG_STATE_HOME", str(tmp_path / ".local" / "state"))
     monkeypatch.setenv("DREAMCODER_WRITE_REPO", "0")
     monkeypatch.setenv("DREAMCODER_ADAPTIVE", "0")
     monkeypatch.setenv("DREAMCODER_CLEAN_OPENCODE_THEMES", "0")
@@ -142,7 +143,10 @@ def _tree_state(root: Path) -> dict[str, str]:
 def test_dark_activation_persists_base(theme_home: Path, capsys) -> None:
     rc, payload = _run("dark", capsys)
     assert rc == 0
-    assert settings_get("terminal.default_mode") == "dark"
+    assert read_active_mode() == "dark"
+    # The activated mode lives in untracked XDG state; the tracked
+    # settings.json (terminal.default_mode preference) is never written.
+    assert not (theme_home / ".config/dreamcoder/settings.json").exists()
     assert payload["requested"] == "dark"
     assert payload["effective_base"] == "dark"
     assert "effective_profile" not in payload
@@ -157,7 +161,7 @@ def test_light_from_dark_regenerates_all_active(theme_home: Path, capsys) -> Non
     dark_kitty = theme_paths().kitty.read_bytes()
     rc, payload = _run("light", capsys)
     assert rc == 0
-    assert settings_get("terminal.default_mode") == "light"
+    assert read_active_mode() == "light"
     assert payload["coverage"] == "36/36"
     assert payload["rollback_state"] == "none"
     assert theme_paths().kitty.read_bytes() != dark_kitty  # active outputs regenerated
@@ -180,7 +184,7 @@ def test_activation_ignores_and_preserves_legacy_render_profile(theme_home: Path
     rc, payload = _run("light", capsys)
     assert rc == 0
     assert payload["effective_base"] == "light"
-    assert settings_get("terminal.default_mode") == "light"
+    assert read_active_mode() == "light"
     assert settings_get("theme.render_profile") == "night"  # preserved, never read
 
 
@@ -199,7 +203,7 @@ def test_failing_gate_changes_no_settings_or_output_and_exits_nonzero(
     assert payload["rollback_state"] == "rejected"
     assert payload["errors"] == ["forced gate failure"]
     assert _tree_state(theme_home) == before  # zero writes
-    assert settings_get("terminal.default_mode") is None  # nothing persisted
+    assert read_active_mode() is None  # nothing persisted
 
 
 # ---------------------------------------------------------------------------
@@ -227,7 +231,7 @@ def test_post_commit_reload_failure_restores_bytes_symlinks_and_settings(
     assert _tree_state(theme_home) == before
     assert os.readlink(paths.waybar_matugen) == "colors-light.css"
     assert bridge.read_text() == real_content.decode()
-    assert settings_get("terminal.default_mode") == "light"
+    assert read_active_mode() == "light"
 
 
 @pytest.mark.parametrize("as_json", [True, False])
@@ -253,7 +257,7 @@ def test_rejected_warp_rolls_back_prior_writes_and_never_announces_success(
                     paths.warp.read_bytes() != prior_warp_theme,
                 )
             )
-            assert settings_get("terminal.default_mode") == requested
+            assert read_active_mode() == requested
         return real_update(path, mode)
 
     argv = ["theme", "apply", requested] + (["--json"] if as_json else [])
@@ -267,7 +271,7 @@ def test_rejected_warp_rolls_back_prior_writes_and_never_announces_success(
     assert observations == [(True, True)]  # Real target writes happened before rejection.
     adapter.assert_not_called()
     assert _tree_state(theme_home) == before
-    assert settings_get("terminal.default_mode") == prior
+    assert read_active_mode() == prior
     assert paths.warp_settings.read_text() == original
     if as_json:
         payload = json.loads(output.out)
@@ -300,7 +304,7 @@ def test_post_commit_write_failure_restores_bytes_symlinks_and_settings(
     assert rc != 0
     assert payload["rollback_state"] == "restored"
     assert _tree_state(theme_home) == before
-    assert settings_get("terminal.default_mode") == "light"
+    assert read_active_mode() == "light"
 
 
 # ---------------------------------------------------------------------------
@@ -315,7 +319,7 @@ def test_dark_light_dark_end_to_end_transitions(theme_home: Path, capsys) -> Non
         assert rc == 0
         assert payload["coverage"] == "36/36"
         assert payload["rollback_state"] == "none"
-        transitions.append(settings_get("terminal.default_mode"))
+        transitions.append(read_active_mode())
     assert transitions == ["dark", "light", "dark"]
 
 
@@ -364,7 +368,7 @@ def test_reload_failure_restores_lazygit_active_and_live_symlink(theme_home: Pat
     assert _tree_state(theme_home) == before
     assert paths.lazygit.read_bytes() == active_before
     assert os.readlink(live / "config.yml") == "config.dark.yml"
-    assert settings_get("terminal.default_mode") == "light"
+    assert read_active_mode() == "light"
 
 
 # ---------------------------------------------------------------------------
@@ -510,7 +514,7 @@ def test_toolkit_io_failure_restores_complete_inventory(
     assert rc == 1
     adapter.assert_not_called()
     assert _tree_state(theme_home) == before
-    assert settings_get("terminal.default_mode") == prior
+    assert read_active_mode() == prior
     if as_json:
         payload = json.loads(output.out)
         assert payload["changed"] == {}

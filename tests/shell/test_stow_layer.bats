@@ -101,3 +101,39 @@ resolved() { (cd -P "$1" 2>/dev/null && pwd) || readlink -f "$1"; }
     # shellcheck disable=SC2016 # literal match of the script source
     grep -qF 'CONFLICT_DIR="${DATA_HOME}/dreamcoder/install-conflicts/' "${maintenance}"
 }
+
+# A fake scripts/dreamcoder that records "<args>|<DREAMCODER_WRITE_LIVE>" and
+# exits with the given code, so mirror generation never touches the real repo.
+fake_dispatcher() {
+    FAKE_DOTS="${TEST_DIR}/dots"
+    mkdir -p "${FAKE_DOTS}/scripts"
+    cat >"${FAKE_DOTS}/scripts/dreamcoder" <<SH
+#!/usr/bin/env bash
+printf '%s|%s\n' "\$*" "\${DREAMCODER_WRITE_LIVE:-unset}" >"${TEST_DIR}/calls"
+exit ${1}
+SH
+    chmod +x "${FAKE_DOTS}/scripts/dreamcoder"
+    export DREAMCODER_DOTS_DIR="${FAKE_DOTS}"
+}
+
+@test "mirror generation runs a repo-only sync through the dispatcher" {
+    fake_dispatcher 0
+    run dreamcoder_generate_mirrors
+    [ "$status" -eq 0 ]
+    [ "$(cat "${TEST_DIR}/calls")" = "sync|0" ]
+}
+
+@test "mirror generation fails loudly when the sync fails" {
+    fake_dispatcher 3
+    run dreamcoder_generate_mirrors
+    [ "$status" -ne 0 ]
+    [[ "$output" == *"repo-only theme sync failed: active mirrors missing, refusing to stow"* ]]
+}
+
+@test "maintenance generates the mirrors before it stows" {
+    maintenance="${REPO_DIR}/scripts/dreamcoder-maintenance.sh"
+    gen_line="$(grep -n 'dreamcoder_generate_mirrors' "${maintenance}" | head -1 | cut -d: -f1)"
+    stow_line="$(grep -n 'dreamcoder_stow_modules' "${maintenance}" | head -1 | cut -d: -f1)"
+    [ -n "${gen_line}" ] && [ -n "${stow_line}" ]
+    [ "${gen_line}" -lt "${stow_line}" ]
+}

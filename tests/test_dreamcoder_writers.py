@@ -294,80 +294,72 @@ class TestEnsureKittyUiInclude:
 
 
 class TestUpdateGhosttyTheme:
+    """The Ghostty selector is the stable ``dreamcoder`` alias in both modes."""
+
     def test_noop_when_file_missing(self, tmp_path: Path) -> None:
         path = tmp_path / "ghostty.conf"
         assert update_ghostty_theme(path, "dark") is False
 
-    def test_sets_dark_theme(self, tmp_path: Path) -> None:
+    @pytest.mark.parametrize("mode", ["dark", "light"])
+    def test_appends_stable_alias(self, tmp_path: Path, mode: str) -> None:
         path = tmp_path / "ghostty.conf"
         path.write_text("[theme]\n")
-        assert update_ghostty_theme(path, "dark") is True
-        content = path.read_text()
-        assert "theme = dreamcoder-dark" in content
+        assert update_ghostty_theme(path, mode) is True
+        assert path.read_text() == "[theme]\n\n# Theme\ntheme = dreamcoder\n"
 
-    def test_sets_light_theme(self, tmp_path: Path) -> None:
+    @pytest.mark.parametrize("mode", ["dark", "light"])
+    def test_no_change_when_alias_present(self, tmp_path: Path, mode: str) -> None:
         path = tmp_path / "ghostty.conf"
-        path.write_text("[theme]\n")
-        assert update_ghostty_theme(path, "light") is True
-        content = path.read_text()
-        assert "theme = dreamcoder" in content
+        path.write_text("theme = dreamcoder\n")
+        assert update_ghostty_theme(path, mode) is False
 
-    def test_no_change_when_correct(self, tmp_path: Path) -> None:
+    def test_replaces_legacy_mode_suffixed_selector(self, tmp_path: Path) -> None:
         path = tmp_path / "ghostty.conf"
         path.write_text("theme = dreamcoder-dark\n")
-        assert update_ghostty_theme(path, "dark") is False
+        assert update_ghostty_theme(path, "dark") is True
+        assert path.read_text() == "theme = dreamcoder\n"
 
     def test_updates_existing_theme_line(self, tmp_path: Path) -> None:
         path = tmp_path / "ghostty.conf"
         path.write_text("theme = old-theme\n")
         assert update_ghostty_theme(path, "dark") is True
-        assert "theme = dreamcoder-dark" in path.read_text()
+        assert path.read_text() == "theme = dreamcoder\n"
 
-    def test_replaces_different_opacity(self, tmp_path: Path) -> None:
+    def test_leaves_opacity_and_other_theme_keys_alone(self, tmp_path: Path) -> None:
         path = tmp_path / "ghostty.conf"
-        path.write_text(
-            "theme = dreamcoder-dark\nbackground-opacity = 1.00\nbackground-blur = 30\n"
-        )
-        # Theme line matches: no change needed (opacity/blur come from theme file)
-        assert update_ghostty_theme(path, "dark") is False
-
-    def test_replaces_different_opacity_light(self, tmp_path: Path) -> None:
-        path = tmp_path / "ghostty.conf"
-        path.write_text("theme = dreamcoder\nbackground-opacity = 0.50\nbackground-blur = false\n")
-        # Theme line matches: no change needed
+        original = "window-theme = ghostty\ntheme = dreamcoder\nbackground-opacity = 1.00\n"
+        path.write_text(original)
+        # Opacity/blur come from the theme file; only the selector is owned.
         assert update_ghostty_theme(path, "light") is False
+        assert path.read_text() == original
 
 
 class TestUpdateZellijConfig:
+    """The Zellij selector is the stable ``dreamcoder`` name in both modes."""
+
     def test_noop_when_file_missing(self, tmp_path: Path) -> None:
         path = tmp_path / "config.kdl"
         assert update_zellij_config(path, "dark") is False
 
-    def test_sets_dark_theme(self, tmp_path: Path) -> None:
+    @pytest.mark.parametrize("mode", ["dark", "light"])
+    def test_appends_stable_theme_when_missing(self, tmp_path: Path, mode: str) -> None:
         path = tmp_path / "config.kdl"
         path.write_text("some_setting true\n")
+        assert update_zellij_config(path, mode) is True
+        assert path.read_text() == 'some_setting true\ntheme "dreamcoder"\n'
+
+    @pytest.mark.parametrize("mode", ["dark", "light"])
+    def test_no_change_when_correct(self, tmp_path: Path, mode: str) -> None:
+        path = tmp_path / "config.kdl"
+        path.write_text('theme "dreamcoder"\n')
+        assert update_zellij_config(path, mode) is False
+
+    @pytest.mark.parametrize("legacy", ["old-theme", "dreamcoder-dark", "dreamcoder-light"])
+    def test_replaces_existing_theme(self, tmp_path: Path, legacy: str) -> None:
+        path = tmp_path / "config.kdl"
+        path.write_text(f'theme "{legacy}"\n')
         assert update_zellij_config(path, "dark") is True
-        content = path.read_text()
-        assert 'theme "dreamcoder-dark"' in content
-
-    def test_no_change_when_correct(self, tmp_path: Path) -> None:
-        path = tmp_path / "config.kdl"
-        path.write_text('theme "dreamcoder-dark"\n')
-        assert update_zellij_config(path, "dark") is False
-
-    def test_replaces_existing_theme(self, tmp_path: Path) -> None:
-        path = tmp_path / "config.kdl"
-        path.write_text('theme "old-theme"\n')
-        assert update_zellij_config(path, "dark") is True
-        content = path.read_text()
-        assert 'theme "dreamcoder-dark"' in content
-        assert 'theme "old-theme"' not in content
-
-    def test_appends_theme_when_missing(self, tmp_path: Path) -> None:
-        path = tmp_path / "config.kdl"
-        path.write_text("some_setting true\n")
-        assert update_zellij_config(path, "light") is True
-        assert 'theme "dreamcoder-light"' in path.read_text()
+        assert path.read_text() == 'theme "dreamcoder"\n'
 
 
 class TestUpdateWarpSettings:

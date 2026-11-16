@@ -6,6 +6,7 @@ import argparse
 import os
 import subprocess
 import sys
+import tempfile
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -68,6 +69,7 @@ from .settings import (
     adaptive_enabled,
     theme_mode,
     theme_paths,
+    write_live_enabled,
     write_repo_enabled,
 )
 from .writers import (
@@ -272,6 +274,30 @@ def sync_pi_targets(
     return changed
 
 
+# Zellij loads named themes from ``<config dir>/themes/*.kdl``; config.kdl
+# selects this stable name and the generated file carries the active mode.
+ZELLIJ_THEME_NAME = "dreamcoder"
+
+
+def zellij_active_theme_path(config_dir: Path) -> Path:
+    return config_dir / "themes" / f"{ZELLIJ_THEME_NAME}.kdl"
+
+
+def write_live_zellij_theme(zellij_config: Path, active: dict[str, str]) -> bool:
+    """Write the live active Zellij theme only where Zellij is installed.
+
+    Like ``update_zellij_config``, this is a no-op without a config file: a
+    themes/ dir created into an empty ~/.config/zellij would make a later
+    stow of DreamcoderZellij fail on an existing target.
+    """
+    if not zellij_config.exists():
+        return False
+    return write_if_changed(
+        zellij_active_theme_path(zellij_config.parent),
+        zellij_content(active, ZELLIJ_THEME_NAME),
+    )
+
+
 def sync_active_targets(
     paths: Any,
     active: dict[str, str],
@@ -306,6 +332,7 @@ def sync_active_targets(
         "tmux": write_if_changed(paths.tmux, tmux_content(active)),
         "lazygit": write_if_changed(paths.lazygit, lazygit_content(active)),
         "zellij": update_zellij_config(paths.zellij_config, mode),
+        "zellij_theme": write_live_zellij_theme(paths.zellij_config, active),
         # New targets
         "nvim": write_if_changed(paths.nvim, nvim_dispatcher_content()),
         "zsh_syntax": write_if_changed(paths.zsh_syntax, zsh_syntax_content(active)),
@@ -384,7 +411,7 @@ COVERAGE: tuple[CoverageRow, ...] = (
         "variant file + active-selected",
         "write_variant_files + update_ghostty_theme; ghostty_content",
         "DreamcoderGhostty/.config/ghostty/themes/dreamcoder-dark",
-        "select theme = dreamcoder-dark / dreamcoder",
+        "keep the stable theme = dreamcoder selector",
         "registry",
     ),
     CoverageRow(
@@ -552,7 +579,7 @@ COVERAGE: tuple[CoverageRow, ...] = (
         "variant file + active-selected",
         "write_if_changed; zellij_content + update_zellij_config",
         "DreamcoderZellij/.config/zellij/dreamcoder-dark.kdl",
-        'generate KDL with themes { dreamcoder-dark } and select theme "dreamcoder-dark"',
+        'generate KDL variants plus active themes/dreamcoder.kdl; select stable theme "dreamcoder"',
         "explicit",
     ),
     CoverageRow(
@@ -860,7 +887,12 @@ def sync_herdr_repo_variants(
 
 
 def write_active_repo_file(path: Path, content: str) -> bool:
-    """write_if_changed for a repository-tracked "active" mirror.
+    """write_if_changed for a generated repository "active" mirror.
+
+    Active mirrors are gitignored and untracked: the repo pass regenerates
+    them for the current mode (``DREAMCODER_WRITE_LIVE=0`` runs only this
+    pass), so a fresh clone gets them before stow links them and a Light/Dark
+    flip never changes a tracked file.
 
     Unlike a live ~/.config target, this path must always be an
     independent file: an external mode selector, prior manual edit, or a
@@ -1036,8 +1068,40 @@ def sync_repo_snippets(variants: dict[str, dict[str, str]], active: dict[str, st
         ),
     ]
 
-    # Zellij — the consumed palette artifact is generated here (design §5
-    # row 13); the active selector is patched by update_zellij_config.
+    # Stow-routed active mirrors. Live installs reach these repo files through
+    # stow symlinks, so they must exist before stow runs: the repo pass writes
+    # them with the same renderer the live write uses, byte for byte.
+    repo_changes += [
+        write_active_repo_file(
+            ROOT / "DreamcoderShell/.config/starship.toml", starship_content(active)
+        ),
+        write_active_repo_file(
+            ROOT / "DreamcoderGhostty/.config/ghostty/themes/dreamcoder", ghostty_content(active)
+        ),
+        write_active_repo_file(
+            ROOT / "DreamcoderTmux/.config/tmux/tmux-dreamcoder.conf", tmux_content(active)
+        ),
+        write_active_repo_file(
+            ROOT / "DreamcoderWarp/.local/share/warp-terminal/themes/Dreamcoder.yaml",
+            warp_content(active),
+        ),
+        # Formerly a tracked symlink re-pointed per mode; now an independent
+        # generated file like dreamcoder-ui.conf (the bridge flips only act
+        # on symlinks, so they leave it alone).
+        write_active_repo_file(
+            ROOT / "DreamcoderKitty/.config/kitty/colors-dreamcoder.conf", kitty_content(active)
+        ),
+    ]
+
+    # Zellij — the mode variants plus the active ``themes/dreamcoder.kdl``
+    # that the stable ``theme "dreamcoder"`` selector in config.kdl resolves
+    # (design §5 row 13).
+    repo_changes.append(
+        write_active_repo_file(
+            zellij_active_theme_path(ROOT / "DreamcoderZellij/.config/zellij"),
+            zellij_content(active, ZELLIJ_THEME_NAME),
+        )
+    )
     repo_changes.append(
         write_active_repo_file(
             ROOT / "DreamcoderZellij/.config/zellij/dreamcoder-dark.kdl",
@@ -1203,7 +1267,7 @@ def render_coverage_plan(
         # rendered exactly as sync_repo_snippets() writes them: the Codex app
         # active file follows the active palette, Antigravity's active file is
         # pinned to Dark, and Herdr renders the base mode's variant.
-        "zellij": f'theme "dreamcoder-{mode}"\n',
+        "zellij": zellij_content(active, ZELLIJ_THEME_NAME),
         "codex_app": opencode_content(active),
         "antigravity": antigravity_content(variants["dark"]),
     }
@@ -1281,15 +1345,48 @@ def _parse_args(argv: Sequence[str] | None) -> None:
         description="Regenerate the Dreamcoder theme from tokens.json and apply the active mode.",
         epilog=(
             "environment: DREAMCODER_THEME_MODE=light|dark selects the mode (default: the "
-            "persisted live mode, then dark); DREAMCODER_WRITE_REPO=0 skips repo-tracked "
-            "outputs and writes live targets only."
+            "persisted live mode, then dark); DREAMCODER_WRITE_REPO=0 skips repository "
+            "outputs and writes live targets only; DREAMCODER_WRITE_LIVE=0 runs a repo-only "
+            "sync: it regenerates every repository variant and active mirror and touches "
+            "nothing under $HOME (no live configs, bat cache, Orca, or reloads)."
         ),
     )
     parser.parse_args(argv)
 
 
+def _repo_only_sync(prepared: PreparedSync) -> None:
+    """``DREAMCODER_WRITE_LIVE=0``: regenerate repository outputs only.
+
+    Used by CI and the installer before stow: every repository variant and
+    active mirror is written, and nothing under ``$HOME`` is touched — no
+    live configs, toolkit files, bat cache, Orca settings, or reloads.
+    """
+    repo_changes = sync_repo_snippets(prepared.variants, prepared.active)
+    starship = ROOT / "DreamcoderShell/.config/starship.toml"
+    # `starship explain` logs to ~/.cache/starship unless STARSHIP_CACHE says
+    # otherwise; point it at a throwaway directory so $HOME stays untouched.
+    previous_cache = os.environ.get("STARSHIP_CACHE")
+    with tempfile.TemporaryDirectory(prefix="dreamcoder-starship-") as cache:
+        os.environ["STARSHIP_CACHE"] = cache
+        try:
+            starship_ok = valid_starship(starship)
+        finally:
+            if previous_cache is None:
+                os.environ.pop("STARSHIP_CACHE", None)
+            else:
+                os.environ["STARSHIP_CACHE"] = previous_cache
+    if not starship_ok:
+        raise SystemExit(f"Generated Starship config is invalid: {starship}")
+    print(f"Synced Dreamcoder {prepared.mode} identity (repo-only)")
+    print(f"Repo variant/snippet changes: {sum(repo_changes)}")
+
+
 def main(argv: Sequence[str] | None = None) -> None:
     _parse_args(argv)
+    if not write_live_enabled() and not write_repo_enabled():
+        raise SystemExit(
+            "DREAMCODER_WRITE_LIVE=0 and DREAMCODER_WRITE_REPO=0 leave nothing to write"
+        )
     gen = ROOT / "scripts" / "generate-palette-tokens.py"
     if gen.is_file():
         subprocess.run([sys.executable, str(gen)], check=True)
@@ -1304,6 +1401,10 @@ def main(argv: Sequence[str] | None = None) -> None:
         prepared = prepare(base)
     except ThemeGateError as exc:
         raise SystemExit(str(exc)) from None
+
+    if not write_live_enabled():
+        _repo_only_sync(prepared)
+        return
 
     changed = sync_active_targets(paths, prepared.active, prepared.mode, prepared.variants)
     bat_variant_changes = sync_bat_theme_variants(paths, prepared.variants)

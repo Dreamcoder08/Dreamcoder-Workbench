@@ -19,8 +19,9 @@ font-feature = -calt, -liga, -dlig
 # │                                  THEME                                       │
 # └──────────────────────────────────────────────────────────────────────────────┘
 
-# Dual-mode: auto-switches with system light/dark via theme files
-theme = dreamcoder-dark
+# Stable alias in both modes: the generated themes/dreamcoder carries the
+# active Dreamcoder palette (rewritten by `dreamcoder sync` on every mode flip)
+theme = dreamcoder
 palette-generate = true
 
 

@@ -184,6 +184,32 @@ func findFromCWD() (string, error) {
 	return "", fmt.Errorf("not inside a dreamcoder-dots repository")
 }
 
+// GenerateMirrors writes the active-mode theme mirrors into the repository
+// with a repo-only sync (DREAMCODER_WRITE_LIVE=0 scripts/dreamcoder sync).
+// The mirrors are gitignored, so a fresh clone needs this before stowing.
+func GenerateMirrors(dotfilesDir string) error {
+	cmd := exec.Command(filepath.Join(dotfilesDir, "scripts", "dreamcoder"), "sync")
+	cmd.Dir = dotfilesDir
+	// Pin the checkout: an inherited DREAMCODER_DOTS_DIR would make the
+	// dispatcher sync another checkout and leave this one without mirrors.
+	cmd.Env = append(os.Environ(), "DREAMCODER_WRITE_LIVE=0", "DREAMCODER_DOTS_DIR="+dotfilesDir)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("repo-only theme sync failed: active mirrors missing, refusing to stow: %w", err)
+	}
+	return nil
+}
+
+// StowAfterMirrors generates the active mirrors, then runs stow. It does not
+// call stow when mirror generation fails.
+func StowAfterMirrors(dotfilesDir string, stow func() error) error {
+	if err := GenerateMirrors(dotfilesDir); err != nil {
+		return err
+	}
+	return stow()
+}
+
 // Stow runs GNU Stow for the given modules.
 func Stow(dotfilesDir, homeDir string, modules []string) error {
 	args := append([]string{"-d", dotfilesDir, "-t", homeDir}, modules...)

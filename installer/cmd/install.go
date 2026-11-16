@@ -3,10 +3,10 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/fatih/color"
-	"github.com/spf13/cobra"
 	"github.com/dreamcoder08/dreamcoder-dots/installer/internal/dotfiles"
 	"github.com/dreamcoder08/dreamcoder-dots/installer/internal/system"
+	"github.com/fatih/color"
+	"github.com/spf13/cobra"
 )
 
 func InstallCmd() *cobra.Command {
@@ -113,24 +113,32 @@ Examples:
 				return nil
 			}
 
-			// Install
-			fmt.Println("\n📦 Installing components...")
+			// Install: generate the gitignored active mirrors, then stow.
+			fmt.Println("\n🎨 Generating active theme mirrors...")
 			var installed, failed int
-			for _, comp := range components {
-				compModules, _ := dotfiles.ResolveComponentModules([]string{comp})
-				if len(compModules) == 0 {
-					fmt.Printf("  %s Unknown component: %s\n", red("✗"), comp)
-					failed++
-					continue
+			err = dotfiles.StowAfterMirrors(dotfilesDir, func() error {
+				fmt.Println("\n📦 Installing components...")
+				for _, comp := range components {
+					compModules, _ := dotfiles.ResolveComponentModules([]string{comp})
+					if len(compModules) == 0 {
+						fmt.Printf("  %s Unknown component: %s\n", red("✗"), comp)
+						failed++
+						continue
+					}
+					fmt.Printf("  Installing %s... ", comp)
+					if err := dotfiles.Stow(dotfilesDir, platform.HomeDir, compModules); err != nil {
+						fmt.Printf("%s %v\n", red("✗"), err)
+						failed++
+						continue
+					}
+					fmt.Printf("%s\n", green("✓"))
+					installed++
 				}
-				fmt.Printf("  Installing %s... ", comp)
-				if err := dotfiles.Stow(dotfilesDir, platform.HomeDir, compModules); err != nil {
-					fmt.Printf("%s %v\n", red("✗"), err)
-					failed++
-					continue
-				}
-				fmt.Printf("%s\n", green("✓"))
-				installed++
+				return nil
+			})
+			if err != nil {
+				fmt.Printf("  %s %v\n", red("✗"), err)
+				return err
 			}
 
 			fmt.Printf("\n✅ Installation complete: %s installed", yellow(fmt.Sprintf("%d", installed)))

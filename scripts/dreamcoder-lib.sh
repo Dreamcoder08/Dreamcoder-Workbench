@@ -15,6 +15,15 @@ dreamcoder_apply_hooks() {
   # Re-apply the gga model pin that `gentle-ai sync` drops from ~/.config/gga/config.
   if command -v gga >/dev/null; then "${DREAMCODER_DOTS_DIR}/scripts/install-gga-pin.sh"; fi
 }
+# Write the generated, gitignored active-mode mirrors (starship.toml, Ghostty
+# and Kitty active themes, DreamcoderThemes snippets, ...) at their repo paths so
+# stow can link them on a fresh clone. DREAMCODER_WRITE_LIVE=0 keeps this sync
+# repo-only: nothing under $HOME is written; theme-auto.sh does the live pass.
+dreamcoder_generate_mirrors() {
+  DREAMCODER_WRITE_LIVE=0 "${DREAMCODER_DOTS_DIR}/scripts/dreamcoder" sync && return 0
+  printf '✗ repo-only theme sync failed: active mirrors missing, refusing to stow\n' >&2
+  return 1
+}
 dreamcoder_enable_timer() { command -v systemctl >/dev/null || return 0; systemctl --user daemon-reload || true; systemctl --user enable --now dreamcoder-theme-auto.timer || true; }
 
 # Print every target (relative to $HOME) that blocks stowing the modules,

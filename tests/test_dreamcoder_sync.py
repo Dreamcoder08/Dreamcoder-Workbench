@@ -416,8 +416,14 @@ def test_variant_registry_no_wm_nvim_entries() -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_variant_registry_write_order_deterministic(variants, active) -> None:
+def test_variant_registry_write_order_deterministic(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, variants, active
+) -> None:
     """Mock write_variant_files; assert call sequence matches registry order."""
+    # Redirect the explicit active-mirror writes: write_active_repo_file
+    # unlinks a stale symlink before the (mocked) write, which would otherwise
+    # delete a real checkout's generated mirror.
+    monkeypatch.setattr(sync, "ROOT", tmp_path)
     with (
         mock.patch("dreamcoder_theme.sync.write_variant_files", return_value=[]) as m_wvf,
         mock.patch("dreamcoder_theme.sync.write_if_changed", return_value=False),

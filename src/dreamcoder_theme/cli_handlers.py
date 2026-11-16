@@ -32,7 +32,13 @@ from dreamcoder_theme.motion import MOTION_PRESETS, apply_motion_files
 from dreamcoder_theme.profiles import apply_profile_files, load_profiles, profile_changes
 from dreamcoder_theme.renderers_orca import sync_orca_theme
 from dreamcoder_theme.repair_engine import apply_safe_repairs, repair_catalog, repair_plan
-from dreamcoder_theme.settings import theme_paths, write_repo_enabled
+from dreamcoder_theme.settings import (
+    active_mode_state_path,
+    read_active_mode,
+    theme_paths,
+    write_active_mode,
+    write_repo_enabled,
+)
 from dreamcoder_theme.settings_store import (
     set_nested_setting,
     settings_get,
@@ -361,6 +367,7 @@ def _mutable_paths(paths: Any) -> list[Path]:
         paths.tmux,
         paths.lazygit,
         paths.zellij_config,
+        sync.zellij_active_theme_path(paths.zellij_config.parent),
         paths.nvim,
         paths.zsh_syntax,
         paths.ls_colors,
@@ -383,6 +390,7 @@ def _mutable_paths(paths: Any) -> list[Path]:
         paths.bat_theme_dir / "Dreamcoder-Dark.tmTheme",
         paths.bat_theme_dir / "Dreamcoder-Light.tmTheme",
         settings_path(),
+        active_mode_state_path(),
         # Adapter-touched system/symlink surface (design §7 reload section).
         config_home / "btop/themes/dreamcoder.theme",
         config_home / "dunst/dreamcoder-dunst.conf",
@@ -411,6 +419,12 @@ def _mutable_paths(paths: Any) -> list[Path]:
             ROOT / "DreamcoderThemes/dreamcoder/hyprland.conf",
             ROOT / "DreamcoderThemes/dreamcoder/waybar.css",
             ROOT / "DreamcoderThemes/dreamcoder/rofi.rasi",
+            ROOT / "DreamcoderShell/.config/starship.toml",
+            ROOT / "DreamcoderGhostty/.config/ghostty/themes/dreamcoder",
+            ROOT / "DreamcoderTmux/.config/tmux/tmux-dreamcoder.conf",
+            ROOT / "DreamcoderWarp/.local/share/warp-terminal/themes/Dreamcoder.yaml",
+            ROOT / "DreamcoderKitty/.config/kitty/colors-dreamcoder.conf",
+            sync.zellij_active_theme_path(ROOT / "DreamcoderZellij/.config/zellij"),
         ]
     return mutable
 
@@ -499,8 +513,9 @@ def _commit_activation(
     (write failure, invalid post-write selector, blocking reload failure)
     triggers a full snapshot rollback in the caller.
     """
-    # 4. Persist settings before applying the base mode (R7).
-    set_nested_setting("terminal.default_mode", base)
+    # 4. Persist the activated mode before applying it (R7). It lives in
+    #    untracked XDG state, so a flip never edits the tracked settings.json.
+    write_active_mode(base)
     # 5. Flip matugen bridge symlinks to the target variant before the writers
     #    run (design §6).
     _flip_bridge_symlinks(paths, base)
@@ -553,8 +568,7 @@ def apply_theme(base: str, as_json: bool) -> int:
         return 1
 
     # 2. Prior persisted state (the rollback target).
-    prior_base = settings_get("terminal.default_mode")
-    prior_base = prior_base if prior_base in {"light", "dark"} else "light"
+    prior_base = read_active_mode() or "light"
 
     # 3. Snapshot every mutable active path + selector file BEFORE the first
     #    mutation (design §4: "snapshot settings and every mutable active path").
@@ -582,7 +596,7 @@ def apply_theme(base: str, as_json: bool) -> int:
     except Exception as exc:
         rollback_state = "restored"
         _restore_snapshots(snapshots, dir_captures)
-        set_nested_setting("terminal.default_mode", prior_base)
+        write_active_mode(prior_base)
         _regenerate_prior(paths, prior_base)
         # Regeneration is best-effort, never authority over original selections,
         # ownership state, absence, or referent bytes. Restore the full inventory.

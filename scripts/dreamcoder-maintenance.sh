@@ -15,6 +15,9 @@ printf '→ Backup manifest: %s\n  rollback: ./scripts/dreamcoder backup restore
 # Outside every stowed tree: ~/.config/dreamcoder is itself a stow target.
 CONFLICT_DIR="${DATA_HOME}/dreamcoder/install-conflicts/${BACKUP_ID}"
 cd "${DREAMCODER_DOTS_DIR}"
+# The active-mode mirrors are generated and gitignored: render them into the
+# repo first, or stow skips them on a fresh clone and leaves dangling targets.
+dreamcoder_generate_mirrors || exit 1
 # Stow before the hooks so they write through Dreamcoder links, not through a
 # target an upstream (e.g. an ML4W upgrade) re-pointed to its own tree.
 if command -v stow >/dev/null; then

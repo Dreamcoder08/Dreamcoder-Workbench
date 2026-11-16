@@ -10,14 +10,14 @@ import (
 
 // NonInteractiveConfig holds CLI flags for non-interactive mode
 type NonInteractiveConfig struct {
-	Shell       string
-	Terminal    string
-	WM          string
-	Nvim        bool
-	Font        bool
-	Backup      bool
-	DryRun      bool
-	Verbose     bool
+	Shell    string
+	Terminal string
+	WM       string
+	Nvim     bool
+	Font     bool
+	Backup   bool
+	DryRun   bool
+	Verbose  bool
 }
 
 // RunNonInteractive executes installation without TUI
@@ -115,6 +115,13 @@ func RunNonInteractive(config NonInteractiveConfig) error {
 			fmt.Println(output)
 		}
 		return nil
+	}
+
+	// Generate the gitignored active mirrors before stowing anything.
+	fmt.Println("\n🎨 Generating active theme mirrors...")
+	if err := dotfiles.GenerateMirrors(dotfilesDir); err != nil {
+		fmt.Fprintf(os.Stderr, "❌ %v\n", err)
+		return err
 	}
 
 	// Install components

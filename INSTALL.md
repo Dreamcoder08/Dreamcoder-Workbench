@@ -67,7 +67,10 @@ of every hook and generated file. If the changes are acceptable, run:
 ```
 
 The installer creates a backup manifest for selected targets and prints its ID;
-record that ID. It stows shell, terminal, fastfetch, bat, Warp and systemd
+record that ID. It first generates the active-mode theme mirrors with a
+repo-only sync (`DREAMCODER_WRITE_LIVE=0 ./scripts/dreamcoder sync`); those
+generated files are gitignored, and the installer refuses to stow if the sync
+fails. It then stows shell, terminal, fastfetch, bat, Warp and systemd
 modules into the home directory, applies ML4W and CLI hooks, attempts to enable
 the user timer, and runs automatic theme selection. These operations can change
 existing configuration and generated files; the manifest is not a complete
@@ -115,8 +118,9 @@ or may not consume the generated theme automatically.
   then review the plan again. Do not run pip with sudo.
 - **Upstream upgrade changed links:** ML4W may re-point shell or terminal targets
   to its own tree. Inspect the plan and your backups before running
-  `./scripts/dreamcoder repair`. Repair also backs up, relinks where Stow is
-  available, applies hooks, attempts the timer and runs theme selection. Conflicts
+  `./scripts/dreamcoder repair`. Repair also backs up, regenerates the
+  gitignored active-mode mirrors with the same repo-only sync, relinks where Stow
+  is available, applies hooks, attempts the timer and runs theme selection. Conflicts
   are moved to a new conflict directory; copy any still-needed upstream data, such
   as fish universal variables, back by hand after inspecting both locations.
 - **Theme or timer mismatch:** check doctor, status and the user timer output above;

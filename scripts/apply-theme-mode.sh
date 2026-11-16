@@ -1,10 +1,22 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-source "${DREAMCODER_DOTS_DIR:-$(cd "$(dirname "$0")/.." && pwd)}/lib/logging.sh"
-source "${DREAMCODER_DOTS_DIR}/lib/env.sh"
-source "${DREAMCODER_DOTS_DIR}/lib/checks.sh"
-source "${DREAMCODER_DOTS_DIR}/lib/hyprland.sh"
+DREAMCODER_DOTS_DIR="${DREAMCODER_DOTS_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
+export DREAMCODER_DOTS_DIR
+for _lib in logging env checks hyprland; do
+  if [[ -f "${DREAMCODER_DOTS_DIR}/lib/${_lib}.sh" ]]; then
+    # shellcheck source=/dev/null
+    source "${DREAMCODER_DOTS_DIR}/lib/${_lib}.sh"
+  else
+    printf '✗ apply-theme-mode: missing required library %s\n' "${DREAMCODER_DOTS_DIR}/lib/${_lib}.sh" >&2
+    exit 1
+  fi
+done
+unset _lib
+
+# Live config locations follow the XDG base directories.
+CONFIG_HOME="${XDG_CONFIG_HOME:-${HOME}/.config}"
+DATA_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}"
 [[ -f "${DREAMCODER_DOTS_DIR}/lib/waybar.sh" ]] && source "${DREAMCODER_DOTS_DIR}/lib/waybar.sh"
 
 ensure_dots_dir
@@ -54,18 +66,18 @@ fi
 # --- Waybar: flip colors.css symlink to mode-specific variant BEFORE sync ---
 # This ensures the Python sync writes to the correct variant file
 # instead of overwriting the wrong one through a stale symlink.
-WAYBAR_COLORS="${HOME}/.config/waybar/colors.css"
+WAYBAR_COLORS="${CONFIG_HOME}/waybar/colors.css"
 if [[ -L "${WAYBAR_COLORS}" ]]; then
   ln -sf "colors-${MODE}.css" "${WAYBAR_COLORS}"
 fi
 # --- Rofi: same treatment for colors.rasi symlink ---
-ROFI_COLORS="${HOME}/.config/rofi/colors.rasi"
+ROFI_COLORS="${CONFIG_HOME}/rofi/colors.rasi"
 if [[ -L "${ROFI_COLORS}" ]]; then
   ln -sf "colors-${MODE}.rasi" "${ROFI_COLORS}"
 fi
 # --- Hyprland: flip colors.lua and colors.conf symlinks ---
-HYPR_LUA="${HOME}/.config/hypr/colors.lua"
-HYPR_CONF="${HOME}/.config/hypr/colors.conf"
+HYPR_LUA="${CONFIG_HOME}/hypr/colors.lua"
+HYPR_CONF="${CONFIG_HOME}/hypr/colors.conf"
 if [[ -L "${HYPR_LUA}" ]]; then
   ln -sf "colors-${MODE}.lua" "${HYPR_LUA}"
 fi
@@ -73,14 +85,15 @@ if [[ -L "${HYPR_CONF}" ]]; then
   ln -sf "colors-${MODE}.conf" "${HYPR_CONF}"
 fi
 # --- Hyprland: flip dreamcoder-colors.lua ---
-HYPR_DC_LUA="${HOME}/.config/hypr/dreamcoder-colors.lua"
+HYPR_DC_LUA="${CONFIG_HOME}/hypr/dreamcoder-colors.lua"
 if [[ -L "${HYPR_DC_LUA}" ]]; then
   ln -sf "hypr-colors-${MODE}.lua" "${HYPR_DC_LUA}"
 fi
-# --- Kitty: flip colors-dreamcoder.conf and dreamcoder-ui.conf symlinks BEFORE sync ---
-# This ensures the Python sync writes to the correct variant file
-# instead of overwriting the wrong one through a stale symlink.
-KITTY_DIR="${HOME}/.config/kitty"
+# --- Kitty: flip legacy colors-dreamcoder.conf / dreamcoder-ui.conf symlinks ---
+# The sync now writes both as regular generated files, so this only acts on a
+# leftover symlink (it keeps the sync from writing through it into the wrong
+# variant file).
+KITTY_DIR="${CONFIG_HOME}/kitty"
 if [[ -d "${KITTY_DIR}" ]]; then
   for _link in colors-dreamcoder.conf dreamcoder-ui.conf; do
     _target="${KITTY_DIR}/${_link}"
@@ -89,8 +102,8 @@ if [[ -d "${KITTY_DIR}" ]]; then
     fi
   done
 fi
-# Ghostty uses native dual-mode (light:dreamcoder-light,dark:dreamcoder-dark)
-# No symlink flipping needed — Ghostty auto-detects system theme
+# Ghostty selects the stable `theme = dreamcoder` alias; the sync rewrote the
+# generated themes/dreamcoder with this mode's palette. No flipping needed.
 # Pi and Gentle Shell stable themes/settings were committed by Python above.
 # Do not repoint their active files to repository variants after generation.
 printf '  Pi / Gentle Shell theme switched to %s mode\n' "${MODE}"
@@ -169,7 +182,7 @@ if command -v tmux >/dev/null 2>&1; then
 
   # Source standalone tmux theme (pane borders, mode, bell colors)
   # When kanagawa is active, skip status-bar lines to preserve kanagawa layout
-  TMUX_THEME="${HOME}/.config/tmux/tmux-dreamcoder.conf"
+  TMUX_THEME="${CONFIG_HOME}/tmux/tmux-dreamcoder.conf"
   if [[ -f "${TMUX_THEME}" && ! -d "${KANAGAWA_DIR}" ]]; then
     tmux source-file "${TMUX_THEME}" 2>/dev/null || true
   elif [[ -f "${TMUX_THEME}" && -d "${KANAGAWA_DIR}" ]]; then
@@ -196,9 +209,9 @@ printf '✓ Dreamcoder %s mode applied\n' "${MODE}"
 # are written by the activation transaction (which owns the bridge symlink
 # selection before commit). Only Dunst needs a symlink check since its
 # config is a plain file in the repo.
-DOTS_DIR="${DREAMCODER_DOTS_DIR:-${HOME}/Documents/PROYECTOS/dreamcoder08/dreamcoder-workbench}"
-DUNST_CONF="${HOME}/.config/dunst/dreamcoder-dunst.conf"
-WARP_THEME="${HOME}/.local/share/warp-terminal/themes/Dreamcoder.yaml"
+DOTS_DIR="${DREAMCODER_DOTS_DIR}"
+DUNST_CONF="${CONFIG_HOME}/dunst/dreamcoder-dunst.conf"
+WARP_THEME="${DATA_HOME}/warp-terminal/themes/Dreamcoder.yaml"
 WARP_VARIANT="${DOTS_DIR}/DreamcoderWarp/.local/share/warp-terminal/themes/Dreamcoder-${MODE^}.yaml"
 
 if [[ -L "${DUNST_CONF}" ]]; then
@@ -211,30 +224,34 @@ if [[ -L "${DUNST_CONF}" ]]; then
 fi
 
 # Warp: flip active theme symlink to variant-specific artifact
-[[ -f "${WARP_VARIANT}" ]] && ln -sf "${WARP_VARIANT}" "${WARP_THEME}"
+if [[ -f "${WARP_VARIANT}" && -d "$(dirname "${WARP_THEME}")" ]]; then
+  ln -sf "${WARP_VARIANT}" "${WARP_THEME}"
+fi
 
 # Btop: flip theme symlink to variant-specific artifact
-BTOP_THEME="${HOME}/.config/btop/themes/dreamcoder.theme"
+BTOP_THEME="${CONFIG_HOME}/btop/themes/dreamcoder.theme"
 if [[ -L "${BTOP_THEME}" ]]; then
   ln -sf "dreamcoder-${MODE}.theme" "${BTOP_THEME}"
 fi
 # btop.conf is ML4W-owned and upgrades reset color_theme (to "matugen"), so
 # re-select the Dreamcoder theme on every apply; a no-op when already set.
-BTOP_CONF="${HOME}/.config/btop/btop.conf"
+BTOP_CONF="${CONFIG_HOME}/btop/btop.conf"
 if [[ -f "${BTOP_THEME}" && -f "${BTOP_CONF}" ]] && ! grep -q '^color_theme = "dreamcoder"$' "${BTOP_CONF}"; then
   sed -i 's/^color_theme = .*/color_theme = "dreamcoder"/' "${BTOP_CONF}"
 fi
 
-# Zellij: update theme in config.kdl
-ZELLIJ_CONF="${HOME}/.config/zellij/config.kdl"
-if [[ -f "${ZELLIJ_CONF}" ]]; then
-  sed -i "s/^theme \".*\"/theme \"dreamcoder-${MODE}\"/" "${ZELLIJ_CONF}"
+# Zellij: config.kdl selects the stable theme name; the generated
+# themes/dreamcoder.kdl carries the mode. Only migrate a legacy selector, so a
+# mode flip never rewrites the tracked config.
+ZELLIJ_CONF="${CONFIG_HOME}/zellij/config.kdl"
+if [[ -f "${ZELLIJ_CONF}" ]] && ! grep -q '^theme "dreamcoder"$' "${ZELLIJ_CONF}"; then
+  sed -i 's/^theme ".*"/theme "dreamcoder"/' "${ZELLIJ_CONF}"
 fi
 
 # Delta: flip git diff theme symlink to variant-specific artifact
-DELTA_LINK="${HOME}/.config/git/delta-dreamcoder.gitconfig"
+DELTA_LINK="${CONFIG_HOME}/git/delta-dreamcoder.gitconfig"
 DELTA_VARIANT="${DOTS_DIR}/DreamcoderThemes/dreamcoder/delta-dreamcoder-${MODE}.gitconfig"
-if [[ -f "${DELTA_VARIANT}" ]]; then
+if [[ -f "${DELTA_VARIANT}" && -d "$(dirname "${DELTA_LINK}")" ]]; then
   ln -sf "${DELTA_VARIANT}" "${DELTA_LINK}"
 fi
 
@@ -243,8 +260,8 @@ fi
 # (config.<variant>.yml) exactly like the Delta/btop selectors above; the
 # repo keeps the generated active config.yml (mode-tracking) for COPY-style
 # installs. ln -sf replaces the link atomically.
-LAZYGIT_LINK="${HOME}/.config/lazygit/config.yml"
+LAZYGIT_LINK="${CONFIG_HOME}/lazygit/config.yml"
 LAZYGIT_VARIANT="${DOTS_DIR}/DreamcoderLazygit/.config/lazygit/config.${MODE}.yml"
-if [[ -f "${LAZYGIT_VARIANT}" ]]; then
+if [[ -f "${LAZYGIT_VARIANT}" && -d "$(dirname "${LAZYGIT_LINK}")" ]]; then
   ln -sf "${LAZYGIT_VARIANT}" "${LAZYGIT_LINK}"
 fi
