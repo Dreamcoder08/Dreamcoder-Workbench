@@ -56,6 +56,8 @@ target/
 Thumbs.db
 # uv
 uv.lock
+# Local scratch (agent downloads, update backups)
+.tmp/
 # Generated active-mode mirrors (odd/tasks/active-mirrors-untracked.md).
 # `dreamcoder sync` rewrites each of these for the current Light/Dark mode;
 # a fresh clone generates them with `DREAMCODER_WRITE_LIVE=0 ./scripts/dreamcoder sync`.
