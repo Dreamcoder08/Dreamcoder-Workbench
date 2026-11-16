@@ -18,6 +18,8 @@ Branch: `feat/dreamcoder-light-paper` from `feat/herdr-gentle-shell-layout`. Del
 | T2 | S1, S2 | inline | done | light role fixes: herdr-app chrome/selected, herdr TUI sidebar/active row, gentle-shell selected/hover, Pi selectedBg, Antigravity selection/hover/line, GTK sidebar, OpenCode diff tint, Codex line highlight + gutter; Dark bytes unchanged |
 | T3 | S1, S2 | inline | done | live `herdr-app shot`: active rows visible (peach selection), recessed sidebar, no sepia; health gate covers every generated light file |
 | T4 | S1-S4 | inline | done | `CLAUDE.md` light block + system rules, palette skill row, regenerated theme preview |
+| T5 | S2 | inline | done | `99e3493`; live pixel audit: UI secondary text was muted 11.4:1 beside 16:1 titles; herdr-app + gentle-shell Light now use subtle (measured 6.16 on sidebar, 5.16 on selection) |
+| T6 | S2, S3 | inline | done | `95a8376`; Claude Code `custom:dreamcoder` theme (diff bands from the palette, text >= 7:1); `~/.claude/settings.json` theme auto -> custom:dreamcoder; 6 tests |
 
 Route declaration: all inline; every unit shares `tokens.json` and the generated files, so no parallel writers.
 
@@ -30,4 +32,7 @@ Route declaration: all inline; every unit shares `tokens.json` and the generated
 - **L5 (tests as reviewers):** the suite caught real issues the first palette had: diff bands vanished on paper (1.01:1, fixed with a 10% hue tint, ink >= 5.04:1); comment vs muted 1.40 < 2.0 in nvim (muted moved to L0.31, #352f29); Codex line highlight 1.10 < 1.15 and gutter < 1.45 (light uses surface2 / surface3 #d3ccc1); disabled 4.31 < 4.5 (now #726e68). Pins of old hex values were replaced with design properties (elevation, selection visible on bg_soft) or canonical token references.
 - **L6 (role audit):** old tests pinned #eadcc9 which was both surface1 and selection, hiding that Pi, herdr and Antigravity used the hover/card tone for selection. Light now maps selected rows to `selection`, hover to `surface1`, sidebars to `bg_soft`.
 - **L7 (open, not ours):** Claude Code's own `light` theme paints saturated green/pink diff bands in the terminal; they come from Claude Code, not the palette.
-- **L8 (delivery):** T1-T3 in `8922ca6` (palette, roles, generated light files, tests); T4 in the docs commit that carries this line. Active-mode mirrors (generated files currently showing Light because the system is in Light) stay uncommitted on purpose.
+- **L8 (delivery):** T1-T3 in `8bb80c8` (palette, roles, generated light files, tests); T4 in the docs commit that carries this line. Active-mode mirrors (generated files currently showing Light because the system is in Light) stay uncommitted on purpose.
+- **L9 (2026-11-16, user):** "se critico obsesivo y avanza con todo" (screenshot of the Light window).
+- **L10 (live audit):** rendered ink equals tokens (no gpui contrast shift). Finding: eyebrows, subtitles, header path and inspector all drew `muted` (11.4:1) beside 16:1 titles. Light `muted` stays dark for editors (nvim comment/muted >= 2:1); UI secondary labels map to `subtle` (T5).
+- **L11 (Claude Code):** docs (code.claude.com terminal-config, settings-reference) confirm custom themes in `~/.claude/themes/<slug>.json` with `base` + `overrides` (`diffAdded`, `diffRemoved`, `*Dimmed`, `*Word`), live-reloaded. The sync writes one active slug that follows the mode. A running session keeps the theme it started with: restart Claude Code or pick Dreamcoder in `/theme` to see it. Docs mention reports of diff overrides ignored in some versions; verify after restart.
