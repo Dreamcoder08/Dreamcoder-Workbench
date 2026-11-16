@@ -59,17 +59,30 @@ Dark and Light are the only user-facing modes. Legacy Dusk remains a
 compatibility token set, and OLED behavior is defined by
 `modes.dark.surface_policy`.
 
-**Light — Cocoa/Lúcuma**
+**Light — Cocoa/Lúcuma ("Lúcuma paper")**
 
 ```txt
-bg          #f5ede2
-text        #1c1611
-accent      #8c4d04
-accent_2    #af4318
-error       #902822
-focus       #00616a
+bg          #f9f6f2
+bg_soft     #f2eee9   recessed chrome (sidebars)
+surface0    #fefdfa   cards above the canvas
+surface1    #eee9e2   hover
+selection   #f1d7c2   selected rows and text
+text        #1e1814
+muted       #352f29
+comment     #675d53
+accent      #8b440c
+accent_2    #a73b15
+error       #a12623
+warning     #795700
+focus       #006973
 opacity     0.96
 ```
+
+Light is designed in OKLCH: warm paper neutrals (hue 78, chroma <= 0.02),
+colour only in accents and iso-lightness semantics. Every text token keeps
+>= 4.5:1 on bg, bg_soft, surface0, surface1, surface2 and selection; borders
+>= 3:1 on resting surfaces. Selected rows use `selection`, hover uses
+`surface1`, sidebars use `bg_soft` (see `odd/tasks/dreamcoder-light-paper.md`).
 
 Rules:
 
