@@ -55,7 +55,6 @@
     "ctrl-shift-w": "tab.close",
     "ctrl-shift-z": "pane.zoom",
     "ctrl-shift-l": "layout.switch",
-    "alt-g": "layout.switch:dreamcoder",
     "alt-m": "layout.switch:main",
     "alt-n": "needs-you.jump",
     "alt-a": "needs-you.squad",
@@ -69,15 +68,13 @@
     "alt-d": "pane.split:down",
     "ctrl-t": "tab.new",
     "ctrl-shift-q": "pane.close",
-    "alt-p": "dc-tabs.panel-prs",
+    "alt-p": "dc-panels.panel-prs",
     "alt-t": "verify.run",
     "alt-s": "mod.open:dispatch",
-    "alt-f": "layout.switch:dreamcoder-focus",
-    "alt-r": "layout.switch:dreamcoder-review",
-    "alt-q": "layout.switch:dreamcoder-squad",
-    "alt-o": "dc-tabs.panel-flow",
+    "alt-o": "dc-panels.panel-flow",
     "alt-shift-t": "verify.auto",
-    "alt-c": "layout.switch:gentle-shell"
+    "alt-c": "layout.switch:gentle-shell",
+    "alt-b": "dc-panels.panel-files"
   },
   "terminal": {
     "ctrl-backspace": "send:\u0017",

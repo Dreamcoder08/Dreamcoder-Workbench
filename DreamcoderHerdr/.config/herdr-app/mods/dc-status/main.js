@@ -3,7 +3,7 @@
 // 400. The branch, machine and agent count stay as the shipped bar showed them.
 import { View, div, svg } from "gpui-kit";
 import { h_flex } from "gpui-base";
-import { spaces, panes, focused, agents, exec, readTextFile, theme, run, window, keys } from "herdr";
+import { spaces, panes, focused, agents, exec, readTextFile, theme, run, window, keys, props } from "herdr";
 import { BASES, READ, REVIEWABLE_LINES, budget, countLines, label, parseLog, parseNumstat, parseStatus } from "./budget.js";
 
 const REFRESH_MS = 15000;
@@ -122,6 +122,11 @@ export default class Status extends View {
     const needs = list.filter((a) => a.status === "blocked").length;
     const part = (icon, text) => h_flex().gap(6).items_center().child(svg(`mods/workspace-chrome/${icon}.svg`).size(13)).child(text);
     const chip = this.chip(t);
+    // compact: only the budget chip, for a bar that already shows branch and machine (gentle-shell).
+    if (props()?.compact === true) {
+      return h_flex().size_full().px(10).items_center().justify_end().bg(t.chrome).border_t(1).border_color(t.border)
+        .text_size(11.8).when(Boolean(chip), (el) => el.child(chip));
+    }
     return h_flex()
       .size_full()
       .px(14)
