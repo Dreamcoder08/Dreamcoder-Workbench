@@ -14,6 +14,10 @@ from .renderers_extra_notify import cava_content, dunst_content
 from .renderers_extra_nvim import nvim_content, nvim_dispatcher_content
 from .renderers_extra_obsidian import obsidian_content
 from .renderers_extra_shell import fzf_content, ls_colors_content, zsh_syntax_content
+from .renderers_gentle_shell import (
+    gentle_shell_theme_content,
+    gentle_tokens_js_content,
+)
 from .renderers_ghostty_warp import ghostty_content, warp_content
 from .renderers_herdr import herdr_app_theme_content, herdr_content
 from .renderers_hypr_waybar_rofi import (
@@ -44,6 +48,8 @@ __all__ = [
     "dunst_content",
     "firefox_content",
     "fzf_content",
+    "gentle_shell_theme_content",
+    "gentle_tokens_js_content",
     "ghostty_content",
     "gtk_content",
     "herdr_app_theme_content",

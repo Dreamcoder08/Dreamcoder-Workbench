@@ -270,6 +270,7 @@ The `dreamcoder` layout is the default; the cockpit adds:
 | `alt-f` | `dreamcoder-focus`: no sidebar, the agent fills the window |
 | `alt-r` | `dreamcoder-review`: PRs open beside the agent |
 | `alt-q` | `dreamcoder-squad`: wider sidebar, agents list first |
+| `alt-c` | `gentle-shell`: Gentle Shell Desktop in Dreamcoder colours (see below) |
 
 The right panel keeps only what Gentle Shell does not show: **Files**, **PRs**
 and **Flow**. The **Changes** panel was removed on purpose — the Gentle
@@ -304,3 +305,38 @@ with `herdr-app check ~/.config/herdr-app/mods/<name>`.
 A mod cannot import files from another mod's folder (`herdr-app check` rejects
 it), so a shared one-liner such as `parseGhJson` is repeated per mod and its
 copies are tested against each other.
+
+## Gentle Shell Desktop layout
+
+The `gentle-shell` layout and its `gentle-*` mods come from Gentle Shell
+([PR #3277](https://github.com/Gentleman-Programming/gentle-shell/pull/3277),
+MIT, vendored at `95179bd6db8e4eaa2fe22440e35e5512759f89c0`). It shows each
+Gentle Shell session as a chat with the TUI sidebar beside it: header, usage,
+todo, subagents, jobs, changes, review and permission modes.
+
+Only the colours differ from upstream. The layout selects the generated
+`dreamcoder-shell-dark` / `dreamcoder-shell-light` themes, and
+`./scripts/dreamcoder sync` rewrites the colour tables of every
+`mods/gentle-*/tokens.js` from `DreamcoderThemes/dreamcoder/tokens.json`
+(`src/dreamcoder_theme/renderers_gentle_shell.py`). Never edit those hex
+values by hand; `tests/test_gentle_shell_theme.py` fails on a stale or pink
+`tokens.js` and on text below 4.5:1.
+
+| Key (in this layout) | Action |
+|-----|--------|
+| `ctrl-shift-g` | Gentle palette (upstream `⌘K`) |
+| `ctrl-shift-j` | Chat ↔ Terminal (upstream `⌘J`) |
+| `ctrl-shift-.` | Stop the session's turn (upstream `⌘.`) |
+| `ctrl-shift-i` | Expand or collapse every chat item (upstream `⌘O`) |
+| `ctrl-alt-1`…`6` | Inspector tabs: changes, todo, agents, jobs, review, session |
+
+The mods read the per-session snapshots that Gentle Shell's
+`gentle-desktop-feed` extension publishes under
+`<agentDir>/desktop/sessions/`. That extension ships after Gentle Shell
+4.8.0; with an older Gentle Shell the layout opens but lists no sessions.
+
+To update from upstream, copy `herdr/mods/gentle-*` (without the `.md` notes)
+and `herdr/layouts/gentle-shell.json`, point the layout `theme` back at
+`dreamcoder-shell-light` / `dreamcoder-shell-dark`, and run the sync. A
+new upstream colour token makes the sync fail until
+`gentle_shell_tokens()` maps it.

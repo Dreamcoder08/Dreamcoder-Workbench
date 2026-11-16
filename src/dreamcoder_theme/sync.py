@@ -31,6 +31,8 @@ from .renderers import (
     dunst_content,
     firefox_content,
     fzf_content,
+    gentle_shell_theme_content,
+    gentle_tokens_js_content,
     ghostty_content,
     gtk_content,
     herdr_app_theme_content,
@@ -1049,6 +1051,25 @@ def sync_repo_snippets(variants: dict[str, dict[str, str]], active: dict[str, st
             write_active_repo_file(
                 ROOT / f"DreamcoderHerdr/.config/herdr-app/themes/dreamcoder-{mode_name}.json",
                 herdr_app_theme_content(variants[mode_name]),
+            )
+        )
+        repo_changes.append(
+            write_active_repo_file(
+                ROOT
+                / f"DreamcoderHerdr/.config/herdr-app/themes/dreamcoder-shell-{mode_name}.json",
+                gentle_shell_theme_content(variants[mode_name], mode_name),
+            )
+        )
+    # Vendored Gentle Shell Desktop mods: recolour their tokens.js tables.
+    for tokens_js in sorted(
+        (ROOT / "DreamcoderHerdr/.config/herdr-app/mods").glob("gentle-*/tokens.js")
+    ):
+        repo_changes.append(
+            write_active_repo_file(
+                tokens_js,
+                gentle_tokens_js_content(
+                    tokens_js.read_text(), variants["dark"], variants["light"]
+                ),
             )
         )
 

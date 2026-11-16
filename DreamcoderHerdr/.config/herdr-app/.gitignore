@@ -9,12 +9,16 @@
 /themes/*
 !/themes/dreamcoder-dark.json
 !/themes/dreamcoder-light.json
+!/themes/dreamcoder-shell-dark.json
+!/themes/dreamcoder-shell-light.json
 !/layouts/
 /layouts/*
 !/layouts/dreamcoder.json
 !/layouts/dreamcoder.svg
 !/layouts/dreamcoder-*.json
 !/layouts/dreamcoder-*.svg
+# Gentle Shell Desktop layout (vendored, recoloured by ./scripts/dreamcoder sync)
+!/layouts/gentle-shell.json
 !/mods/
 /mods/*
 !/mods/needs-you/
@@ -39,3 +43,7 @@
 !/mods/dc-status/
 /mods/dc-status/gpui-kit.d.ts
 /mods/dc-status/jsconfig.json
+# Gentle Shell Desktop mods (vendored from Gentle Shell, MIT; tokens.js generated)
+!/mods/gentle-*/
+/mods/gentle-*/gpui-kit.d.ts
+/mods/gentle-*/jsconfig.json
