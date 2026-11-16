@@ -6,22 +6,22 @@
    in about:config. */
 
 :root {
-  --dreamcoder-bg: #f5ede2;
-  --dreamcoder-surface: #fefaf2;
-  --dreamcoder-surface-1: #eadcc9;
-  --dreamcoder-text: #1c1611;
-  --dreamcoder-text-dim: #3d352c;
-  --dreamcoder-accent: #8c4d04;
-  --dreamcoder-accent-2: #af4318;
-  --dreamcoder-border: #9f8f7d;
-  --dreamcoder-border-ui: #695745;
-  --dreamcoder-error: #902822;
-  --dreamcoder-warning: #724800;
-  --dreamcoder-sage: #215d27;
-  --dreamcoder-input-bg: #eadcc9;
-  --dreamcoder-toolbar-bg: #eadfcf;
-  --dreamcoder-hover: #e5d5c1;
-  --dreamcoder-active: #dbc5aa;
+  --dreamcoder-bg: #f9f6f2;
+  --dreamcoder-surface: #fefdfa;
+  --dreamcoder-surface-1: #eee9e2;
+  --dreamcoder-text: #1e1814;
+  --dreamcoder-text-dim: #352f29;
+  --dreamcoder-accent: #8b440c;
+  --dreamcoder-accent-2: #a73b15;
+  --dreamcoder-border: #8e8479;
+  --dreamcoder-border-ui: #645c53;
+  --dreamcoder-error: #a12623;
+  --dreamcoder-warning: #795700;
+  --dreamcoder-sage: #1c6c31;
+  --dreamcoder-input-bg: #eee9e2;
+  --dreamcoder-toolbar-bg: #f2eee9;
+  --dreamcoder-hover: #e8dbd0;
+  --dreamcoder-active: #decab8;
 }
 
 /* Main window */

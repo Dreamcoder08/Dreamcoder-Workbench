@@ -46,7 +46,8 @@ def gentle_shell_tokens(palette: dict[str, str], mode: str) -> dict[str, str]:
     dark = mode == "dark"
     bg = palette["bg"]
     accent = palette["accent"]
-    selected = mix(bg, accent, 0.18 if dark else 0.12)
+    # Light uses the canonical selection tint so every app marks rows alike.
+    selected = mix(bg, accent, 0.18) if dark else palette["selection"]
     tokens = {
         "canvas": bg,
         "background": bg,
@@ -55,7 +56,7 @@ def gentle_shell_tokens(palette: dict[str, str], mode: str) -> dict[str, str]:
         "raised": palette["surface3"] if dark else palette["surface1"],
         "user": mix(bg, accent, 0.12 if dark else 0.08),
         "selected": selected,
-        "hover": selected,
+        "hover": selected if dark else palette["surface1"],
         "line": palette["surface3"] if dark else palette["surface2"],
         "lineStrong": palette["border"],
         "text": palette["text"],

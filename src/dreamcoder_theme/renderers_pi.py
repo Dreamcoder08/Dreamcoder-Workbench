@@ -48,7 +48,8 @@ def pi_theme_content(c: dict[str, str], *, name: str | None = None) -> str:
             "dim": "subtle",
             "text": "",
             "thinkingText": "muted",
-            "selectedBg": c["surface1"],
+            # Light: the selected row takes the cocoa selection tint; surface1 is hover.
+            "selectedBg": c["selection"] if mode_name == "light" else c["surface1"],
             "userMessageBg": user_bg,
             "userMessageText": "",
             "customMessageBg": c["surface0"],

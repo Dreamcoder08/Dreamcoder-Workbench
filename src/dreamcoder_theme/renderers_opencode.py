@@ -86,10 +86,11 @@ def opencode_content(c: dict[str, str], transparent_background: bool = False) ->
         added_bg = surface_guard(mix(c["bg"], c["sage"], 0.18), c["bg"], mode_name)
         removed_bg = surface_guard(mix(c["bg"], c["error"], 0.18), c["bg"], mode_name)
     if mode_name == "light":
-        # Diff bodies retain syntax ink: use pale canonical code canvases rather
-        # than surface_guard, whose surface delta makes Light fills too dark.
-        added_bg = mix(c["surface0"], c["sage"], 0.03)
-        removed_bg = mix(c["surface0"], c["error"], 0.03)
+        # Paper-tinted diff bodies (GitHub-style): a 10% hue tint reads as a
+        # band (~1.16:1 on the canvas) while every syntax ink keeps >= 5:1.
+        # surface_guard's delta would make Light fills too dark.
+        added_bg = mix(c["bg"], c["sage"], 0.10)
+        removed_bg = mix(c["bg"], c["error"], 0.10)
     assistant = guard(mix(c["diagnostic"], c["text"], 0.18), c["bg"], mode_name)
     user = guard(mix(c["accent"], c["text"], 0.15), c["bg"], mode_name)
     background = "none" if transparent_background else c["bg"]

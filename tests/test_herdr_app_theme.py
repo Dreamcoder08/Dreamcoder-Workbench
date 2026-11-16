@@ -29,10 +29,10 @@ def test_light_theme_maps_canonical_light_tokens() -> None:
     assert theme["ansi"] == [color.upper() for color in ansi(light)]
     assert theme["colors"] == {
         "canvas": light["bg"].upper(),
-        "chrome": light["bg"].upper(),
+        "chrome": light["bg_soft"].upper(),
         "surface": light["surface0"].upper(),
         "raised": light["surface1"].upper(),
-        "selected": light["surface0"].upper(),
+        "selected": light["selection"].upper(),
         "selection": light["selection"].upper(),
         "foreground": light["text"].upper(),
         "muted": light["muted"].upper(),

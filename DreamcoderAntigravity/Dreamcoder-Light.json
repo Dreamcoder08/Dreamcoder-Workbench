@@ -2,48 +2,48 @@
   "name": "Dreamcoder Light",
   "type": "light",
   "colors": {
-    "editor.background": "#f5ede2",
-    "editor.foreground": "#1c1611",
-    "activityBar.background": "#fefaf2",
-    "activityBar.foreground": "#8c4d04",
-    "activityBar.inactiveForeground": "#796755",
-    "activityBar.border": "#695745",
-    "sideBar.background": "#fefaf2",
-    "sideBar.foreground": "#1c1611",
-    "sideBar.border": "#695745",
-    "statusBar.background": "#f5ede2",
-    "statusBar.foreground": "#1c1611",
-    "statusBar.border": "#695745",
-    "editorGroupHeader.tabsBackground": "#fefaf2",
-    "tab.activeBackground": "#f5ede2",
-    "tab.activeForeground": "#8c4d04",
-    "tab.inactiveBackground": "#fefaf2",
-    "tab.inactiveForeground": "#796755",
-    "tab.border": "#695745",
-    "editor.lineHighlightBackground": "#fefaf2",
-    "editorLineNumber.foreground": "#796755",
-    "editorLineNumber.activeForeground": "#8c4d04",
-    "editorWidget.background": "#eadcc9",
-    "editorWidget.border": "#695745",
-    "input.background": "#eadcc9",
-    "input.foreground": "#1c1611",
-    "input.border": "#00616a",
-    "button.background": "#af4318",
-    "button.foreground": "#fefaf2",
-    "list.activeSelectionBackground": "#eadcc9",
-    "list.activeSelectionForeground": "#1c1611",
-    "list.hoverBackground": "#fefaf2",
-    "editor.selectionBackground": "#eadcc9",
-    "terminal.background": "#f5ede2",
-    "terminal.foreground": "#1c1611",
-    "terminal.ansiBlack": "#fefaf2",
-    "terminal.ansiRed": "#902822",
-    "terminal.ansiGreen": "#215d27",
-    "terminal.ansiYellow": "#724800",
-    "terminal.ansiBlue": "#8c4d04",
-    "terminal.ansiMagenta": "#853361",
-    "terminal.ansiCyan": "#08557e",
-    "terminal.ansiWhite": "#1c1611"
+    "editor.background": "#f9f6f2",
+    "editor.foreground": "#1e1814",
+    "activityBar.background": "#fefdfa",
+    "activityBar.foreground": "#8b440c",
+    "activityBar.inactiveForeground": "#675d53",
+    "activityBar.border": "#645c53",
+    "sideBar.background": "#fefdfa",
+    "sideBar.foreground": "#1e1814",
+    "sideBar.border": "#645c53",
+    "statusBar.background": "#f9f6f2",
+    "statusBar.foreground": "#1e1814",
+    "statusBar.border": "#645c53",
+    "editorGroupHeader.tabsBackground": "#fefdfa",
+    "tab.activeBackground": "#f9f6f2",
+    "tab.activeForeground": "#8b440c",
+    "tab.inactiveBackground": "#fefdfa",
+    "tab.inactiveForeground": "#675d53",
+    "tab.border": "#645c53",
+    "editor.lineHighlightBackground": "#eee9e2",
+    "editorLineNumber.foreground": "#675d53",
+    "editorLineNumber.activeForeground": "#8b440c",
+    "editorWidget.background": "#eee9e2",
+    "editorWidget.border": "#645c53",
+    "input.background": "#eee9e2",
+    "input.foreground": "#1e1814",
+    "input.border": "#006973",
+    "button.background": "#a73b15",
+    "button.foreground": "#fefdfa",
+    "list.activeSelectionBackground": "#f1d7c2",
+    "list.activeSelectionForeground": "#1e1814",
+    "list.hoverBackground": "#eee9e2",
+    "editor.selectionBackground": "#f1d7c2",
+    "terminal.background": "#f9f6f2",
+    "terminal.foreground": "#1e1814",
+    "terminal.ansiBlack": "#fefdfa",
+    "terminal.ansiRed": "#a12623",
+    "terminal.ansiGreen": "#1c6c31",
+    "terminal.ansiYellow": "#795700",
+    "terminal.ansiBlue": "#8b440c",
+    "terminal.ansiMagenta": "#853c70",
+    "terminal.ansiCyan": "#005f8e",
+    "terminal.ansiWhite": "#1e1814"
   },
   "tokenColors": [
     {
@@ -52,7 +52,7 @@
         "punctuation.definition.comment"
       ],
       "settings": {
-        "foreground": "#796755",
+        "foreground": "#675d53",
         "fontStyle": "italic"
       }
     },
@@ -64,7 +64,7 @@
         "keyword.operator"
       ],
       "settings": {
-        "foreground": "#8c4d04",
+        "foreground": "#8b440c",
         "fontStyle": "bold"
       }
     },
@@ -75,7 +75,7 @@
         "entity.name.method"
       ],
       "settings": {
-        "foreground": "#08557e"
+        "foreground": "#005f8e"
       }
     },
     {
@@ -84,7 +84,7 @@
         "punctuation.definition.string"
       ],
       "settings": {
-        "foreground": "#215d27"
+        "foreground": "#1c6c31"
       }
     },
     {
@@ -93,7 +93,7 @@
         "constant.language"
       ],
       "settings": {
-        "foreground": "#af4318"
+        "foreground": "#a73b15"
       }
     },
     {
@@ -103,7 +103,7 @@
         "entity.name.class"
       ],
       "settings": {
-        "foreground": "#594399"
+        "foreground": "#5b4c99"
       }
     },
     {
@@ -112,7 +112,7 @@
         "meta.definition.variable"
       ],
       "settings": {
-        "foreground": "#1c1611"
+        "foreground": "#1e1814"
       }
     }
   ]

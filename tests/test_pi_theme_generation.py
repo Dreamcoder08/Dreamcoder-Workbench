@@ -8,8 +8,11 @@ from pathlib import Path
 
 import pytest
 
+from dreamcoder_theme.palette_tokens import VARIANTS
 from dreamcoder_theme.settings import theme_paths
 from dreamcoder_theme.writers import write_if_changed
+
+LIGHT = VARIANTS["light"]
 
 ROOT = Path(__file__).resolve().parents[1]
 SYNC = ROOT / "scripts" / "sync-dreamcoder-theme.py"
@@ -218,7 +221,7 @@ class PiThemeGenerationTest(unittest.TestCase):
                 self.assertEqual(themes[0], themes[1])
                 self.assertEqual(
                     themes[0]["vars"]["lucuma"],
-                    "#A5B4FC" if mode == "dark" else "#8c4d04",
+                    "#A5B4FC" if mode == "dark" else VARIANTS["light"]["accent"],
                 )
                 self.assertEqual(source.read_text(), "do not mutate\n")
 
@@ -264,16 +267,16 @@ class PiThemeGenerationTest(unittest.TestCase):
                         theme = json.loads((home / "themes" / filename).read_text())
                         colors = theme["colors"]
                         # Shell header, status cards and editor share this role.
-                        self.assertEqual(colors["toolSuccessBg"], "#fefaf2")
-                        self.assertEqual(colors["toolPendingBg"], "#fefaf2")
-                        self.assertEqual(colors["customMessageBg"], "#fefaf2")
+                        self.assertEqual(colors["toolSuccessBg"], LIGHT["surface0"])
+                        self.assertEqual(colors["toolPendingBg"], LIGHT["surface0"])
+                        self.assertEqual(colors["customMessageBg"], LIGHT["surface0"])
                         self.assertEqual(colors["borderAccent"], "lucuma")
                         self.assertEqual(colors["thinkingMedium"], "lucuma")
-                        self.assertEqual(theme["vars"][colors["borderAccent"]], "#8c4d04")
+                        self.assertEqual(theme["vars"][colors["borderAccent"]], LIGHT["accent"])
                         # Selection and diagnostics retain their distinct roles.
-                        self.assertEqual(colors["selectedBg"], "#eadcc9")
+                        self.assertEqual(colors["selectedBg"], LIGHT["selection"])
                         self.assertEqual(colors["mdLink"], "diagnostic")
-                        self.assertEqual(theme["vars"]["diagnostic"], "#08557e")
+                        self.assertEqual(theme["vars"]["diagnostic"], LIGHT["diagnostic"])
 
     def test_opencode_preserves_terminal_transparent_background(self):
         with tempfile.TemporaryDirectory() as tmpdir:

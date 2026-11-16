@@ -40,14 +40,17 @@ class DreamcoderThemeQualityTest(unittest.TestCase):
 
     def test_light_has_stronger_editor_readability_tiers(self):
         light = self.modes["light"]
-        self.assertEqual(light["surface0"], "#fefaf2")
-        self.assertEqual(light["surface2"], "#d5c1a9")
+        # Lucuma paper elevation: cards sit above the canvas, fills below it.
+        self.assertGreater(rel_luminance(light["surface0"]), rel_luminance(light["bg"]))
+        self.assertLess(rel_luminance(light["surface2"]), rel_luminance(light["bg"]))
         self.assertGreaterEqual(contrast(light["subtle"], light["bg"]), 4.5)
         self.assertGreaterEqual(contrast(light["comment"], light["bg"]), 4.5)
 
     def test_light_selection_uses_explicit_pair(self):
         light = self.modes["light"]
-        self.assertEqual(light["selection_bg"], "#eadcc9")
+        self.assertEqual(light["selection_bg"], light["selection"])
+        # The active row must read on the recessed sidebar, not just the canvas.
+        self.assertGreaterEqual(contrast(light["selection_bg"], light["bg_soft"]), 1.15)
         self.assertEqual(light["selection_fg"], light["text"])
         self.assertGreaterEqual(contrast(light["selection_fg"], light["selection_bg"]), 7.0)
 
