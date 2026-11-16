@@ -65,3 +65,33 @@ def test_gentle_shell_keys_use_linux_modifiers() -> None:
     assert keys["ctrl-shift-g"] == "mod.open:gentle-palette"
     assert keys["ctrl-shift-j"] == "gentle-status.toggle"
     assert not any(chord.startswith("cmd-") for chord in keys)
+
+
+def _mods(node: dict) -> set[str]:
+    found = set()
+    for key in ("content",):
+        content = node.get(key)
+        if isinstance(content, dict) and "mod" in content:
+            found.add(content["mod"])
+    for item in node.get("floating", []):
+        found |= _mods(item)
+    for child in node.get("children", []):
+        found |= _mods(child)
+    return found
+
+
+def test_gentle_shell_carries_the_former_dreamcoder_cockpit() -> None:
+    assert not list((APP / "layouts").glob("dreamcoder*")), "dreamcoder layouts were folded in"
+    layout = json.loads((APP / "layouts/gentle-shell.json").read_text())
+    assert {"files", "prs", "flow", "dc-panels", "dc-status", "verify", "needs-you"} <= _mods(
+        layout
+    )
+
+
+def test_no_key_targets_a_removed_layout_or_mod() -> None:
+    keys = json.loads((APP / "keys.json").read_text())
+    actions = [action for section in keys.values() for action in section.values()]
+    assert not any("dc-tabs" in a or a.startswith("layout.switch:dreamcoder") for a in actions)
+    assert keys["global"]["alt-c"] == "layout.switch:gentle-shell"
+    assert keys["global"]["alt-p"] == "dc-panels.panel-prs"
+    assert keys["global"]["alt-b"] == "dc-panels.panel-files"

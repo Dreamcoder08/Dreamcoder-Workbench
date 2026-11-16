@@ -13,10 +13,6 @@
 !/themes/dreamcoder-shell-light.json
 !/layouts/
 /layouts/*
-!/layouts/dreamcoder.json
-!/layouts/dreamcoder.svg
-!/layouts/dreamcoder-*.json
-!/layouts/dreamcoder-*.svg
 # Gentle Shell Desktop layout (vendored, recoloured by ./scripts/dreamcoder sync)
 !/layouts/gentle-shell.json
 !/mods/
@@ -25,9 +21,9 @@
 /mods/needs-you/gpui-kit.d.ts
 /mods/needs-you/jsconfig.json
 # Dreamcoder cockpit mods (generated .d.ts/jsconfig stay untracked)
-!/mods/dc-tabs/
-/mods/dc-tabs/gpui-kit.d.ts
-/mods/dc-tabs/jsconfig.json
+!/mods/dc-panels/
+/mods/dc-panels/gpui-kit.d.ts
+/mods/dc-panels/jsconfig.json
 !/mods/prs/
 /mods/prs/gpui-kit.d.ts
 /mods/prs/jsconfig.json

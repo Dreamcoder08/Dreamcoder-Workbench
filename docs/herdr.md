@@ -257,7 +257,9 @@ and `shell-tests/test_herdr_review.bats`, which drive a fake `herdr` CLI
 
 The Herdr desktop app config lives in `DreamcoderHerdr/.config/herdr-app/`,
 symlinked to `~/.config/herdr-app`, so the app reads the working tree live.
-The `dreamcoder` layout is the default; the cockpit adds:
+The cockpit lives in the `gentle-shell` layout (Gentle Shell Desktop, see
+[below](#gentle-shell-desktop-layout)); the old `dreamcoder*` layouts were
+folded into it. The cockpit adds:
 
 | Key | Action |
 |-----|--------|
@@ -266,20 +268,21 @@ The `dreamcoder` layout is the default; the cockpit adds:
 | `alt-shift-t` | Toggle **auto-verify** for the focused space: verify runs when one of its agents finishes (blocked agents don't count; at most one run per minute). Off by default. |
 | `alt-o` | Toggle the **Flow** panel: last 14 days of merged PRs per week, median and p90 open-to-merge lead time, median size and share over 400 lines, and the largest PRs (the ones worth splitting). |
 | `alt-s` | **Dispatch** an agent: type a task, pick Claude Code or an explorer, reviewer or verifier role. Claude Code defaults to a new worktree (`hwt`) on a branch derived from the task. Warns from the fourth working agent. |
-| `alt-g` | `dreamcoder` layout |
-| `alt-f` | `dreamcoder-focus`: no sidebar, the agent fills the window |
-| `alt-r` | `dreamcoder-review`: PRs open beside the agent |
-| `alt-q` | `dreamcoder-squad`: wider sidebar, agents list first |
-| `alt-c` | `gentle-shell`: Gentle Shell Desktop in Dreamcoder colours (see below) |
+| `alt-b` | Toggle the **Files** panel |
+| `alt-x` | Hide or show the whole right column |
+| `alt-c` | Switch to the `gentle-shell` layout (`alt-m` is Herdr's `main`) |
 
-The right panel keeps only what Gentle Shell does not show: **Files**, **PRs**
-and **Flow**. The **Changes** panel was removed on purpose — the Gentle
-Shell rail already lists the files a session changed, so the cockpit does not
-repeat it. Committing from Herdr is therefore not offered; commit in the
-terminal. Files, PRs and Flow stay hidden until their panel button is used.
+The right column is a stack whose default child is the Gentle **inspector**
+(changes, todo, agents, jobs, review, session). **Files**, **PRs** and
+**Flow** share it: the `dc-panels` buttons in the status bar (or the keys
+above) show one, and using it again returns to the inspector. There is no
+separate Changes panel — the inspector already lists the files a session
+changed. Committing from Herdr is therefore not offered; commit in the
+terminal.
 
-The status bar is the `dc-status` mod: machine, branch and agent count as
-Herdr's shipped bar showed them, plus the **work-unit budget** — the authored
+The status bar is `gentle-status`, followed by `dc-panels`, the `dc-status`
+chip in `compact` mode (Gentle already shows branch and machine) and
+`verify`. The chip is the **work-unit budget** — the authored
 changed lines on the focused space's branch (additions plus deletions) against
 its base, in red past 400. Hover it for the base, the rule and one row per
 commit over that base. It measures `git diff <base>...HEAD` plus the
