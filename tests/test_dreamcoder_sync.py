@@ -711,3 +711,32 @@ def test_integrated_gtk_selection_survives_matugen_fixture_overwrites(mock_paths
         assert config.read_text().index("colors.css") < config.read_text().index("canonical.css")
     sync.sync_toolkit_targets(paths, dict(V["light"]), "light")
     assert config.read_text() == original
+
+
+def test_live_warp_write_never_writes_through_a_variant_symlink(mock_paths, active, variants):
+    """apply-theme-mode.sh leaves the live Dreamcoder.yaml as a symlink to a
+    Dreamcoder-<Mode>.yaml variant; writing through it once put the Dark palette
+    into the Light variant. The live write must replace the link instead."""
+    calls: dict[Path, dict[str, Any]] = {}
+
+    def record(path, content, **kwargs):
+        calls[path] = kwargs
+        return False
+
+    patches = [
+        mock.patch("dreamcoder_theme.sync.write_if_changed", side_effect=record),
+        *(
+            mock.patch(f"dreamcoder_theme.sync.{name}", return_value=val)
+            for name, val in _WRITER_DEFAULTS.items()
+            if name != "write_if_changed"
+        ),
+        *_patch_renderers(),
+    ]
+    for p in patches:
+        p.start()
+    try:
+        sync.sync_active_targets(mock_paths, active, "light", variants)
+    finally:
+        for p in patches:
+            p.stop()
+    assert calls[mock_paths.warp].get("replace_symlink") is True
