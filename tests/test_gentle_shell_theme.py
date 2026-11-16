@@ -95,3 +95,19 @@ def test_no_key_targets_a_removed_layout_or_mod() -> None:
     assert keys["global"]["alt-c"] == "layout.switch:gentle-shell"
     assert keys["global"]["alt-p"] == "dc-panels.panel-prs"
     assert keys["global"]["alt-b"] == "dc-panels.panel-files"
+
+
+@pytest.mark.parametrize("mode", ["dark", "light"])
+def test_pane_focus_ring_is_neutral_and_reads_against_the_border(mode: str) -> None:
+    """One accent layer: Hyprland's window frame is cocoa; the pane ring is neutral."""
+    layout = json.loads((APP / "layouts/gentle-shell.json").read_text())
+
+    def find(node: dict) -> dict | None:
+        if node.get("id") == "main":
+            return node
+        return next((hit for child in node.get("children", []) if (hit := find(child))), None)
+
+    focus = find(layout)["content"]["pane"]["focus"]
+    assert focus["color"] != "accent"
+    colors = json.loads((APP / f"themes/dreamcoder-shell-{mode}.json").read_text())["colors"]
+    assert contrast(colors[focus["color"]], colors["border"]) >= 3.0
