@@ -91,6 +91,9 @@ Rules:
 - Starship palette is `dreamcoder`
 - Ghostty theme is `dreamcoder` / `dreamcoder-dark` / `dreamcoder-light`
 - Fastfetch logo is `Dreamcoder01.jpg`
+- Claude Code theme is `custom:dreamcoder`: the sync rewrites
+  `~/.claude/themes/dreamcoder.json` with the active mode (base `light`/`dark`,
+  diff bands tinted from the palette); variants live in `DreamcoderClaudeCode/`
 - do not commit secrets or tokens
 
 ## GitHub MCP
