@@ -9,6 +9,9 @@ hl = {
             commands[key] = action.command
         end
     end,
+    config = noop,
+    dispatch = noop,
+    timer = noop,
     dsp = {
         exec_cmd = function(command) return { command = command } end,
         window = setmetatable({}, { __index = function() return noop end }),

@@ -1,8 +1,8 @@
 # ============================================================================
 # BATS tests: ml4w_assets/hypr/conf/keybindings/dreamcoder.lua
 # ============================================================================
-# The curated variant tracks upstream ML4W default.lua (tag 2.16.1) minus the
-# binds the machine profile owns. These checks keep it aligned with the 2.16.1
+# The curated variant tracks upstream ML4W default.lua (tag 2.17) minus the
+# binds the machine profile owns. These checks keep it aligned with the 2.17
 # layout and free of collisions with the profile.
 
 load '../helpers/setup'
@@ -23,9 +23,14 @@ capture_command() {
   [ -z "$stderr" ]
 }
 
-@test "keybindings variant: SUPER+CTRL+P uses the standalone 2.16.1 power menu" {
+@test "keybindings variant: SUPER+CTRL+P uses the standalone power menu" {
   capture_command 'SUPER + CTRL + P'
   [ "$output" = 'ml4w-powermenu toggle' ]
+}
+
+@test "keybindings variant: SUPER+W opens the 2.17 wallpaper carousel" {
+  capture_command 'SUPER + W'
+  [ "$output" = '~/.config/ml4w/scripts/ml4w-wallpaper-app --carousel' ]
 }
 
 @test "keybindings variant: SUPER+CTRL+RETURN uses the supported launcher entry point" {
@@ -40,14 +45,34 @@ capture_command() {
   [ "$output" = '~/.config/ml4w/scripts/ml4w-toggle-statusbar' ]
 }
 
-@test "keybindings variant: SUPER+Tab opens the 2.16 overview location" {
+@test "keybindings variant: SUPER+Tab opens the 2.17 overview location" {
   run grep -F 'qs -p ~/.local/share/quickshell-overview ipc call overview toggle' "$(variant)"
   [ "$status" -eq 0 ]
   run grep -F '.config/quickshell/overview' "$(variant)"
   [ "$status" -ne 0 ]
 }
 
-@test "keybindings variant: ports the 2.16 autohide toggles" {
+@test "keybindings variant: ports the 2.17 Hypr App Switcher" {
+  capture_command 'ALT + Tab'
+  [ "$output" = 'qs -p ~/.local/share/hypr-app-switcher ipc call app-switcher next' ]
+  capture_command 'ALT + SHIFT + Tab'
+  [ "$output" = 'qs -p ~/.local/share/hypr-app-switcher ipc call app-switcher prev' ]
+}
+
+@test "keybindings variant: scroll binds use the 2.17 200 ms throttle" {
+  run grep -F 'pass_mouse_when_bound = false' "$(variant)"
+  [ "$status" -eq 0 ]
+  run grep -F 'scroll_event_delay = 1' "$(variant)"
+  [ "$status" -eq 0 ]
+  run grep -F 'timeout = 200' "$(variant)"
+  [ "$status" -eq 0 ]
+  run grep -F 'throttled_scroll(hl.dsp.focus({ workspace = "e+1" }))' "$(variant)"
+  [ "$status" -eq 0 ]
+  run grep -F 'throttled_scroll(hl.dsp.focus({ workspace = "e-1" }))' "$(variant)"
+  [ "$status" -eq 0 ]
+}
+
+@test "keybindings variant: ports the autohide toggles" {
   run grep -F '" + ALT + B", hl.dsp.exec_cmd("~/.config/ml4w/scripts/ml4w-toggle-statusbar-autohide")' "$(variant)"
   [ "$status" -eq 0 ]
   run grep -F '" + ALT + D", hl.dsp.exec_cmd("~/.config/ml4w/scripts/ml4w-toggle-dock-autohide")' "$(variant)"

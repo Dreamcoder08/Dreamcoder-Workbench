@@ -2,23 +2,27 @@
 # ============================================================================
 # Tests for scripts/apply-ml4w-hooks.sh
 # ============================================================================
-# Primary target is ML4W's wallpaper runner. The fixture is ML4W tag 2.16's
-# dotfiles/.config/ml4w/scripts/ml4w-wallpaper (upstream 3960570, trailing
+# Primary target is ML4W's wallpaper runner. The fixture is ML4W tag 2.17's
+# dotfiles/.config/ml4w/scripts/ml4w-wallpaper (upstream 9ead14e, trailing
 # whitespace trimmed). ML4W upgrades overwrite that file, so the hook must be
-# re-appliable: replaced on every run, never duplicated.
+# re-appliable: replaced on every run, never duplicated. At 2.17 the runner
+# writes its cache only when theming runs and accepts `--transition TYPE`; the
+# hook itself still rewrites the same cache file, so `--skip-theming` keeps it
+# current.
 #
 # The optional waypaper injection goes through `sed`. In a sed replacement, `&`
 # expands to the whole match, and the injected hook text contains `2>&1`, so an
 # unescaped `&` re-inserts the matched line and corrupts the config.
 #
-# The GTK theme listener fixture is a read-only copy of ML4W 2.16's installed
-# ~/.config/ml4w/listeners/gtk-theme-switcher.sh. It runs Matugen over the
-# wallpaper on every gtk settings.ini change; the hook restores Dreamcoder
-# colours right after each Matugen call.
+# The GTK theme listener and Matugen config fixtures are read-only copies of
+# ML4W 2.17's shipped files (byte-identical to 2.16.1, trailing whitespace
+# trimmed). The listener runs Matugen over the wallpaper on every gtk
+# settings.ini change; the hook restores Dreamcoder colours right after each
+# Matugen call.
 
-RUNNER_FIXTURE="${BATS_TEST_DIRNAME}/../fixtures/ml4w/ml4w-wallpaper-2.16"
-LISTENER_FIXTURE="${BATS_TEST_DIRNAME}/../fixtures/ml4w/gtk-theme-switcher-2.16"
-MATUGEN_FIXTURE="${BATS_TEST_DIRNAME}/../fixtures/ml4w/matugen-config-2.16.toml"
+RUNNER_FIXTURE="${BATS_TEST_DIRNAME}/../fixtures/ml4w/ml4w-wallpaper-2.17"
+LISTENER_FIXTURE="${BATS_TEST_DIRNAME}/../fixtures/ml4w/gtk-theme-switcher-2.17"
+MATUGEN_FIXTURE="${BATS_TEST_DIRNAME}/../fixtures/ml4w/matugen-config-2.17.toml"
 
 setup() {
     TEST_DIR="$(mktemp -d)"
@@ -77,7 +81,7 @@ count_restarts() {
 
 # ── ML4W runner (primary) ────────────────────────────────────────────────────
 
-@test "apply-ml4w-hooks: the 2.16 runner gets exactly one marked block" {
+@test "apply-ml4w-hooks: the 2.17 runner gets exactly one marked block" {
     run run_hooks
     [ "$status" -eq 0 ]
     [ "$(count_blocks)" -eq 1 ]
@@ -96,6 +100,19 @@ count_restarts() {
     run_hooks
     bash -n "${ML4W_WALLPAPER_SCRIPT}"
     [ -x "${ML4W_WALLPAPER_SCRIPT}" ]
+}
+
+@test "apply-ml4w-hooks: hooking the 2.17 runner keeps its new shape" {
+    run_hooks
+    # The hook only appends a block; the moved cache write and the new
+    # transition option must survive untouched.
+    grep -q '^            SETTINGS_TRANSITION_EFFECT="$2"; shift 2 ;;$' "${ML4W_WALLPAPER_SCRIPT}"
+    grep -q '^    echo "$IMAGE_PATH" > "$CACHE_FILE"$' "${ML4W_WALLPAPER_SCRIPT}"
+    # The cache write now sits inside the theming branch, never before it.
+    local skip_line cache_line
+    skip_line="$(grep -n '^if "$SKIP_THEMING"; then$' "${ML4W_WALLPAPER_SCRIPT}" | cut -d: -f1)"
+    cache_line="$(grep -n '^    echo "$IMAGE_PATH" > "$CACHE_FILE"$' "${ML4W_WALLPAPER_SCRIPT}" | cut -d: -f1)"
+    [ "${cache_line}" -gt "${skip_line}" ]
 }
 
 @test "apply-ml4w-hooks: re-running leaves the runner byte-identical" {

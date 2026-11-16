@@ -43,7 +43,7 @@ repository that ships the dotfiles. Gentleman.Dots is hosted at
 
 | Upstream | Kind | Verified remote (HTTPS) | Pinned ref | Status |
 | --- | --- | --- | --- | --- |
-| ML4W (Hyprland desktop dotfiles) | Desktop base environment | <https://github.com/mylinuxforwork/dotfiles.git> | `b95bd010eabc9c58a1a275ab0cca179b358aa9e3` (tag `2.16.1`) | Pinned — verified against release tag 2.16.1 |
+| ML4W (Hyprland desktop dotfiles) | Desktop base environment | <https://github.com/mylinuxforwork/dotfiles.git> | `9ead14e78a9bff5f1ae7df3aec7a775730cf4431` (tag `2.17`) | Pinned — verified against release tag 2.17 |
 | Gentleman.Dots | Shell / editor / terminal base configuration | <https://github.com/Gentleman-Programming/Gentleman.Dots.git> | `5b13e07b5a6fde799b65953e92cec323f684408f` | Pinned — verified against remote HEAD |
 
 ### Pin mechanism
@@ -52,8 +52,8 @@ Each ref above was verified on the date recorded in
 [`upstream-manifest.json`](upstream-manifest.json) by resolving the exact
 HTTPS remote listed in the table with `git ls-remote` and recording the exact
 returned commit (release tag for ML4W, remote HEAD for Gentleman.Dots).
-The [ML4W 2.16.1 release notes](https://github.com/mylinuxforwork/dotfiles/releases/tag/2.16.1)
-and [shipped keybindings](https://github.com/mylinuxforwork/dotfiles/blob/b95bd010eabc9c58a1a275ab0cca179b358aa9e3/dotfiles/.config/hypr/conf/keybindings/default.lua)
+The [ML4W 2.17 release notes](https://github.com/mylinuxforwork/dotfiles/releases/tag/2.17)
+and [shipped keybindings](https://github.com/mylinuxforwork/dotfiles/blob/9ead14e78a9bff5f1ae7df3aec7a775730cf4431/dotfiles/.config/hypr/conf/keybindings/default.lua)
 were also inspected; Gentleman.Dots retains its earlier verification unchanged.
 Pinning is a two-step process:
 
