@@ -73,6 +73,7 @@
     "alt-s": "mod.open:dispatch",
     "alt-o": "dc-panels.panel-flow",
     "alt-shift-t": "verify.auto",
+    "alt-e": "mod.open:dc-engram",
     "alt-c": "layout.switch:gentle-shell",
     "alt-b": "dc-panels.panel-files"
   },
