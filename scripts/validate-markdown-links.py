@@ -31,6 +31,7 @@ SKIP_DIRS = {
     ".coverage",
     ".superpowers",
     ".opencode",
+    ".tmp",
     ".claude",
     ".gemini",
     ".pi",
