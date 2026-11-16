@@ -145,13 +145,6 @@
                       }
                     },
                     {
-                      "id": "changes",
-                      "type": "block",
-                      "content": {
-                        "mod": "changes"
-                      }
-                    },
-                    {
                       "id": "prs",
                       "type": "block",
                       "content": {
@@ -166,7 +159,7 @@
                       }
                     }
                   ],
-                  "active": "changes"
+                  "active": "prs"
                 }
               ],
               "size": {
@@ -188,7 +181,7 @@
               "id": "status",
               "type": "block",
               "content": {
-                "mod": "workspace-status"
+                "mod": "dc-status"
               },
               "size": {
                 "weight": 1
