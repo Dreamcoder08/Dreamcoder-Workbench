@@ -155,7 +155,7 @@
                       },
                       "focus": {
                         "width": 1,
-                        "color": "accent"
+                        "color": "dim"
                       },
                       "header": {
                         "content": {
