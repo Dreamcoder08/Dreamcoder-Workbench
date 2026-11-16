@@ -311,7 +311,9 @@ def sync_active_targets(
         "kitty_config": ensure_kitty_ui_include(paths.kitty_config),
         "ghostty": write_if_changed(paths.ghostty, ghostty_content(active)),
         "ghostty_config": update_ghostty_theme(paths.ghostty_config, mode),
-        "warp": write_if_changed(paths.warp, warp_content(active)),
+        # apply-theme-mode.sh links the live theme to a mode variant; replace
+        # the link so the active palette never lands in the other variant.
+        "warp": write_if_changed(paths.warp, warp_content(active), replace_symlink=True),
         "warp_settings": update_warp_settings(paths.warp_settings, mode),
         "opencode": write_if_changed(
             paths.opencode, opencode_content(active, transparent_background=True)
