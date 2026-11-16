@@ -6,10 +6,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/fatih/color"
-	"github.com/spf13/cobra"
 	"github.com/dreamcoder08/dreamcoder-dots/installer/internal/dotfiles"
 	"github.com/dreamcoder08/dreamcoder-dots/installer/internal/system"
+	"github.com/fatih/color"
+	"github.com/spf13/cobra"
 )
 
 func RepairCmd() *cobra.Command {
@@ -52,6 +52,12 @@ that point outside the dreamcoder-dots repository.`,
 			}
 
 			fmt.Printf("  Detected: %s\n", yellow(fmt.Sprintf("%v", components)))
+
+			fmt.Println("  Generating active theme mirrors...")
+			if err := dotfiles.GenerateMirrors(dotfilesDir); err != nil {
+				fmt.Printf("  %s %v\n", red("✗"), err)
+				return err
+			}
 
 			var repaired int
 			for _, comp := range components {

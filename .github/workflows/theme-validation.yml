@@ -41,6 +41,18 @@ jobs:
       - name: Shell check
         run: git ls-files 'scripts/*.sh' 'lib/*.sh' 'DreamcoderShell/*.sh' 'DreamcoderShell/**/*.sh' | xargs shellcheck --shell=bash --severity=warning
 
+      # Active-mode mirrors are generated and gitignored, so a fresh checkout
+      # lacks them. Render them into the repo only (DREAMCODER_WRITE_LIVE=0),
+      # with HOME on a runner temp dir so no runner home state is read or written.
+      - name: Generate active-mode mirrors (repo-only sync)
+        env:
+          DREAMCODER_WRITE_LIVE: "0"
+          DREAMCODER_THEME_MODE: dark
+          HOME: ${{ runner.temp }}/dreamcoder-home
+        run: |
+          mkdir -p "$HOME"
+          ./scripts/dreamcoder sync
+
       - name: Run tests
         run: python -m pytest tests/ -v --tb=short
 

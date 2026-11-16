@@ -24,6 +24,10 @@ type installDoneMsg struct {
 	failed  int
 }
 
+type mirrorsGeneratedMsg struct {
+	err error
+}
+
 type installLogMsg struct {
 	line string
 }
@@ -72,7 +76,10 @@ func NewInstallProgressModel(components []dotfiles.Component) InstallProgressMod
 }
 
 func (m InstallProgressModel) Init() tea.Cmd {
-	return m.installNext()
+	dir := m.dotfilesDir
+	return func() tea.Msg {
+		return mirrorsGeneratedMsg{err: dotfiles.GenerateMirrors(dir)}
+	}
 }
 
 func (m InstallProgressModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -80,6 +87,20 @@ func (m InstallProgressModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
+
+	case mirrorsGeneratedMsg:
+		if msg.err == nil {
+			return m, m.installNext()
+		}
+		// Without the active mirrors no component may be stowed.
+		for _, c := range m.components {
+			if c.Selected {
+				m.results[c.Name] = "error"
+				m.errors[c.Name] = msg.err.Error()
+				m.failed++
+			}
+		}
+		return m, func() tea.Msg { return installDoneMsg{success: m.success, failed: m.failed} }
 
 	case installProgressMsg:
 		m.results[msg.component] = msg.status
