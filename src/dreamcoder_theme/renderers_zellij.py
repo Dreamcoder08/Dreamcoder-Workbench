@@ -1,9 +1,8 @@
 """Minimal Zellij KDL theme leaf writer (design §5 row 13).
 
-Zellij consumes named theme artifacts through ``config.kdl``'s
-``theme "dreamcoder-{mode}"`` selector. The generated KDL is the one palette
-artifact sync.py produces for Zellij; the active selector is patched by
-``update_zellij_config``.
+Zellij loads theme files from ``CONFIG_DIR/themes``. The tracked ``config.kdl``
+keeps the stable ``theme "dreamcoder"`` selector, and the sync writes the
+active-mode ``themes/dreamcoder.kdl`` (untracked) plus the mode variants.
 """
 
 from __future__ import annotations

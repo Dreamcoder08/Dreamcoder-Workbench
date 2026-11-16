@@ -11,7 +11,19 @@ From the repository root, activate the Python environment described in [INSTALL.
 
 Mode activation prepares and validates the theme, persists the choice, writes configurations and invokes reload adapters. Sync regenerates palette tokens and writes live targets and, by default, repository outputs; it can also update selectors and the Bat cache. Both can affect your existing configuration. Inspect changes and reload or restart applications where needed. Neither operation installs applications or their configuration. For the desktop installation and recovery path, see [INSTALL.md](../../INSTALL.md).
 
-`dreamcoder-theme` is the installed control CLI: its parser offers `theme apply dark` and `theme apply light`, but no `sync` command. Use the repository wrapper above for sync. `DREAMCODER_THEME_MODE=light` or `dark` selects sync's mode; otherwise it uses the persisted live mode, then dark. `DREAMCODER_WRITE_REPO=0` skips repository theme outputs, not live configuration writes.
+`dreamcoder-theme` is the installed control CLI: its parser offers `theme apply dark` and `theme apply light`, but no `sync` command. Use the repository wrapper above for sync. `DREAMCODER_THEME_MODE=light` or `dark` selects sync's mode; otherwise it uses the persisted live mode, then dark. `DREAMCODER_WRITE_REPO=0` skips repository theme outputs, not live configuration writes. `DREAMCODER_WRITE_LIVE=0` runs a repo-only sync: it writes every repository variant and active mirror and touches nothing under `$HOME` (no live configurations, Bat cache, Orca settings or reloads). Setting both to `0` is rejected because nothing would be written.
+
+## Generated active mirrors
+
+Files that hold only the current mode's palette are generated, not versioned. Each one is gitignored at its exact path, for example `DreamcoderShell/.config/starship.toml`, `DreamcoderGhostty/.config/ghostty/themes/dreamcoder`, `DreamcoderKitty/.config/kitty/colors-dreamcoder.conf` and `DreamcoderThemes/*-dreamcoder.*`; the `.gitignore` block lists them all. Their `-dark` and `-light` variants stay tracked. Sync rewrites every active mirror at the same path, so stow links, sourced snippets and copy-style installs keep working, and switching between Light and Dark leaves `git status` unchanged.
+
+A fresh clone has no active mirrors until the first sync. Generate them before stowing:
+
+```bash
+DREAMCODER_WRITE_LIVE=0 ./scripts/dreamcoder sync
+```
+
+Hand-maintained configurations select a mode-independent name: Ghostty's `config` uses `theme = dreamcoder` and Zellij's `config.kdl` uses `theme "dreamcoder"`. The generated `themes/dreamcoder` (Ghostty) and `themes/dreamcoder.kdl` (Zellij) carry the active mode. Mode activation records the applied mode in `$XDG_STATE_HOME/dreamcoder/theme-mode` (default `~/.local/state/dreamcoder/theme-mode`); when that file is missing, the legacy `terminal.default_mode` value in the tracked `settings.json` is used. Activation no longer writes `settings.json`.
 
 ## Architecture
 

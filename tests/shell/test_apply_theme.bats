@@ -43,7 +43,9 @@ teardown() {
     grep -q '"${_link%.conf}-${MODE}.conf"' "$script"
     grep -q 'Dreamcoder-${MODE^}.yaml' "$script"
     grep -q 'ln -sf "dreamcoder-${MODE}.theme"' "$script"
-    grep -qF 'theme \"dreamcoder-${MODE}\"' "$script"
+    # Zellij selects a stable theme name; only a legacy selector is migrated.
+    grep -qF "sed -i 's/^theme \".*\"/theme \"dreamcoder\"/' \"\${ZELLIJ_CONF}\"" "$script"
+    ! grep -qF 'theme \"dreamcoder-${MODE}\"' "$script"
     grep -q 'delta-dreamcoder-${MODE}.gitconfig' "$script"
     grep -q 'config.${MODE}.yml' "$script"
     ! grep -qi 'night' "$script"
@@ -55,7 +57,7 @@ teardown() {
     # generated config.<variant>.yml (same absolute-into-repo pattern as the
     # existing delta selector), never at the static mode-tracking config.yml.
     script="scripts/apply-theme-mode.sh"
-    grep -q 'LAZYGIT_LINK="${HOME}/.config/lazygit/config.yml"' "$script"
+    grep -q 'LAZYGIT_LINK="${CONFIG_HOME}/lazygit/config.yml"' "$script"
     grep -q 'LAZYGIT_VARIANT="${DOTS_DIR}/DreamcoderLazygit/.config/lazygit/config.${MODE}.yml"' "$script"
     grep -qF 'ln -sf "${LAZYGIT_VARIANT}" "${LAZYGIT_LINK}"' "$script"
 }
@@ -64,7 +66,7 @@ teardown() {
     # ML4W upgrades rewrite btop.conf with color_theme = "matugen"; every apply
     # must point it back at the Dreamcoder theme without rewriting it needlessly.
     script="scripts/apply-theme-mode.sh"
-    grep -q 'BTOP_CONF="${HOME}/.config/btop/btop.conf"' "$script"
+    grep -q 'BTOP_CONF="${CONFIG_HOME}/btop/btop.conf"' "$script"
     grep -qF "grep -q '^color_theme = \"dreamcoder\"\$' \"\${BTOP_CONF}\"" "$script"
     grep -qF "sed -i 's/^color_theme = .*/color_theme = \"dreamcoder\"/' \"\${BTOP_CONF}\"" "$script"
 }

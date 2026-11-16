@@ -56,3 +56,36 @@ target/
 Thumbs.db
 # uv
 uv.lock
+# Generated active-mode mirrors (odd/tasks/active-mirrors-untracked.md).
+# `dreamcoder sync` rewrites each of these for the current Light/Dark mode;
+# a fresh clone generates them with `DREAMCODER_WRITE_LIVE=0 ./scripts/dreamcoder sync`.
+# Exact paths only: the tracked -dark/-light variants next to them stay versioned.
+/.opencode/themes/dreamcoder.json
+/DreamcoderBat/.config/bat/themes/Dreamcoder.tmTheme
+/DreamcoderCodexApp/Dreamcoder.codex-theme.json
+/DreamcoderCodexCLI/Dreamcoder.tmTheme
+/DreamcoderGhostty/.config/ghostty/themes/dreamcoder
+/DreamcoderKitty/.config/kitty/colors-dreamcoder.conf
+/DreamcoderKitty/.config/kitty/dreamcoder-ui.conf
+/DreamcoderLazygit/.config/lazygit/config.yml
+/DreamcoderPi/.pi/agent/themes/dreamcoder.json
+/DreamcoderShell/.config/starship.toml
+/DreamcoderThemes/bat-dreamcoder.sh
+/DreamcoderThemes/btop-dreamcoder.theme
+/DreamcoderThemes/cava-dreamcoder.config
+/DreamcoderThemes/delta-dreamcoder.gitconfig
+/DreamcoderThemes/dunst-dreamcoder.conf
+/DreamcoderThemes/firefox-dreamcoder.css
+/DreamcoderThemes/fzf-dreamcoder.sh
+/DreamcoderThemes/hyprland.conf
+/DreamcoderThemes/ls-colors-dreamcoder.sh
+/DreamcoderThemes/obsidian-dreamcoder.css
+/DreamcoderThemes/rofi.rasi
+/DreamcoderThemes/waybar.css
+/DreamcoderThemes/zsh-syntax-highlighting-dreamcoder.zsh
+/DreamcoderThemes/dreamcoder/hyprland.conf
+/DreamcoderThemes/dreamcoder/rofi.rasi
+/DreamcoderThemes/dreamcoder/waybar.css
+/DreamcoderTmux/.config/tmux/tmux-dreamcoder.conf
+/DreamcoderWarp/.local/share/warp-terminal/themes/Dreamcoder.yaml
+/DreamcoderZellij/.config/zellij/themes/dreamcoder.kdl

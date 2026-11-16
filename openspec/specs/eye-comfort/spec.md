@@ -78,7 +78,7 @@ Every consumer output in the union of `sync_active_targets()` and `sync_repo_sni
 
 ### Requirement: Dreamcoder CLI Light/Dark activation
 
-`dreamcoder light` and `dreamcoder dark` MUST persist `terminal.default_mode`, run the validated sync, and return non-zero without changing active outputs when validation fails. `night` MUST be rejected as an unknown command, and `dreamcoder theme apply` MUST accept only `light` and `dark`. A settings file that still carries the retired `theme.render_profile` key MUST load without error: the key is reported as an unknown setting, preserved, and never read. `scripts/theme-auto.sh` MUST keep the Light/Dark schedule.
+`dreamcoder light` and `dreamcoder dark` MUST record the applied mode in the untracked state file (`$XDG_STATE_HOME/dreamcoder/theme-mode`, read with a fallback to the legacy `terminal.default_mode`), run the validated sync, and return non-zero without changing active outputs when validation fails. `night` MUST be rejected as an unknown command, and `dreamcoder theme apply` MUST accept only `light` and `dark`. A settings file that still carries the retired `theme.render_profile` key MUST load without error: the key is reported as an unknown setting, preserved, and never read. `scripts/theme-auto.sh` MUST keep the Light/Dark schedule.
 
 #### Scenario: Light or Dark activation succeeds
 

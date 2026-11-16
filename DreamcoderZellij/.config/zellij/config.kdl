@@ -35,5 +35,5 @@ plugins {
     compact-bar { path "compact-bar"; }
 }
 
-// Theme
-theme "dreamcoder-dark"
+// Theme: stable name; the generated themes/dreamcoder.kdl carries the active mode
+theme "dreamcoder"

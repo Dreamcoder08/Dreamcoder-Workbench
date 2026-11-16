@@ -307,3 +307,42 @@ def adaptive_enabled() -> bool:
 
 def write_repo_enabled() -> bool:
     return os.environ.get("DREAMCODER_WRITE_REPO", "1") != "0"
+
+
+def write_live_enabled() -> bool:
+    """``DREAMCODER_WRITE_LIVE=0`` runs a repo-only sync that never touches ``$HOME``."""
+    return os.environ.get("DREAMCODER_WRITE_LIVE", "1") != "0"
+
+
+def active_mode_state_path() -> Path:
+    """Untracked record of the last activated base mode.
+
+    The tracked ``settings.json`` keeps ``terminal.default_mode`` as the user's
+    configured preference; activation records the applied mode here instead,
+    so a Light/Dark flip never changes a repository-tracked file.
+    """
+    state_home = Path(os.environ.get("XDG_STATE_HOME", Path.home() / ".local/state"))
+    return state_home / "dreamcoder" / "theme-mode"
+
+
+def read_active_mode() -> str | None:
+    """Return the last activated mode, falling back to legacy ``settings.json``."""
+    try:
+        mode = active_mode_state_path().read_text().strip().lower()
+    except OSError:
+        mode = ""
+    if mode in {"dark", "light"}:
+        return mode
+    # Missing or corrupt state: fall back to the legacy settings.json record.
+    from .settings_store import settings_get  # noqa: PLC0415
+
+    legacy = settings_get("terminal.default_mode")
+    return legacy if legacy in {"dark", "light"} else None
+
+
+def write_active_mode(mode: str) -> None:
+    if mode not in {"dark", "light"}:
+        raise ValueError(f"active mode must be 'dark' or 'light' (got {mode!r})")
+    path = active_mode_state_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(f"{mode}\n")

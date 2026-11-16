@@ -42,7 +42,7 @@ pinned-active behavior, not only `antigravity`.
 
 ### Requirement: symlink-safe consumers use the matching MutationStrategy
 
-Every registration whose repository-tracked active-mirror write in
+Every registration whose generated repository active-mirror write in
 `sync.py`'s `sync_repo_snippets()` routes through `write_active_repo_file()`
 (unlink-stale-symlink guard) MUST NOT declare
 `MutationStrategy.WRITE_IF_CHANGED`. If no existing member represents this
@@ -52,12 +52,22 @@ the 21 consumers whose repo active-mirror write is confirmed against live
 `bat_theme`, `pi_theme`, `kitty_ui`, `opencode` (the `.opencode` dotfile),
 `hyprland`, `waybar`, `rofi`, `zsh_syntax`, `ls_colors`, `fzf`, `bat`,
 `delta`, `btop`, `dunst`, `cava`, `firefox`, `obsidian`, `lazygit` — not only
-the one that surfaced the bug. Consumers whose only `sync.py` write is a bare
+the one that surfaced the bug. Consumers whose registration describes a bare
 `write_if_changed()` on a live path or a pure `write_variant_files()` call
 (`kitty`, `tmux`, `starship`, `nvim`) MUST keep `WRITE_IF_CHANGED`.
 `zellij`, `ghostty`, and `warp` keep `PROFILE_AWARE_SELECTOR`; that value
 describes the live selector patch, a separate dimension from the repo
 active-mirror mutation strategy (documented accepted model gap).
+
+Active mirrors are generated, not tracked (`odd/tasks/active-mirrors-untracked.md`):
+every repo active mirror is gitignored and rewritten by the repo pass, and
+`DREAMCODER_WRITE_LIVE=0` runs that pass alone. The stow-routed mirrors of
+`kitty` (`colors-dreamcoder.conf`), `tmux`, `starship`, `ghostty`
+(`themes/dreamcoder`), `warp` (`Dreamcoder.yaml`) and `zellij`
+(`themes/dreamcoder.kdl`) now also get a `write_active_repo_file()` repo write so
+a fresh clone has them before stow runs. Their registrations keep the strategy
+listed above because it models the live write; the added repo write is the same
+separate dimension as the selector gap (documented accepted model gap).
 
 #### Scenario: every write_active_repo_file consumer avoids WRITE_IF_CHANGED
 

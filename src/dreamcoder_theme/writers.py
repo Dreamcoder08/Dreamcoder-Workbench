@@ -127,24 +127,28 @@ def ensure_kitty_ui_include(path: Path) -> bool:
 
 
 def update_ghostty_theme(path: Path, mode: str) -> bool:
-    """Update Ghostty config to use the correct theme name, opacity, and blur.
+    """Point the Ghostty config at the stable ``dreamcoder`` theme alias.
 
-    The legacy ``dreamcoder`` name is retained only for light; dark keeps
-    ``dreamcoder-dark``.
+    The selector is the same in both modes: the generated
+    ``themes/dreamcoder`` file carries the active palette, so a Light/Dark flip
+    never rewrites this hand-maintained config. ``mode`` is accepted for the
+    shared writer signature and intentionally unused.
     """
+    del mode
     if not path.exists():
         return False
     content = path.read_text()
-    theme_name = "dreamcoder-dark" if mode != "light" else "dreamcoder"
+    theme_name = "dreamcoder"
 
     changed = False
 
     # Theme line only — opacity/blur are now set in the .ghostty theme file
     # via ghostty_content() so they stay consistent with the palette.
-    if re.search(rf"theme\s*=\s*{re.escape(theme_name)}(?:\s|$)", content):
+    selector = re.compile(r"^\s*theme\s*=.*$", re.MULTILINE)
+    if re.search(rf"^\s*theme\s*=\s*{re.escape(theme_name)}\s*$", content, re.MULTILINE):
         pass  # already correct
-    elif re.search(r"theme\s*=", content):
-        content = re.sub(r"theme\s*=.*", f"theme = {theme_name}", content)
+    elif selector.search(content):
+        content = selector.sub(f"theme = {theme_name}", content)
         changed = True
     else:
         content = content.rstrip() + f"\n\n# Theme\ntheme = {theme_name}\n"
@@ -154,11 +158,18 @@ def update_ghostty_theme(path: Path, mode: str) -> bool:
 
 
 def update_zellij_config(path: Path, mode: str) -> bool:
-    """Patch Zellij config.kdl to select ``theme "dreamcoder-{mode}"``."""
+    """Patch Zellij config.kdl to select the stable ``theme "dreamcoder"``.
+
+    The selector is mode-independent: the generated ``themes/dreamcoder.kdl``
+    defines ``dreamcoder`` with the active palette, so a Light/Dark flip never
+    rewrites this hand-maintained config. ``mode`` is accepted for the shared
+    writer signature and intentionally unused.
+    """
+    del mode
     if not path.exists():
         return False
     content = path.read_text()
-    theme_name = f"dreamcoder-{mode}"
+    theme_name = "dreamcoder"
 
     new_line = f'theme "{theme_name}"'
     pattern = re.compile(r'^\s*theme\s+".*?"\s*$', re.MULTILINE)
