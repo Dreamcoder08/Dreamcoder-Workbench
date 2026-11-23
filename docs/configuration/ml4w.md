@@ -75,12 +75,12 @@ updates, so custom bindings live in a separate **variant**. `conf/keybinding.lua
 If you add a keybinding, add it to the profile JSON and re-run the generator —
 never to `dreamcoder.lua` unless it is a native-only bind.
 
-### Tracking upstream `default.lua` (ML4W 2.16.1)
+### Tracking upstream `default.lua` (ML4W 2.17)
 
 `dreamcoder.lua` follows upstream `default.lua` minus the profile-owned binds.
 The verified release pin and upstream sources are recorded in the
-[source manifest](../sources.md). The integration retains the
-2.16 changes below and updates the confirmed 2.16.1 entry points:
+[source manifest](../sources.md). The integration retains the earlier entry
+points and ports the 2.17 changes:
 
 | Upstream change | In `dreamcoder.lua` |
 | --- | --- |
@@ -91,6 +91,9 @@ The verified release pin and upstream sources are recorded in the
 | `SUPER + ALT + D` dock autohide | Ported |
 | Reload Dock moved to `SUPER + SHIFT + D` | Not bound — the profile owns that combo (theme toggle) |
 | Rewritten AZERTY detection (`fr`, `be`) | Ported; binds the AZERTY keysyms only on AZERTY layouts, since the profile owns the digit workspace binds |
+| Wallpaper carousel `SUPER + W` (2.17) | Ported: `ml4w-wallpaper-app --carousel` |
+| Hypr App Switcher `ALT + Tab` / `ALT + SHIFT + Tab` (2.17) | Ported: `qs -p ~/.local/share/hypr-app-switcher ipc call app-switcher next` / `prev` |
+| Workspace scroll throttle (2.17) | Ported: one workspace per 200 ms, with `binds.pass_mouse_when_bound = false` and `binds.scroll_event_delay = 1`, so a fast wheel does not overshoot or reach the focused window |
 
 Waybar and Rofi remain supported, not obsolete: ML4W's statusbar dispatcher
 selects Waybar or Quickshell, and `ml4w-launcher` selects Walker or Rofi with a
@@ -138,11 +141,14 @@ one of those files silently disappears on the next upgrade. The rule:
   `hyprland.lua` is still recognised).
 - **When a hook must live in an ML4W file, make it re-appliable.**
   `scripts/apply-ml4w-hooks.sh` appends the wallpaper hook to
-  `~/.config/ml4w/scripts/ml4w-wallpaper` (the runner ML4W 2.16's Quickshell
-  wallpaper app calls with `$IMAGE_PATH`) between
+  `~/.config/ml4w/scripts/ml4w-wallpaper` (the runner ML4W 2.17's Quickshell
+  wallpaper selector and carousel call with `$IMAGE_PATH`) between
   `# >>> Dreamcoder wallpaper hook >>>` markers. Each run replaces the block, so
   re-running it after an ML4W upgrade restores the hook without duplicates.
-- **The GTK theme listener is hooked the same way.** ML4W 2.16 runs
+  At 2.17 the runner writes its `current_wallpaper` cache only when theming
+  runs and accepts `--transition TYPE`; the hook writes that same cache file
+  itself, so `--skip-theming` still leaves it current.
+- **The GTK theme listener is hooked the same way.** ML4W 2.17 runs
   `~/.config/ml4w/listeners/gtk-theme-switcher.sh`, which watches
   `~/.config/gtk-3.0/settings.ini`. Dreamcoder's own light/dark switch writes
   that file, so the listener then runs Matugen over the wallpaper and
@@ -171,9 +177,9 @@ one of those files silently disappears on the next upgrade. The rule:
   stock file, so re-run `./scripts/apply-ml4w-hooks.sh` (or `dreamcoder repair`). To undo by
   hand: `sed -i 's/^#dreamcoder-off# //' ~/.config/matugen/config.toml`. Override the path
   with `MATUGEN_CONFIG`.
-- **waypaper is optional.** ML4W 2.16 no longer installs it; its
+- **waypaper is optional.** ML4W 2.17 does not install it; its
   `post_command` is hooked only when `~/.config/waypaper/config.ini` exists.
-- **Colour files may be regular files.** ML4W 2.16 ships
+- **Colour files may be regular files.** ML4W 2.17 ships
   `~/.config/hypr/colors.lua` / `colors.conf` as regular files and the theme
   sync writes Dreamcoder colours through them (it only re-points files that are
   already symlinks). `doctor.sh` and `verify-ml4w-setup.sh` accept either a
@@ -252,10 +258,10 @@ DreamcoderProfiles/dreamcoder/
 └── asus-vivobook15.json       # ASUS VivoBook 15 profile (all Fn keys)
 
 tests/ml4w/
-├── apply_ml4w_hooks.bats      # wallpaper + GTK listener hooks (ML4W 2.16 fixtures)
+├── apply_ml4w_hooks.bats      # wallpaper + GTK listener hooks (ML4W 2.17 fixtures)
 ├── args.bats                  # script argument handling
 ├── generate_custom_lua.bats   # generator, incl. the dreamcoder-colors loader
-├── keybindings_variant.bats   # dreamcoder.lua vs ML4W 2.16.1 and the profile
+├── keybindings_variant.bats   # dreamcoder.lua vs ML4W 2.17 and the profile
 ├── ml4w_managed.bats          # ML4W ownership + colour-file predicates
 ├── nmtui_route.bats           # safe optional network-menu route installation
 ├── setup_hyprland.bats        # orchestrator
@@ -263,5 +269,8 @@ tests/ml4w/
 └── waybar_override.bats       # Waybar accent override
 
 tests/fixtures/ml4w/
-└── ml4w-wallpaper-2.16        # upstream runner at tag 2.16 (3960570)
+├── capture-keybindings.lua    # recording Hyprland stub for the variant
+├── gtk-theme-switcher-2.17    # upstream listener at tag 2.17 (9ead14e)
+├── matugen-config-2.17.toml   # upstream Matugen config at tag 2.17
+└── ml4w-wallpaper-2.17        # upstream runner at tag 2.17
 ```

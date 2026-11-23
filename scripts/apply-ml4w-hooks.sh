@@ -3,8 +3,9 @@
 # apply-ml4w-hooks.sh — (re)install Dreamcoder's hooks into ML4W
 # ============================================================================
 # Primary target: ML4W's wallpaper runner (~/.config/ml4w/scripts/ml4w-wallpaper,
-# which receives the image as $IMAGE_PATH). ML4W 2.16 drives it directly from
-# its Quickshell wallpaper app; waypaper is no longer part of its install set,
+# which receives the image as $IMAGE_PATH). ML4W 2.17 drives it directly from
+# its Quickshell wallpaper selector and carousel; waypaper is not part of its
+# install set,
 # so waypaper's post_command is hooked only when that config exists.
 #
 # ML4W upgrades overwrite the runner, so re-run this script after every ML4W
@@ -249,7 +250,7 @@ hook_matugen_config() {
 
 hook_waypaper() {
   if [[ ! -f "${WAYPAPER_CONFIG}" ]]; then
-    printf '✓ waypaper config absent (not used by ML4W 2.16), skipped\n'
+    printf '✓ waypaper config absent (not used by ML4W 2.17), skipped\n'
     return 0
   fi
   if grep -q 'wallpaper-hook.sh' "${WAYPAPER_CONFIG}"; then
