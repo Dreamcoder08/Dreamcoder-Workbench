@@ -66,7 +66,7 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
 | T6 | S1,S3,S7 | Wallpapers via Codex CLI image generation from a token-derived brief (paper, pigment washes, single key light, bar safe zones); Light set + paired Dark companions; post-process (≥1920×1080, blue-noise dither) and gate on T7 | inline + Codex CLI | — |
 | T7 | S1,S2 | Wallpaper↔UI contract: OKLab L band, chroma cap, hue window around accent, APCA test of panels over worst wallpaper region; clamp matugen adaptive mode | inline | dae4d5f |
 | T8 | S2 | Migrate offenders: generate nvim `dreamcoder-light.lua`, tmux colors, renderer literals; audit Waybar/Herdr/Pi/ml4w_assets | inline | — |
-| T9 | S6 | Semantic chrome: badges, status icons, focus ring, window borders unified across Herdr/Waybar/Gentle Shell | inline | T9 commit |
+| T9 | S6 | Semantic chrome: badges, status icons, focus ring, window borders unified across Herdr/Waybar/Gentle Shell | inline | 775683c |
 | T10 | S4 | Visual regression: specimen board, perceptual diff (ΔE2000), `make theme-check`, CI hook (Risk 5) | inline, own commit | — |
 | T11 | S2,S6 | Live verification on Hyprland: reload, GTK/Qt, screenshots vs T1; close open items of `light-theme-delivery.md` | inline | — |
 | T12 | S2 | Docs: rewrite `docs/DREAMCODER_DESIGN_SYSTEM.md`, fix `WALLPAPER_SETUP.md`, update both skills | inline | — |
@@ -174,3 +174,9 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
   `primary→on_primary` gradient — needs a wired override; (b) the teal `ml.` tile is an ML4W SVG, kept as is
   (blanking it lost the launcher glyph) — needs a recoloured glyph. Upstream (gentle-pi, not this repo): the
   violet "Delegating" card is `extensions/gentle-agents.ts:584` `IRIS_TINT_BG #1a1526` with no theme hook.
+- L16 — T8 design: every Light colour file is either generated from tokens (preferred: renderer + registry,
+  Dark output byte-identical) or, when a renderer is disproportionate, uses only exact current Light token
+  values. Guard test: no tracked Light colour file outside the generated set contains a hex that is not a
+  current `modes.light` value (allowlist only with a written reason). Inventory: T1 baseline list in
+  `odd/evidence/light-coherence/t1-baseline.md` (Light entries), `scripts/apply-theme-mode.sh` tmux literals,
+  renderer literals (`renderers_herdr.py:13`, `renderers_opencode.py:170` shadow).
