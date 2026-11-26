@@ -25,6 +25,59 @@
         "additionalProperties": { "$ref": "#/$defs/primitive_name" }
       }
     },
+    "components": {
+      "description": "Tier 3: light and elevation geometry; per-mode colour is a primitive name.",
+      "type": "object",
+      "required": ["elevation", "radius", "border"],
+      "properties": {
+        "elevation": {
+          "description": "Key (0 z/2 z) plus ambient (0 0 2z) shadow per level; z in px, alphas 0..1.",
+          "type": "object",
+          "required": ["ink", "levels"],
+          "properties": {
+            "ink": {
+              "description": "Shadow colour per mode: a warm-ink primitive, never black.",
+              "type": "object",
+              "additionalProperties": { "$ref": "#/$defs/primitive_name" }
+            },
+            "levels": {
+              "type": "object",
+              "required": ["e1", "e2", "e3", "e4"],
+              "propertyNames": { "enum": ["e1", "e2", "e3", "e4"] },
+              "additionalProperties": { "$ref": "#/$defs/elevation_level" }
+            }
+          },
+          "additionalProperties": false
+        },
+        "radius": {
+          "description": "Radius scale in px.",
+          "type": "object",
+          "required": ["r1", "r2", "r3"],
+          "propertyNames": { "enum": ["r1", "r2", "r3"] },
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "border": {
+          "type": "object",
+          "required": ["hairline"],
+          "properties": {
+            "hairline": {
+              "type": "object",
+              "required": ["width", "color"],
+              "properties": {
+                "width": { "type": "integer", "minimum": 1 },
+                "color": {
+                  "type": "object",
+                  "additionalProperties": { "$ref": "#/$defs/primitive_name" }
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
     "modes": {
       "type": "object",
       "required": ["dark", "light", "dusk"],
@@ -100,6 +153,16 @@
     "oklch": {
       "type": "string",
       "pattern": "^oklch\\((0\\.[0-9]{4}|1\\.0000) 0\\.[0-3][0-9]{3} (3[0-5][0-9]|[12][0-9]{2}|[1-9]?[0-9])\\.[0-9]{2}\\)$"
+    },
+    "elevation_level": {
+      "type": "object",
+      "required": ["z", "key_alpha", "ambient_alpha"],
+      "properties": {
+        "z": { "type": "number", "exclusiveMinimum": 0 },
+        "key_alpha": { "type": "number", "minimum": 0, "maximum": 1 },
+        "ambient_alpha": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "additionalProperties": false
     },
     "primitive_name": { "type": "string", "pattern": "^[a-z][a-z_]*\\.[0-9]{3}$" },
     "rgba_color": {

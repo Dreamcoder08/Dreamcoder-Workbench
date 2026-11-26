@@ -16,7 +16,7 @@ window {
   background-color: @background;
   border: 1px;
   border-color: @border-ui;
-  border-radius: 18px;
+  border-radius: 12px;
 }
 
 entry {
@@ -24,7 +24,7 @@ entry {
   text-color: @foreground;
   border: 1px;
   border-color: @focus;
-  border-radius: 12px;
+  border-radius: 8px;
 }
 
 element selected {
