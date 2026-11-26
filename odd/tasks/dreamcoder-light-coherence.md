@@ -66,7 +66,7 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
 | T6 | S1,S3,S7 | Wallpapers via Codex CLI image generation from a token-derived brief (paper, pigment washes, single key light, bar safe zones); Light set + paired Dark companions; post-process (≥1920×1080, blue-noise dither) and gate on T7 | inline + Codex CLI | — |
 | T7 | S1,S2 | Wallpaper↔UI contract: OKLab L band, chroma cap, hue window around accent, APCA test of panels over worst wallpaper region; clamp matugen adaptive mode | inline | dae4d5f |
 | T8 | S2 | Migrate offenders: generate nvim `dreamcoder-light.lua`, tmux colors, renderer literals; audit Waybar/Herdr/Pi/ml4w_assets | inline | — |
-| T9 | S6 | Semantic chrome: badges, status icons, focus ring, window borders unified across Herdr/Waybar/Gentle Shell | inline | — |
+| T9 | S6 | Semantic chrome: badges, status icons, focus ring, window borders unified across Herdr/Waybar/Gentle Shell | inline | T9 commit |
 | T10 | S4 | Visual regression: specimen board, perceptual diff (ΔE2000), `make theme-check`, CI hook (Risk 5) | inline, own commit | — |
 | T11 | S2,S6 | Live verification on Hyprland: reload, GTK/Qt, screenshots vs T1; close open items of `light-theme-delivery.md` | inline | — |
 | T12 | S2 | Docs: rewrite `docs/DREAMCODER_DESIGN_SYSTEM.md`, fix `WALLPAPER_SETUP.md`, update both skills | inline | — |
@@ -158,3 +158,19 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
   3840×2160, additive paper grain ~1.4 code values RMS, ordered dither to 8-bit, byte-deterministic) with
   `tests/test_finish_wallpaper.py`. ImageMagick 7.1.2-36 `SoftLight` composite returns white (bug), so the grain
   is additive `Mathematics`; ordered dither replaces TPDF for reproducible builds.
+- L14 — User decision on the T6 blocker, verbatim: "Habilito Codex y te aviso". T6 waits; T9, T8, T5 continue.
+  T9 design (S6 defects from the screenshot, Light only, Dark byte-identical):
+  - Pigment wash rule (Kubelka–Munk thin layer): any coloured chip/badge/tile = pigment at ~12–16% over paper as
+    fill, the same pigment as text/icon. No saturated solid fills in Light chrome.
+  - Waybar count badges (e.g. updates `102`): neutral clay chip (`selection` fill, `accent` text); only real
+    error/critical states use the madder wash. ML4W/settings tile (teal `ml.`): umber wash tile.
+  - Hyprland active border: solid `accent` (no accent→paper gradient); inactive: `inactive_border`.
+  - Gentle Shell / Pi Light: no dark fills inside Light (the violet "Delegating" block); tool/delegation blocks
+    use `surface1`/`surface0` with a pigment left rule and ink text.
+- L15 — T9 result (partial by design): Light Waybar updates badge = clay chip with umber text, only `.critical` a
+  madder wash; live override `style-custom.css` washes ML4W's `.red/.yellow` badge (GTK CSS cannot tell modes
+  apart, so Dark live badges become washes too — flagged to the user); Hyprland Light border solid accent in
+  `hyprland-light.conf`. Open, moved to T11: (a) ML4W Lua `conf/windows/default.lua:7` still draws the live
+  `primary→on_primary` gradient — needs a wired override; (b) the teal `ml.` tile is an ML4W SVG, kept as is
+  (blanking it lost the launcher glyph) — needs a recoloured glyph. Upstream (gentle-pi, not this repo): the
+  violet "Delegating" card is `extensions/gentle-agents.ts:584` `IRIS_TINT_BG #1a1526` with no theme hook.

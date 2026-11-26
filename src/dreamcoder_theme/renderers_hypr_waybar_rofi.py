@@ -104,13 +104,24 @@ def _rgba_to_argb(value: str, default_alpha: str = "ff") -> str:
     return f"rgba({r:02x}{g:02x}{b:02x}{a_hex})"
 
 
+def _is_light_chrome(c: dict[str, str]) -> bool:
+    """Light palettes carry the components tier; Dark keeps its previous output."""
+    return "elevation_e1" in c
+
+
 def hypr_content(c: dict[str, str]) -> str:
     inactive = _rgba_to_argb(c.get("inactive_border", "rgba(89, 77, 70, 0.78)"))
+    # Light: one solid accent frame (no gradient); other modes keep the ink gradient.
+    active = (
+        f"rgba({c['accent'][1:]}ff)"
+        if _is_light_chrome(c)
+        else f"rgba({c['text'][1:]}ff) rgba({c['muted'][1:]}ff) 45deg"
+    )
     return f"""# Dreamcoder color layer for Hyprland.
 # Import after ML4W/Gentleman defaults; this changes colors only.
 
 general {{
-    col.active_border = rgba({c["text"][1:]}ff) rgba({c["muted"][1:]}ff) 45deg
+    col.active_border = {active}
     col.inactive_border = {inactive}
 }}
 
@@ -120,6 +131,33 @@ misc {{
 """
 
 
+def _waybar_chips(c: dict[str, str]) -> tuple[str, str]:
+    """Light only: (selection colour, chip rules); pigment wash, never a solid fill.
+
+    Count badges are a neutral clay chip with accent text; only the critical state
+    takes the error wash. The ML4W launcher tile is an umber wash.
+    """
+    if not _is_light_chrome(c):
+        return "", ""
+    radius = c["radius_r2"]
+    return (
+        f"@define-color selection {c['selection']};\n",
+        f"""
+/* Count badges and tiles: a pigment wash over paper, never a saturated solid. */
+#custom-updates {{
+  background: @selection;
+  color: @accent;
+  border-radius: {radius};
+}}
+
+#custom-updates.critical {{
+  background: alpha(@error, 0.14);
+  color: @error;
+}}
+""",
+    )
+
+
 def waybar_content(c: dict[str, str]) -> str:
     # Light only: modules sit at elevation e1 with the r2 radius (components tier).
     module_depth = (
@@ -127,6 +165,7 @@ def waybar_content(c: dict[str, str]) -> str:
         if "elevation_e1" in c
         else ""
     )
+    selection_color, chip_rules = _waybar_chips(c)
     return f"""/* Dreamcoder color layer for Waybar. */
 @define-color bg {c["bg"]};
 @define-color bg-soft {c["bg_soft"]};
@@ -150,7 +189,7 @@ def waybar_content(c: dict[str, str]) -> str:
 @define-color warning {c["warning"]};
 @define-color link {c["link"]};
 @define-color link-hover {c["link_hover"]};
-
+{selection_color}
 window#waybar {{
   background: {c["panel_rgba"]};
   color: @text;
@@ -184,7 +223,7 @@ window#waybar {{
 #battery.warning {{ color: @warning; }}
 #battery.critical {{ color: @error; }}
 #network.disconnected {{ color: @error; }}
-"""
+{chip_rules}"""
 
 
 def rofi_content(c: dict[str, str]) -> str:
