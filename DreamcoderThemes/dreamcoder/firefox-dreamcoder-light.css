@@ -8,20 +8,20 @@
 :root {
   --dreamcoder-bg: #f9f6f2;
   --dreamcoder-surface: #fefdfa;
-  --dreamcoder-surface-1: #eee9e2;
-  --dreamcoder-text: #1e1814;
-  --dreamcoder-text-dim: #352f29;
-  --dreamcoder-accent: #8b440c;
-  --dreamcoder-accent-2: #a73b15;
-  --dreamcoder-border: #8e8479;
-  --dreamcoder-border-ui: #645c53;
-  --dreamcoder-error: #a12623;
-  --dreamcoder-warning: #795700;
-  --dreamcoder-sage: #1c6c31;
-  --dreamcoder-input-bg: #eee9e2;
+  --dreamcoder-surface-1: #ede9e3;
+  --dreamcoder-text: #1e1813;
+  --dreamcoder-text-dim: #2b241e;
+  --dreamcoder-accent: #874004;
+  --dreamcoder-accent-2: #753100;
+  --dreamcoder-border: #908379;
+  --dreamcoder-border-ui: #5f544c;
+  --dreamcoder-error: #9c2024;
+  --dreamcoder-warning: #6e5201;
+  --dreamcoder-sage: #1b672f;
+  --dreamcoder-input-bg: #ede9e3;
   --dreamcoder-toolbar-bg: #f2eee9;
-  --dreamcoder-hover: #e8dbd0;
-  --dreamcoder-active: #decab8;
+  --dreamcoder-hover: #e8dbce;
+  --dreamcoder-active: #dcc8b6;
 }
 
 /* Main window */

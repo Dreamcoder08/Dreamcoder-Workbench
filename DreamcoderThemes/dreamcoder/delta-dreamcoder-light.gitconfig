@@ -11,35 +11,35 @@
 
     # Line colors
     plus-color = "#d8e1d5"
-    minus-color = "#ecd7d3"
-    plus-emph-color = "#1c6c31"
-    minus-emph-color = "#a12623"
+    minus-color = "#ebd6d3"
+    plus-emph-color = "#1b672f"
+    minus-emph-color = "#9c2024"
 
     # Diff UI
-    file-style = "#8b440c"
+    file-style = "#874004"
     file-decoration-style = "bold yellow box ul"
     hunk-header-style = "file line-number syntax"
     hunk-header-decoration-style = "yellow box"
-    hunk-header-file-style = "#8b440c"
-    hunk-header-line-number-style = "#352f29"
-    hunk-header-color = "#dcd8d4"
+    hunk-header-file-style = "#874004"
+    hunk-header-line-number-style = "#2b241e"
+    hunk-header-color = "#dad6d2"
 
     # Commit decorations
-    commit-style = "#8b440c bold"
+    commit-style = "#874004 bold"
     commit-decoration-style = "bold yellow box ul"
 
     # Line numbers
     line-numbers = true
-    line-numbers-left-style = "#352f29"
-    line-numbers-right-style = "#352f29"
-    line-numbers-minus-style = "#a12623"
-    line-numbers-plus-style = "#1c6c31"
+    line-numbers-left-style = "#2b241e"
+    line-numbers-right-style = "#2b241e"
+    line-numbers-minus-style = "#9c2024"
+    line-numbers-plus-style = "#1b672f"
 
     # Side-by-side
     side-by-side = true
 
     # Whitespace highlighting
-    whitespace-error-style = "#795700"
+    whitespace-error-style = "#6e5201"
 
     # Navigation
     navigate = true

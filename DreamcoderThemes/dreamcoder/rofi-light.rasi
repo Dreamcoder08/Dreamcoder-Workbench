@@ -2,14 +2,14 @@
 * {
   background: rgba(249, 246, 242, 0.96);
   background-alt: #fefdfa;
-  foreground: #1e1814;
-  muted: #352f29;
-  selected: rgba(139, 68, 12, 0.30);
-  active: #8b440c;
-  border-ui: #645c53;
-  focus: #006973;
-  urgent: #a12623;
-  border-color: #645c53;
+  foreground: #1e1813;
+  muted: #2b241e;
+  selected: rgba(135, 64, 4, 0.30);
+  active: #874004;
+  border-ui: #5f544c;
+  focus: #016367;
+  urgent: #9c2024;
+  border-color: #5f544c;
 }
 
 window {

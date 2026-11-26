@@ -59,8 +59,8 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
 | ID | Specs | Task | Route | Commit |
 | --- | --- | --- | --- | --- |
 | T1 | S2,S6 | Baseline: screenshot every Light target, contrast/ΔE report, full hex-literal inventory (uncapped) | inline | — |
-| T2 | S2,S3 | Token v2: DTCG three-tier `tokens.json`, OKLCH primitives; generate `palette_tokens.py` from it; parity test (Risk 3: config format) | inline, own commit | — |
-| T3 | S3,S4 | Material model: paper neutrals + pigment accents + ANSI-16 in tokens, all guarded (APCA/WCAG/ΔE) | inline | — |
+| T2 | S2,S3 | Token v2: DTCG three-tier `tokens.json`, OKLCH primitives; generate `palette_tokens.py` from it; parity test (Risk 3: config format) | inline, own commit | 0979a31 |
+| T3 | S3,S4 | Material model: paper neutrals + pigment accents + ANSI-16 in tokens, all guarded (APCA/WCAG/ΔE) | inline | T3 commit |
 | T4 | S3,S6 | Light & elevation: key/ambient shadow tokens, radius, border scale, translucency floor over wallpaper | inline | — |
 | T5 | S2 | Type, spacing (4 pt), motion tokens → Hyprland, Waybar, rofi, Herdr, GTK/Qt | writer A (parallel with T6) | — |
 | T6 | S1,S3,S7 | Wallpapers via Codex CLI image generation from a token-derived brief (paper, pigment washes, single key light, bar safe zones); Light set + paired Dark companions; post-process (≥1920×1080, blue-noise dither) and gate on T7 | inline + Codex CLI | — |
@@ -98,3 +98,26 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
 - L6 — T2 independent verify: PASS (S2, S3). Advisories fixed test-first: schema hue/chroma ranges now match the
   parser, `format_oklch` wraps hue 360→0, out-of-range primitives raise `TierError`, generator reuses
   `color_space` sRGB helpers.
+- L7 — T3 measurements (ΔE2000 validated vs Sharma 2005): info↔diagnostic ΔE 2.1 (indistinct); accent_2↔error
+  ΔE 8.7 (hover link reads as error, hues 38°/27°); subtle/comment/border_ui within ΔL 0.024; pigment L wanders
+  0.463–0.501; several pigments < 4.5 on surface3. T3 design (laws pinned in `tests/test_light_material.py`):
+  - paper: hue 82°→72° as L falls (lignin reddening), C = 0.0035 + 0.089·(1−L); keep L steps
+    surface0 .994, bg .974, bg_soft .951, surface1 .936, surface2 .900, surface3 .848 (elevation is T4).
+  - ink (iron-gall/sepia): hue 62°, C = 0.010 + 0.020·L; steps .160 heading; .215 text/on_surface/
+    prompt_text/selection_fg; .315 muted/prompt_muted/border_hi; .455 subtle/comment/border_ui; .540 disabled;
+    .620 border (lower L if a test floor needs it).
+  - pigments at one density L_P ≈ 0.455 (lower only if a contrast floor needs it): madder error H25 C.160;
+    umber accent/link/prompt_accent H52 C.115; ochre warning H85 C.100; malachite success+sage H148 C.115;
+    verdigris focus H200 C.085; indigo info+diagnostic H245 C.110; violet lavender H290 C.120; cochineal mauve
+    H340 C.120. Hover accent_2/link_hover/prompt_accent_2 = deeper umber H48 L≈0.40 C≈0.125. Clamp C to gamut.
+  - clay (umber wash on paper): hue 62°, C = 0.40·(1−L); keep L of selection/selection_bg, prompt_surface0..2.
+  - on_accent/on_error/on_focus stay paper surface0; rgba keys (panel_rgba, module_rgba, active_rgba,
+    inactive_border, overlay, scrim) recomputed from their base hex with unchanged alpha.
+  - ANSI stays derived from these semantic tokens in `palette.py` (already single source); no ANSI copy in tokens.
+- L8 — T3 result: 25 light primitives (paper, ink, clay + 8 pigments at L .455). Deviations from L7, forced by
+  existing guards: subtle .400 ≠ comment .455 (health requires comment ≠ subtle; nvim needs comment/muted ≥ 2:1),
+  muted .265; `paper.974` tuned to keep bg `#f9f6f2` (Herdr test pin); sRGB gamut clamped umber.400 C .109,
+  ochre C .093, verdigris C .077. Metrics: min pigment ΔE2000 15.1 (was 2.1), accent_2↔error 15.5 (was 8.7),
+  min WCAG over text surfaces 5.14 (success on surface2), APCA on bg 78–86. Three Light snapshots from the Dark
+  features re-pinned to the new palette (ANSI baseline, Starship sha256, adaptive fingerprint); Dark/Dusk pins
+  unchanged.

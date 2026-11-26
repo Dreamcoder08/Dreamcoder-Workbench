@@ -10,8 +10,14 @@ from __future__ import annotations
 import math
 import re
 
+Lab = tuple[float, float, float]
+
 _SRGB_BREAK = 0.04045
 _SRGB_LINEAR_BREAK = 0.0031308
+_D65_WHITE = (0.95047, 1.0, 1.08883)
+_LAB_EPSILON = 216 / 24389
+_LAB_KAPPA = 24389 / 27
+_POW7_25 = 25.0**7
 _OKLCH_TEXT = re.compile(r"^oklch\((?P<l>[0-9.]+) (?P<c>[0-9.]+) (?P<h>[0-9.]+)\)$")
 
 
@@ -70,3 +76,70 @@ def parse_oklch(text: str) -> tuple[float, float, float]:
     if not 0 <= lightness <= 1 or chroma > 0.4 or hue >= 360:
         raise ValueError(f"oklch value out of range: {text!r}")
     return lightness, chroma, hue
+
+
+def hex_to_lab(value: str) -> Lab:
+    """CIE L*a*b* (D65) of an sRGB hex colour."""
+    r, g, b = (srgb_to_linear(c) for c in hex_to_unit_rgb(value))
+    xyz = (
+        0.4124564 * r + 0.3575761 * g + 0.1804375 * b,
+        0.2126729 * r + 0.7151522 * g + 0.0721750 * b,
+        0.0193339 * r + 0.1191920 * g + 0.9503041 * b,
+    )
+    fx, fy, fz = (
+        t ** (1 / 3) if t > _LAB_EPSILON else (_LAB_KAPPA * t + 16) / 116
+        for t in (c / w for c, w in zip(xyz, _D65_WHITE, strict=True))
+    )
+    return 116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)
+
+
+def _hue_degrees(a: float, b: float) -> float:
+    return math.degrees(math.atan2(b, a)) % 360 if a or b else 0.0
+
+
+def delta_e2000(first: str | Lab, second: str | Lab) -> float:
+    """CIEDE2000 colour difference (Sharma, Wu & Dalal 2005).
+
+    Each argument is an sRGB hex string or a CIE Lab tuple.
+    """
+    lab1 = hex_to_lab(first) if isinstance(first, str) else first
+    lab2 = hex_to_lab(second) if isinstance(second, str) else second
+    (l1, a1, b1), (l2, a2, b2) = lab1, lab2
+    c_mean = (math.hypot(a1, b1) + math.hypot(a2, b2)) / 2
+    g = 0.5 * (1 - math.sqrt(c_mean**7 / (c_mean**7 + _POW7_25)))
+    a1p, a2p = (1 + g) * a1, (1 + g) * a2
+    c1, c2 = math.hypot(a1p, b1), math.hypot(a2p, b2)
+    h1, h2 = _hue_degrees(a1p, b1), _hue_degrees(a2p, b2)
+
+    chromatic = c1 * c2 != 0
+    dh = 0.0
+    if chromatic:
+        dh = h2 - h1
+        if dh > 180:
+            dh -= 360
+        elif dh < -180:
+            dh += 360
+    d_l, d_c = l2 - l1, c2 - c1
+    d_h = 2 * math.sqrt(c1 * c2) * math.sin(math.radians(dh / 2))
+
+    l_mean, c_bar = (l1 + l2) / 2, (c1 + c2) / 2
+    h_bar = h1 + h2
+    if chromatic:
+        h_bar /= 2
+        if abs(h1 - h2) > 180:
+            h_bar += 180 if h1 + h2 < 360 else -180
+    t = (
+        1
+        - 0.17 * math.cos(math.radians(h_bar - 30))
+        + 0.24 * math.cos(math.radians(2 * h_bar))
+        + 0.32 * math.cos(math.radians(3 * h_bar + 6))
+        - 0.20 * math.cos(math.radians(4 * h_bar - 63))
+    )
+    d_theta = 30 * math.exp(-(((h_bar - 275) / 25) ** 2))
+    r_c = 2 * math.sqrt(c_bar**7 / (c_bar**7 + _POW7_25))
+    s_l = 1 + 0.015 * (l_mean - 50) ** 2 / math.sqrt(20 + (l_mean - 50) ** 2)
+    s_c = 1 + 0.045 * c_bar
+    s_h = 1 + 0.015 * c_bar * t
+    r_t = -math.sin(math.radians(2 * d_theta)) * r_c
+    term_c, term_h = d_c / s_c, d_h / s_h
+    return math.sqrt((d_l / s_l) ** 2 + term_c**2 + term_h**2 + r_t * term_c * term_h)
