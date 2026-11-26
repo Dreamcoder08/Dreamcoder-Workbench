@@ -64,7 +64,7 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
 | T4 | S3,S6 | Light & elevation: key/ambient shadow tokens, radius, border scale, translucency floor over wallpaper | inline | T4 commit |
 | T5 | S2 | Type, spacing (4 pt), motion tokens → Hyprland, Waybar, rofi, Herdr, GTK/Qt | writer A (parallel with T6) | — |
 | T6 | S1,S3,S7 | Wallpapers via Codex CLI image generation from a token-derived brief (paper, pigment washes, single key light, bar safe zones); Light set + paired Dark companions; post-process (≥1920×1080, blue-noise dither) and gate on T7 | inline + Codex CLI | — |
-| T7 | S1,S2 | Wallpaper↔UI contract: OKLab L band, chroma cap, hue window around accent, APCA test of panels over worst wallpaper region; clamp matugen adaptive mode | inline | — |
+| T7 | S1,S2 | Wallpaper↔UI contract: OKLab L band, chroma cap, hue window around accent, APCA test of panels over worst wallpaper region; clamp matugen adaptive mode | inline | T7 commit |
 | T8 | S2 | Migrate offenders: generate nvim `dreamcoder-light.lua`, tmux colors, renderer literals; audit Waybar/Herdr/Pi/ml4w_assets | inline | — |
 | T9 | S6 | Semantic chrome: badges, status icons, focus ring, window borders unified across Herdr/Waybar/Gentle Shell | inline | — |
 | T10 | S4 | Visual regression: specimen board, perceptual diff (ΔE2000), `make theme-check`, CI hook (Risk 5) | inline, own commit | — |
@@ -135,3 +135,20 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
   `src/dreamcoder_theme/elevation.py`, merged into Light palettes by `load_variants`. Wired: Hyprland shadow/scrim
   warm ink instead of black, Waybar modules r2 + e1, rofi radii r3/r2. Dark byte-identical (dark sync no diff).
   Left for T8/T9: Herdr, GTK/Qt, Gentle Shell/Pi, OpenCode shadow literal, hairline border consumers, Waybar e2–e4.
+- L11 — Order change: T7 (contract) runs before T6 so Codex-generated wallpapers are gated by a test, not by eye.
+  Codex CLI 0.172 has `image_generation` (stable); output ≤ ~1536×1024, so T6 finishes images by Lanczos upscale
+  to 3840×2160 plus native-resolution paper grain and TPDF dither (low-frequency art needs no source resolution;
+  fine texture is synthesized at output size). No PIL/numpy in the project: tools use ImageMagick via
+  `command -v magick`, no new Python dependency (avoids Risk 5).
+  T7 contract (`components.wallpaper.<mode>` in tokens.json, measured in OKLab on a downsample):
+  - size ≥ 3840×2160, aspect 16:9 ± 1%.
+  - light: mean L in [0.86, 0.97]; dark: mean L in [0.08, 0.22].
+  - chroma: p95 C ≤ 0.060 and mean C ≤ 0.035 (the T1 wallpaper was too saturated against the UI paper).
+  - hue: chroma-weighted circular mean hue within ±25° of 70° (paper/clay/umber axis) when mean C ≥ 0.01.
+  - bar safe zone (top 6% and bottom 6%): std L ≤ 0.035; light mean L ≥ 0.88.
+  - readability: Waybar `module_rgba` composited over the darkest 1% of the top band keeps `text` ≥ 7:1 WCAG and
+    `muted` ≥ 4.5:1; `panel_rgba` over the image's darkest 1% keeps `text` ≥ 7:1.
+- L12 — T7 result: `components.wallpaper.{light,dark}` + `wallpaper_contract.py` + `scripts/check-wallpaper.py`
+  (51 tests). All 8 current wallpapers fail: both light ones on size/chroma (p95 0.103–0.110)/safe zone; dark
+  ones on size, lightness (0.26–0.35 > 0.22), safe zone, bar readability 1.9–3.0:1, and three on hue (258–267°).
+  Light readability can only fail with a weaker palette (module/panel alphas hold 7:1 over black): a guard.
