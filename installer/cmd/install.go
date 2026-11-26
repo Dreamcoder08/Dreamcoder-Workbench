@@ -153,7 +153,7 @@ Examples:
 
 	cmd.Flags().StringSliceVarP(&components, "components", "c",
 		[]string{"kitty", "fish", "nvim"}, "Components to install (comma-separated, or 'all')")
-	cmd.Flags().StringVarP(&themeMode, "theme", "t", "dark", "Theme mode (dark/light/dusk)")
+	cmd.Flags().StringVarP(&themeMode, "theme", "t", "dark", "Theme mode (dark/light)")
 	cmd.Flags().Bool("backup", true, "Backup existing configs before install")
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "Show what would be installed without doing it")
 

@@ -182,15 +182,15 @@ def enrich_tokens(tokens: dict[str, object]) -> dict[str, object]:
 
 
 def render_from_tokens(tokens: dict[str, object]) -> str:
-    """Render deterministic static tokens for the three declared modes."""
+    """Render deterministic static tokens for the two declared modes."""
     enriched = enrich_tokens(tokens)
     modes = enriched["modes"]
     if not isinstance(modes, dict):
         raise ValueError("generated modes must be an object")
-    missing = [name for name in ("dark", "light", "dusk") if name not in modes]
+    missing = [name for name in ("dark", "light") if name not in modes]
     if missing:
         raise ValueError(f"missing required modes: {', '.join(missing)}")
-    return render_palette_tokens({name: modes[name] for name in ("dark", "light", "dusk")})
+    return render_palette_tokens({name: modes[name] for name in ("dark", "light")})
 
 
 def _display_path(path: Path) -> Path:

@@ -180,7 +180,6 @@ def test_load_variants_adds_elevation_to_light_only() -> None:
     merged = load_variants(VARIANTS, TOKENS)
     assert merged["light"]["shadow_ink"] == "#1e1813"
     assert not [k for k in merged["dark"] if k.startswith(("elevation_", "radius_", "shadow_"))]
-    assert not [k for k in merged["dusk"] if k.startswith(("elevation_", "radius_", "shadow_"))]
 
 
 def _light() -> dict[str, str]:

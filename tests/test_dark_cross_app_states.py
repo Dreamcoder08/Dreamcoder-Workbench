@@ -214,7 +214,6 @@ def test_starship_emitted_text_pairs():
     "mode, expected",
     [
         ("light", "7aeddb4861534165cc1fedf11c16a67a714dac14189a118c380a94ede9286119"),
-        ("dusk", "581c6c4b0b90ea880c2cd94af6cffd1f660b45555a07c037af1f8128679340df"),
     ],
 )
 def test_starship_non_dark_output_preserved(mode, expected):

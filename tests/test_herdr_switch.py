@@ -232,7 +232,7 @@ def test_config_check_rejection_fails_before_selector_touch(tmp_path: Path) -> N
 def test_invalid_mode_is_rejected_before_any_call(tmp_path: Path) -> None:
     run = FakeRun()
     outcome = switch_herdr(
-        "dusk", run=run, selector=tmp_path / "config.toml", variant_root=tmp_path
+        "invalid", run=run, selector=tmp_path / "config.toml", variant_root=tmp_path
     )
     assert outcome.status == "precondition-failed"
     assert run.calls == []

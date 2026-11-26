@@ -278,13 +278,6 @@ class TestNvimColorsName:
             "light variant must report dreamcoder-light"
         )
 
-    def test_dusk_sets_correct_colors_name(self):
-        dusk = VARIANTS["dusk"]
-        content = nvim_content(dusk)
-        assert 'colors_name = "dreamcoder-light"' in content, (
-            "dusk variant (lighter) must report dreamcoder-light"
-        )
-
 
 # ── Cross-mode consistency ────────────────────────────────────
 

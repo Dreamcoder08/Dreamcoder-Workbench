@@ -1,7 +1,7 @@
 """Deterministic candidate validation tests (task 2.6).
 
 The dual gate (ADR-002) is exercised against the deterministic candidates:
-Light, Dark, and design-system Dusk (adaptive disabled for the gate —
+Light and Dark (adaptive disabled for the gate —
 candidates are built directly from the canonical token modes, never through
 ``adaptive_palette``). All must pass both the WCAG 2.2 and APCA floors. Per-class at-floor passes and
 just-below-floor failures are asserted for Heading (Lc 60 light / 45 dark),
@@ -64,7 +64,7 @@ def _nearest_gray(
 def test_candidates_all_pass_the_dual_gate():
     tokens = _tokens()
     g = _guardrails()
-    for mode in ("light", "dark", "dusk"):
+    for mode in ("light", "dark"):
         errors = validate_palette(dict(tokens["modes"][mode]), g, mode=mode)
         assert errors == [], f"{mode} gate failures: {errors}"
 
@@ -72,9 +72,8 @@ def test_candidates_all_pass_the_dual_gate():
 def test_candidates_use_canonical_palettes_not_adaptive_output():
     """Adaptive is disabled for the gate: canonical mode bytes are the input."""
     tokens = _tokens()
-    for mode in ("light", "dark", "dusk"):
+    for mode in ("light", "dark"):
         assert tokens["modes"][mode]["details"] in ("darker", "lighter")
-    assert tokens["modes"]["dusk"]["name"] == "Dreamcoder Dusk"
 
 
 # ---------------------------------------------------------------------------

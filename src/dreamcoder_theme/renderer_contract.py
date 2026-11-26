@@ -24,10 +24,9 @@ from typing import Literal, Protocol, runtime_checkable
 # leaf renderers and callers compatible; adapters may accept Mapping internally.
 Palette = dict[str, str]
 
-# Canonical authored themes are distinct from runtime render variants: Dusk is
-# a design-system token set, never a generated runtime variant.
-CanonicalMode = Literal["light", "dusk", "dark"]
-CANONICAL_MODES: frozenset[CanonicalMode] = frozenset({"light", "dusk", "dark"})
+# Canonical authored themes: the two token sets that exist, Dark and Light.
+CanonicalMode = Literal["light", "dark"]
+CANONICAL_MODES: frozenset[CanonicalMode] = frozenset({"light", "dark"})
 
 RenderVariant = Literal["dark", "light"]
 # Backward-compatible registration type name: registrations describe generated

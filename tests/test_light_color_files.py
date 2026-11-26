@@ -45,11 +45,7 @@ LIGHT_ONLY_BY_CONTENT = (
     "DreamcoderYazi/.config/yazi/theme.toml",
 )
 # Written reasons are mandatory; an entry that is generated or untracked fails.
-ALLOWLIST: dict[str, str] = {
-    "DreamcoderZellij/.config/zellij/config-light.kdl.bak.1782968040": (
-        "tracked backup of a foreign config; deleted by T13 (legacy cleanup)"
-    ),
-}
+ALLOWLIST: dict[str, str] = {}
 
 
 def _tracked() -> list[str]:

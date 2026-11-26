@@ -84,7 +84,7 @@ assert_themes() {
 }
 
 @test "pi-theme.sh fails closed for invalid mode before modifying themes" {
-    run env DREAMCODER_THEME_MODE=dusk bash "${SCRIPT}"
+    run env DREAMCODER_THEME_MODE=invalid bash "${SCRIPT}"
     [[ "${status}" -ne 0 ]]
     [[ -L "${PI_CODING_AGENT_DIR}/themes/dreamcoder.json" ]]
     [[ -L "${GENTLE_SHELL_HOME}/themes/dreamcoder.json" ]]

@@ -491,7 +491,7 @@ def test_invalid_contract_rejected_without_writes(paths, writer, invalid):
     config.write_text("/* sentinel */" if writer is update_gtk_import else "; sentinel\n")
     mode = "dark"
     if invalid == "mode":
-        mode = "dusk"
+        mode = "invalid"
     elif invalid == "relative":
         canonical = Path("relative.css")
     elif invalid == "collision":

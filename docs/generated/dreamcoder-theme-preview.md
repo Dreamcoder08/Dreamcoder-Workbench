@@ -88,42 +88,6 @@ Semantic tokens are intentionally distinct:
 | `border_hi` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#2b241e'></span> `#2b241e` |
 | `focus` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#016367'></span> `#016367` |
 
-### Dreamcoder Dusk
-
-| Role | Color |
-| --- | --- |
-| `bg` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#ebe4d6'></span> `#ebe4d6` |
-| `bg_soft` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#dfd5c4'></span> `#dfd5c4` |
-| `surface0` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#f1eadf'></span> `#f1eadf` |
-| `surface1` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#d8cbb8'></span> `#d8cbb8` |
-| `surface2` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#c6b6a0'></span> `#c6b6a0` |
-| `surface3` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#b6a691'></span> `#b6a691` |
-| `text` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#1a1713'></span> `#1a1713` |
-| `text_heading` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#13100c'></span> `#13100c` |
-| `muted` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#4c443a'></span> `#4c443a` |
-| `subtle` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#5a4f43'></span> `#5a4f43` |
-| `comment` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#615548'></span> `#615548` |
-| `accent` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#8a5520'></span> `#8a5520` |
-| `accent_2` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#96411e'></span> `#96411e` |
-| `diagnostic` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#104b67'></span> `#104b67` |
-| `sage` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#344f30'></span> `#344f30` |
-| `success` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#344f30'></span> `#344f30` |
-| `info` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#104b67'></span> `#104b67` |
-| `lavender` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#5b4e86'></span> `#5b4e86` |
-| `mauve` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#784762'></span> `#784762` |
-| `error` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#773126'></span> `#773126` |
-| `warning` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#604000'></span> `#604000` |
-| `on_accent` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#f1eadf'></span> `#f1eadf` |
-| `on_error` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#f1eadf'></span> `#f1eadf` |
-| `link` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#8a5520'></span> `#8a5520` |
-| `link_hover` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#96411e'></span> `#96411e` |
-| `selection_bg` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#d8cbb8'></span> `#d8cbb8` |
-| `selection_fg` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#1a1713'></span> `#1a1713` |
-| `border` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#a7947a'></span> `#a7947a` |
-| `border_ui` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#665845'></span> `#665845` |
-| `border_hi` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#4a3f32'></span> `#4a3f32` |
-| `focus` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#216a73'></span> `#216a73` |
-
 ## Contrast audit
 
 ### Dreamcoder Dark contrast (WCAG 2)
@@ -202,44 +166,6 @@ Semantic tokens are intentionally distinct:
 | `border_hi` | 14.19:1 | PASS |
 | `focus` | 6.54:1 | PASS |
 
-### Dreamcoder Dusk contrast (WCAG 2)
-
-| Token | Ratio vs bg | Target |
-| --- | ---: | --- |
-| `text` | 14.12:1 | AAA |
-| `muted` | 7.56:1 | AA |
-| `comment` | 5.72:1 | AA |
-| `accent` | 4.88:1 | AA |
-| `accent_2` | 5.40:1 | AA |
-| `diagnostic` | 7.46:1 | AA |
-| `sage` | 7.20:1 | AA |
-| `error` | 7.37:1 | AA |
-| `warning` | 7.44:1 | AA |
-
-### Dreamcoder Dusk APCA
-
-| Token | Lc vs bg | Target |
-| --- | ---: | --- |
-| `text` | 89.0 | ≥75 (body) |
-| `muted` | 76.6 | ≥75 (body) |
-| `comment` | 69.5 | ≥75 (FAIL) |
-| `accent` | 64.9 | ≥75 (FAIL) |
-| `accent_2` | 67.4 | ≥75 (FAIL) |
-| `diagnostic` | 75.9 | ≥75 (body) |
-| `sage` | 75.3 | ≥75 (body) |
-| `error` | 75.4 | ≥75 (body) |
-| `warning` | 75.9 | ≥75 (body) |
-| `border_ui` | 68.2 | ≥60 (UI) |
-| `focus` | 65.2 | ≥60 (UI) |
-
-### Dreamcoder Dusk UI affordance contrast
-
-| Token | Ratio vs bg | Target |
-| --- | ---: | --- |
-| `border_ui` | 5.45:1 | PASS |
-| `border_hi` | 8.10:1 | PASS |
-| `focus` | 4.92:1 | PASS |
-
 ## Usage
 
 ```bash
@@ -252,7 +178,7 @@ Semantic tokens are intentionally distinct:
 
 ## Design notes
 
-- Dark mode uses a pure black canvas reserved by `surface_policy`; light and dusk modes avoid pure black and pure white.
+- Dark mode uses a pure black canvas reserved by `surface_policy`; light mode avoids pure black and pure white.
 - Main text targets AAA (WCAG 2) and APCA Lc ≥ 75 for long coding sessions.
 - Cocoa/Lúcuma accents are identity colors in light; Dreamcoder Dark uses indigo, violet, icy blue, soft rose, and pale gold for dark-mode personality.
 - UI affordance tokens (`border_ui`, `border_hi`, `focus`) target at least 3:1 against the main background.

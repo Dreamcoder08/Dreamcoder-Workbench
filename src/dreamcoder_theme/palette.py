@@ -51,12 +51,12 @@ def load_variants(
         return defaults
     modes = tokens.get("modes", {})
     merged = {key: value.copy() for key, value in defaults.items()}
-    for key in ("dark", "light", "dusk"):
+    for key in ("dark", "light"):
         if key in modes:
             merged[key].update(token for token in modes[key].items() if isinstance(token[1], str))
             merged[key].update(palette_keys(tokens, key))
 
-    for mode_key in ("dark", "light", "dusk"):
+    for mode_key in ("dark", "light"):
         if mode_key in modes and mode_key in defaults:
             for token_key in set(defaults[mode_key]) & set(modes[mode_key]):
                 d = defaults[mode_key][token_key]
@@ -72,7 +72,7 @@ def load_variants(
 
 
 def matugen_mode_name(mode_name: str) -> str:
-    return "light" if mode_name in {"light", "dusk"} else "dark"
+    return "light" if mode_name == "light" else "dark"
 
 
 def resolve_color(palette: dict[str, str], value: str) -> str:
@@ -212,7 +212,7 @@ def make_guard(palette: dict[str, str], minimum: float = 3.0) -> Callable[[str],
 # Declarative APCA pair classes (ADR-002).
 #
 # Each class names its token pairs and the guardrail keys that own the
-# threshold — light/dusk floor and dark floor. No numeric policy
+# threshold — light floor and dark floor. No numeric policy
 # literals are allowed here; a missing guardrail key fails validation.
 # ------------------------------------------------------------------
 _APCA_PAIR_CLASSES: tuple[tuple[str, tuple[tuple[str, str], ...], str, str], ...] = (
@@ -301,7 +301,7 @@ def validate_palette(
     errors += _wcag_ansi(palette, effective_mode, g.get("minimum_terminal_ansi_contrast", 4.5))
 
     # -- APCA gate (independent; never short-circuits WCAG) -------------
-    if mode is not None and mode not in ("light", "dark", "dusk"):
+    if mode is not None and mode not in ("light", "dark"):
         errors.append(f"invalid mode: {mode}")
     errors += _apca_classes(palette, g, effective_mode, text_min)
 
@@ -390,7 +390,7 @@ def _apca_classes(
 ) -> list[str]:
     errors: list[str] = []
     for cls, pairs, light_key, dark_key in _APCA_PAIR_CLASSES:
-        key = light_key if mode in ("light", "dusk") else dark_key
+        key = light_key if mode == "light" else dark_key
         threshold = guardrails.get(key)
         if threshold is None:
             errors.append(f"missing guardrail key: {key}")

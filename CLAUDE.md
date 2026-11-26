@@ -55,8 +55,7 @@ focus       #3B82F6
 opacity     0.76
 ```
 
-Dark and Light are the only user-facing modes. Legacy Dusk remains a
-compatibility token set, and OLED behavior is defined by
+Dark and Light are the only modes. OLED behavior is defined by
 `modes.dark.surface_policy`.
 
 **Light — Cocoa/Lúcuma ("Lúcuma paper")**

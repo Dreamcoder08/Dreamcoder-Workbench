@@ -54,24 +54,6 @@ BASELINE = {
         "#266669",
         "#1e1813",
     ),
-    "dusk": (
-        "#595753",
-        "#773126",
-        "#344f30",
-        "#604000",
-        "#104b67",
-        "#784762",
-        "#5b4e86",
-        "#4c443a",
-        "#5a4f43",
-        "#8c5146",
-        "#556a4e",
-        "#795e27",
-        "#37677b",
-        "#745162",
-        "#39696d",
-        "#1a1713",
-    ),
 }
 
 
@@ -102,7 +84,7 @@ def test_dark_other_ansi_slots_remain_unchanged() -> None:
     }
 
 
-@pytest.mark.parametrize("mode", ("light", "dusk"))
+@pytest.mark.parametrize("mode", ("light",))
 def test_non_dark_ansi_slots_are_identical_to_baseline(mode: str) -> None:
     assert tuple(ansi(MODES[mode])) == BASELINE[mode]
 

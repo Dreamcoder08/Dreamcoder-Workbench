@@ -15,10 +15,10 @@ sequenceDiagram
     CLI->>Settings: theme_paths()
     Settings-->>CLI: Paths object
     CLI->>Settings: theme_mode()
-    Settings-->>CLI: "dark" | "light" | "dusk"
+    Settings-->>CLI: "dark" | "light"
     CLI->>Palette: load_variants(DEFAULT_VARIANTS, tokens_file)
     Palette->>Tokens: read VARIANTS dict
-    Tokens-->>Palette: dark / light / dusk tokens
+    Tokens-->>Palette: dark / light tokens
     Palette-->>CLI: variants dict
 
     CLI->>Settings: adaptive_enabled()
