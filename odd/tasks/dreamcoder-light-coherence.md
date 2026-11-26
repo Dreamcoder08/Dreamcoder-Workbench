@@ -89,3 +89,12 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
 - L2 — Explore handoff and wallpaper measurements recorded in "Evidence baseline".
 - L3 — User decisions (2026-11-26), verbatim: D1 "pide a codex cli que las genere"; D2 "Eliminar (Recomendado)";
   D3 "Borrarlos (Recomendado)"; start "Sí, empezar con T1".
+- L5 — T2 implementation: tiers are additive (`primitives.light` 29 OKLCH, `bindings.light` 45 keys); `modes.*`
+  stays flat hex so every consumer is unchanged (repo-only sync: 0 output changes). OKLCH math moved to
+  `src/dreamcoder_theme/color_space.py`; health gate reports `TIER_DRIFT`/`TIER_UNBOUND`. Component tier lands
+  with T4/T5 tokens; dark bindings with T3. T3 findings: ink steps 0.480 (`comment`) and 0.485 (`border_ui`)
+  are perceptually indistinct; paper hue drifts 73.7–91.5°, ink hue 55.6–78.2°; accents already near-isoluminant
+  (L 0.463–0.501).
+- L6 — T2 independent verify: PASS (S2, S3). Advisories fixed test-first: schema hue/chroma ranges now match the
+  parser, `format_oklch` wraps hue 360→0, out-of-range primitives raise `TierError`, generator reuses
+  `color_space` sRGB helpers.

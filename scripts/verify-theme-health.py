@@ -22,6 +22,8 @@ from dreamcoder_theme.design_system import (  # noqa: E402
 from dreamcoder_theme.palette import ansi as terminal_ansi  # noqa: E402
 from dreamcoder_theme.palette import validate_palette  # noqa: E402
 from dreamcoder_theme.renderers_opencode import opencode_content  # noqa: E402
+from dreamcoder_theme.token_tiers import TierError  # noqa: E402
+from dreamcoder_theme.token_tiers import drift as tier_drift  # noqa: E402
 
 FILES = [
     ROOT / "DreamcoderCodexApp/Dreamcoder.codex-theme.json",
@@ -527,6 +529,10 @@ def _health_findings():
     )
     if drift:
         findings.append(drift)
+    try:
+        findings.extend(tier_drift(tokens))
+    except TierError as error:
+        findings.append(f"TIER_UNBOUND: {error}")
     findings.extend(
         f"design-system:{finding.code}: {finding.message}"
         for finding in evaluate_contract(contract, tokens)
