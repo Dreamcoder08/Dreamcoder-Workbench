@@ -28,7 +28,7 @@
     "components": {
       "description": "Tier 3: light and elevation geometry; per-mode colour is a primitive name.",
       "type": "object",
-      "required": ["elevation", "radius", "border"],
+      "required": ["elevation", "radius", "border", "wallpaper"],
       "properties": {
         "elevation": {
           "description": "Key (0 z/2 z) plus ambient (0 0 2z) shadow per level; z in px, alphas 0..1.",
@@ -74,6 +74,13 @@
             }
           },
           "additionalProperties": false
+        },
+        "wallpaper": {
+          "description": "Wallpaper <-> UI contract per mode, measured in OKLab on a downsample.",
+          "type": "object",
+          "required": ["light", "dark"],
+          "propertyNames": { "enum": ["light", "dark"] },
+          "additionalProperties": { "$ref": "#/$defs/wallpaper_contract" }
         }
       },
       "additionalProperties": false
@@ -161,6 +168,86 @@
         "z": { "type": "number", "exclusiveMinimum": 0 },
         "key_alpha": { "type": "number", "minimum": 0, "maximum": 1 },
         "ambient_alpha": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "unit_range": { "type": "number", "minimum": 0, "maximum": 1 },
+    "wallpaper_contract": {
+      "type": "object",
+      "required": ["size", "lightness", "chroma", "hue", "safe_zone", "readability"],
+      "properties": {
+        "size": {
+          "type": "object",
+          "required": ["min_width", "min_height", "aspect"],
+          "properties": {
+            "min_width": { "type": "integer", "minimum": 1 },
+            "min_height": { "type": "integer", "minimum": 1 },
+            "aspect": {
+              "type": "object",
+              "required": ["width", "height", "tolerance"],
+              "properties": {
+                "width": { "type": "integer", "minimum": 1 },
+                "height": { "type": "integer", "minimum": 1 },
+                "tolerance": { "type": "number", "minimum": 0, "maximum": 0.5 }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "lightness": {
+          "description": "Allowed band of the mean OKLab L.",
+          "type": "object",
+          "required": ["min", "max"],
+          "properties": {
+            "min": { "$ref": "#/$defs/unit_range" },
+            "max": { "$ref": "#/$defs/unit_range" }
+          },
+          "additionalProperties": false
+        },
+        "chroma": {
+          "type": "object",
+          "required": ["p95_max", "mean_max"],
+          "properties": {
+            "p95_max": { "type": "number", "minimum": 0, "maximum": 0.4 },
+            "mean_max": { "type": "number", "minimum": 0, "maximum": 0.4 }
+          },
+          "additionalProperties": false
+        },
+        "hue": {
+          "description": "Chroma-weighted mean hue window in degrees; skipped below min_mean_chroma.",
+          "type": "object",
+          "required": ["center", "tolerance", "min_mean_chroma"],
+          "properties": {
+            "center": { "type": "number", "minimum": 0, "exclusiveMaximum": 360 },
+            "tolerance": { "type": "number", "exclusiveMinimum": 0, "maximum": 180 },
+            "min_mean_chroma": { "type": "number", "minimum": 0, "maximum": 0.4 }
+          },
+          "additionalProperties": false
+        },
+        "safe_zone": {
+          "description": "Top and bottom bar bands: fraction of the height each, lightness spread, optional floor.",
+          "type": "object",
+          "required": ["fraction", "max_std_lightness"],
+          "properties": {
+            "fraction": { "type": "number", "exclusiveMinimum": 0, "maximum": 0.5 },
+            "max_std_lightness": { "type": "number", "minimum": 0, "maximum": 1 },
+            "min_mean_lightness": { "$ref": "#/$defs/unit_range" }
+          },
+          "additionalProperties": false
+        },
+        "readability": {
+          "description": "WCAG ratios of text over bar and panel composited on the worst wallpaper pixels.",
+          "type": "object",
+          "required": ["worst_fraction", "text_min", "muted_min", "panel_text_min"],
+          "properties": {
+            "worst_fraction": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+            "text_min": { "type": "number", "minimum": 1, "maximum": 21 },
+            "muted_min": { "type": "number", "minimum": 1, "maximum": 21 },
+            "panel_text_min": { "type": "number", "minimum": 1, "maximum": 21 }
+          },
+          "additionalProperties": false
+        }
       },
       "additionalProperties": false
     },

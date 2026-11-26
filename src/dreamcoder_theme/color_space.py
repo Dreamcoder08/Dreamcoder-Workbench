@@ -38,14 +38,25 @@ def linear_to_srgb(c: float) -> float:
     return 12.92 * c if c <= _SRGB_LINEAR_BREAK else 1.055 * (c ** (1 / 2.4)) - 0.055
 
 
-def hex_to_oklch(value: str) -> tuple[float, float, float]:
-    lr, lg, lb = (srgb_to_linear(c) for c in hex_to_unit_rgb(value))
+def unit_rgb_to_oklab(rgb: tuple[float, float, float]) -> Lab:
+    """OKLab (L, a, b) of an sRGB colour given as 0..1 channels."""
+    lr, lg, lb = (srgb_to_linear(c) for c in rgb)
     lms_l = (0.4122214708 * lr + 0.5363325363 * lg + 0.0514459929 * lb) ** (1 / 3)
     lms_m = (0.2119034982 * lr + 0.6806995451 * lg + 0.1073969566 * lb) ** (1 / 3)
     lms_s = (0.0883024619 * lr + 0.2817188376 * lg + 0.6299787005 * lb) ** (1 / 3)
     lightness = 0.2104542553 * lms_l + 0.7936177850 * lms_m - 0.0040720468 * lms_s
     a = 1.9779984951 * lms_l - 2.4285922050 * lms_m + 0.4505937099 * lms_s
     b = 0.0259040371 * lms_l + 0.7827717662 * lms_m - 0.8086757660 * lms_s
+    return lightness, a, b
+
+
+def rgb_to_oklab(red: int, green: int, blue: int) -> Lab:
+    """OKLab (L, a, b) of an 8-bit sRGB colour."""
+    return unit_rgb_to_oklab((red / 255, green / 255, blue / 255))
+
+
+def hex_to_oklch(value: str) -> tuple[float, float, float]:
+    lightness, a, b = unit_rgb_to_oklab(hex_to_unit_rgb(value))
     return lightness, math.hypot(a, b), math.degrees(math.atan2(b, a)) % 360
 
 
