@@ -31,7 +31,8 @@ from pathlib import Path
 
 import pytest
 
-from dreamcoder_theme.palette_tokens import VARIANTS
+from dreamcoder_theme.palette import load_variants
+from dreamcoder_theme.palette_tokens import VARIANTS as _STATIC_VARIANTS
 from dreamcoder_theme.renderers import (
     bat_content,
     btop_content,
@@ -61,6 +62,9 @@ from dreamcoder_theme.renderers import (
 from dreamcoder_theme.renderers_antigravity import antigravity_content
 
 ROOT = Path(__file__).resolve().parents[1]
+
+# The sync renders from the tokens-merged variants (they carry the Light component tier).
+VARIANTS = load_variants(_STATIC_VARIANTS, ROOT / "DreamcoderThemes/dreamcoder/tokens.json")
 
 # Every generated active mirror the sync writes for the active mode.
 # codex_app's file is opencode-schema JSON (sync.py wires it to

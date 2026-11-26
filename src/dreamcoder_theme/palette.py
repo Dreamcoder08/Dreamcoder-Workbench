@@ -21,6 +21,7 @@ from ._math import (
     rgb_to_hex,
     surface_guard,
 )
+from .elevation import palette_keys
 from .palette_tokens import ANSI_KEY_NAMES
 
 # Re-export domain functions for backward compatibility
@@ -53,6 +54,7 @@ def load_variants(
     for key in ("dark", "light", "dusk"):
         if key in modes:
             merged[key].update(token for token in modes[key].items() if isinstance(token[1], str))
+            merged[key].update(palette_keys(tokens, key))
 
     for mode_key in ("dark", "light", "dusk"):
         if mode_key in modes and mode_key in defaults:

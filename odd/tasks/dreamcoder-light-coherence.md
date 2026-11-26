@@ -58,10 +58,10 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
 
 | ID | Specs | Task | Route | Commit |
 | --- | --- | --- | --- | --- |
-| T1 | S2,S6 | Baseline: screenshot every Light target, contrast/ΔE report, full hex-literal inventory (uncapped) | inline | — |
+| T1 | S2,S6 | Baseline: screenshot every Light target, contrast/ΔE report, full hex-literal inventory (uncapped) | inline | 082cb2e |
 | T2 | S2,S3 | Token v2: DTCG three-tier `tokens.json`, OKLCH primitives; generate `palette_tokens.py` from it; parity test (Risk 3: config format) | inline, own commit | 0979a31 |
-| T3 | S3,S4 | Material model: paper neutrals + pigment accents + ANSI-16 in tokens, all guarded (APCA/WCAG/ΔE) | inline | T3 commit |
-| T4 | S3,S6 | Light & elevation: key/ambient shadow tokens, radius, border scale, translucency floor over wallpaper | inline | — |
+| T3 | S3,S4 | Material model: paper neutrals + pigment accents + ANSI-16 in tokens, all guarded (APCA/WCAG/ΔE) | inline | 971103a |
+| T4 | S3,S6 | Light & elevation: key/ambient shadow tokens, radius, border scale, translucency floor over wallpaper | inline | T4 commit |
 | T5 | S2 | Type, spacing (4 pt), motion tokens → Hyprland, Waybar, rofi, Herdr, GTK/Qt | writer A (parallel with T6) | — |
 | T6 | S1,S3,S7 | Wallpapers via Codex CLI image generation from a token-derived brief (paper, pigment washes, single key light, bar safe zones); Light set + paired Dark companions; post-process (≥1920×1080, blue-noise dither) and gate on T7 | inline + Codex CLI | — |
 | T7 | S1,S2 | Wallpaper↔UI contract: OKLab L band, chroma cap, hue window around accent, APCA test of panels over worst wallpaper region; clamp matugen adaptive mode | inline | — |
@@ -121,3 +121,17 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
   min WCAG over text surfaces 5.14 (success on surface2), APCA on bg 78–86. Three Light snapshots from the Dark
   features re-pinned to the new palette (ANSI baseline, Starship sha256, adaptive fingerprint); Dark/Dusk pins
   unchanged.
+- L9 — T4 design (one light model, first component tier):
+  - Key light: overhead, slightly in front of the screen (no lateral offset), so every shadow falls straight
+    down; the T6 wallpaper brief uses the same light. Two-term shadow (Lambert key + sky ambient):
+    key = `0 {0.5z}px {z}px` and ambient = `0 0 {2z}px`, z per level e1=1, e2=3, e3=8, e4=16 (×~2.5 geometric).
+  - Shadow colour is warm ink, never black: light shadows use the `ink.215` primitive (interreflection off warm
+    paper keeps umbra warm); alphas key .10/.12/.14/.16 and ambient .05/.06/.07/.08 for e1..e4.
+  - Elevation ladder: canvas bg e0; surface1/module e1; surface0 cards e2; popovers/menus/rofi e3; modal/
+    notification e4. Radius scale r1 4, r2 8, r3 12 px; windows use r3; hairline border 1px `border`.
+  - Tokens: new top-level `components` (tier 3) with `elevation`, `radius`, `border` geometry; per-mode colour
+    comes from a primitive name, resolved like bindings. Light only; Dark output must stay byte-identical.
+- L10 — T4 result: `components` tier (elevation e1–e4, radius r1–r3, hairline border) resolved by
+  `src/dreamcoder_theme/elevation.py`, merged into Light palettes by `load_variants`. Wired: Hyprland shadow/scrim
+  warm ink instead of black, Waybar modules r2 + e1, rofi radii r3/r2. Dark byte-identical (dark sync no diff).
+  Left for T8/T9: Herdr, GTK/Qt, Gentle Shell/Pi, OpenCode shadow literal, hairline border consumers, Waybar e2–e4.

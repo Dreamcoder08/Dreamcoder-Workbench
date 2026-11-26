@@ -18,6 +18,8 @@ def _hex_to_rgba_ff(hex_color: str) -> str:
 def _map_dc_to_material(c: dict[str, str]) -> dict[str, str]:
     """Map Dreamcoder palette tokens to Material Design 3 color roles."""
     h = _hex_to_rgba_ff
+    # Light supplies a warm-ink shadow (components tier); other modes stay black.
+    shadow = h(c["shadow_ink"]) if "shadow_ink" in c else "rgba(000000ff)"
     return {
         # Core surfaces
         "background": h(c["bg"]),
@@ -72,8 +74,8 @@ def _map_dc_to_material(c: dict[str, str]) -> dict[str, str]:
         "outline": h(c["border"]),
         "outline_variant": h(c["border_ui"]),
         # Fixed
-        "shadow": "rgba(000000ff)",
-        "scrim": "rgba(000000ff)",
+        "shadow": shadow,
+        "scrim": shadow,
         "source_color": h(c["accent"]),
         # Inverse
         "inverse_on_surface": h(c["surface0"]),
@@ -119,6 +121,12 @@ misc {{
 
 
 def waybar_content(c: dict[str, str]) -> str:
+    # Light only: modules sit at elevation e1 with the r2 radius (components tier).
+    module_depth = (
+        f"\n  border-radius: {c['radius_r2']};\n  box-shadow: {c['elevation_e1']};"
+        if "elevation_e1" in c
+        else ""
+    )
     return f"""/* Dreamcoder color layer for Waybar. */
 @define-color bg {c["bg"]};
 @define-color bg-soft {c["bg_soft"]};
@@ -170,7 +178,7 @@ window#waybar {{
 #tray {{
   background: {c["module_rgba"]};
   color: @text;
-  border: 1px solid alpha(@border-ui, 0.78);
+  border: 1px solid alpha(@border-ui, 0.78);{module_depth}
 }}
 
 #battery.warning {{ color: @warning; }}
@@ -180,6 +188,9 @@ window#waybar {{
 
 
 def rofi_content(c: dict[str, str]) -> str:
+    # Light takes the radius scale (window r3, entry r2); other modes keep 18px/12px.
+    window_radius = c.get("radius_r3", "18px")
+    entry_radius = c.get("radius_r2", "12px")
     return f"""/* Dreamcoder color layer for Rofi. */
 * {{
   background: {c["panel_rgba"]};
@@ -198,7 +209,7 @@ window {{
   background-color: @background;
   border: 1px;
   border-color: @border-ui;
-  border-radius: 18px;
+  border-radius: {window_radius};
 }}
 
 entry {{
@@ -206,7 +217,7 @@ entry {{
   text-color: @foreground;
   border: 1px;
   border-color: @focus;
-  border-radius: 12px;
+  border-radius: {entry_radius};
 }}
 
 element selected {{
@@ -294,6 +305,7 @@ def rofi_matugen_content(c: dict[str, str]) -> str:
 
     r, g, b = _hex_to_rgb_int(c["bg"])
     bg_rgba = _rgb(r, g, b, 0.96)
+    shadow = c.get("shadow_ink", "#000000")
 
     return f"""/* Dreamcoder colors for ML4W Rofi — only replaces Matugen color values. */
 * {{
@@ -331,8 +343,8 @@ def rofi_matugen_content(c: dict[str, str]) -> str:
     on-surface-variant: {c["muted"]};
     outline: {c["border"]};
     outline-variant: {c["border_ui"]};
-    shadow: #000000;
-    scrim: #000000;
+    shadow: {shadow};
+    scrim: {shadow};
     inverse-surface: {c["text"]};
     inverse-on-surface: {c["surface0"]};
     inverse-primary: {c["accent"]};
