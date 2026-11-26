@@ -21,6 +21,7 @@
 @define-color warning #6e5201;
 @define-color link #874004;
 @define-color link-hover #753100;
+@define-color selection #f1d7c1;
 
 window#waybar {
   background: rgba(249, 246, 242, 0.96);
@@ -57,3 +58,15 @@ window#waybar {
 #battery.warning { color: @warning; }
 #battery.critical { color: @error; }
 #network.disconnected { color: @error; }
+
+/* Count badges and tiles: a pigment wash over paper, never a saturated solid. */
+#custom-updates {
+  background: @selection;
+  color: @accent;
+  border-radius: 8px;
+}
+
+#custom-updates.critical {
+  background: alpha(@error, 0.14);
+  color: @error;
+}
