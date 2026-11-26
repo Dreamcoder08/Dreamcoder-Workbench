@@ -1,11 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Dreamcoder OS design tokens",
+  "title": "Dreamcoder Workbench design tokens",
   "type": "object",
   "required": ["name", "version", "modes", "guardrails"],
   "properties": {
     "$schema": { "type": "string" },
-    "name": { "const": "Dreamcoder OS" },
+    "name": { "const": "Dreamcoder Workbench" },
     "version": { "type": "integer", "minimum": 1 },
     "description": { "type": "string" },
     "primitives": {
@@ -87,7 +87,7 @@
     },
     "modes": {
       "type": "object",
-      "required": ["dark", "light", "dusk"],
+      "required": ["dark", "light"],
       "properties": {
         "dark": {
           "allOf": [
@@ -96,12 +96,6 @@
           ]
         },
         "light": {
-          "allOf": [
-            { "$ref": "#/$defs/palette" },
-            { "$ref": "#/$defs/base_palette" }
-          ]
-        },
-        "dusk": {
           "allOf": [
             { "$ref": "#/$defs/palette" },
             { "$ref": "#/$defs/base_palette" }
@@ -141,7 +135,6 @@
         "minimum_apca_ui_dark": { "type": "number", "minimum": 28 },
         "minimum_apca_on_accent": { "type": "number", "minimum": 60 },
         "light_hours_default": { "type": "string" },
-        "dusk_hours_default": { "type": "string" },
         "minimum_terminal_ansi_contrast": { "type": "number", "minimum": 4.5 },
         "minimum_terminal_cursor_contrast": {
           "type": "number",

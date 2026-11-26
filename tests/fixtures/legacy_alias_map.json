@@ -1,6 +1,6 @@
 {
   "schema": "dreamcoder.legacy-alias-map.v1",
-  "description": "Frozen documented legacy alias map (hexagonal-architecture-v2 task 0.5, design §8 verbatim). Component aliases (KittyTheme, NvimTheme) and short shell tokens are included; rollout-placeholder values (Dreamcoder-doctor-maintenance, Dreamcoder-dusk-runtime, Dreamcoder-unrelated-application-settings) are NOT aliases. Only these values are accepted; unknown kebab strings are rejected, never transformed by casing convention.",
+  "description": "Frozen documented legacy alias map (hexagonal-architecture-v2 task 0.5, design §8 verbatim). Component aliases (KittyTheme, NvimTheme) and short shell tokens are included; rollout-placeholder values (Dreamcoder-doctor-maintenance, Dreamcoder-unrelated-application-settings) are NOT aliases. Only these values are accepted; unknown kebab strings are rejected, never transformed by casing convention.",
   "aliases": {
     "Dreamcoder-kitty": "DreamcoderKitty",
     "Kitty": "DreamcoderKitty",
@@ -62,7 +62,6 @@
   ],
   "excluded_non_aliases": [
     "Dreamcoder-doctor-maintenance",
-    "Dreamcoder-dusk-runtime",
     "Dreamcoder-unrelated-application-settings"
   ]
 }

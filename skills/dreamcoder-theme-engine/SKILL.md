@@ -15,7 +15,7 @@ tokens.json → palette_tokens.py (static tokens)
 
 ## Key Files
 
-- `src/dreamcoder_theme/palette_tokens.py` — Canonical token definitions (dark/light/dusk)
+- `src/dreamcoder_theme/palette_tokens.py` — Canonical token definitions (dark/light)
 - `src/dreamcoder_theme/palette.py` — `guard()` for WCAG contrast validation, `adaptive_palette()` for wallpaper colors
 - `src/dreamcoder_theme/renderers.py` — Hub that imports all `renderers_*.py` leaf modules
 - `src/dreamcoder_theme/renderers_kitty.py` — Kitty terminal colors

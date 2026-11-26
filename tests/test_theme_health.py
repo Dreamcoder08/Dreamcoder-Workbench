@@ -146,7 +146,7 @@ def test_health_fails_for_design_system_contract_findings(tmp_path):
 
     contract_path = fixture_root / "DreamcoderThemes" / "dreamcoder" / "design-system.json"
     contract = json.loads(contract_path.read_text())
-    contract["targets"]["opencode"]["modes"] = ["dark", "light"]
+    contract["targets"]["opencode"]["modes"] = ["dark"]
     contract_path.write_text(json.dumps(contract))
 
     result = run_health(fixture_root)

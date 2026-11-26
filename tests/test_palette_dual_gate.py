@@ -149,18 +149,6 @@ def test_invalid_mode_is_rejected():
     assert any("invalid mode: bogus" in e for e in errors)
 
 
-def test_dusk_uses_light_floors():
-    """Dusk is a design-system light-mode variant: it must use the light APCA
-    floors, never the weaker dark floors (design class table)."""
-    pal = _clean_palette("dark")
-    pal["diagnostic"] = "#7b7b7b"  # APCA 32.2 < body 75 (light floor) and < body_dark 50
-    errors = validate_palette(pal, _guardrails(), mode="dusk")
-    apca_errors = [e for e in errors if "APCA fail" in e and "diagnostic/bg" in e]
-    assert len(apca_errors) == 1
-    assert "minimum_apca_body" in apca_errors[0]
-    assert "minimum_apca_body_dark" not in apca_errors[0]
-
-
 def test_missing_declared_pair_token_is_reported():
     pal = _clean_palette("dark")
     pal.pop("text_heading")

@@ -289,7 +289,7 @@ def check_tokens():
         bg = palette["bg"]
         require(HEX.match(bg), f"tokens:{mode}: invalid background")
         # Dark's surface policy reserves pure black for the canvas.
-        # Light/dusk must still avoid harsh pure black/white backgrounds.
+        # Light must still avoid harsh pure black/white backgrounds.
         if mode != "dark":
             require(bg.lower() not in {"#000000", "#ffffff"}, f"tokens:{mode}: harsh background")
         for key in TOKEN_TEXT_KEYS:
@@ -377,8 +377,8 @@ def check_tokens():
 
 
 def check_dual_gate_candidates():
-    """Validate the package dual gate on all three deterministic candidates:
-    Light, Dark, and design-system Dusk. Any dual-gate error blocks."""
+    """Validate the package dual gate on both deterministic candidates:
+    Light and Dark. Any dual-gate error blocks."""
     tokens = load_tokens(TOKEN_FILE)
     # float() narrows the comprehension to dict[str, float] (mirrors
     # palette.load_guardrails), satisfying the dict-invariance typing.
@@ -391,7 +391,6 @@ def check_dual_gate_candidates():
     candidates = [
         ("light", tokens["modes"]["light"], "light"),
         ("dark", tokens["modes"]["dark"], "dark"),
-        ("dusk", tokens["modes"]["dusk"], "dusk"),
     ]
     for label, palette, mode in candidates:
         errors = validate_palette(palette, guardrails, mode=mode)
@@ -450,7 +449,7 @@ def check_theme_file(file, mode=None):
     theme = _load_json(file)["theme"]
     bg = theme["background"]
     # Dark's surface policy reserves pure black for the canvas.
-    # Light/dusk must still avoid harsh pure black/white backgrounds.
+    # Light must still avoid harsh pure black/white backgrounds.
     if mode != "dark":
         require(
             bg not in {"#000000", "#ffffff"},
@@ -566,12 +565,12 @@ def _health_findings():
             actual = theme_path.read_text(encoding="utf-8")
             json.loads(actual)
             # The design contract declares the opencode renderer for
-            # dark/light/dusk; accept an artifact that exactly matches the
+            # dark/light; accept an artifact that exactly matches the
             # generator output for any declared mode (deterministic, not
             # coupled to the runner's live theme mode).
             expected_by_mode = {
                 mode: opencode_content(tokens["modes"][mode], transparent_background=True)
-                for mode in ("dark", "light", "dusk")
+                for mode in ("dark", "light")
                 if mode in tokens["modes"]
             }
             if actual not in set(expected_by_mode.values()):

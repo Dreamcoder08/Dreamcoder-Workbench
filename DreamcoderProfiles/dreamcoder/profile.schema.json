@@ -60,8 +60,7 @@
       "type": "string",
       "enum": [
         "light",
-        "dark",
-        "dusk"
+        "dark"
       ],
       "default": "light",
       "description": "Default terminal color mode for this machine"

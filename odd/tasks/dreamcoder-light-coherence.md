@@ -195,3 +195,12 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
   orphan mode-less mirrors listed in L17 if nothing reads them; (4) `.p10k.zsh` only if no shell config sources
   it; (5) identity "Dreamcoder OS" → "Dreamcoder Workbench" in tokens + schema. Every deletion needs grep evidence
   of non-use (scripts, installer, lib, stow layout, docs links). Dark/Light outputs unchanged.
+- L19 — T13 result (cleanup part 1, −3492 lines): `dusk` removed from tokens, schema, design-system contract,
+  targets (`dusk-runtime` target dropped, 37→36), generator, palette, renderer contract, health gate, preview,
+  installer help, profile schema, nvim, skills, CLAUDE/AGENTS, docs; `light_hours_default` now 07:00-18:00 (matches
+  the systemd timer). Deleted with non-use evidence: 4 Zellij `.bak`, 4 foreign-theme layouts, 9 mode-less mirrors.
+  Identity "Dreamcoder Workbench" in tokens/schema. Kept (live references): `btop-dreamcoder.theme` (CI +
+  doctor hint), `dunst-dreamcoder.conf` (apply-theme-mode link migration), `.p10k.zsh` (zshrc fallback).
+  Pending for T13 part 2: old wallpapers (after T6), tracked `installer/installer` binary still says dusk,
+  "Dreamcoder OS" in installer UI / goreleaser / .github templates, `docs/superpowers` archive. Pre-existing on
+  main: `tests/shell/test_pi_theme.bats` #2–3 expect `#824f16` (main light accent was `#8b440c`).

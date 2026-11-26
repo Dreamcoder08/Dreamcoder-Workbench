@@ -40,7 +40,7 @@ def update(path, mode="dark"):
 )
 def test_managed_primary_follows_repeated_mode_changes(config_path, agent, role):
     config_path.write_text(json.dumps({"agent": {agent: {"color": role}}}))
-    for mode in ("dark", "light", "dusk", "dark"):
+    for mode in ("dark", "light", "dark"):
         assert update(config_path, mode) is True
         assert json.loads(config_path.read_text()) == {
             "agent": {agent: {"color": VARIANTS[mode]["accent"]}}
@@ -190,11 +190,8 @@ def test_public_sync_uses_tui_config_directory_and_preserves_theme(config_path, 
     target.parent.mkdir()
     target.write_text('{"agent":{"gentle-orchestrator":{"color":"primary"}},"model":"keep"}')
     monkeypatch.setenv("DREAMCODER_CLEAN_OPENCODE_THEMES", "0")
-    for mode in ("dark", "light", "dusk"):
-        # Public modes stay dark/light; also exercise the legacy dusk palette
-        # as active input without adding a new public mode to the orchestrator.
-        base = "dark" if mode == "dark" else "light"
-        result = sync.sync_active_targets(paths, VARIANTS[mode], base, VARIANTS)
+    for mode in ("dark", "light"):
+        result = sync.sync_active_targets(paths, VARIANTS[mode], mode, VARIANTS)
         assert result["opencode_agent_colors"] is True
         assert json.loads(target.read_text()) == {
             "agent": {"gentle-orchestrator": {"color": VARIANTS[mode]["accent"]}},
