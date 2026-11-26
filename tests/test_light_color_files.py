@@ -1,0 +1,256 @@
+"""Every Light colour file is generated, or carries only current Light tokens.
+
+Spec: odd/tasks/dreamcoder-light-coherence.md, T8 (S2); design in L16.
+
+A tracked Light colour file is either written by the sync (so it can never drift
+from ``tokens.json``) or, when it is not, every hex literal in it must be an
+exact current ``modes.light`` value. Exceptions need a written reason.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import re
+import shutil
+import subprocess
+from pathlib import Path
+from unittest import mock
+
+import pytest
+
+from dreamcoder_theme import sync
+from dreamcoder_theme._math import mix
+from dreamcoder_theme.palette import load_variants
+from dreamcoder_theme.palette_tokens import VARIANTS
+from dreamcoder_theme.renderers_herdr import herdr_content
+from dreamcoder_theme.renderers_light_files import (
+    LIGHT_FILES,
+    ZELLIJ_LIGHT_CONFIG,
+    tmux_ukiyo_light_content,
+    zellij_light_config_content,
+)
+from dreamcoder_theme.renderers_opencode import opencode_content
+
+ROOT = Path(__file__).resolve().parents[1]
+TOKENS = ROOT / "DreamcoderThemes/dreamcoder/tokens.json"
+HEX = re.compile(r"#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6})(?![0-9a-zA-Z])")
+# `light` as a whole word in the file name (`spotlight`, `preflight` do not count).
+LIGHT_NAME = re.compile(r"(?<![a-z])light(?![a-z])", re.IGNORECASE)
+NOT_COLOUR_FILES = ("odd/", "docs/", "openspec/", "tests/", ".pi/", ".github/", "installer/")
+# Light-only colour files whose name does not say so.
+LIGHT_ONLY_BY_CONTENT = (
+    "DreamcoderNushell/.config/nushell/dreamcoder-theme.nu",
+    "DreamcoderTmux/.config/tmux/tmux-dreamcoder-base.conf",
+    "DreamcoderYazi/.config/yazi/theme.toml",
+)
+# Written reasons are mandatory; an entry that is generated or untracked fails.
+ALLOWLIST: dict[str, str] = {
+    "DreamcoderZellij/.config/zellij/config-light.kdl.bak.1782968040": (
+        "tracked backup of a foreign config; deleted by T13 (legacy cleanup)"
+    ),
+}
+
+
+def _tracked() -> list[str]:
+    out = subprocess.run(
+        ["git", "ls-files", "-z"], cwd=ROOT, capture_output=True, check=True, text=True
+    ).stdout
+    return [p for p in out.split("\0") if p]
+
+
+def _light_files() -> list[str]:
+    files = [
+        path
+        for path in _tracked()
+        if (ROOT / path).is_file()
+        and not path.startswith(NOT_COLOUR_FILES)
+        and LIGHT_NAME.search(Path(path).name)
+    ]
+    return sorted({*files, *LIGHT_ONLY_BY_CONTENT})
+
+
+def _generated_by_sync(tmp_root: Path) -> set[str]:
+    """Repository paths the repo-only sync writes, recorded without writing."""
+    seen: set[str] = set()
+
+    def rel(path: Path) -> str:
+        for base in (tmp_root, ROOT):
+            if path.is_relative_to(base):
+                return path.relative_to(base).as_posix()
+        return path.as_posix()
+
+    def write(path: Path, content: str, **_kw: object) -> bool:
+        seen.add(rel(path))
+        return False
+
+    def write_variants(base: Path, names: dict[str, str], *_a: object) -> list[bool]:
+        seen.update(rel(base / name) for name in names.values())
+        return [False] * len(names)
+
+    # The Zellij Light config is spliced in place, so its source must exist.
+    config = "DreamcoderZellij/.config/zellij/config-light.kdl"
+    (tmp_root / config).parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy(ROOT / config, tmp_root / config)
+
+    variants = {name: dict(palette) for name, palette in VARIANTS.items()}
+    with (
+        mock.patch.object(sync, "ROOT", tmp_root),
+        mock.patch.object(sync, "write_if_changed", write),
+        mock.patch.object(sync, "write_active_repo_file", write),
+        mock.patch.object(sync, "write_variant_files", write_variants),
+    ):
+        sync.sync_repo_snippets(variants, variants["dark"])
+    return seen
+
+
+def _resolved(path: str) -> str:
+    return Path(os.path.realpath(ROOT / path)).relative_to(ROOT.resolve()).as_posix()
+
+
+def _light_tokens() -> set[str]:
+    light = json.loads(TOKENS.read_text(encoding="utf-8"))["modes"]["light"]
+    return {v.lower() for v in light.values() if isinstance(v, str) and HEX.fullmatch(v)}
+
+
+def _stale(text: str, allowed: set[str]) -> list[str]:
+    return sorted({m.group(0) for m in HEX.finditer(text) if m.group(0).lower() not in allowed})
+
+
+@pytest.fixture(scope="module")
+def generated(tmp_path_factory: pytest.TempPathFactory) -> set[str]:
+    return _generated_by_sync(tmp_path_factory.mktemp("light-root"))
+
+
+def test_the_light_file_inventory_is_not_empty() -> None:
+    files = _light_files()
+    assert len(files) > 20
+    assert "DreamcoderAlacritty/.config/alacritty/dreamcoder-light.toml" in files
+    assert "DreamcoderGhostty/.config/ghostty/shaders/spotlight.glsl" not in files
+
+
+def test_allowlist_entries_are_justified_and_still_needed(generated: set[str]) -> None:
+    light = set(_light_files())
+    for path, reason in ALLOWLIST.items():
+        assert reason.strip(), f"{path}: an allowlist entry needs a written reason"
+        assert path in light, f"{path}: allowlisted but not a tracked Light file"
+        assert path not in generated, f"{path}: generated by the sync, drop it from the allowlist"
+
+
+@pytest.mark.parametrize("path", _light_files())
+def test_light_file_is_generated_or_holds_only_light_tokens(path: str, generated: set[str]) -> None:
+    # A tracked symlink is as generated as the file it points at.
+    if path in generated or _resolved(path) in generated:
+        return
+    if path in ALLOWLIST:
+        return
+    stale = _stale((ROOT / path).read_text(encoding="utf-8", errors="ignore"), _light_tokens())
+    assert not stale, f"{path}: not generated and carries non-Light-token hex {stale}"
+
+
+def test_apply_theme_mode_light_branch_holds_only_light_tokens() -> None:
+    text = (ROOT / "scripts/apply-theme-mode.sh").read_text(encoding="utf-8")
+    branch = re.search(r"^\s*light\)\n(.*?)^\s*;;", text, re.MULTILINE | re.DOTALL)
+    assert branch, "the Light branch of the tmux palette case disappeared"
+    stale = _stale(branch.group(1), _light_tokens())
+    assert not stale, f"scripts/apply-theme-mode.sh Light branch carries stale hex {stale}"
+
+
+def test_opencode_light_shadow_is_warm_ink_not_black() -> None:
+    light = load_variants(VARIANTS, TOKENS)["light"]
+    assert light["shadow_ink"] == light["text"], "Light shadow ink and text ink are one primitive"
+    text = opencode_content(light)
+    shadow = re.search(r'"shadow": "(#[0-9a-fA-F]{6})"', text)
+    assert shadow, "the OpenCode theme lost its shadow key"
+    channels = [int(shadow.group(1)[i : i + 2], 16) for i in (1, 3, 5)]
+    assert channels[0] > channels[2], "a warm-ink shadow keeps red above blue"
+    pure_black_mix = [round(int(light["bg"][i : i + 2], 16) * 0.75) for i in (1, 3, 5)]
+    assert channels != pure_black_mix, "Light shadow must not be a mix with pure black"
+    expected = mix(light["bg"], light["shadow_ink"], 0.25)
+    assert shadow.group(1) == expected
+
+
+def test_opencode_dark_shadow_is_unchanged() -> None:
+    dark = load_variants(VARIANTS, TOKENS)["dark"]
+    assert "shadow_ink" not in dark
+    shadow = re.search(r'"shadow": "(#[0-9a-fA-F]{6})"', opencode_content(dark))
+    assert shadow
+    expected = [round(int(dark["bg"][i : i + 2], 16) * 0.75) for i in (1, 3, 5)]
+    assert [int(shadow.group(1)[i : i + 2], 16) for i in (1, 3, 5)] == expected
+
+
+def test_herdr_light_never_emits_the_dark_only_upstream_accent() -> None:
+    profile = next(p for p in sync.SUPPORTED_PROFILES if p.is_complete)
+    assert "#6fa0af" not in herdr_content(profile, "light", VARIANTS["light"]).lower()
+    assert "#6fa0af" in herdr_content(profile, "dark", VARIANTS["dark"]).lower()
+
+
+def _light_palette() -> dict[str, str]:
+    return load_variants(VARIANTS, TOKENS)["light"]
+
+
+@pytest.mark.parametrize("item", LIGHT_FILES, ids=lambda item: item.path)
+def test_light_file_on_disk_matches_its_renderer(item) -> None:
+    assert (ROOT / item.path).read_text(encoding="utf-8") == (
+        item.renderer(_light_palette()).rstrip("\n") + "\n"
+    ), f"{item.path} drifted from tokens.json; run the repo-only sync"
+
+
+def test_light_only_files_never_target_dark_artifacts() -> None:
+    assert all("dark" not in item.path.lower() for item in LIGHT_FILES)
+    assert "dark" not in ZELLIJ_LIGHT_CONFIG.lower()
+
+
+def test_zellij_light_config_splice_keeps_everything_but_the_theme_block() -> None:
+    light = _light_palette()
+    current = (ROOT / ZELLIJ_LIGHT_CONFIG).read_text(encoding="utf-8")
+    assert zellij_light_config_content(light, current) == current, "the splice is idempotent"
+    foreign = current.replace("#874004", "#123456")
+    spliced = zellij_light_config_content(light, foreign)
+    assert "#123456" not in spliced and light["accent"] in spliced
+    assert spliced.count("\nthemes {\n") == 1 and "dreamcoder-dark" not in spliced
+    assert spliced.startswith(current.split("\nthemes {\n")[0])
+    assert spliced.endswith(
+        '\ntheme "dreamcoder-light"' + current.split('\ntheme "dreamcoder-light"')[1]
+    )
+
+
+def test_zellij_light_config_splice_rejects_a_config_without_a_themes_block() -> None:
+    with pytest.raises(ValueError, match=r"themes \{ \}"):
+        zellij_light_config_content(_light_palette(), 'theme "dreamcoder-light"\n')
+
+
+def test_sync_light_files_writes_every_file_and_skips_a_missing_zellij_config(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(sync, "ROOT", tmp_path)
+    light = _light_palette()
+
+    assert sync.sync_light_files(light) == [True] * len(LIGHT_FILES)
+    assert not (tmp_path / ZELLIJ_LIGHT_CONFIG).exists()
+    for item in LIGHT_FILES:
+        assert (tmp_path / item.path).read_text() == item.renderer(light).rstrip("\n") + "\n"
+
+    assert sync.sync_light_files(light) == [False] * len(LIGHT_FILES), "a second run is a no-op"
+
+
+def test_sync_light_files_splices_an_existing_zellij_config(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(sync, "ROOT", tmp_path)
+    config = tmp_path / ZELLIJ_LIGHT_CONFIG
+    config.parent.mkdir(parents=True)
+    config.write_text('themes {\n    old {\n        bg "#123456"\n    }\n}\n\ntheme "old"\n')
+
+    changes = sync.sync_light_files(_light_palette())
+
+    assert changes[-1] is True
+    text = config.read_text()
+    assert "#123456" not in text and "dreamcoder-light" in text
+    assert text.endswith('\ntheme "old"\n')
+
+
+def test_tmux_ukiyo_light_file_uses_exact_light_tokens() -> None:
+    out = tmux_ukiyo_light_content(_light_palette())
+    assert not _stale(out, _light_tokens())
+    assert out.count("@ukiyo-color-") == 11
