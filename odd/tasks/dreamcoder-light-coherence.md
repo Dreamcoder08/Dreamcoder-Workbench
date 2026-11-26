@@ -65,7 +65,7 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
 | T5 | S2 | Type, spacing (4 pt), motion tokens → Hyprland, Waybar, rofi, Herdr, GTK/Qt | writer A (parallel with T6) | — |
 | T6 | S1,S3,S7 | Wallpapers via Codex CLI image generation from a token-derived brief (paper, pigment washes, single key light, bar safe zones); Light set + paired Dark companions; post-process (≥1920×1080, blue-noise dither) and gate on T7 | inline + Codex CLI | — |
 | T7 | S1,S2 | Wallpaper↔UI contract: OKLab L band, chroma cap, hue window around accent, APCA test of panels over worst wallpaper region; clamp matugen adaptive mode | inline | dae4d5f |
-| T8 | S2 | Migrate offenders: generate nvim `dreamcoder-light.lua`, tmux colors, renderer literals; audit Waybar/Herdr/Pi/ml4w_assets | inline | — |
+| T8 | S2 | Migrate offenders: generate nvim `dreamcoder-light.lua`, tmux colors, renderer literals; audit Waybar/Herdr/Pi/ml4w_assets | inline | T8 commit |
 | T9 | S6 | Semantic chrome: badges, status icons, focus ring, window borders unified across Herdr/Waybar/Gentle Shell | inline | 775683c |
 | T10 | S4 | Visual regression: specimen board, perceptual diff (ΔE2000), `make theme-check`, CI hook (Risk 5) | inline, own commit | — |
 | T11 | S2,S6 | Live verification on Hyprland: reload, GTK/Qt, screenshots vs T1; close open items of `light-theme-delivery.md` | inline | — |
@@ -180,3 +180,11 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
   current `modes.light` value (allowlist only with a written reason). Inventory: T1 baseline list in
   `odd/evidence/light-coherence/t1-baseline.md` (Light entries), `scripts/apply-theme-mode.sh` tmux literals,
   renderer literals (`renderers_herdr.py:13`, `renderers_opencode.py:170` shadow).
+- L17 — T8 result: 7 Light files now generated (`renderers_light_files.py`, `sync_light_files`): Alacritty,
+  WezTerm, Nushell, Tmux blocks + base, Yazi, Zellij theme block (spliced in place); `apply-theme-mode.sh` Light
+  sources generated `tmux-ukiyo-light.conf`; OpenCode Light shadow is warm ink. Guard `tests/test_light_color_files.py`
+  (every non-generated Light file uses only current Light tokens). Dark unchanged. Pre-existing, not T8:
+  `shell-tests/test_doctor.bats` #1 fails and `test_repair.bats` hangs at #4 on base 9d0a471 too. For T13: orphan
+  mode-less mirrors (`btop/bat/cava/delta/dunst/firefox/fzf/ls-colors/obsidian-dreamcoder.*`, `tmux-dreamcoder.conf`,
+  `zsh-syntax-highlighting-dreamcoder.zsh`) with old-palette hex; hand-written Dark Alacritty/WezTerm/Nushell/Tmux
+  still on old `#100f0d` (out of Light scope, report only).

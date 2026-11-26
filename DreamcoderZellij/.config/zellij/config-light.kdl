@@ -441,57 +441,38 @@ load_plugins {
 
 themes {
     dreamcoder-light {
-        bg "#f3eadc"
-        fg "#17120d"
-        black "#17120d"
-        red "#8a6040"
-        green "#b8a080"
-        yellow "#c4b090"
-        blue "#8a7a68"
-        magenta "#9a8a78"
-        cyan "#8a7a68"
-        white "#f3eadc"
-        orange "#9a7a50"
-        gray "#c4b8a8"
-        border "#e0d4c4"
-        border_active "#9a7a50"
-        border_unfocused "#f3eadc"
-        tab_bar_bg "#f3eadc"
-        tab_active_bg "#f3eadc"
-        tab_active_fg "#9a7a50"
-        tab_inactive_bg "#f3eadc"
-        tab_inactive_fg "#c4b8a8"
-        pane_frame_bg "#f3eadc"
-        pane_frame_fg "#e0d4c4"
-        selection_bg "#9a7a50"
-        selection_fg "#f3eadc"
-    }
+        bg "#f9f6f2"
+        fg "#1e1813"
+        black "#f9f6f2"
+        red "#9c2024"
+        green "#1b672f"
+        yellow "#6e5201"
+        blue "#0a5b8f"
+        magenta "#81386b"
+        cyan "#0a5b8f"
+        white "#1e1813"
+        orange "#6e5201"
+        gray "#2b241e"
 
-    dreamcoder-dark {
-        bg "#100f0d"
-        fg "#e8dfd0"
-        black "#100f0d"
-        red "#8a6a50"
-        green "#8a7a68"
-        yellow "#9a8a70"
-        blue "#7a6a58"
-        magenta "#8a7a68"
-        cyan "#7a6a58"
-        white "#e8dfd0"
-        orange "#7a5a40"
-        gray "#5a4a38"
-        border "#2a2520"
-        border_active "#8a6a50"
-        border_unfocused "#1a1714"
-        tab_bar_bg "#100f0d"
-        tab_active_bg "#1a1714"
-        tab_active_fg "#8a6a50"
-        tab_inactive_bg "#100f0d"
-        tab_inactive_fg "#3a3028"
-        pane_frame_bg "#100f0d"
-        pane_frame_fg "#2a2520"
-        selection_bg "#8a6a50"
-        selection_fg "#100f0d"
+        // UI elements
+        border "#908379"
+        border_active "#874004"
+        border_unfocused "#908379"
+
+        // Tab bar
+        tab_bar_bg "#ede9e3"
+        tab_active_bg "#908379"
+        tab_active_fg "#874004"
+        tab_inactive_bg "#ede9e3"
+        tab_inactive_fg "#2b241e"
+
+        // Pane frames
+        pane_frame_bg "#ede9e3"
+        pane_frame_fg "#908379"
+
+        // Selection
+        selection_bg "#874004"
+        selection_fg "#f9f6f2"
     }
 }
 

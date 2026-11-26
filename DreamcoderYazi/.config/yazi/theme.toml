@@ -1,4 +1,5 @@
 # Dreamcoder Light — Yazi theme
+# Auto-generated from tokens.json — do not edit manually
 # https://yazi-rs.github.io/docs/configuration/theme
 
 [flavor]
@@ -6,34 +7,34 @@ dark = "dreamcoder-dark"
 light = "dreamcoder-light"
 
 [manager]
-cwd = { fg = "#17120d" }
+cwd = { fg = "#1e1813" }
 
 # Hovered
-hovered = { fg = "#17120d", bg = "#decbb1" }
-preview_hovered = { fg = "#17120d", bg = "#e6d7c4" }
+hovered = { fg = "#1e1813", bg = "#f1d7c1" }
+preview_hovered = { fg = "#1e1813", bg = "#ede9e3" }
 
 # Find
-find_keyword = { fg = "#a7471c", bold = true }
-find_position = { fg = "#0d4a68" }
+find_keyword = { fg = "#753100", bold = true }
+find_position = { fg = "#0a5b8f" }
 
 # Marker
-marker_copied = { fg = "#3d723d", bg = "#c8ad89" }
-marker_cut = { fg = "#842f24", bg = "#c8ad89" }
-marker_selected = { fg = "#824f16", bg = "#c8ad89" }
+marker_copied = { fg = "#1b672f", bg = "#e3ddd5" }
+marker_cut = { fg = "#9c2024", bg = "#e3ddd5" }
+marker_selected = { fg = "#874004", bg = "#e3ddd5" }
 
 # Tab
-tab_active = { fg = "#17120d", bg = "#f3eadc" }
-tab_inactive = { fg = "#725e4c", bg = "#e6d7c4" }
+tab_active = { fg = "#1e1813", bg = "#f9f6f2" }
+tab_inactive = { fg = "#5f544c", bg = "#ede9e3" }
 tab_width = 2
 
 # Count
-count_copied = { fg = "#17120d", bg = "#3d723d" }
-count_cut = { fg = "#17120d", bg = "#842f24" }
-count_selected = { fg = "#17120d", bg = "#824f16" }
+count_copied = { fg = "#fefdfa", bg = "#1b672f" }
+count_cut = { fg = "#fefdfa", bg = "#9c2024" }
+count_selected = { fg = "#fefdfa", bg = "#874004" }
 
 # Border
 border_symbol = "│"
-border_style = { fg = "#8a7358" }
+border_style = { fg = "#908379" }
 
 # Highlight
 syntect_theme = "Dreamcoder-Light"
@@ -41,44 +42,44 @@ syntect_theme = "Dreamcoder-Light"
 [status]
 separator_open = ""
 separator_close = ""
-progress_label = { fg = "#17120d", bold = true }
-progress_normal = { fg = "#824f16" }
-progress_error = { fg = "#842f24" }
+progress_label = { fg = "#1e1813", bold = true }
+progress_normal = { fg = "#874004" }
+progress_error = { fg = "#9c2024" }
 
 # Permissions
-permissions_t = { fg = "#0d4a68" }
-permissions_r = { fg = "#3d723d" }
-permissions_w = { fg = "#a7471c" }
-permissions_x = { fg = "#842f24" }
-permissions_s = { fg = "#57478b" }
+permissions_t = { fg = "#0a5b8f" }
+permissions_r = { fg = "#1b672f" }
+permissions_w = { fg = "#753100" }
+permissions_x = { fg = "#9c2024" }
+permissions_s = { fg = "#574894" }
 
 [input]
-border = { fg = "#824f16" }
+border = { fg = "#874004" }
 title = {}
 value = {}
-selected = { bg = "#decbb1" }
+selected = { bg = "#f1d7c1" }
 
 [select]
-border = { fg = "#824f16" }
-active = { fg = "#a7471c" }
+border = { fg = "#874004" }
+active = { fg = "#753100" }
 inactive = {}
 
 [tasks]
-border = { fg = "#824f16" }
+border = { fg = "#874004" }
 title = {}
-hovered = { fg = "#17120d", bg = "#decbb1" }
+hovered = { fg = "#1e1813", bg = "#f1d7c1" }
 
 [which]
-mask = { bg = "#c8ad89" }
-cand = { fg = "#0d4a68" }
-rest = { fg = "#725e4c" }
-desc = { fg = "#352e22" }
+mask = { bg = "#e3ddd5" }
+cand = { fg = "#0a5b8f" }
+rest = { fg = "#5f544c" }
+desc = { fg = "#2b241e" }
 separator = " ─ "
-separator_style = { fg = "#8a7358" }
+separator_style = { fg = "#908379" }
 
 [help]
-on = { fg = "#824f16" }
-run = { fg = "#a7471c" }
-desc = { fg = "#352e22" }
-hovered = { fg = "#17120d", bg = "#decbb1" }
-footer = { fg = "#725e4c" }
+on = { fg = "#874004" }
+run = { fg = "#753100" }
+desc = { fg = "#2b241e" }
+hovered = { fg = "#1e1813", bg = "#f1d7c1" }
+footer = { fg = "#5f544c" }

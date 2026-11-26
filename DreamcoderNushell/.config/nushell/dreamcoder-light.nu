@@ -1,27 +1,27 @@
-# Dreamcoder Light Theme for Nushell
+# Dreamcoder Light theme for Nushell
 # Auto-generated from tokens.json — do not edit manually
 
 $env.config = {
     color_config: {
-        separator: "#8a7e72"
-        leading_trailing_space_bg: "#e8dfd0"
-        header: "#824f16"
-        date: "#17120d"
-        filesize: "#3a7bc8"
-        row_index: "#8a7e72"
-        bool: "#824f16"
-        nothing: "#8a7e72"
-        binary: "#17120d"
-        cellpath: "#17120d"
-        int: "#17120d"
-        duration: "#17120d"
-        range: "#17120d"
-        float: "#17120d"
-        string: "#17120d"
-        record: "#17120d"
-        list: "#17120d"
-        closure: "#17120d"
-        custom: "#17120d"
+        separator: "#5f544c"
+        leading_trailing_space_bg: "#f2eee9"
+        header: "#874004"
+        date: "#1e1813"
+        filesize: "#0a5b8f"
+        row_index: "#5f544c"
+        bool: "#874004"
+        nothing: "#5f544c"
+        binary: "#1e1813"
+        cellpath: "#1e1813"
+        int: "#1e1813"
+        duration: "#1e1813"
+        range: "#1e1813"
+        float: "#1e1813"
+        string: "#1e1813"
+        record: "#1e1813"
+        list: "#1e1813"
+        closure: "#1e1813"
+        custom: "#1e1813"
     }
     completions: {
         case_sensitive: false
