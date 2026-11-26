@@ -61,10 +61,10 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
 | T1 | S2,S6 | Baseline: screenshot every Light target, contrast/ΔE report, full hex-literal inventory (uncapped) | inline | 082cb2e |
 | T2 | S2,S3 | Token v2: DTCG three-tier `tokens.json`, OKLCH primitives; generate `palette_tokens.py` from it; parity test (Risk 3: config format) | inline, own commit | 0979a31 |
 | T3 | S3,S4 | Material model: paper neutrals + pigment accents + ANSI-16 in tokens, all guarded (APCA/WCAG/ΔE) | inline | 971103a |
-| T4 | S3,S6 | Light & elevation: key/ambient shadow tokens, radius, border scale, translucency floor over wallpaper | inline | T4 commit |
+| T4 | S3,S6 | Light & elevation: key/ambient shadow tokens, radius, border scale, translucency floor over wallpaper | inline | 16d16e3 |
 | T5 | S2 | Type, spacing (4 pt), motion tokens → Hyprland, Waybar, rofi, Herdr, GTK/Qt | writer A (parallel with T6) | — |
 | T6 | S1,S3,S7 | Wallpapers via Codex CLI image generation from a token-derived brief (paper, pigment washes, single key light, bar safe zones); Light set + paired Dark companions; post-process (≥1920×1080, blue-noise dither) and gate on T7 | inline + Codex CLI | — |
-| T7 | S1,S2 | Wallpaper↔UI contract: OKLab L band, chroma cap, hue window around accent, APCA test of panels over worst wallpaper region; clamp matugen adaptive mode | inline | T7 commit |
+| T7 | S1,S2 | Wallpaper↔UI contract: OKLab L band, chroma cap, hue window around accent, APCA test of panels over worst wallpaper region; clamp matugen adaptive mode | inline | dae4d5f |
 | T8 | S2 | Migrate offenders: generate nvim `dreamcoder-light.lua`, tmux colors, renderer literals; audit Waybar/Herdr/Pi/ml4w_assets | inline | — |
 | T9 | S6 | Semantic chrome: badges, status icons, focus ring, window borders unified across Herdr/Waybar/Gentle Shell | inline | — |
 | T10 | S4 | Visual regression: specimen board, perceptual diff (ΔE2000), `make theme-check`, CI hook (Risk 5) | inline, own commit | — |
@@ -152,3 +152,9 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
   (51 tests). All 8 current wallpapers fail: both light ones on size/chroma (p95 0.103–0.110)/safe zone; dark
   ones on size, lightness (0.26–0.35 > 0.22), safe zone, bar readability 1.9–3.0:1, and three on hue (258–267°).
   Light readability can only fail with a weaker palette (module/panel alphas hold 7:1 over black): a guard.
+- L13 — T6 blocker: Codex CLI 0.172 runs on a ChatGPT account; its built-in `image_gen` returns 403 Forbidden
+  (model gpt-5.6-terra); gpt-6-sol is not allowed on ChatGPT accounts; no `OPENAI_API_KEY` for the API path.
+  Needs a human decision. Done meanwhile: `scripts/finish-wallpaper.sh` (16:9 crop, linear-light Lanczos to
+  3840×2160, additive paper grain ~1.4 code values RMS, ordered dither to 8-bit, byte-deterministic) with
+  `tests/test_finish_wallpaper.py`. ImageMagick 7.1.2-36 `SoftLight` composite returns white (bug), so the grain
+  is additive `Mathematics`; ordered dither replaces TPDF for reproducible builds.
