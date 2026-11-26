@@ -2,25 +2,25 @@
 @define-color bg #f9f6f2;
 @define-color bg-soft #f2eee9;
 @define-color surface #fefdfa;
-@define-color surface-2 #e3ddd4;
-@define-color surface-3 #d3ccc1;
-@define-color text #1e1814;
-@define-color text-heading #120d09;
-@define-color muted #352f29;
-@define-color subtle #5e574f;
-@define-color comment #675d53;
-@define-color border #8e8479;
-@define-color border-ui #645c53;
-@define-color focus #006973;
-@define-color accent #8b440c;
-@define-color accent-2 #a73b15;
-@define-color diagnostic #005f8e;
-@define-color lavender #5b4c99;
-@define-color error #a12623;
-@define-color success #1c6c31;
-@define-color warning #795700;
-@define-color link #8b440c;
-@define-color link-hover #a73b15;
+@define-color surface-2 #e3ddd5;
+@define-color surface-3 #d4ccc1;
+@define-color text #1e1813;
+@define-color text-heading #110c08;
+@define-color muted #2b241e;
+@define-color subtle #4f463e;
+@define-color comment #5f544c;
+@define-color border #908379;
+@define-color border-ui #5f544c;
+@define-color focus #016367;
+@define-color accent #874004;
+@define-color accent-2 #753100;
+@define-color diagnostic #0a5b8f;
+@define-color lavender #574894;
+@define-color error #9c2024;
+@define-color success #1b672f;
+@define-color warning #6e5201;
+@define-color link #874004;
+@define-color link-hover #753100;
 
 window#waybar {
   background: rgba(249, 246, 242, 0.96);
@@ -36,7 +36,7 @@ window#waybar {
 
 #workspaces button.active {
   color: @accent;
-  background: rgba(139, 68, 12, 0.30);
+  background: rgba(135, 64, 4, 0.30);
   border-color: alpha(@focus, 0.82);
 }
 
@@ -47,7 +47,7 @@ window#waybar {
 #cpu,
 #memory,
 #tray {
-  background: rgba(238, 233, 226, 0.80);
+  background: rgba(237, 233, 227, 0.80);
   color: @text;
   border: 1px solid alpha(@border-ui, 0.78);
 }
