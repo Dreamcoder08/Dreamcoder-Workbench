@@ -45,7 +45,7 @@ Branch `feat/dark-coherence` (stacked on `feat/light-coherence`) in worktree `.l
 | ID | Specs | Task | Route | Commit |
 | --- | --- | --- | --- | --- |
 | T1 | S1 | Baseline: live Dark screenshot, Dark specimen, measurements recorded | inline | 96dd168 |
-| T2 | S1-S5 | Dark primitives + bindings (neutral ramp, 8 pigment families at night density, indigo brand), material laws in `tests/test_dark_material.py`, deliberate re-pins | worker | f971a41 |
+| T2 | S1-S5 | Dark primitives + bindings (neutral ramp, 8 pigment families at night density, indigo brand), material laws in `tests/test_dark_material.py`, deliberate re-pins | worker | ae28a10 |
 | T3 | S1,S2 | Dark components: tonal elevation (no shadows), radius/rhythm adopted for Dark, renderer literals | worker | — |
 | T4 | S1 | Generate the stale hand-written Dark files; guard test like `test_light_color_files.py` | worker | — |
 | T5 | S1,S3 | Dark wallpaper contract: hue rule follows identity (neutral or indigo), not warm | inline | — |
