@@ -357,52 +357,52 @@
         }
       },
       "graphite": {
-        "985": {
+        "949": {
           "$type": "color",
           "$value": {
             "colorSpace": "oklch",
             "components": [
-              0.985,
+              0.949,
               0.0,
               0.0
             ],
-            "hex": "#fafafa"
+            "hex": "#eeeeee"
           }
         },
-        "940": {
+        "907": {
           "$type": "color",
           "$value": {
             "colorSpace": "oklch",
             "components": [
-              0.94,
+              0.907,
               0.0,
               0.0
             ],
-            "hex": "#ebebeb"
+            "hex": "#e0e0e0"
           }
         },
-        "895": {
+        "864": {
           "$type": "color",
           "$value": {
             "colorSpace": "oklch",
             "components": [
-              0.895,
+              0.864,
               0.0,
               0.0
             ],
-            "hex": "#dcdcdc"
+            "hex": "#d2d2d2"
           }
         },
-        "850": {
+        "823": {
           "$type": "color",
           "$value": {
             "colorSpace": "oklch",
             "components": [
-              0.85,
+              0.823,
               0.0,
               0.0
             ],
-            "hex": "#cecece"
+            "hex": "#c5c5c5"
           }
         },
         "720": {
@@ -417,16 +417,28 @@
             "hex": "#a4a4a4"
           }
         },
-        "675": {
+        "706": {
           "$type": "color",
           "$value": {
             "colorSpace": "oklch",
             "components": [
-              0.675,
+              0.7058,
               0.0,
               0.0
             ],
-            "hex": "#979797"
+            "hex": "#a0a0a0"
+          }
+        },
+        "663": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.6633,
+              0.0,
+              0.0
+            ],
+            "hex": "#939393"
           }
         },
         "570": {
@@ -941,23 +953,23 @@
       },
       "text": {
         "$type": "color",
-        "$value": "{primitive.dark.graphite.940}"
+        "$value": "{primitive.dark.graphite.907}"
       },
       "text_heading": {
         "$type": "color",
-        "$value": "{primitive.dark.graphite.985}"
+        "$value": "{primitive.dark.graphite.949}"
       },
       "muted": {
         "$type": "color",
-        "$value": "{primitive.dark.graphite.895}"
+        "$value": "{primitive.dark.graphite.864}"
       },
       "subtle": {
         "$type": "color",
-        "$value": "{primitive.dark.graphite.720}"
+        "$value": "{primitive.dark.graphite.706}"
       },
       "comment": {
         "$type": "color",
-        "$value": "{primitive.dark.graphite.850}"
+        "$value": "{primitive.dark.graphite.823}"
       },
       "border": {
         "$type": "color",
@@ -1009,12 +1021,12 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [
-            0.921569,
-            0.921569,
-            0.921569
+            0.878431,
+            0.878431,
+            0.878431
           ],
           "alpha": 0.08,
-          "hex": "#ebebeb"
+          "hex": "#e0e0e0"
         }
       },
       "active_rgba": {
@@ -1061,11 +1073,11 @@
       },
       "prompt_text": {
         "$type": "color",
-        "$value": "{primitive.dark.graphite.940}"
+        "$value": "{primitive.dark.graphite.907}"
       },
       "prompt_muted": {
         "$type": "color",
-        "$value": "{primitive.dark.graphite.895}"
+        "$value": "{primitive.dark.graphite.864}"
       },
       "prompt_accent": {
         "$type": "color",
@@ -1109,11 +1121,11 @@
       },
       "selection_fg": {
         "$type": "color",
-        "$value": "{primitive.dark.graphite.940}"
+        "$value": "{primitive.dark.graphite.907}"
       },
       "on_surface": {
         "$type": "color",
-        "$value": "{primitive.dark.graphite.940}"
+        "$value": "{primitive.dark.graphite.907}"
       },
       "on_accent": {
         "$type": "color",
@@ -1137,7 +1149,7 @@
       },
       "disabled": {
         "$type": "color",
-        "$value": "{primitive.dark.graphite.675}"
+        "$value": "{primitive.dark.graphite.663}"
       },
       "hover": {
         "$type": "color",

@@ -13,8 +13,8 @@
   --dc-border-medium: #3a3a3a;
   --dc-border-focus: #6eccd1;
   --dc-border-runtime: #636363;
-  --dc-text-primary: #ebebeb;
-  --dc-text-secondary: #dcdcdc;
+  --dc-text-primary: #e0e0e0;
+  --dc-text-secondary: #d2d2d2;
   --dc-text-muted: #a7a7a7;
   --dc-accent-brand: #6366f1;
   --dc-accent-runtime: #a7b5fd;
@@ -25,7 +25,7 @@
   --dc-error: #f87171;
   --dc-error-runtime: #fc9d95;
   --dc-info: #76c4f6;
-  --dc-syntax-comment: #cecece;
+  --dc-syntax-comment: #c5c5c5;
   --dc-syntax-keyword: #f59ac5;
   --dc-syntax-function: #a7b5fd;
   --dc-syntax-string: #86cf90;

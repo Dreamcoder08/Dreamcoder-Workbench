@@ -9,7 +9,7 @@ Nushell config for Dreamcoder Dots, adapted from [Gentleman.Dots](https://github
 | Token   | Color     |
 | ------- | --------- |
 | BG      | `#000000` |
-| Text    | `#ebebeb` |
+| Text    | `#e0e0e0` |
 | Accent  | `#a7b5fd` |
 | Success | `#86cf90` |
 | Warning | `#dcb55e` |

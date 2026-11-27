@@ -103,9 +103,9 @@ def gtk_content(p: dict[str, str]) -> str:
 def qt6ct_content(p: dict[str, str]) -> str:
     """Opaque ARGB fields in QPalette order for all three ColorScheme groups.
 
-    Disabled text uses the canonical disabled token (4.5:1 minimum on Dark
-    functional surfaces); disabled selection uses selection_bg rather than
-    accent so its disabled foreground remains legible.
+    Disabled text uses the canonical disabled token; disabled selection uses
+    selection_bg rather than accent, with ``comment`` as its foreground: the
+    recessed ``disabled`` grey cannot hold 4.5:1 on a selected row.
     """
     lines = ["# Dreamcoder Workbench canonical Qt6ct colors", "[ColorScheme]"]
     for group in ("active", "inactive", "disabled"):
@@ -115,8 +115,10 @@ def qt6ct_content(p: dict[str, str]) -> str:
             if group != "active" and role in _QT_GROUP_TEXT:
                 token = "disabled" if group == "disabled" else "muted"
             if group == "disabled":
-                if role in {"BrightText", "PlaceholderText", "HighlightedText"}:
+                if role in {"BrightText", "PlaceholderText"}:
                     token = "disabled"
+                elif role == "HighlightedText":
+                    token = "comment"
                 elif role == "Highlight":
                     token = "selection_bg"
             colors.append("#ff" + p[token].removeprefix("#").lower())

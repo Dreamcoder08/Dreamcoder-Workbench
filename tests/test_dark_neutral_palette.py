@@ -100,11 +100,11 @@ def test_dark_uses_the_authorized_neutral_surface_ladder():
 def test_dark_neutral_text_mirrors_remain_legible_on_raised_roles():
     dark = _dark()
 
-    assert dark["text"] == dark["prompt_text"] == dark["on_surface"] == "#ebebeb"
-    assert dark["muted"] == dark["prompt_muted"] == "#dcdcdc"
-    assert dark["subtle"] == "#a4a4a4"
-    assert dark["disabled"] == "#979797"
-    assert dark["comment"] == "#cecece"
+    assert dark["text"] == dark["prompt_text"] == dark["on_surface"] == "#e0e0e0"
+    assert dark["muted"] == dark["prompt_muted"] == "#d2d2d2"
+    assert dark["subtle"] == "#a0a0a0"
+    assert dark["disabled"] == "#939393"
+    assert dark["comment"] == "#c5c5c5"
     assert contrast(dark["text"], dark["surface3"]) >= 10
     assert contrast(dark["selection_fg"], dark["selection_bg"]) >= 7
 

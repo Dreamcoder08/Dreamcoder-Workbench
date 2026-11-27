@@ -27,9 +27,9 @@ export const HEX = {
   selected: "#1E212E", // --selected → selected / hover
   line: "#262626", // --line → border
   lineStrong: "#636363", // --line-strong → input
-  text: "#EBEBEB", // --text → foreground
-  muted: "#DCDCDC", // --muted → muted
-  faint: "#A4A4A4", // --faint → dim
+  text: "#E0E0E0", // --text → foreground
+  muted: "#D2D2D2", // --muted → muted
+  faint: "#A0A0A0", // --faint → dim
   accent: "#A7B5FD", // --accent → accent
   accentSoft: "#C6D0FD", // --accent-soft (no role)
   ok: "#86CF90", // --ok → done
@@ -37,7 +37,7 @@ export const HEX = {
   err: "#FC9D95", // --err (no role)
   info: "#76C4F6", // --info → working
   onAccent: "#000000", // .btn.primary color → accent_foreground
-  btnLine: "#EBEBEB17", // .btn border (no role)
+  btnLine: "#E0E0E017", // .btn border (no role)
 };
 const DARK = HEX;
 

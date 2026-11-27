@@ -1,11 +1,11 @@
 {
   "background": "#000000",
-  "foreground": "#EBEBEB",
+  "foreground": "#E0E0E0",
   "selection": "#303030",
   "cursor": "#A7B5FD",
   "ansi": [
-    "#777777", "#FC9D95", "#86CF90", "#DCB55E", "#76C4F6", "#F59AC5", "#7ECAC3", "#DCDCDC",
-    "#A4A4A4", "#F9ABA4", "#98D4A0", "#DFBF77", "#8BCBF4", "#F3A9CC", "#8ECFC9", "#EBEBEB"
+    "#777777", "#FC9D95", "#86CF90", "#DCB55E", "#76C4F6", "#F59AC5", "#7ECAC3", "#D2D2D2",
+    "#A0A0A0", "#F7A9A2", "#96D29E", "#DDBD75", "#89C9F2", "#F1A7CA", "#8DCDC7", "#E0E0E0"
   ],
   "colors": {
     "canvas": "#000000",
@@ -14,8 +14,8 @@
     "raised": "#121212",
     "selected": "#090909",
     "selection": "#303030",
-    "foreground": "#EBEBEB",
-    "muted": "#DCDCDC",
+    "foreground": "#E0E0E0",
+    "muted": "#D2D2D2",
     "dim": "#777777",
     "accent": "#A7B5FD",
     "blocked": "#FC9D95",

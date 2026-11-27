@@ -4,7 +4,7 @@ Same method as the Light benchmark (`odd/evidence/light-coherence/t14-benchmark.
 
 | System | Text WCAG / APCA | Muted WCAG / APCA | Accents ≥ 4.5 | Weakest accent | Min ΔE2000 | Accent L spread | Max accent chroma |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Dreamcoder Dark (new) | 17.62 / 95 | 13.34 / 77 | 7/7 | 10.31 | 14.2 | 0.002 | 0.128 |
+| Dreamcoder Dark (new) | 15.91 / 88 | 12.17 / 72 | 7/7 | 10.31 | 14.2 | 0.002 | 0.128 |
 | Dreamcoder Dark (main) | 16.83 / 92 | 13.62 / 78 | 7/7 | 8.80 | 1.0 | 0.089 | 0.164 |
 | GitHub Dark Default | 16.02 / 95 | 6.31 / 45 | 7/7 | 5.63 | 13.0 | 0.137 | 0.205 |
 | Catppuccin Mocha | 11.34 / 80 | 7.37 / 56 | 7/7 | 7.08 | 14.1 | 0.164 | 0.130 |
@@ -25,3 +25,10 @@ Same method as the Light benchmark (`odd/evidence/light-coherence/t14-benchmark.
   - Near-white text at 17.6:1 on pure OLED black risks halation for astigmatic readers. Lowering `text` to about
     15:1 and `comment` to about 7–8:1 would keep AAA while easing glare. Both values are bounded by existing
     guards (`test_canonical_loaders` subtle APCA, Qt disabled contrast), so a change needs a deliberate pass.
+
+## After T9 (calm ramp, 2026-11-27)
+
+The table's first row reflects the final ramp. Text went 17.62 → 15.91:1 and heading 20.12 → 18.10:1, which
+reduces halation on OLED black. Comment went 13.34 → 12.17:1 only. Standing distinctness guards (nvim comment vs
+subtle ≥ 1.5, string vs comment) together with the quiet APCA floor on `disabled` set that minimum. A lower comment
+needs a deliberate guard change, which is out of scope (`odd/tasks/dreamcoder-dark-coherence.md` L13–L16).

@@ -159,3 +159,8 @@ Branch `feat/dark-coherence` (stacked on `feat/light-coherence`) in worktree `.l
   comment [7.0, 12.5]. Outcome: halation reduced (text 17.6 → ≈ 15.9:1, heading 20.1 → ≈ 17.9:1); comment
   recession NOT achievable under the distinctness guards (comment/text ratio ≈ unchanged). The Claude Code dark word
   tint is a derived value: tune it (approved). Keep the Qt disabled-on-selection change (still needed).
+- L17 — T9 result: ramp heading `#eeeeee` 18.10:1, text `#e0e0e0` 15.91:1, muted `#d2d2d2` 13.89:1, comment `#c5c5c5`
+  12.17:1, subtle `#a0a0a0` 8.03:1, disabled `#939393` 6.84:1 (ΔL ≥ .04, comment/subtle ≥ 1.5, quiet APCA ≥ 44);
+  own heading ceiling 18.2. Qt disabled `HighlightedText` = comment (function-level Light difference only, no Light
+  file ships). Claude Code tint unchanged (passes at the final text). theme-diff: 10 dark roles, max ΔE 2.47,
+  0 floors crossed; Light unchanged. Benchmark row updated.

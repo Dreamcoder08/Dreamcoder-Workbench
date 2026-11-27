@@ -1,6 +1,6 @@
 """Dreamcoder Dark material laws: graphite, emission and pigment at night density.
 
-Spec: odd/tasks/dreamcoder-dark-coherence.md, T2 (S1-S5, design L4).
+Spec: odd/tasks/dreamcoder-dark-coherence.md, T2 (S1-S5, design L4) and T9 (L12/L13: calm text).
 
 The values live in tokens.json; these tests hold the physical model they must
 obey, so a future edit cannot drift out of the system silently.
@@ -121,6 +121,29 @@ def test_text_ramp_recedes_in_strict_order() -> None:
     values = [_lightness(role) for role in TEXT_RAMP]
     steps = [a - b for a, b in itertools.pairwise(values)]
     assert all(step >= 0.04 for step in steps), dict(zip(TEXT_RAMP, values, strict=True))
+
+
+def test_text_is_calm_enough_for_oled_halation() -> None:
+    """L12: near-white text on pure black blooms; keep AAA but pull it down."""
+    assert 14.0 <= contrast(DARK["text"], DARK["bg"]) <= 16.0
+
+
+def test_heading_is_brightest_but_close_to_text() -> None:
+    heading = contrast(DARK["text_heading"], DARK["bg"])
+    assert heading > contrast(DARK["text"], DARK["bg"])
+    assert heading <= 18.2
+
+
+def test_comment_stays_aaa_and_below_text() -> None:
+    """AAA on bg; the nvim comment/subtle and string/comment guards set the floor near 12."""
+    assert 7.0 <= contrast(DARK["comment"], DARK["bg"]) <= 12.5
+
+
+def test_muted_sits_strictly_between_text_and_comment_on_the_canvas() -> None:
+    text, muted, comment = (
+        contrast(DARK[role], DARK["bg"]) for role in ("text", "muted", "comment")
+    )
+    assert text > muted > comment >= 7
 
 
 def test_muted_text_holds_7_to_1_on_the_canvas() -> None:

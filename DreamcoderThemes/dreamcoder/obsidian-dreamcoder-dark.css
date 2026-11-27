@@ -18,9 +18,9 @@
   --background-modifier-message: #121212;
 
   /* Text — guarded against background for accessibility */
-  --text-normal: #ebebeb;
-  --text-muted: #dcdcdc;
-  --text-faint: #a4a4a4;
+  --text-normal: #e0e0e0;
+  --text-muted: #d2d2d2;
+  --text-faint: #a0a0a0;
   --text-accent: #a7b5fd;
   --text-accent-hover: #c6d0fd;
   --text-error: #fc9d95;
@@ -42,9 +42,9 @@
   --scrollbar-active-thumb-bg: #777777;
 
   /* Code — syntax highlighting colors */
-  --code-normal: #ebebeb;
-  --code-comment: #cecece;
-  --code-punctuation: #dcdcdc;
+  --code-normal: #e0e0e0;
+  --code-comment: #c5c5c5;
+  --code-punctuation: #d2d2d2;
   --code-keyword: #a7b5fd;
   --code-operator: #c6d0fd;
   --code-function: #c6d0fd;
@@ -55,12 +55,12 @@
   --code-background: #090909;
 
   /* Heading */
-  --h1-color: #fafafa;
-  --h2-color: #fafafa;
+  --h1-color: #eeeeee;
+  --h2-color: #eeeeee;
   --h3-color: #c6d0fd;
   --h4-color: #76c4f6;
-  --h5-color: #dcdcdc;
-  --h6-color: #a4a4a4;
+  --h5-color: #d2d2d2;
+  --h6-color: #a0a0a0;
 
   /* Link */
   --link-color: #a7b5fd;
@@ -82,7 +82,7 @@
 
   /* Graph */
   --graph-line: #636363;
-  --graph-node: #dcdcdc;
+  --graph-node: #d2d2d2;
   --graph-node-focused: #a7b5fd;
   --graph-node-tag: #76c4f6;
   --graph-node-attachment: #86cf90;
@@ -114,7 +114,7 @@ blockquote {
 .is-selected .search-result-file-matched-text,
 mark {
   background-color: #212433 !important;
-  color: #ebebeb !important;
+  color: #e0e0e0 !important;
 }
 
 /* Active line in edit mode */
@@ -130,7 +130,7 @@ mark {
 /* Tooltip */
 .tooltip {
   background-color: #121212 !important;
-  color: #ebebeb !important;
+  color: #e0e0e0 !important;
 }
 
 /* Menu */

@@ -110,6 +110,8 @@ Pigments follow Light's hue order around the wheel (madder, ochre, malachite, ve
 
 Measured when the model landed: pigment lightness spread 0.000, minimum pigment-pair ΔE2000 14.24 (it was 1.0), pigments ≥ 10.31:1 on `bg` and ≥ 6.48:1 on `selection`, focus ≥ 7.05:1 on every surface. The filled indigo `aliases.brand` and `on_accent` keep their contrast floors, and the Dark ANSI slot 6/14 semantics are unchanged.
 
+The text ramp is tuned against OLED halation: `text` `#e0e0e0` (15.91:1 on `bg`, it was 17.62:1) and `text_heading` `#eeeeee` (18.10:1, was 20.12:1) pull back from near-white, while `muted` `#d2d2d2` (13.89:1), `comment` `#c5c5c5` (12.17:1), `subtle` `#a0a0a0` (8.03:1) and `disabled` `#939393` (6.84:1) keep every step at least 0.04 OKLab lightness apart. `comment` cannot recede further: `disabled` is held by the quiet APCA floor, and the editor readability guards need `comment` distinct from `subtle` (contrast ≥ 1.5) and from the string colour. In the disabled Qt group, `HighlightedText` uses `comment` because the recessed `disabled` grey cannot hold 4.5:1 on a selected row.
+
 Wallpapers follow the identity too: the Dark hue window is 275° ± 30° ([Wallpaper contract](#wallpaper-contract)).
 
 ## Elevation

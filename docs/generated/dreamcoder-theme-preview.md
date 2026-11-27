@@ -26,11 +26,11 @@ Semantic tokens are intentionally distinct:
 | `surface1` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#121212'></span> `#121212` |
 | `surface2` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#1c1c1c'></span> `#1c1c1c` |
 | `surface3` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#262626'></span> `#262626` |
-| `text` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#ebebeb'></span> `#ebebeb` |
-| `text_heading` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#fafafa'></span> `#fafafa` |
-| `muted` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#dcdcdc'></span> `#dcdcdc` |
-| `subtle` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#a4a4a4'></span> `#a4a4a4` |
-| `comment` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#cecece'></span> `#cecece` |
+| `text` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#e0e0e0'></span> `#e0e0e0` |
+| `text_heading` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#eeeeee'></span> `#eeeeee` |
+| `muted` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#d2d2d2'></span> `#d2d2d2` |
+| `subtle` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#a0a0a0'></span> `#a0a0a0` |
+| `comment` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#c5c5c5'></span> `#c5c5c5` |
 | `accent` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#a7b5fd'></span> `#a7b5fd` |
 | `accent_2` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#c6d0fd'></span> `#c6d0fd` |
 | `diagnostic` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#76c4f6'></span> `#76c4f6` |
@@ -46,7 +46,7 @@ Semantic tokens are intentionally distinct:
 | `link` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#a7b5fd'></span> `#a7b5fd` |
 | `link_hover` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#c6d0fd'></span> `#c6d0fd` |
 | `selection_bg` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#303030'></span> `#303030` |
-| `selection_fg` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#ebebeb'></span> `#ebebeb` |
+| `selection_fg` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#e0e0e0'></span> `#e0e0e0` |
 | `border` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#636363'></span> `#636363` |
 | `border_ui` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#777777'></span> `#777777` |
 | `border_hi` | <span style='display:inline-block;width:0.9em;height:0.9em;border:1px solid #888;background:#a4a4a4'></span> `#a4a4a4` |
@@ -94,9 +94,9 @@ Semantic tokens are intentionally distinct:
 
 | Token | Ratio vs bg | Target |
 | --- | ---: | --- |
-| `text` | 17.62:1 | AAA |
-| `muted` | 15.31:1 | AA |
-| `comment` | 13.34:1 | AA |
+| `text` | 15.91:1 | AAA |
+| `muted` | 13.89:1 | AA |
+| `comment` | 12.17:1 | AA |
 | `accent` | 10.67:1 | AA |
 | `accent_2` | 13.84:1 | AA |
 | `diagnostic` | 11.00:1 | AA |
@@ -108,9 +108,9 @@ Semantic tokens are intentionally distinct:
 
 | Token | Lc vs bg | Target |
 | --- | ---: | --- |
-| `text` | 94.8 | ≥75 (body) |
-| `muted` | 85.4 | ≥75 (body) |
-| `comment` | 76.9 | ≥75 (body) |
+| `text` | 87.9 | ≥75 (body) |
+| `muted` | 79.3 | ≥75 (body) |
+| `comment` | 71.5 | ≥75 (FAIL) |
 | `accent` | 64.5 | ≥75 (FAIL) |
 | `accent_2` | 79.1 | ≥75 (body) |
 | `diagnostic` | 66.2 | ≥75 (FAIL) |

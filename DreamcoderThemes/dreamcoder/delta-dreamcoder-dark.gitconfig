@@ -21,8 +21,8 @@
     hunk-header-style = "file line-number syntax"
     hunk-header-decoration-style = "yellow box"
     hunk-header-file-style = "#a7b5fd"
-    hunk-header-line-number-style = "#dcdcdc"
-    hunk-header-color = "#959595"
+    hunk-header-line-number-style = "#d2d2d2"
+    hunk-header-color = "#8f8f8f"
 
     # Commit decorations
     commit-style = "#a7b5fd bold"
@@ -30,8 +30,8 @@
 
     # Line numbers
     line-numbers = true
-    line-numbers-left-style = "#dcdcdc"
-    line-numbers-right-style = "#dcdcdc"
+    line-numbers-left-style = "#d2d2d2"
+    line-numbers-right-style = "#d2d2d2"
     line-numbers-minus-style = "#fc9d95"
     line-numbers-plus-style = "#86cf90"
 

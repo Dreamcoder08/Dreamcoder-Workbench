@@ -2,8 +2,8 @@
 * {
   background: rgba(18, 18, 18, 0.92);
   background-alt: #090909;
-  foreground: #ebebeb;
-  muted: #dcdcdc;
+  foreground: #e0e0e0;
+  muted: #d2d2d2;
   selected: rgba(99, 102, 241, 0.28);
   active: #a7b5fd;
   border-ui: #777777;

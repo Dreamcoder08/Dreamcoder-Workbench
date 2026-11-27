@@ -28,7 +28,7 @@ gui:
     unstagedChangesColor:
       - "#fc9d95" # error
     defaultFgColor:
-      - "#ebebeb" # text
+      - "#e0e0e0" # text
   authorColors:
         "#a7b5fd": "#000000"
         "#c6d0fd": "#000000"
@@ -52,6 +52,6 @@ git:
   skipHookPrefix: WIP
   autoFetch: true
   autoRefresh: true
-  branchLogCmd: "git log --graph --pretty=format:'%C(#a7b5fd)%h%Creset -%C(#c6d0fd)%d%Creset %s %C(#cecece)(%cr) %C(#76c4f6)<%an>%Creset' --date=relative"
+  branchLogCmd: "git log --graph --pretty=format:'%C(#a7b5fd)%h%Creset -%C(#c6d0fd)%d%Creset %s %C(#c5c5c5)(%cr) %C(#76c4f6)<%an>%Creset' --date=relative"
 update:
   method: never

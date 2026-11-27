@@ -3,14 +3,14 @@
 
 [colors.primary]
 background = "#000000"
-foreground = "#ebebeb"
+foreground = "#e0e0e0"
 
 [colors.cursor]
 text = "#000000"
 cursor = "#a7b5fd"
 
 [colors.selection]
-text = "#ebebeb"
+text = "#e0e0e0"
 background = "#303030"
 
 [colors.normal]
@@ -21,14 +21,14 @@ yellow = "#dcb55e"
 blue = "#76c4f6"
 magenta = "#f59ac5"
 cyan = "#7ecac3"
-white = "#dcdcdc"
+white = "#d2d2d2"
 
 [colors.bright]
-black = "#a4a4a4"
-red = "#f9aba4"
-green = "#98d4a0"
-yellow = "#dfbf77"
-blue = "#8bcbf4"
-magenta = "#f3a9cc"
-cyan = "#8ecfc9"
-white = "#ebebeb"
+black = "#a0a0a0"
+red = "#f7a9a2"
+green = "#96d29e"
+yellow = "#ddbd75"
+blue = "#89c9f2"
+magenta = "#f1a7ca"
+cyan = "#8dcdc7"
+white = "#e0e0e0"

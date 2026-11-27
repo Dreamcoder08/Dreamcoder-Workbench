@@ -442,7 +442,7 @@ load_plugins {
 themes {
     dreamcoder-dark {
         bg "#000000"
-        fg "#ebebeb"
+        fg "#e0e0e0"
         black "#000000"
         red "#fc9d95"
         green "#86cf90"
@@ -450,9 +450,9 @@ themes {
         blue "#76c4f6"
         magenta "#f59ac5"
         cyan "#76c4f6"
-        white "#ebebeb"
+        white "#e0e0e0"
         orange "#dcb55e"
-        gray "#dcdcdc"
+        gray "#d2d2d2"
 
         // UI elements
         border "#636363"
@@ -464,7 +464,7 @@ themes {
         tab_active_bg "#636363"
         tab_active_fg "#a7b5fd"
         tab_inactive_bg "#121212"
-        tab_inactive_fg "#dcdcdc"
+        tab_inactive_fg "#d2d2d2"
 
         // Pane frames
         pane_frame_bg "#121212"

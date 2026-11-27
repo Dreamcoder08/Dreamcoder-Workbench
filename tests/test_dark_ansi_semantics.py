@@ -26,15 +26,15 @@ BASELINE = {
         "#76c4f6",
         "#f59ac5",
         "#7ecac3",
-        "#dcdcdc",
-        "#a4a4a4",
-        "#f9aba4",
-        "#98d4a0",
-        "#dfbf77",
-        "#8bcbf4",
-        "#f3a9cc",
-        "#8ecfc9",
-        "#ebebeb",
+        "#d2d2d2",
+        "#a0a0a0",
+        "#f7a9a2",
+        "#96d29e",
+        "#ddbd75",
+        "#89c9f2",
+        "#f1a7ca",
+        "#8dcdc7",
+        "#e0e0e0",
     ),
     "light": (
         "#5e5d5d",
@@ -67,7 +67,7 @@ def test_dark_cyan_roles_are_distinct_and_readable() -> None:
     slots = ansi(palette)
 
     assert slots[6] == "#7ecac3"
-    assert slots[14] == "#8ecfc9"
+    assert slots[14] == "#8dcdc7"
     for index in (6, 14):
         red, green, blue = (int(slots[index][i : i + 2], 16) for i in (1, 3, 5))
         assert green > red and blue > red
@@ -115,8 +115,8 @@ def test_dark_terminal_variants_render_the_same_cyan_slots(path, renderer, patte
     assert (ROOT / path).read_text() == rendered
     matches = re.findall(pattern, rendered)
     if "Warp" in path:
-        assert matches == ["#7ecac3", "#8ecfc9"]
+        assert matches == ["#7ecac3", "#8dcdc7"]
     else:
         indexed = {int(index): color for index, color in matches}
         assert indexed[6] == "#7ecac3"
-        assert indexed[14] == "#8ecfc9"
+        assert indexed[14] == "#8dcdc7"

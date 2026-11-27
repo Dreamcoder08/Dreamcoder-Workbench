@@ -32,9 +32,9 @@ const TOKENS = {
   hover: ["#1E212E", "hover", "--selected is also the hover fill l.20"],
   line: ["#262626", "border", "--line (borderSubtle) l.21"],
   lineStrong: ["#636363", "input", "--line-strong (border) l.22"],
-  text: ["#EBEBEB", "foreground", "--text l.23"],
-  muted: ["#DCDCDC", "muted", "--muted l.24"],
-  faint: ["#A4A4A4", "dim", "--faint l.25"],
+  text: ["#E0E0E0", "foreground", "--text l.23"],
+  muted: ["#D2D2D2", "muted", "--muted l.24"],
+  faint: ["#A0A0A0", "dim", "--faint l.25"],
   accent: ["#A7B5FD", "accent", "--accent l.26"],
   accentSoft: ["#C6D0FD", null, "--accent-soft l.27"],
   ok: ["#86CF90", "done", "--ok l.28"],
@@ -42,7 +42,7 @@ const TOKENS = {
   err: ["#FC9D95", null, "--err l.30"],
   info: ["#76C4F6", "working", "--info l.31"],
   onAccent: ["#000000", null, ".btn.primary / .send text l.94, l.183"],
-  btnLine: ["#EBEBEB17", null, ".btn border l.92"],
+  btnLine: ["#E0E0E017", null, ".btn border l.92"],
 };
 
 // What the layout's root `"colors"` sets so every role above shows the artboard value (T6).

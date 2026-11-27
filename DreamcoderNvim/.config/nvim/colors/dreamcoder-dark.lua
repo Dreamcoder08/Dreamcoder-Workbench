@@ -12,10 +12,10 @@ local c = {
   surface0  = "#090909",
   surface1  = "#121212",
   surface2  = "#1c1c1c",
-  text      = "#ebebeb",
-  muted     = "#dcdcdc",
-  subtle    = "#a4a4a4",
-  comment   = "#cecece",
+  text      = "#e0e0e0",
+  muted     = "#d2d2d2",
+  subtle    = "#a0a0a0",
+  comment   = "#c5c5c5",
   accent    = "#a7b5fd",
   accent2   = "#c6d0fd",
   diagnostic = "#76c4f6",
@@ -38,12 +38,12 @@ end
 -- Floating windows retain near-black functional surfaces and intentional blending.
 
   vim.api.nvim_set_hl(0, "Normal", {
-    fg = "#ebebeb",
+    fg = "#e0e0e0",
     bg = "#000000"
   })
 
   vim.api.nvim_set_hl(0, "NormalFloat", {
-    fg = "#ebebeb",
+    fg = "#e0e0e0",
     bg = "#090909"
   })
 
@@ -58,11 +58,11 @@ end
   })
 
   vim.api.nvim_set_hl(0, "NonText", {
-    fg = "#a4a4a4"
+    fg = "#a0a0a0"
   })
 
   vim.api.nvim_set_hl(0, "SpecialKey", {
-    fg = "#dcdcdc"
+    fg = "#d2d2d2"
   })
 
   vim.api.nvim_set_hl(0, "Whitespace", {
@@ -93,7 +93,7 @@ end
   })
 
   vim.api.nvim_set_hl(0, "LineNr", {
-    fg = "#dcdcdc"
+    fg = "#d2d2d2"
   })
 
   vim.api.nvim_set_hl(0, "CursorColumn", {
@@ -111,12 +111,12 @@ end
 
   -- ── Selection & Search ───────────────────────────────
   vim.api.nvim_set_hl(0, "Visual", {
-    fg = "#ebebeb",
+    fg = "#e0e0e0",
     bg = "#303030"
   })
 
   vim.api.nvim_set_hl(0, "VisualNOS", {
-    fg = "#ebebeb",
+    fg = "#e0e0e0",
     bg = "#303030"
   })
 
@@ -148,7 +148,7 @@ end
 
   -- ── Popup Menu ────────────────────────────────────────
   vim.api.nvim_set_hl(0, "Pmenu", {
-    fg = "#dcdcdc",
+    fg = "#d2d2d2",
     bg = "#121212"
   })
 
@@ -162,38 +162,38 @@ end
   })
 
   vim.api.nvim_set_hl(0, "PmenuThumb", {
-    bg = "#dcdcdc"
+    bg = "#d2d2d2"
   })
 
 
   -- ── Statusline & Winbar ───────────────────────────────
   vim.api.nvim_set_hl(0, "StatusLine", {
-    fg = "#ebebeb",
+    fg = "#e0e0e0",
     bg = "#121212"
   })
 
   vim.api.nvim_set_hl(0, "StatusLineNC", {
-    fg = "#dcdcdc",
+    fg = "#d2d2d2",
     bg = "#090909"
   })
 
   vim.api.nvim_set_hl(0, "StatusLineTerm", {
-    fg = "#ebebeb",
+    fg = "#e0e0e0",
     bg = "#121212"
   })
 
   vim.api.nvim_set_hl(0, "StatusLineTermNC", {
-    fg = "#dcdcdc",
+    fg = "#d2d2d2",
     bg = "#090909"
   })
 
   vim.api.nvim_set_hl(0, "WinBar", {
-    fg = "#ebebeb",
+    fg = "#e0e0e0",
     bg = "#121212"
   })
 
   vim.api.nvim_set_hl(0, "WinBarNC", {
-    fg = "#dcdcdc",
+    fg = "#d2d2d2",
     bg = "#090909"
   })
 
@@ -204,12 +204,12 @@ end
 
   -- ── Tabline ────────────────────────────────────────────
   vim.api.nvim_set_hl(0, "TabLine", {
-    fg = "#dcdcdc",
+    fg = "#d2d2d2",
     bg = "#090909"
   })
 
   vim.api.nvim_set_hl(0, "TabLineSel", {
-    fg = "#ebebeb",
+    fg = "#e0e0e0",
     bg = "#121212"
   })
 
@@ -220,12 +220,12 @@ end
 
   -- ── Folds ─────────────────────────────────────────────
   vim.api.nvim_set_hl(0, "Folded", {
-    fg = "#dcdcdc",
+    fg = "#d2d2d2",
     bg = "#090909"
   })
 
   vim.api.nvim_set_hl(0, "FoldColumn", {
-    fg = "#dcdcdc"
+    fg = "#d2d2d2"
   })
 
 
@@ -271,7 +271,7 @@ end
 
   -- ── Messages ──────────────────────────────────────────
   vim.api.nvim_set_hl(0, "MsgArea", {
-    fg = "#ebebeb"
+    fg = "#e0e0e0"
   })
 
   vim.api.nvim_set_hl(0, "ModeMsg", {
@@ -302,7 +302,7 @@ end
   })
 
   vim.api.nvim_set_hl(0, "Conceal", {
-    fg = "#dcdcdc"
+    fg = "#d2d2d2"
   })
 
   vim.api.nvim_set_hl(0, "TermCursor", {
@@ -313,7 +313,7 @@ end
 
   -- ── Classic Syntax ────────────────────────────────────
   vim.api.nvim_set_hl(0, "Comment", {
-    fg = "#cecece",
+    fg = "#c5c5c5",
     italic = true
   })
 
@@ -342,7 +342,7 @@ end
   })
 
   vim.api.nvim_set_hl(0, "Identifier", {
-    fg = "#dcdcdc"
+    fg = "#d2d2d2"
   })
 
   vim.api.nvim_set_hl(0, "Function", {
@@ -379,19 +379,19 @@ end
   })
 
   vim.api.nvim_set_hl(0, "PreProc", {
-    fg = "#a4a4a4"
+    fg = "#a0a0a0"
   })
 
   vim.api.nvim_set_hl(0, "Include", {
-    fg = "#a4a4a4"
+    fg = "#a0a0a0"
   })
 
   vim.api.nvim_set_hl(0, "Define", {
-    fg = "#a4a4a4"
+    fg = "#a0a0a0"
   })
 
   vim.api.nvim_set_hl(0, "PreCondit", {
-    fg = "#a4a4a4"
+    fg = "#a0a0a0"
   })
 
   vim.api.nvim_set_hl(0, "Type", {
@@ -419,11 +419,11 @@ end
   })
 
   vim.api.nvim_set_hl(0, "Delimiter", {
-    fg = "#dcdcdc"
+    fg = "#d2d2d2"
   })
 
   vim.api.nvim_set_hl(0, "SpecialComment", {
-    fg = "#cecece"
+    fg = "#c5c5c5"
   })
 
   vim.api.nvim_set_hl(0, "Debug", {
@@ -451,7 +451,7 @@ end
 
   -- ── Treesitter ────────────────────────────────────────
   vim.api.nvim_set_hl(0, "@variable", {
-    fg = "#dcdcdc"
+    fg = "#d2d2d2"
   })
 
   vim.api.nvim_set_hl(0, "@variable.builtin", {
@@ -463,7 +463,7 @@ end
   })
 
   vim.api.nvim_set_hl(0, "@variable.member", {
-    fg = "#dcdcdc"
+    fg = "#d2d2d2"
   })
 
   vim.api.nvim_set_hl(0, "@constant", {
@@ -585,7 +585,7 @@ end
   })
 
   vim.api.nvim_set_hl(0, "@include", {
-    fg = "#a4a4a4"
+    fg = "#a0a0a0"
   })
 
   vim.api.nvim_set_hl(0, "@operator", {
@@ -636,7 +636,7 @@ end
   })
 
   vim.api.nvim_set_hl(0, "@attribute", {
-    fg = "#a4a4a4"
+    fg = "#a0a0a0"
   })
 
   vim.api.nvim_set_hl(0, "@symbol", {
@@ -644,11 +644,11 @@ end
   })
 
   vim.api.nvim_set_hl(0, "@punctuation.delimiter", {
-    fg = "#dcdcdc"
+    fg = "#d2d2d2"
   })
 
   vim.api.nvim_set_hl(0, "@punctuation.bracket", {
-    fg = "#dcdcdc"
+    fg = "#d2d2d2"
   })
 
   vim.api.nvim_set_hl(0, "@punctuation.special", {
@@ -656,7 +656,7 @@ end
   })
 
   vim.api.nvim_set_hl(0, "@comment", {
-    fg = "#cecece",
+    fg = "#c5c5c5",
     italic = true
   })
 
@@ -699,7 +699,7 @@ end
   })
 
   vim.api.nvim_set_hl(0, "@markup.quote", {
-    fg = "#cecece",
+    fg = "#c5c5c5",
     italic = true
   })
 
@@ -751,7 +751,7 @@ end
   })
 
   vim.api.nvim_set_hl(0, "@tag.delimiter", {
-    fg = "#dcdcdc"
+    fg = "#d2d2d2"
   })
 
 
@@ -857,14 +857,14 @@ end
   })
 
   vim.api.nvim_set_hl(0, "LspInlayHint", {
-    fg = "#cecece",
+    fg = "#c5c5c5",
     bg = "#090909"
   })
 
 
   -- ── Telescope ─────────────────────────────────────────
   vim.api.nvim_set_hl(0, "TelescopeNormal", {
-    fg = "#ebebeb",
+    fg = "#e0e0e0",
     bg = "#000000"
   })
 
@@ -879,7 +879,7 @@ end
   })
 
   vim.api.nvim_set_hl(0, "TelescopePromptNormal", {
-    fg = "#ebebeb",
+    fg = "#e0e0e0",
     bg = "#090909"
   })
 
@@ -894,7 +894,7 @@ end
   })
 
   vim.api.nvim_set_hl(0, "TelescopeSelection", {
-    fg = "#ebebeb",
+    fg = "#e0e0e0",
     bg = "#303030"
   })
 
@@ -908,7 +908,7 @@ end
   })
 
   vim.api.nvim_set_hl(0, "TelescopePreviewNormal", {
-    fg = "#ebebeb",
+    fg = "#e0e0e0",
     bg = "#090909"
   })
 
@@ -918,7 +918,7 @@ end
   })
 
   vim.api.nvim_set_hl(0, "TelescopeResultsNormal", {
-    fg = "#ebebeb",
+    fg = "#e0e0e0",
     bg = "#000000"
   })
 
@@ -930,7 +930,7 @@ end
 
   -- ── NvimTree ─────────────────────────────────────────
   vim.api.nvim_set_hl(0, "NvimTreeNormal", {
-    fg = "#ebebeb",
+    fg = "#e0e0e0",
     bg = "#000000"
   })
 
@@ -968,11 +968,11 @@ end
   })
 
   vim.api.nvim_set_hl(0, "NvimTreeFolderIcon", {
-    fg = "#dcdcdc"
+    fg = "#d2d2d2"
   })
 
   vim.api.nvim_set_hl(0, "NvimTreeEmptyFolderName", {
-    fg = "#dcdcdc"
+    fg = "#d2d2d2"
   })
 
   vim.api.nvim_set_hl(0, "NvimTreeOpenedFolderName", {
@@ -1008,19 +1008,19 @@ end
   })
 
   vim.api.nvim_set_hl(0, "WhichKeyDesc", {
-    fg = "#ebebeb"
+    fg = "#e0e0e0"
   })
 
   vim.api.nvim_set_hl(0, "WhichKeySeperator", {
-    fg = "#dcdcdc"
+    fg = "#d2d2d2"
   })
 
   vim.api.nvim_set_hl(0, "WhichKeySeparator", {
-    fg = "#dcdcdc"
+    fg = "#d2d2d2"
   })
 
   vim.api.nvim_set_hl(0, "WhichKeyFloat", {
-    fg = "#ebebeb",
+    fg = "#e0e0e0",
     bg = "#090909"
   })
 
@@ -1035,7 +1035,7 @@ end
 
   -- ── Lazy / Noice / Cmp ───────────────────────────────
   vim.api.nvim_set_hl(0, "LazyNormal", {
-    fg = "#ebebeb",
+    fg = "#e0e0e0",
     bg = "#000000"
   })
 
@@ -1081,7 +1081,7 @@ end
   })
 
   vim.api.nvim_set_hl(0, "LazyButton", {
-    fg = "#ebebeb",
+    fg = "#e0e0e0",
     bg = "#121212"
   })
 
@@ -1091,7 +1091,7 @@ end
   })
 
   vim.api.nvim_set_hl(0, "NoiceMsg", {
-    fg = "#ebebeb"
+    fg = "#e0e0e0"
   })
 
   vim.api.nvim_set_hl(0, "NoiceCursor", {
@@ -1104,7 +1104,7 @@ end
   })
 
   vim.api.nvim_set_hl(0, "CmpItemAbbr", {
-    fg = "#ebebeb"
+    fg = "#e0e0e0"
   })
 
   vim.api.nvim_set_hl(0, "CmpItemAbbrMatch", {
@@ -1117,11 +1117,11 @@ end
   })
 
   vim.api.nvim_set_hl(0, "CmpItemKind", {
-    fg = "#dcdcdc"
+    fg = "#d2d2d2"
   })
 
   vim.api.nvim_set_hl(0, "CmpItemMenu", {
-    fg = "#dcdcdc"
+    fg = "#d2d2d2"
   })
 
   vim.api.nvim_set_hl(0, "CmpItemKindSnippet", {
@@ -1133,7 +1133,7 @@ end
   })
 
   vim.api.nvim_set_hl(0, "CmpItemKindText", {
-    fg = "#ebebeb"
+    fg = "#e0e0e0"
   })
 
   vim.api.nvim_set_hl(0, "CmpItemKindMethod", {
@@ -1193,7 +1193,7 @@ end
   })
 
   vim.api.nvim_set_hl(0, "CmpItemKindFile", {
-    fg = "#ebebeb"
+    fg = "#e0e0e0"
   })
 
   vim.api.nvim_set_hl(0, "CmpItemKindReference", {
@@ -1259,5 +1259,5 @@ end
   })
 
   vim.api.nvim_set_hl(0, "GitSignsCurrentLineBlame", {
-    fg = "#dcdcdc"
+    fg = "#d2d2d2"
   })

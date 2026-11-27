@@ -3,39 +3,39 @@
   "type": "dark",
   "colors": {
     "editor.background": "#000000",
-    "editor.foreground": "#ebebeb",
+    "editor.foreground": "#e0e0e0",
     "activityBar.background": "#090909",
     "activityBar.foreground": "#a7b5fd",
-    "activityBar.inactiveForeground": "#cecece",
+    "activityBar.inactiveForeground": "#c5c5c5",
     "activityBar.border": "#777777",
     "sideBar.background": "#090909",
-    "sideBar.foreground": "#ebebeb",
+    "sideBar.foreground": "#e0e0e0",
     "sideBar.border": "#777777",
     "statusBar.background": "#000000",
-    "statusBar.foreground": "#ebebeb",
+    "statusBar.foreground": "#e0e0e0",
     "statusBar.border": "#777777",
     "editorGroupHeader.tabsBackground": "#090909",
     "tab.activeBackground": "#000000",
     "tab.activeForeground": "#a7b5fd",
     "tab.inactiveBackground": "#090909",
-    "tab.inactiveForeground": "#cecece",
+    "tab.inactiveForeground": "#c5c5c5",
     "tab.border": "#777777",
     "editor.lineHighlightBackground": "#090909",
-    "editorLineNumber.foreground": "#cecece",
+    "editorLineNumber.foreground": "#c5c5c5",
     "editorLineNumber.activeForeground": "#a7b5fd",
     "editorWidget.background": "#121212",
     "editorWidget.border": "#777777",
     "input.background": "#121212",
-    "input.foreground": "#ebebeb",
+    "input.foreground": "#e0e0e0",
     "input.border": "#6eccd1",
     "button.background": "#c6d0fd",
     "button.foreground": "#000000",
     "list.activeSelectionBackground": "#121212",
-    "list.activeSelectionForeground": "#ebebeb",
+    "list.activeSelectionForeground": "#e0e0e0",
     "list.hoverBackground": "#090909",
     "editor.selectionBackground": "#121212",
     "terminal.background": "#000000",
-    "terminal.foreground": "#ebebeb",
+    "terminal.foreground": "#e0e0e0",
     "terminal.ansiBlack": "#090909",
     "terminal.ansiRed": "#fc9d95",
     "terminal.ansiGreen": "#86cf90",
@@ -43,7 +43,7 @@
     "terminal.ansiBlue": "#a7b5fd",
     "terminal.ansiMagenta": "#f59ac5",
     "terminal.ansiCyan": "#76c4f6",
-    "terminal.ansiWhite": "#ebebeb"
+    "terminal.ansiWhite": "#e0e0e0"
   },
   "tokenColors": [
     {
@@ -52,7 +52,7 @@
         "punctuation.definition.comment"
       ],
       "settings": {
-        "foreground": "#cecece",
+        "foreground": "#c5c5c5",
         "fontStyle": "italic"
       }
     },
@@ -112,7 +112,7 @@
         "meta.definition.variable"
       ],
       "settings": {
-        "foreground": "#ebebeb"
+        "foreground": "#e0e0e0"
       }
     }
   ]

@@ -27,8 +27,8 @@ def test_css_exposes_canonical_dark_surfaces_aliases_and_guidance():
     assert "--dc-surface-3: #262626;" in css
     assert "--dc-border-subtle: #1f1f1f;" in css
     assert "--dc-border-medium: #3a3a3a;" in css
-    assert "--dc-text-primary: #ebebeb;" in css
-    assert "--dc-text-secondary: #dcdcdc;" in css
+    assert "--dc-text-primary: #e0e0e0;" in css
+    assert "--dc-text-secondary: #d2d2d2;" in css
     assert "--dc-text-muted: #a7a7a7;" in css
     assert "--dc-accent-brand: #6366f1;" in css
     assert "--dc-error: #f87171;" in css
