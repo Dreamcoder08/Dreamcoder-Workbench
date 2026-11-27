@@ -38,9 +38,11 @@ CODES = (
     "WALLPAPER_READABILITY",
 )
 
+# IM7 `magick`, else IM6 `convert` (CI runners): the tests then exercise the checker's IM6 path.
+CONVERT = ["magick"] if shutil.which("magick") else ["convert"] if shutil.which("convert") else None
 needs_magick = pytest.mark.skipif(
-    shutil.which("magick") is None,
-    reason="ImageMagick `magick` is not installed; synthetic wallpapers cannot be built",
+    CONVERT is None,
+    reason="ImageMagick is not installed; synthetic wallpapers cannot be built",
 )
 
 
@@ -52,7 +54,8 @@ def _tokens() -> dict[str, Any]:
 def _image(path: Path, size: str, top: str, bottom: str | None = None, *draw: str) -> Path:
     """Write a PNG: flat colour, or a vertical gradient, plus filled rectangles."""
     source = f"gradient:{top}-{bottom}" if bottom else f"xc:{top}"
-    command = ["magick", "-size", size, source]
+    assert CONVERT is not None
+    command = [*CONVERT, "-size", size, source]
     for fill, box in (item.split("@") for item in draw):
         command += ["-fill", fill, "-draw", f"rectangle {box}"]
     subprocess.run([*command, str(path)], check=True, capture_output=True)
@@ -419,7 +422,7 @@ def _im6_only_path(tmp_path: Path) -> str:
     return str(shims)
 
 
-@needs_magick
+@pytest.mark.skipif(shutil.which("magick") is None, reason="the IM6 shims wrap IM7 magick")
 def test_checker_falls_back_to_imagemagick_6_commands(tmp_path: Path) -> None:
     # CI runners ship ImageMagick 6 (`convert`/`identify`), not the IM7 `magick` entry point.
     image = _calm_light(tmp_path / "calm.png")
