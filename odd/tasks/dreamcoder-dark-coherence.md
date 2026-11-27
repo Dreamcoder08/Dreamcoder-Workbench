@@ -52,7 +52,7 @@ Branch `feat/dark-coherence` (stacked on `feat/light-coherence`) in worktree `.l
 | T6 | S1 | Live verification at night; specimen + DTCG export include Dark primitives | inline | 66243b8 |
 | T7 | S1 | Docs, skills, changelog | worker | 66243b8 |
 | T9 | S1 | Calm the text ramp for OLED halation: text ≈ 15:1, comment ≈ 7–8:1, AAA kept (L12) | worker | 5cfd9dc |
-| T8 | S1 | Benchmark vs reference dark themes; close | inline | — |
+| T8 | S1 | Benchmark vs reference dark themes; close | inline | PR #87 |
 
 ## Log
 
@@ -164,3 +164,7 @@ Branch `feat/dark-coherence` (stacked on `feat/light-coherence`) in worktree `.l
   own heading ceiling 18.2. Qt disabled `HighlightedText` = comment (function-level Light difference only, no Light
   file ships). Claude Code tint unchanged (passes at the final text). theme-diff: 10 dark roles, max ΔE 2.47,
   0 floors crossed; Light unchanged. Benchmark row updated.
+- L18 — T8: branch pushed, draft PR #87 (base `feat/light-coherence-v2`, stacked on #86). GitHub shows no checks
+  because every workflow triggers only on PRs to `main`; CI runs once #86 merges and #87 retargets. Local
+  validation green (1631 pytest, health, theme-check, 218 bats). Workflow triggers left unchanged (unrequested
+  delivery change). Open: live desktop capture (session locked), Dark wallpapers (Codex 403).
