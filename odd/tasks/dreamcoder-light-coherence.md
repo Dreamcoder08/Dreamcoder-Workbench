@@ -71,7 +71,7 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
 | T11 | S2,S6 | Live verification on Hyprland: reload, GTK/Qt, screenshots vs T1; close open items of `light-theme-delivery.md` | inline | — |
 | T12 | S2 | Docs: rewrite `docs/DREAMCODER_DESIGN_SYSTEM.md`, fix `WALLPAPER_SETUP.md`, update both skills | inline | eb2081f |
 | T13 | S5 | Cleanup (gated by D2/D3): dusk, duplicate token source, checked-in generated files, old wallpapers, "Dreamcoder OS", archived `docs/superpowers` (Risk 1/3: each deletion proven unused) | inline, own commit | — |
-| T15 | S2,S4 | DTCG 2025.10 interop export: generated `docs/generated/dreamcoder.tokens.json` validated against the vendored official schema | worker | T15 commit |
+| T15 | S2,S4 | DTCG 2025.10 interop export: generated `docs/generated/dreamcoder.tokens.json` validated against the vendored official schema | worker | cc12e99 |
 | T14 | S4 | Benchmark vs reference systems by metrics (contrast margins, ramp uniformity, ΔE spacing, banding); close feature | verify | — |
 
 ## Decisions (human)
