@@ -1,0 +1,65 @@
+# Dreamcoder Dark — Holistic Design-System Coherence
+
+Bring Dreamcoder Dark to the same measurable model Light now has (primitives → semantic → components, material
+laws pinned by tests), keeping the Dark decisions already made. Status: in progress.
+Branch `feat/dark-coherence` (stacked on `feat/light-coherence`) in worktree `.local-backups/worktrees/dark-coherence`.
+
+## Specs
+
+- S1 — Scope, verbatim (L1): "perfect continuemos asi como mejoramos dreamcoder light ahora meoremos dreamcoder dark".
+  Same method as `odd/tasks/dreamcoder-light-coherence.md` (its S2–S5 apply to Dark: one token source, grounded
+  and measurable decisions, benchmark by metrics, legacy cleanup).
+- S2 — Canvas, verbatim (L2): "Mantener #000 OLED (Recomendado)". `bg` stays `#000000`.
+- S3 — Identity, verbatim (L2): "Índigo + familias de Light (Recomendado)". Dark keeps the indigo accent; its
+  semantic roles use the same eight pigment families as Light (same hue order) at night density.
+- S4 — Neutrals, verbatim (L2): "Neutros puros (Recomendado)". Dark surfaces and text greys have chroma 0.
+- S5 — Prior decisions stay binding: OLED canvas and near-black scroll/functional surfaces
+  (`dark-design-benchmark.md:13`), indigo identity, Dark ANSI slots 6/14 semantics, only Dark and Light modes.
+
+## Evidence baseline (explore + repo math, 2026-11-27)
+
+- Accents (OKLab L / WCAG on bg): error .748/8.80, warning .837/12.58, success .773/10.92, info .828/12.60,
+  accent .785/10.53, accent_2 .825/11.83, mauve .827/11.88, focus .623/5.71 (3.09 on selection). L spread .214.
+- ΔE2000 < 12: mauve ↔ lavender/accent_2 1.0 (indistinct), accent ↔ accent_2 11.9; implicit duplicates
+  info = diagnostic, accent_2 = lavender (0.0).
+- Text hierarchy inverted: comment 13.62:1 is louder than muted 12.42:1; subtle = disabled (`#A7A7A7`).
+- Surfaces: bg_soft = surface0 (`#0B0B0B`), surface1 ΔL .010 above it; ladder L 0, .150, .160, .239, .301, .348.
+- No Dark primitives/bindings; Dark gets no elevation/radius/rhythm (`elevation.adopts_components`); black
+  shadows on black (hypr/rofi/opencode); `_math.py:68` falls back to `#100f0d`.
+- Hand-written Dark files on the old `#100f0d` palette: Alacritty, WezTerm, tmux, Zellij `config-dark.kdl`.
+- Dark wallpaper contract hue window 70°±25 contradicts the indigo identity; all Dark wallpapers fail it.
+- Tests pinning Dark bytes: `test_dark_neutral_palette.py:83`, `test_dark_ansi_semantics.py`, `test_dark_cross_app_states.py`,
+  `test_light_elevation.py:213`, `test_light_rhythm.py:307,326`, `test_herdr_app_theme.py:16`, others — re-pin deliberately.
+
+## Design principles (grounding)
+
+1. **Light from the screen, not on it.** On OLED black a shadow is invisible; elevation is luminance: each level
+   lifts the surface by a perceptually even OKLab ΔL (emissive model), with no drop shadows in Dark.
+2. **Night density.** Pigments share one OKLab L (isoluminance) high enough for ≥ 7:1 on bg and ≥ 4.5:1 on the
+   highest text surface; chroma tamed for halation on black (bright saturated text blooms on OLED).
+3. **Recede, don't shout.** Text ramp strictly ordered: heading > text > muted > comment > subtle > disabled.
+4. **Neutral greys** (chroma 0), indigo only where meaning lives.
+
+## Tasks
+
+| ID | Specs | Task | Route | Commit |
+| --- | --- | --- | --- | --- |
+| T1 | S1 | Baseline: live Dark screenshot, Dark specimen, measurements recorded | inline | T1 commit |
+| T2 | S1-S5 | Dark primitives + bindings (neutral ramp, 8 pigment families at night density, indigo brand), material laws in `tests/test_dark_material.py`, deliberate re-pins | worker | — |
+| T3 | S1,S2 | Dark components: tonal elevation (no shadows), radius/rhythm adopted for Dark, renderer literals | worker | — |
+| T4 | S1 | Generate the stale hand-written Dark files; guard test like `test_light_color_files.py` | worker | — |
+| T5 | S1,S3 | Dark wallpaper contract: hue rule follows identity (neutral or indigo), not warm | inline | — |
+| T6 | S1 | Live verification at night; specimen + DTCG export include Dark primitives | inline | — |
+| T7 | S1 | Docs, skills, changelog | worker | — |
+| T8 | S1 | Benchmark vs reference dark themes; close | inline | — |
+
+## Log
+
+- L1 — User request (2026-11-27), verbatim: "perfect continuemos asi como mejoramos dreamcoder light ahora meoremos
+  dreamcoder dark".
+- L2 — User decisions (2026-11-27), verbatim: canvas "Mantener #000 OLED (Recomendado)"; identity "Índigo + familias
+  de Light (Recomendado)"; neutrals "Neutros puros (Recomendado)".
+- L3 — T1 baseline: live Dark at 21:49 (`odd/evidence/dark-coherence/t1-desktop-before.png`). Already improved by the
+  Light branch: Waybar `133` badge is an indigo wash, window edge solid. Still off: teal `ml.` launcher tile, cold
+  blue photographic wallpaper unrelated to the system, card/code greys not on a measured ladder. Measurements in
+  "Evidence baseline" verified with the repo's `_math` / `color_space` (not the explorer's JS port).
