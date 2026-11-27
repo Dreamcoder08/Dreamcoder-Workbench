@@ -238,3 +238,8 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
   deletions, files intact on disk). Recovered with `git reset` (index = HEAD, working tree untouched).
   Reproduced on an index copy, fixed by scrubbing `GIT_*` from the test's subprocess env; the other three
   git-spawning tests were checked the same way and leave the index unchanged.
+- L25 — Second effect of the L24 incident: the scratch `git init` also inherited the hook's `GIT_DIR`, which set
+  `core.bare = true` in the shared `.git/config`, so the user's main checkout stopped working as a work tree.
+  Restored `core.bare = false`; the main checkout's branch and uncommitted changes are as at session start.
+  The L24 fix (scrub all `GIT_*`) was replayed with `GIT_DIR` + `GIT_INDEX_FILE` against a disposable clone:
+  core.bare stays false.
