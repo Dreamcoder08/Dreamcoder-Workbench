@@ -32,12 +32,14 @@ window#waybar {
   color: @muted;
   background: transparent;
   border: 1px solid transparent;
+  padding: 0 8px;
 }
 
 #workspaces button.active {
   color: @accent;
   background: rgba(99, 102, 241, 0.28);
   border-color: alpha(@focus, 0.82);
+  font-weight: 500;
 }
 
 #clock,
@@ -50,6 +52,11 @@ window#waybar {
   background: rgba(235, 235, 235, 0.08);
   color: @text;
   border: 1px solid alpha(@border-ui, 0.78);
+  border-radius: 8px;
+  box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.1), 0 0 2px rgba(0, 0, 0, 0.05);
+  padding: 0 12px;
+  margin: 4px;
+  font-weight: 400;
 }
 
 #battery.warning { color: @warning; }

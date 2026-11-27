@@ -101,3 +101,10 @@ Branch `feat/dark-coherence` (stacked on `feat/light-coherence`) in worktree `.l
     `error` (same blur/alpha as today).
   - Remove Dark literals: `_math.py:68` `#100f0d` fallback → the mode's own bg; `renderers_herdr.py:13` `#6FA0AF` →
     the semantic token it stands for (name it); OpenCode Dark shadow and hypr/rofi `#000000` → the elevation ink.
+- L7 — T3 result: Dark adopts the component tier. Tonal elevation (e1–e4 → graphite 184/226/268/310, top-edge
+  hairline for e3/e4 via new `graphite.352`), shadow ink graphite.000 resolved from primitives; radius, spacing,
+  motion, type equal Light's (Hyprland gaps/animations, Waybar rhythm, rofi radii). `effects.py` derives
+  glow_focus (verdigris), glow_brand, glow_error (now `error`) with an EFFECTS_DRIFT health check. Literals gone:
+  `#100f0d` fallback → mode canvas, Herdr `#6FA0AF` → `accent` (both modes). Light artifacts unchanged
+  (`theme-diff HEAD`: no perceptual change). Tests encoding "Dark unchanged" from the Light feature updated to the
+  new intended Dark behaviour (listed in the worker report); no contrast/ΔE assertion weakened.

@@ -60,12 +60,16 @@ def compute_on_color(
     *,
     light_candidate: str | None = None,
     dark_candidate: str | None = None,
+    canvas: str = "#000000",
     minimum: float = 4.5,
 ) -> str:
-    """Pick readable foreground (text) on a filled surface."""
+    """Pick readable foreground (text) on a filled surface.
+
+    Dark falls back to ``canvas``, the OLED canvas the filled surface sits on.
+    """
     candidates: list[str]
     if mode_name == "dark":
-        candidates = [c for c in (dark_candidate, "#100f0d", "#000000") if c]
+        candidates = [c for c in (dark_candidate, canvas) if c]
     else:
         candidates = [c for c in (light_candidate, "#fff7ea", "#ffffff") if c]
     for candidate in candidates:

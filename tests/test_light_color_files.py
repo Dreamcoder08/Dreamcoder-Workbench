@@ -166,19 +166,20 @@ def test_opencode_light_shadow_is_warm_ink_not_black() -> None:
     assert shadow.group(1) == expected
 
 
-def test_opencode_dark_shadow_is_unchanged() -> None:
+def test_opencode_dark_shadow_is_the_graphite_elevation_ink() -> None:
     dark = load_variants(VARIANTS, TOKENS)["dark"]
-    assert "shadow_ink" not in dark
+    assert dark["shadow_ink"] == "#000000"
     shadow = re.search(r'"shadow": "(#[0-9a-fA-F]{6})"', opencode_content(dark))
     assert shadow
-    expected = [round(int(dark["bg"][i : i + 2], 16) * 0.75) for i in (1, 3, 5)]
-    assert [int(shadow.group(1)[i : i + 2], 16) for i in (1, 3, 5)] == expected
+    assert shadow.group(1) == mix(dark["bg"], dark["shadow_ink"], 0.25)
 
 
-def test_herdr_light_never_emits_the_dark_only_upstream_accent() -> None:
+def test_herdr_never_emits_the_upstream_accent_in_either_mode() -> None:
     profile = next(p for p in sync.SUPPORTED_PROFILES if p.is_complete)
-    assert "#6fa0af" not in herdr_content(profile, "light", VARIANTS["light"]).lower()
-    assert "#6fa0af" in herdr_content(profile, "dark", VARIANTS["dark"]).lower()
+    for mode in ("light", "dark"):
+        content = herdr_content(profile, mode, VARIANTS[mode])
+        assert "#6fa0af" not in content.lower()
+        assert f'accent = "{VARIANTS[mode]["accent"]}"' in content
 
 
 def _light_palette() -> dict[str, str]:

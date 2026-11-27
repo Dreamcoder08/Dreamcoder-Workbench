@@ -24,7 +24,7 @@ active_row_bg = "#090909"
 selection_bg = "#303030"
 
 [ui]
-accent = "#6FA0AF"
+accent = "#a7b5fd"
 pane_scrollbars = false
 
 [keys]

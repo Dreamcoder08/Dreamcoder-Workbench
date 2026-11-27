@@ -453,6 +453,18 @@
             "hex": "#636363"
           }
         },
+        "352": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.352,
+              0.0,
+              0.0
+            ],
+            "hex": "#3b3b3b"
+          }
+        },
         "310": {
           "$type": "color",
           "$value": {

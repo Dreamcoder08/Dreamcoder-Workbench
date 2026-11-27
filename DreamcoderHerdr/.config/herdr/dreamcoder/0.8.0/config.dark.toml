@@ -21,7 +21,7 @@ teal = "#6eccd1"
 peach = "#c6d0fd"
 
 [ui]
-accent = "#6FA0AF"
+accent = "#a7b5fd"
 pane_scrollbars = false
 
 [keys]

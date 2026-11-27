@@ -92,8 +92,8 @@ def test_herdr_080_renders_pane_scrollbars_false_for_every_mode(mode: str) -> No
 
 
 def expected_ui_accent(mode: str) -> str:
-    """Dark keeps upstream's accent; Light uses the palette accent, which stays legible on paper."""
-    return "#6FA0AF" if mode == "dark" else VARIANTS["light"]["accent"]
+    """Both modes take the palette accent; the upstream teal is outside the identity."""
+    return VARIANTS[mode]["accent"]
 
 
 def test_herdr_080_light_renders_dreamcoder_light() -> None:
@@ -130,7 +130,7 @@ def test_herdr_080_variants_are_byte_stable_and_matching_in_structure() -> None:
     assert set(dark_toml["theme"]["custom"]) == set(light_toml["theme"]["custom"])
     assert dark_toml["ui"]["pane_scrollbars"] is False
     assert light_toml["ui"]["pane_scrollbars"] is False
-    assert dark_toml["ui"]["accent"] == "#6FA0AF"
+    assert dark_toml["ui"]["accent"] == VARIANTS["dark"]["accent"]
     assert light_toml["ui"]["accent"] == VARIANTS["light"]["accent"]
     assert dark_toml["keys"] == light_toml["keys"]
     assert dark != light
@@ -144,7 +144,7 @@ def test_herdr_variants_are_byte_stable_and_have_matching_structure() -> None:
     assert light == herdr_content(HERDR_073_PROFILE, "light", VARIANTS["light"])
     dark_toml, light_toml = tomllib.loads(dark), tomllib.loads(light)
     assert set(dark_toml["theme"]["custom"]) == set(light_toml["theme"]["custom"])
-    assert dark_toml["ui"]["accent"] == "#6FA0AF"
+    assert dark_toml["ui"]["accent"] == VARIANTS["dark"]["accent"]
     assert light_toml["ui"]["accent"] == VARIANTS["light"]["accent"]
     assert dark_toml["keys"] == light_toml["keys"]
     assert dark != light

@@ -36,9 +36,19 @@
           "required": ["ink", "levels"],
           "properties": {
             "ink": {
-              "description": "Shadow colour per mode: a warm-ink primitive, never black.",
+              "description": "Shadow colour per mode: the mode's ink primitive (warm ink on Light, graphite.000 on Dark).",
               "type": "object",
               "additionalProperties": { "$ref": "#/$defs/primitive_name" }
+            },
+            "surface": {
+              "description": "Tonal elevation per mode: the neutral primitive each level rises to (emission on OLED).",
+              "type": "object",
+              "additionalProperties": { "$ref": "#/$defs/elevation_levels_of_primitives" }
+            },
+            "edge": {
+              "description": "Top-edge hairline per mode: the primitive catching the overhead key on e3 and e4.",
+              "type": "object",
+              "additionalProperties": { "$ref": "#/$defs/elevation_edge_primitives" }
             },
             "levels": {
               "type": "object",
@@ -124,6 +134,22 @@
             }
           },
           "additionalProperties": false
+        },
+        "glow": {
+          "description": "Glow geometry; the colour is read from the mode token named by source.",
+          "type": "object",
+          "propertyNames": { "enum": ["brand", "focus", "error"] },
+          "additionalProperties": {
+            "type": "object",
+            "required": ["source", "blur", "spread", "alpha"],
+            "properties": {
+              "source": { "type": "string", "pattern": "^[a-z_]+(\\.[a-z_]+)*$" },
+              "blur": { "type": "integer", "minimum": 0 },
+              "spread": { "type": "integer", "minimum": 0 },
+              "alpha": { "$ref": "#/$defs/unit_range" }
+            },
+            "additionalProperties": false
+          }
         },
         "wallpaper": {
           "description": "Wallpaper <-> UI contract per mode, measured in OKLab on a downsample.",
@@ -214,6 +240,18 @@
         "ambient_alpha": { "type": "number", "minimum": 0, "maximum": 1 }
       },
       "additionalProperties": false
+    },
+    "elevation_levels_of_primitives": {
+      "type": "object",
+      "required": ["e1", "e2", "e3", "e4"],
+      "propertyNames": { "enum": ["e1", "e2", "e3", "e4"] },
+      "additionalProperties": { "$ref": "#/$defs/primitive_name" }
+    },
+    "elevation_edge_primitives": {
+      "type": "object",
+      "required": ["e3", "e4"],
+      "propertyNames": { "enum": ["e3", "e4"] },
+      "additionalProperties": { "$ref": "#/$defs/primitive_name" }
     },
     "unit_range": { "type": "number", "minimum": 0, "maximum": 1 },
     "wallpaper_contract": {

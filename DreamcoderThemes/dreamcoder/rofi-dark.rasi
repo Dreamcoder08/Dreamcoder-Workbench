@@ -16,7 +16,8 @@ window {
   background-color: @background;
   border: 1px;
   border-color: @border-ui;
-  border-radius: 18px;
+  border-radius: 12px;
+  border-color: #303030 #777777 #777777 #777777;
 }
 
 entry {
@@ -24,7 +25,15 @@ entry {
   text-color: @foreground;
   border: 1px;
   border-color: @focus;
-  border-radius: 12px;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+listview { spacing: 4px; }
+
+element {
+  padding: 8px 12px;
+  border-radius: 8px;
 }
 
 element selected {

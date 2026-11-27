@@ -19,6 +19,7 @@ from dreamcoder_theme.design_system import (  # noqa: E402
     load_contract,
     load_tokens,
 )
+from dreamcoder_theme.effects import drift as effects_drift  # noqa: E402
 from dreamcoder_theme.palette import ansi as terminal_ansi  # noqa: E402
 from dreamcoder_theme.palette import validate_palette  # noqa: E402
 from dreamcoder_theme.renderers_opencode import opencode_content  # noqa: E402
@@ -530,6 +531,7 @@ def _health_findings():
         findings.append(drift)
     try:
         findings.extend(tier_drift(tokens))
+        findings.extend(effects_drift(tokens))
     except TierError as error:
         findings.append(f"TIER_UNBOUND: {error}")
     findings.extend(

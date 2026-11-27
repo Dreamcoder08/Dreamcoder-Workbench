@@ -33,8 +33,8 @@
   --dc-syntax-type: #d6a2f6;
   --dc-syntax-operator: #76c4f6;
   --dc-glow-brand: 0 0 24px rgba(99, 102, 241, 0.28);
-  --dc-glow-focus: 0 0 0 3px rgba(59, 130, 246, 0.3);
-  --dc-glow-error: 0 0 20px rgba(248, 113, 113, 0.22);
+  --dc-glow-focus: 0 0 0 3px rgba(110, 204, 209, 0.3);
+  --dc-glow-error: 0 0 20px rgba(252, 157, 149, 0.22);
   --dc-font-weight-body: 400;
   --dc-font-weight-emphasis: 500;
   --dc-font-weight-heading: 600;

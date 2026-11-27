@@ -214,8 +214,10 @@ def test_an_off_grid_spacing_step_is_a_tier_error() -> None:
 
 
 def test_modes_without_the_component_tier_resolve_to_nothing() -> None:
-    assert resolve_rhythm(_tokens(), "dark") == {}
-    assert palette_keys(_tokens(), "dark") == {}
+    tokens = copy.deepcopy(_tokens())
+    del tokens["components"]["elevation"]["ink"]["dark"]
+    assert resolve_rhythm(tokens, "dark") == {}
+    assert palette_keys(tokens, "dark") == {}
 
 
 def test_palette_keys_flatten_for_the_renderers() -> None:
@@ -227,11 +229,13 @@ def test_palette_keys_flatten_for_the_renderers() -> None:
     assert all(isinstance(v, str) for v in keys.values())
 
 
-def test_load_variants_adds_rhythm_to_light_only() -> None:
+def test_load_variants_adds_rhythm_to_both_modes() -> None:
     assert _light()["space_s1"] == "4px"
     assert _light()["motion_duration_slow"] == "320ms"
     prefixes = ("space_", "motion_", "type_", "font_")
-    assert not [k for k in _dark() if k.startswith(prefixes)]
+    assert {k: v for k, v in _dark().items() if k.startswith(prefixes)} == {
+        k: v for k, v in _light().items() if k.startswith(prefixes)
+    }
 
 
 # --- renderers: the 4 px grid ------------------------------------------------
@@ -301,18 +305,18 @@ def test_light_hyprland_conf_matches_the_renderer() -> None:
     assert (THEMES / "hyprland-light.conf").read_text(encoding="utf-8") == hypr_content(_light())
 
 
-# --- Dark stays untouched ----------------------------------------------------
+# --- Dark adopts the same rhythm -----------------------------------------------
 
 
-def test_dark_artifacts_carry_no_rhythm() -> None:
+def test_dark_artifacts_carry_lights_rhythm() -> None:
     dark_hypr = hypr_content(_dark())
-    assert "gaps_" not in dark_hypr
-    assert "bezier" not in dark_hypr
-    assert "animation" not in dark_hypr
-    assert "padding" not in waybar_content(_dark())
-    assert "margin" not in waybar_content(_dark())
-    assert "padding" not in rofi_content(_dark())
-    assert "font-weight" not in waybar_content(_dark())
+    assert "gaps_in = 4" in dark_hypr
+    assert "bezier = dc_enter" in dark_hypr
+    assert "animation = windowsIn" in dark_hypr
+    assert "padding: 0 12px;" in waybar_content(_dark())
+    assert "margin: 4px;" in waybar_content(_dark())
+    assert "padding: 8px 12px;" in rofi_content(_dark())
+    assert "font-weight: 400;" in waybar_content(_dark())
 
 
 @pytest.mark.parametrize(
