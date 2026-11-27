@@ -42,19 +42,36 @@ class UnreadableImageError(Exception):
     """ImageMagick could not read the file as an image."""
 
 
-def _magick(*arguments: str) -> bytes:
-    result = subprocess.run(["magick", *arguments], capture_output=True, check=False)
+def imagemagick() -> tuple[list[str], list[str]] | None:
+    """(convert, identify) command prefixes: IM7 `magick`, else IM6 `convert` + `identify`."""
+    if shutil.which("magick"):
+        return ["magick"], ["magick", "identify"]
+    if shutil.which("convert") and shutil.which("identify"):
+        return ["convert"], ["identify"]
+    return None
+
+
+def _imagemagick_output(command: list[str]) -> bytes:
+    result = subprocess.run(command, capture_output=True, check=False)
     if result.returncode != 0:
         detail = result.stderr.decode("utf-8", "replace").strip().splitlines()
-        raise UnreadableImageError(detail[0] if detail else f"magick exited {result.returncode}")
+        raise UnreadableImageError(
+            detail[0] if detail else f"{command[0]} exited {result.returncode}"
+        )
     return result.stdout
 
 
 def read_image(path: str) -> tuple[tuple[int, int], list[Pixel]]:
     """(width, height) of the file and its 480x270 sRGB downsample."""
+    tools = imagemagick()
+    if tools is None:
+        raise UnreadableImageError("ImageMagick is not installed")
+    convert, identify = tools
     absolute = os.path.abspath(path)  # an absolute path is never read as `format:` or `@list`
-    size = _magick("identify", "-format", "%w %h", absolute).decode().split()
-    raw = _magick(absolute, "-resize", f"{GRID_WIDTH}x{GRID_HEIGHT}!", "-depth", "8", "rgb:-")
+    size = _imagemagick_output([*identify, "-format", "%w %h", absolute]).decode().split()
+    raw = _imagemagick_output(
+        [*convert, absolute, "-resize", f"{GRID_WIDTH}x{GRID_HEIGHT}!", "-depth", "8", "rgb:-"]
+    )
     if len(size) < 2 or len(raw) != GRID_WIDTH * GRID_HEIGHT * 3:
         raise UnreadableImageError("unexpected image data")
     return (int(size[0]), int(size[1])), list(zip(raw[0::3], raw[1::3], raw[2::3], strict=True))
@@ -94,8 +111,11 @@ def _parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     arguments = _parser().parse_args(argv)
-    if shutil.which("magick") is None:
-        print("check-wallpaper: ImageMagick `magick` is required", file=sys.stderr)
+    if imagemagick() is None:
+        print(
+            "check-wallpaper: ImageMagick is required (`magick`, or `convert` and `identify`)",
+            file=sys.stderr,
+        )
         return 2
     try:
         contract = load_contract(json.loads(arguments.tokens.read_text("utf-8")), arguments.mode)
