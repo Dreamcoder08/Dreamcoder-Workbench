@@ -28,7 +28,7 @@
     "components": {
       "description": "Tier 3: light and elevation geometry; per-mode colour is a primitive name.",
       "type": "object",
-      "required": ["elevation", "radius", "border", "wallpaper"],
+      "required": ["elevation", "radius", "border", "spacing", "motion", "typography", "wallpaper"],
       "properties": {
         "elevation": {
           "description": "Key (0 z/2 z) plus ambient (0 0 2z) shadow per level; z in px, alphas 0..1.",
@@ -75,6 +75,56 @@
           },
           "additionalProperties": false
         },
+        "spacing": {
+          "description": "Spacing scale in px on a 4 px base grid.",
+          "type": "object",
+          "required": ["s1", "s2", "s3", "s4", "s6", "s8"],
+          "propertyNames": { "enum": ["s1", "s2", "s3", "s4", "s6", "s8"] },
+          "additionalProperties": { "type": "integer", "minimum": 4, "multipleOf": 4 }
+        },
+        "motion": {
+          "description": "Durations in ms (monotone, ~1.6x steps) and overshoot-free bezier curves.",
+          "type": "object",
+          "required": ["duration", "curve"],
+          "properties": {
+            "duration": {
+              "type": "object",
+              "required": ["quick", "base", "slow"],
+              "propertyNames": { "enum": ["quick", "base", "slow"] },
+              "additionalProperties": { "type": "integer", "minimum": 1 }
+            },
+            "curve": {
+              "description": "cubic-bezier x1 y1 x2 y2, every control value within [0, 1]: no overshoot.",
+              "type": "object",
+              "required": ["enter", "exit", "move"],
+              "propertyNames": { "enum": ["enter", "exit", "move"] },
+              "additionalProperties": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 4,
+                "items": { "$ref": "#/$defs/unit_range" }
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "typography": {
+          "description": "Font families recorded once for every mode.",
+          "type": "object",
+          "required": ["font_family"],
+          "properties": {
+            "font_family": {
+              "type": "object",
+              "required": ["mono", "ui"],
+              "properties": {
+                "mono": { "type": "string", "minLength": 1 },
+                "ui": { "type": "string", "minLength": 1 }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
         "wallpaper": {
           "description": "Wallpaper <-> UI contract per mode, measured in OKLab on a downsample.",
           "type": "object",
@@ -98,7 +148,8 @@
         "light": {
           "allOf": [
             { "$ref": "#/$defs/palette" },
-            { "$ref": "#/$defs/base_palette" }
+            { "$ref": "#/$defs/base_palette" },
+            { "required": ["typography"] }
           ]
         }
       },
@@ -365,7 +416,7 @@
             "prompt_accent_2": { "$ref": "#/$defs/color_value" },
             "aliases": { "$ref": "#/$defs/dark_aliases" },
             "effects": { "$ref": "#/$defs/dark_effects" },
-            "typography": { "$ref": "#/$defs/dark_typography" },
+            "typography": { "$ref": "#/$defs/typography" },
             "surface_policy": { "$ref": "#/$defs/dark_surface_policy" }
           },
           "additionalProperties": { "$ref": "#/$defs/color_value" }
@@ -375,7 +426,6 @@
             "anyOf": [
               { "required": ["aliases"] },
               { "required": ["effects"] },
-              { "required": ["typography"] },
               { "required": ["surface_policy"] }
             ]
           }
@@ -390,7 +440,7 @@
           "required": ["glow_brand", "glow_focus", "glow_error"],
           "additionalProperties": { "type": "string", "minLength": 1 }
         },
-        "dark_typography": {
+        "typography": {
           "type": "object",
           "required": ["body_weight", "emphasis_weight", "heading_weight", "letter_spacing", "uppercase_letter_spacing"],
           "properties": {

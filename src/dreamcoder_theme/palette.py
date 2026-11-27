@@ -23,6 +23,7 @@ from ._math import (
 )
 from .elevation import palette_keys
 from .palette_tokens import ANSI_KEY_NAMES
+from .rhythm import palette_keys as rhythm_keys
 
 # Re-export domain functions for backward compatibility
 __all__ = [
@@ -55,6 +56,7 @@ def load_variants(
         if key in modes:
             merged[key].update(token for token in modes[key].items() if isinstance(token[1], str))
             merged[key].update(palette_keys(tokens, key))
+            merged[key].update(rhythm_keys(tokens, key))
 
     for mode_key in ("dark", "light"):
         if mode_key in modes and mode_key in defaults:

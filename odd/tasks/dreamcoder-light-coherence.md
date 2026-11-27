@@ -62,7 +62,7 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
 | T2 | S2,S3 | Token v2: DTCG three-tier `tokens.json`, OKLCH primitives; generate `palette_tokens.py` from it; parity test (Risk 3: config format) | inline, own commit | 0979a31 |
 | T3 | S3,S4 | Material model: paper neutrals + pigment accents + ANSI-16 in tokens, all guarded (APCA/WCAG/ΔE) | inline | 971103a |
 | T4 | S3,S6 | Light & elevation: key/ambient shadow tokens, radius, border scale, translucency floor over wallpaper | inline | 16d16e3 |
-| T5 | S2 | Type, spacing (4 pt), motion tokens → Hyprland, Waybar, rofi, Herdr, GTK/Qt | writer A (parallel with T6) | — |
+| T5 | S2 | Type, spacing (4 pt), motion tokens → Hyprland, Waybar, rofi, Herdr, GTK/Qt | writer A (parallel with T6) | T5 commit |
 | T6 | S1,S3,S7 | Wallpapers via Codex CLI image generation from a token-derived brief (paper, pigment washes, single key light, bar safe zones); Light set + paired Dark companions; post-process (≥1920×1080, blue-noise dither) and gate on T7 | inline + Codex CLI | — |
 | T7 | S1,S2 | Wallpaper↔UI contract: OKLab L band, chroma cap, hue window around accent, APCA test of panels over worst wallpaper region; clamp matugen adaptive mode | inline | dae4d5f |
 | T8 | S2 | Migrate offenders: generate nvim `dreamcoder-light.lua`, tmux colors, renderer literals; audit Waybar/Herdr/Pi/ml4w_assets | inline | 010ffa7 |
@@ -204,3 +204,18 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
   Pending for T13 part 2: old wallpapers (after T6), tracked `installer/installer` binary still says dusk,
   "Dreamcoder OS" in installer UI / goreleaser / .github templates, `docs/superpowers` archive. Pre-existing on
   main: `tests/shell/test_pi_theme.bats` #2–3 expect `#824f16` (main light accent was `#8b440c`).
+- L20 — T5 design (non-colour tokens in `components`, mode-independent values):
+  - spacing: 4 px base grid, scale s1 4, s2 8, s3 12, s4 16, s6 24, s8 32; every Light padding/margin/gap the
+    renderers emit must be on the grid.
+  - typography: Light gets the same `typography` contract Dark has (body 400, emphasis 500, heading 600,
+    letter-spacing 0 / uppercase .04em) so both modes share one type system; mono/ui font families recorded once.
+  - motion (physics): durations quick 120 ms, base 200 ms, slow 320 ms (≈1.6× steps, perceptual JND);
+    curves are critically damped spring approximations — enter `cubic-bezier(0.22, 1, 0.36, 1)`, exit
+    `cubic-bezier(0.4, 0, 1, 1)`, move `cubic-bezier(0.33, 0, 0.2, 1)`; no overshoot/bounce on chrome.
+  - Wiring: Light artifacts only (Dark byte-identical, consistent with the feature scope); where a current Light
+    value is off-grid, snap it to the nearest grid step; record each change. Dark adoption is a follow-up.
+- L21 — T5 result: `components.spacing` (4 px grid), `components.motion` (120/200/320 ms; enter/exit/move
+  curves with no overshoot), `components.typography.font_family`, Light `typography` = Dark's; resolver
+  `rhythm.py`. Light Hyprland conf gains gaps 4/16 and a dc_enter/exit/move animation block; Waybar module padding,
+  margin, weights; rofi entry/element/listview rhythm. No off-grid value existed. Dark unchanged. For T11: ML4W Lua
+  may override gaps/animations live; font families recorded but not emitted (ML4W owns fonts).
