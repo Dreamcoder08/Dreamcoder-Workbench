@@ -28,9 +28,11 @@ Hand-maintained configurations select a mode-independent name: Ghostty's `config
 ## Architecture
 
 ```text
-tokens.json → generate-palette-tokens.py → palette_tokens.py
+tokens.json (primitives → bindings → modes, components) → generate-palette-tokens.py → palette_tokens.py
             → palette and renderers → sync writers → live and repository outputs
 ```
+
+The token tiers, the Light material laws and the wallpaper contract are described once, in the [design-system page](../DREAMCODER_DESIGN_SYSTEM.md).
 
 Semantic roles are derived from canonical tokens; optional wallpaper adaptation can modify the active palette. The coverage declaration and registry in `src/dreamcoder_theme/sync.py` describe rendered consumers, not proof that every application is installed or tested on every platform.
 
@@ -38,7 +40,7 @@ Semantic roles are derived from canonical tokens; optional wallpaper adaptation 
 
 Single source of truth: [`DreamcoderThemes/dreamcoder/tokens.json`](../../DreamcoderThemes/dreamcoder/tokens.json)
 
-The user-facing modes are **dark** and **light**. The token data also contains an internal legacy variant. Dark's `surface_policy` permits pure black only for the canvas; functional
+The user-facing modes are **dark** and **light**. Dark's `surface_policy` permits pure black only for the canvas; functional
 and scrollable surfaces use the near-black ladder (`surface0`–`surface3`) to
 reduce OLED smear.
 
@@ -61,7 +63,10 @@ python scripts/generate-palette-tokens.py  # write generated palette_tokens.py
 python scripts/generate-dark-css.py         # write dreamcoder-dark.css variables
 ./scripts/dreamcoder sync                  # write live and repository outputs
 python scripts/verify-theme-health.py      # check theme health
+make theme-check                           # sync, drift, health, theme tests, wallpaper contract
 ```
+
+For Light, edit the primitive and its flat `modes.light` hex together; the health check reports `TIER_DRIFT` when they differ. Sync also writes the Light-only generated files (Alacritty, WezTerm, Nushell, Tmux, Yazi and the Zellij Light block). See [Tooling](../DREAMCODER_DESIGN_SYSTEM.md#tooling) for `make theme-diff`, the specimen board and the wallpaper checker.
 
 CI or local drift checks can use:
 

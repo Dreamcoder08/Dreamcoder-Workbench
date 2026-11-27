@@ -69,7 +69,7 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
 | T9 | S6 | Semantic chrome: badges, status icons, focus ring, window borders unified across Herdr/Waybar/Gentle Shell | inline | 775683c |
 | T10 | S4 | Visual regression: specimen board, perceptual diff (ΔE2000), `make theme-check`, CI hook (Risk 5) | inline, own commit | 71bf250 |
 | T11 | S2,S6 | Live verification on Hyprland: reload, GTK/Qt, screenshots vs T1; close open items of `light-theme-delivery.md` | inline | — |
-| T12 | S2 | Docs: rewrite `docs/DREAMCODER_DESIGN_SYSTEM.md`, fix `WALLPAPER_SETUP.md`, update both skills | inline | — |
+| T12 | S2 | Docs: rewrite `docs/DREAMCODER_DESIGN_SYSTEM.md`, fix `WALLPAPER_SETUP.md`, update both skills | inline | T12 commit |
 | T13 | S5 | Cleanup (gated by D2/D3): dusk, duplicate token source, checked-in generated files, old wallpapers, "Dreamcoder OS", archived `docs/superpowers` (Risk 1/3: each deletion proven unused) | inline, own commit | — |
 | T14 | S4 | Benchmark vs reference systems by metrics (contrast margins, ramp uniformity, ΔE spacing, banding); close feature | verify | — |
 
@@ -243,3 +243,7 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
   Restored `core.bare = false`; the main checkout's branch and uncommitted changes are as at session start.
   The L24 fix (scrub all `GIT_*`) was replayed with `GIT_DIR` + `GIT_INDEX_FILE` against a disposable clone:
   core.bare stays false.
+- L26 — T12 result: `docs/DREAMCODER_DESIGN_SYSTEM.md` is the single design-system page (tiers, material laws,
+  elevation, rhythm, wash rule, wallpaper contract, tooling, embedded specimen); `scripts/WALLPAPER_SETUP.md`
+  describes the real adaptive flow; both skills updated (fixed a wrong `guard()` reference); theme-system and
+  docs index updated. Revisit the wallpaper paragraph when T6 lands.
