@@ -109,6 +109,44 @@ def _is_light_chrome(c: dict[str, str]) -> bool:
     return "elevation_e1" in c
 
 
+def _px(value: str) -> str:
+    return value.removesuffix("px")
+
+
+def _hypr_rhythm(c: dict[str, str]) -> tuple[str, str]:
+    """Light only: (gap lines, animations block) from the rhythm tier.
+
+    Gaps are s1 inside and s4 outside windows. Hyprland speeds are in deciseconds
+    (1 ds = 100 ms), so the quick/base/slow durations become 1.2/2/3.2.
+    """
+    if not _is_light_chrome(c):
+        return "", ""
+
+    def speed(name: str) -> str:
+        return f"{int(c[f'motion_duration_{name}'].removesuffix('ms')) / 100:g}"
+
+    def curve(name: str) -> str:
+        return c[f"motion_curve_{name}"].removeprefix("cubic-bezier(").removesuffix(")")
+
+    gaps = f"\n    gaps_in = {_px(c['space_s1'])}\n    gaps_out = {_px(c['space_s4'])}"
+    animations = f"""
+animations {{
+    enabled = true
+    bezier = dc_enter, {curve("enter")}
+    bezier = dc_exit, {curve("exit")}
+    bezier = dc_move, {curve("move")}
+    animation = windowsIn, 1, {speed("base")}, dc_enter
+    animation = windowsOut, 1, {speed("quick")}, dc_exit
+    animation = windowsMove, 1, {speed("base")}, dc_move
+    animation = fadeIn, 1, {speed("base")}, dc_enter
+    animation = fadeOut, 1, {speed("quick")}, dc_exit
+    animation = border, 1, {speed("quick")}, dc_move
+    animation = workspaces, 1, {speed("slow")}, dc_move
+}}
+"""
+    return gaps, animations
+
+
 def hypr_content(c: dict[str, str]) -> str:
     inactive = _rgba_to_argb(c.get("inactive_border", "rgba(89, 77, 70, 0.78)"))
     # Light: one solid accent frame (no gradient); other modes keep the ink gradient.
@@ -117,18 +155,19 @@ def hypr_content(c: dict[str, str]) -> str:
         if _is_light_chrome(c)
         else f"rgba({c['text'][1:]}ff) rgba({c['muted'][1:]}ff) 45deg"
     )
+    gaps, animations = _hypr_rhythm(c)
     return f"""# Dreamcoder color layer for Hyprland.
 # Import after ML4W/Gentleman defaults; this changes colors only.
 
 general {{
     col.active_border = {active}
-    col.inactive_border = {inactive}
+    col.inactive_border = {inactive}{gaps}
 }}
 
 misc {{
     background_color = rgba({c["bg"][1:]}ff)
 }}
-"""
+{animations}"""
 
 
 def _waybar_chips(c: dict[str, str]) -> tuple[str, str]:
@@ -148,6 +187,9 @@ def _waybar_chips(c: dict[str, str]) -> tuple[str, str]:
   background: @selection;
   color: @accent;
   border-radius: {radius};
+  padding: 0 {c["space_s2"]};
+  margin: {c["space_s1"]};
+  font-weight: {c["type_emphasis_weight"]};
 }}
 
 #custom-updates.critical {{
@@ -162,8 +204,15 @@ def waybar_content(c: dict[str, str]) -> str:
     # Light only: modules sit at elevation e1 with the r2 radius (components tier).
     module_depth = (
         f"\n  border-radius: {c['radius_r2']};\n  box-shadow: {c['elevation_e1']};"
-        if "elevation_e1" in c
+        f"\n  padding: 0 {c['space_s3']};\n  margin: {c['space_s1']};"
+        f"\n  font-weight: {c['type_body_weight']};"
+        if _is_light_chrome(c)
         else ""
+    )
+    button_rhythm, active_weight = (
+        (f"\n  padding: 0 {c['space_s2']};", f"\n  font-weight: {c['type_emphasis_weight']};")
+        if _is_light_chrome(c)
+        else ("", "")
     )
     selection_color, chip_rules = _waybar_chips(c)
     return f"""/* Dreamcoder color layer for Waybar. */
@@ -199,13 +248,13 @@ window#waybar {{
 #workspaces button {{
   color: @muted;
   background: transparent;
-  border: 1px solid transparent;
+  border: 1px solid transparent;{button_rhythm}
 }}
 
 #workspaces button.active {{
   color: @accent;
   background: {c["active_rgba"]};
-  border-color: alpha(@focus, 0.82);
+  border-color: alpha(@focus, 0.82);{active_weight}
 }}
 
 #clock,
@@ -230,6 +279,21 @@ def rofi_content(c: dict[str, str]) -> str:
     # Light takes the radius scale (window r3, entry r2); other modes keep 18px/12px.
     window_radius = c.get("radius_r3", "18px")
     entry_radius = c.get("radius_r2", "12px")
+    entry_padding, rows = (
+        (
+            f"\n  padding: {c['space_s2']} {c['space_s3']};",
+            f"""
+listview {{ spacing: {c["space_s1"]}; }}
+
+element {{
+  padding: {c["space_s2"]} {c["space_s3"]};
+  border-radius: {entry_radius};
+}}
+""",
+        )
+        if _is_light_chrome(c)
+        else ("", "")
+    )
     return f"""/* Dreamcoder color layer for Rofi. */
 * {{
   background: {c["panel_rgba"]};
@@ -256,9 +320,9 @@ entry {{
   text-color: @foreground;
   border: 1px;
   border-color: @focus;
-  border-radius: {entry_radius};
+  border-radius: {entry_radius};{entry_padding}
 }}
-
+{rows}
 element selected {{
   background-color: @selected;
   text-color: @foreground;

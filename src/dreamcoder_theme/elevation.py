@@ -40,12 +40,18 @@ def _shadow(ink: str, z: float, key_alpha: float, ambient_alpha: float) -> str:
     return f"{key}, {ambient}"
 
 
+def adopts_components(tokens: dict[str, Any], mode: str) -> bool:
+    """A mode adopts the component tier when it names a shadow ink; others are untouched."""
+    ink: dict[str, Any] = tokens.get("components", {}).get("elevation", {}).get("ink", {})
+    return mode in ink
+
+
 def resolve_components(tokens: dict[str, Any], mode: str) -> dict[str, Any]:
     components: dict[str, Any] = tokens.get("components", {})
     elevation: dict[str, Any] = components.get("elevation", {})
-    ink_name = elevation.get("ink", {}).get(mode)
-    if ink_name is None:
+    if not adopts_components(tokens, mode):
         return {}
+    ink_name = elevation["ink"][mode]
     primitives: dict[str, str] = tokens.get("primitives", {}).get(mode, {})
     ink = _hex(primitives, mode, ink_name)
 

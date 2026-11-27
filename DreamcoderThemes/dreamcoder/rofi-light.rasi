@@ -25,6 +25,14 @@ entry {
   border: 1px;
   border-color: @focus;
   border-radius: 8px;
+  padding: 8px 12px;
+}
+
+listview { spacing: 4px; }
+
+element {
+  padding: 8px 12px;
+  border-radius: 8px;
 }
 
 element selected {
