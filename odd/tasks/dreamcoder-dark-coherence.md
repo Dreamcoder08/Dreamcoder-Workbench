@@ -89,3 +89,15 @@ Branch `feat/dark-coherence` (stacked on `feat/light-coherence`) in worktree `.l
   (ΔE 32.7, S3). DTCG export emits `primitive.dark`; pi-theme bats reads the dark accent from tokens. Light
   byte-identical (tokens light/primitives/components equal HEAD; theme-diff: 40 roles changed, all dark, 0 floors
   crossed). `effects.glow_focus` still blue → T3.
+- L6 — T3 design (Dark components; Light output byte-identical):
+  - Elevation is tonal on OLED: levels e1–e4 resolve to graphite surfaces (e1 surface1, e2 surface2, e3 surface3,
+    e4 selection), lighter as they rise (emission). Shadows keep the Light geometry (one overhead key + ambient) with
+    ink `graphite.000`: invisible on the black canvas, visible only where a window floats over the lit wallpaper —
+    the physically correct reading. e3/e4 also get a top-edge hairline one ladder step lighter (the overhead key
+    catching the top edge).
+  - Dark adopts the mode-independent geometry: radius r1–r3, hairline, spacing grid, motion curves and durations,
+    type contract — Hyprland gaps/animations, Waybar module rhythm and rofi radii match Light.
+  - Effects derive from tokens: `glow_focus` from `focus`, `glow_brand` from `aliases.brand`, `glow_error` from
+    `error` (same blur/alpha as today).
+  - Remove Dark literals: `_math.py:68` `#100f0d` fallback → the mode's own bg; `renderers_herdr.py:13` `#6FA0AF` →
+    the semantic token it stands for (name it); OpenCode Dark shadow and hypr/rofi `#000000` → the elevation ink.
