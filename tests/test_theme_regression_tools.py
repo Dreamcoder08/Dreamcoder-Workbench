@@ -216,6 +216,99 @@ def test_specimen_regenerates_the_checked_in_board_byte_for_byte(tmp_path: Path)
     assert checked_in.read_bytes() == fresh.read_bytes()
 
 
+DARK_SPECIMEN = ROOT / "docs/generated/dreamcoder-dark-specimen.svg"
+DARK_PIGMENT_FAMILIES = (
+    "madder",
+    "ochre",
+    "malachite",
+    "verdigris",
+    "indigo",
+    "iris",
+    "violet",
+    "cochineal",
+)
+
+
+def test_dark_specimen_is_deterministic_and_lists_every_dark_primitive_and_pigment_role(
+    tmp_path: Path,
+) -> None:
+    first, second = tmp_path / "a" / "one.svg", tmp_path / "b.svg"
+    one = _run(sys.executable, SPECIMEN, "--mode", "dark", "--output", first)
+    two = _run(sys.executable, SPECIMEN, "--mode", "dark", "--output", second)
+    assert one.returncode == 0, one.stderr
+    assert two.returncode == 0, two.stderr
+    assert one.stdout == f"wrote {first}\n"
+    assert first.read_bytes() == second.read_bytes()
+
+    root = ET.fromstring(first.read_text(encoding="utf-8"))
+    assert root.tag == "{http://www.w3.org/2000/svg}svg"
+    text = "".join(root.itertext())
+    tokens: dict[str, Any] = json.loads(TOKENS.read_text(encoding="utf-8"))
+    for name in tokens["primitives"]["dark"]:
+        assert name in text, name
+    for family in DARK_PIGMENT_FAMILIES:
+        assert any(n.startswith(f"{family}.") for n in tokens["primitives"]["dark"]), family
+    for role in (*PIGMENT_ROLES, "selection", "text_heading", "comment", "subtle"):
+        assert role in text, role
+    for level in ("e0", "e1", "e2", "e3", "e4"):
+        assert level in text, level
+    assert "Dreamcoder Dark specimen" in text
+    assert "Light" not in text
+    assert re.search(r"\d+\.\d{2}:1", text), "contrast numbers missing"
+    assert "Lc" in text
+    assert "ΔE" in text
+
+
+def test_dark_specimen_draws_tonal_elevation_without_visible_shadows(tmp_path: Path) -> None:
+    out = tmp_path / "dark.svg"
+    assert _run(sys.executable, SPECIMEN, "--mode", "dark", "--output", out).returncode == 0
+    svg = out.read_text(encoding="utf-8")
+    assert "feDropShadow" not in svg
+    assert "filter=" not in svg
+    tokens: dict[str, Any] = json.loads(TOKENS.read_text(encoding="utf-8"))
+    edges = tokens["components"]["elevation"]["edge"]["dark"]
+    assert set(edges) == {"e3", "e4"}
+    assert "top edge" in "".join(ET.fromstring(svg).itertext())
+
+
+def test_dark_specimen_regenerates_the_checked_in_board_byte_for_byte(tmp_path: Path) -> None:
+    fresh = tmp_path / "fresh.svg"
+    assert _run(sys.executable, SPECIMEN, "--mode", "dark", "--output", fresh).returncode == 0
+    assert DARK_SPECIMEN.read_bytes() == fresh.read_bytes()
+
+
+def test_the_default_mode_is_light_and_writes_the_light_board(tmp_path: Path) -> None:
+    explicit, default = tmp_path / "explicit.svg", tmp_path / "default.svg"
+    assert _run(sys.executable, SPECIMEN, "--mode", "light", "--output", explicit).returncode == 0
+    assert _run(sys.executable, SPECIMEN, "--output", default).returncode == 0
+    assert explicit.read_bytes() == default.read_bytes()
+    assert "Dreamcoder Light specimen" in default.read_text(encoding="utf-8")
+
+
+def test_the_specimen_rejects_an_unknown_mode() -> None:
+    result = _run(sys.executable, SPECIMEN, "--mode", "sepia", "--output", "/dev/null")
+    assert result.returncode == 2
+    assert "invalid choice" in result.stderr
+
+
+@pytest.mark.skipif(shutil.which("make") is None, reason="make not installed")
+def test_make_specimen_regenerates_both_modes() -> None:
+    result = _run("make", "-n", "specimen", cwd=ROOT)
+    assert result.returncode == 0, result.stderr
+    lines = [line for line in result.stdout.splitlines() if "generate-specimen.py" in line]
+    assert len(lines) == 2
+    assert any("--mode" not in line for line in lines), "the light board keeps the bare command"
+    assert any("--mode dark" in line for line in lines)
+
+
+def test_the_preview_hook_regenerates_and_checks_both_specimens() -> None:
+    hook = (ROOT / ".pre-commit-config.yaml").read_text(encoding="utf-8")
+    entry = next(line for line in hook.splitlines() if "generate-theme-preview.py" in line)
+    assert "generate-specimen.py --mode dark" in entry
+    assert "docs/generated/dreamcoder-light-specimen.svg" in entry
+    assert "docs/generated/dreamcoder-dark-specimen.svg" in entry
+
+
 # -- make theme-check -----------------------------------------------------------------
 
 

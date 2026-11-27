@@ -49,8 +49,9 @@ Branch `feat/dark-coherence` (stacked on `feat/light-coherence`) in worktree `.l
 | T3 | S1,S2 | Dark components: tonal elevation (no shadows), radius/rhythm adopted for Dark, renderer literals | worker | dc89418 |
 | T4 | S1 | Generate the stale hand-written Dark files; guard test like `test_light_color_files.py` | worker | 61a0611 |
 | T5 | S1,S3 | Dark wallpaper contract: hue rule follows identity (neutral or indigo), not warm | inline | aad4099 |
-| T6 | S1 | Live verification at night; specimen + DTCG export include Dark primitives | inline | — |
-| T7 | S1 | Docs, skills, changelog | worker | — |
+| T6 | S1 | Live verification at night; specimen + DTCG export include Dark primitives | inline | T67 commit |
+| T7 | S1 | Docs, skills, changelog | worker | T67 commit |
+| T9 | S1 | Calm the text ramp for OLED halation: text ≈ 15:1, comment ≈ 7–8:1, AAA kept (L12) | worker | — |
 | T8 | S1 | Benchmark vs reference dark themes; close | inline | — |
 
 ## Log
@@ -124,3 +125,12 @@ Branch `feat/dark-coherence` (stacked on `feat/light-coherence`) in worktree `.l
   files — restored with `git checkout`, main status identical to before. The session was locked (hyprlock), so
   only the lock screen was captured (`t6-lockscreen-after.png`: iris border and clock); the desktop capture waits
   for the user. Next: Dark specimen board + docs (T6/T7), benchmark (T8).
+- L11 — T6/T7 result: `generate-specimen.py --mode dark` → `docs/generated/dreamcoder-dark-specimen.svg` (graphite
+  text ramp, tonal ladder, pigments in hue order, roles on six surfaces with WCAG + APCA magnitude, tonal elevation
+  e0–e4 with top-edge hairlines, ΔE matrix); wired into `make specimen` and the preview hook; Light board
+  byte-identical. Docs: "Dark material model" section, stale `sync_light_files` names fixed, both skills and the
+  changelog updated. T8 benchmark in `odd/evidence/dark-coherence/t8-benchmark.md`: leads on weakest accent 10.31:1,
+  isoluminance 0.002, chroma cap; behind Rosé Pine/Dracula on min ΔE (14.2 vs 19.9/18.2); open weakness: comment
+  13.3:1 barely recedes and near-white 17.6:1 text on OLED black risks halation.
+- L12 — User decision (2026-11-27), verbatim: "Sí, calmar texto y comentarios (Recomendado)" — text about 15:1,
+  comments about 7–8:1, keep AAA. New task T9.

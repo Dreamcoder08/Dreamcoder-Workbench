@@ -65,6 +65,7 @@ theme-diff:
 
 specimen:
 	$(PYTHON) scripts/generate-specimen.py
+	$(PYTHON) scripts/generate-specimen.py --mode dark
 
 dtcg:
 	$(PYTHON) scripts/export-dtcg.py

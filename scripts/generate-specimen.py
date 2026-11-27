@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
-"""Generate the Dreamcoder Light specimen board as one deterministic SVG.
+"""Generate a Dreamcoder specimen board (`--mode light|dark`, default light) as one deterministic SVG.
 
 Four panels, all computed from `DreamcoderThemes/dreamcoder/tokens.json`:
 
-1. primitive ramps: every `primitives.light` colour, grouped by family;
-2. roles on every surface, with the WCAG ratio and APCA Lc of each pair;
-3. elevation e0-e4: the key + ambient shadow model on the paper canvas;
+1. primitive ramps: every `primitives.<mode>` colour, grouped by family (Dark: the graphite
+   text ramp and surface ladder, then the pigments around the hue wheel);
+2. roles on every surface, with the WCAG ratio and APCA Lc of each pair (magnitude, so
+   Dark's negative polarity reads like Light's);
+3. elevation e0-e4: Light is the key + ambient shadow model on the paper canvas; Dark is
+   tonal surfaces with top-edge hairlines, no shadow is drawn on black;
 4. pigment distinctness: the CIEDE2000 matrix between the accent roles.
 
 Pure Python, no timestamps and no randomness: the same tokens always produce the
@@ -39,11 +42,13 @@ from dreamcoder_theme.color_space import (  # noqa: E402
 )
 
 TOKENS = ROOT / "DreamcoderThemes/dreamcoder/tokens.json"
-DEFAULT_OUTPUT = ROOT / "docs/generated/dreamcoder-light-specimen.svg"
-MODE = "light"
+MODES = ("light", "dark")
+DEFAULT_MODE = "light"
 
 SURFACES = ("bg", "surface0", "surface1", "surface2", "surface3")
+DARK_SURFACES = (*SURFACES, "selection")
 TEXT_ROLES = ("text_heading", "text", "muted", "subtle", "comment")
+DARK_TEXT_ROLES = ("text_heading", "text", "muted", "comment", "subtle")
 PIGMENT_ROLES = (
     "accent",
     "accent_2",
@@ -66,6 +71,11 @@ ELEVATION_SURFACE = {
     "e3": "surface0",
     "e4": "surface0",
 }
+
+
+def default_output(mode: str) -> Path:
+    return ROOT / f"docs/generated/dreamcoder-{mode}-specimen.svg"
+
 
 WIDTH = 1200
 MARGIN = 40
@@ -125,19 +135,20 @@ def load_tokens(path: Path) -> dict[str, Any]:
     return tokens
 
 
-def _mode_colors(tokens: dict[str, Any]) -> dict[str, str]:
-    colors: dict[str, str] = tokens.get("modes", {}).get(MODE, {})
-    missing = [r for r in (*SURFACES, *TEXT_ROLES, *PIGMENT_ROLES) if r not in colors]
+def _mode_colors(tokens: dict[str, Any], mode: str) -> dict[str, str]:
+    colors: dict[str, str] = tokens.get("modes", {}).get(mode, {})
+    surfaces = DARK_SURFACES if mode == "dark" else SURFACES
+    missing = [r for r in (*surfaces, *TEXT_ROLES, *PIGMENT_ROLES) if r not in colors]
     if missing:
-        raise TokenError(f"modes.{MODE} lacks roles: {', '.join(missing)}")
+        raise TokenError(f"modes.{mode} lacks roles: {', '.join(missing)}")
     return colors
 
 
-def _primitives(tokens: dict[str, Any]) -> dict[str, tuple[float, str]]:
+def _primitives(tokens: dict[str, Any], mode: str) -> dict[str, tuple[float, str]]:
     """name -> (OKLCH lightness, hex)."""
-    raw: dict[str, str] = tokens.get("primitives", {}).get(MODE, {})
+    raw: dict[str, str] = tokens.get("primitives", {}).get(mode, {})
     if not raw:
-        raise TokenError(f"primitives.{MODE} is missing")
+        raise TokenError(f"primitives.{mode} is missing")
     out: dict[str, tuple[float, str]] = {}
     for name, value in raw.items():
         try:
@@ -156,22 +167,48 @@ def _heading(board: Board, colors: dict[str, str], title: str, note: str) -> Non
     board.y += 20
 
 
-def panel_primitives(board: Board, colors: dict[str, str], tokens: dict[str, Any]) -> None:
-    _heading(board, colors, "1 · Primitive ramps", "primitives.light, OKLCH rendered to sRGB hex")
-    # Material story, one row per family: paper, ink, clay, then pigments around the hue wheel.
+NEUTRAL_FAMILIES = {"light": ("paper", "ink", "clay"), "dark": ("graphite",)}
+GRAPHITE_SPLIT = 0.5  # OKLab L: at or above it a graphite step is text, below it a surface
+GRAPHITE_CAPTIONS = (
+    "graphite text ramp (strictly ordered, brightest first)",
+    "graphite surface ladder (tonal elevation, even OKLab steps up from the OLED canvas)",
+)
+
+
+def panel_primitives(
+    board: Board, colors: dict[str, str], tokens: dict[str, Any], mode: str
+) -> None:
+    _heading(board, colors, "1 · Primitive ramps", f"primitives.{mode}, OKLCH rendered to sRGB hex")
+    # Material story, one row per family: Light is paper, ink, clay; Dark is the graphite ramp and
+    # ladder. Pigments follow, around the hue wheel.
     families: dict[str, list[tuple[str, float, str]]] = {}
-    for name, (lightness, value) in _primitives(tokens).items():
+    for name, (lightness, value) in _primitives(tokens, mode).items():
         families.setdefault(name.split(".")[0], []).append((name, lightness, value))
-    neutrals = [f for f in ("paper", "ink", "clay") if f in families]
+    neutrals = [f for f in NEUTRAL_FAMILIES[mode] if f in families]
     pigments = sorted(
         (f for f in families if f not in neutrals),
         key=lambda f: hex_to_oklch(max(families[f], key=lambda m: m[1])[2])[2],
     )
     rows = [sorted(families[f], key=lambda m: -m[1]) for f in neutrals]
+    captions: list[str | None] = [None] * len(rows)
+    if mode == "dark":
+        graphite = rows.pop(0)
+        rows = [
+            [m for m in graphite if m[1] >= GRAPHITE_SPLIT],
+            [m for m in graphite if m[1] < GRAPHITE_SPLIT],
+            *rows,
+        ]
+        captions = [*GRAPHITE_CAPTIONS, *[None] * (len(rows) - 2)]
     flat = [m for f in pigments for m in sorted(families[f], key=lambda m: -m[1])]
-    rows += [flat[i : i + 9] for i in range(0, len(flat), 9)]
+    pigment_rows = [flat[i : i + 9] for i in range(0, len(flat), 9)]
+    rows += pigment_rows
+    pigment_caption = "pigments around the hue wheel, one OKLab L" if mode == "dark" else None
+    captions += [pigment_caption] * len(pigment_rows)
     step, width = 126, 116
-    for row in rows:
+    for row, caption in zip(rows, captions, strict=True):
+        if caption:
+            board.text(MARGIN, board.y + 8, caption, colors["comment"], 11)
+            board.y += 18
         for column, (name, _, value) in enumerate(row):
             x = MARGIN + column * step
             board.rect(x, board.y, width, 36, value, f' stroke="{colors["border"]}"')
@@ -181,24 +218,30 @@ def panel_primitives(board: Board, colors: dict[str, str], tokens: dict[str, Any
     board.y += 10
 
 
-def panel_roles(board: Board, colors: dict[str, str]) -> None:
+def panel_roles(board: Board, colors: dict[str, str], mode: str) -> None:
+    dark = mode == "dark"
     _heading(
         board,
         colors,
         "2 · Roles on every surface",
-        "WCAG 2 ratio and APCA Lc of each role on each surface (higher is easier to read)",
+        "WCAG 2 ratio and APCA Lc magnitude of each role on each surface; light text on black is "
+        "negative polarity (higher is easier to read)"
+        if dark
+        else "WCAG 2 ratio and APCA Lc of each role on each surface (higher is easier to read)",
     )
-    label_w, cell_w, cell_h = 130, 200, 40
-    for column, surface in enumerate(SURFACES):
-        # surface3 carries borders and pressed fills, never body text (no 4.5:1 floor there).
-        label = f"{surface} · non-text" if surface == "surface3" else surface
+    # Dark adds the selection surface, so its six columns are narrower than Light's five.
+    surfaces = DARK_SURFACES if dark else SURFACES
+    label_w, cell_w, cell_h, text_dx = (110, 172, 40, 40) if dark else (130, 200, 40, 52)
+    for column, surface in enumerate(surfaces):
+        # Light surface3 carries borders and pressed fills, never body text (no 4.5:1 floor there).
+        label = f"{surface} · non-text" if surface == "surface3" and not dark else surface
         board.text(MARGIN + label_w + column * cell_w, board.y, label, colors["muted"], 11, MONO)
     board.y += 10
-    for role in (*TEXT_ROLES, *PIGMENT_ROLES, "link_hover"):
+    for role in (*(DARK_TEXT_ROLES if dark else TEXT_ROLES), *PIGMENT_ROLES, "link_hover"):
         if role not in colors:
             continue
         board.text(MARGIN, board.y + 25, role, colors["text"], 12, MONO)
-        for column, surface in enumerate(SURFACES):
+        for column, surface in enumerate(surfaces):
             x = MARGIN + label_w + column * cell_w
             ratio = contrast(colors[role], colors[surface])
             lc = abs(apca_lc(colors[role], colors[surface]))
@@ -206,7 +249,9 @@ def panel_roles(board: Board, colors: dict[str, str]) -> None:
                 x, board.y, cell_w - 8, cell_h, colors[surface], f' stroke="{colors["border"]}"'
             )
             board.text(x + 10, board.y + 26, "Aa", colors[role], 18, weight=600)
-            board.text(x + 52, board.y + 25, f"{ratio:.2f}:1  Lc {lc:.0f}", colors[role], 12, MONO)
+            board.text(
+                x + text_dx, board.y + 25, f"{ratio:.2f}:1  Lc {lc:.0f}", colors[role], 12, MONO
+            )
         board.y += cell_h + 6
     board.y += 14
 
@@ -219,7 +264,53 @@ def _shadow_filter(name: str, ink: str, dy: float, blur: float, alpha: float) ->
     )
 
 
-def panel_elevation(board: Board, colors: dict[str, str], tokens: dict[str, Any]) -> None:
+def _dark_elevation_surfaces(
+    elevation: dict[str, Any], primitives: dict[str, tuple[float, str]]
+) -> tuple[dict[str, tuple[str, str]], dict[str, tuple[str, str]]]:
+    """Level -> (primitive name, hex) for the tonal surfaces and their top-edge hairlines."""
+    out: list[dict[str, tuple[str, str]]] = []
+    for key in ("surface", "edge"):
+        named: dict[str, str] = elevation.get(key, {}).get("dark", {})
+        missing = [n for n in named.values() if n not in primitives]
+        if missing:
+            raise TokenError(f"components.elevation.{key}.dark names unknown primitives: {missing}")
+        out.append({level: (name, primitives[name][1]) for level, name in named.items()})
+    return out[0], out[1]
+
+
+def panel_elevation_dark(board: Board, colors: dict[str, str], tokens: dict[str, Any]) -> None:
+    _heading(
+        board,
+        colors,
+        "3 · Elevation e0-e4",
+        "tonal: each level is a lighter graphite surface (emission); no shadow is drawn, black ink is "
+        "invisible on the OLED canvas",
+    )
+    elevation = tokens.get("components", {}).get("elevation", {})
+    surfaces, edges = _dark_elevation_surfaces(elevation, _primitives(tokens, "dark"))
+    top = board.y
+    board.rect(MARGIN, top, WIDTH - 2 * MARGIN, 190, colors["bg"], f' stroke="{colors["border"]}"')
+    step = (WIDTH - 2 * MARGIN) // 5
+    for column, level in enumerate(("e0", *elevation.get("levels", {}))):
+        x = MARGIN + 24 + column * step
+        name, fill = surfaces.get(level, ("bg", colors["bg"]))
+        board.rect(x, top + 30, 140, 90, fill, ' rx="8"')
+        if level in edges:
+            # The overhead key light catching the top edge, one ladder step lighter.
+            board.rect(x + 8, top + 30, 124, 2, edges[level][1])
+        board.text(x + 70, top + 80, level, colors["text"], 16, MONO, 600, "middle")
+        board.text(x + 70, top + 142, f"{name}  {fill}", colors["muted"], 11, MONO, anchor="middle")
+        detail = f"top edge {edges[level][0]}" if level in edges else "no edge"
+        board.text(x + 70, top + 158, detail, colors["muted"], 11, MONO, anchor="middle")
+    board.y = top + 190 + 24
+
+
+def panel_elevation(
+    board: Board, colors: dict[str, str], tokens: dict[str, Any], mode: str
+) -> None:
+    if mode == "dark":
+        panel_elevation_dark(board, colors, tokens)
+        return
     _heading(
         board,
         colors,
@@ -227,10 +318,10 @@ def panel_elevation(board: Board, colors: dict[str, str], tokens: dict[str, Any]
         "one key light (0 z/2 z) plus sky ambient (0 0 2z), warm-ink shadow on the paper canvas",
     )
     elevation = tokens.get("components", {}).get("elevation", {})
-    ink_name = elevation.get("ink", {}).get(MODE)
-    primitives = _primitives(tokens)
+    ink_name = elevation.get("ink", {}).get(mode)
+    primitives = _primitives(tokens, mode)
     if ink_name not in primitives:
-        raise TokenError(f"components.elevation.ink.{MODE} is not a primitive")
+        raise TokenError(f"components.elevation.ink.{mode} is not a primitive")
     ink = primitives[ink_name][1]
     levels: dict[str, Any] = elevation.get("levels", {})
     top = board.y
@@ -300,11 +391,16 @@ def panel_pigments(board: Board, colors: dict[str, str]) -> None:
     board.y += len(MATRIX_ROLES) * 30 + 20
 
 
-def build_specimen(tokens: dict[str, Any]) -> str:
-    colors = _mode_colors(tokens)
+def build_specimen(tokens: dict[str, Any], mode: str = DEFAULT_MODE) -> str:
+    colors = _mode_colors(tokens, mode)
     board = Board()
     board.text(
-        MARGIN, board.y + 14, "Dreamcoder Light specimen", colors["text_heading"], 26, weight=600
+        MARGIN,
+        board.y + 14,
+        f"Dreamcoder {mode.capitalize()} specimen",
+        colors["text_heading"],
+        26,
+        weight=600,
     )
     board.y += 34
     board.text(
@@ -315,9 +411,9 @@ def build_specimen(tokens: dict[str, Any]) -> str:
         12,
     )
     panels: tuple[Callable[[], None], ...] = (
-        lambda: panel_primitives(board, colors, tokens),
-        lambda: panel_roles(board, colors),
-        lambda: panel_elevation(board, colors, tokens),
+        lambda: panel_primitives(board, colors, tokens, mode),
+        lambda: panel_roles(board, colors, mode),
+        lambda: panel_elevation(board, colors, tokens, mode),
         lambda: panel_pigments(board, colors),
     )
     for panel in panels:
@@ -327,18 +423,25 @@ def build_specimen(tokens: dict[str, Any]) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Write the Dreamcoder Light specimen board (SVG).")
-    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT, help="SVG file to write")
+    parser = argparse.ArgumentParser(description="Write a Dreamcoder specimen board (SVG).")
+    parser.add_argument("--mode", choices=MODES, default=DEFAULT_MODE, help="colour mode (light)")
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help="SVG file to write (default docs/generated/dreamcoder-<mode>-specimen.svg)",
+    )
     parser.add_argument("--tokens", type=Path, default=TOKENS, help="tokens.json to read")
     args = parser.parse_args(argv)
     try:
-        svg = build_specimen(load_tokens(args.tokens))
+        svg = build_specimen(load_tokens(args.tokens), args.mode)
     except TokenError as error:
         print(f"generate-specimen: {error}", file=sys.stderr)
         return 2
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_bytes(svg.encode("utf-8"))
-    print(f"wrote {args.output}")
+    output: Path = args.output or default_output(args.mode)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_bytes(svg.encode("utf-8"))
+    print(f"wrote {output}")
     return 0
 
 

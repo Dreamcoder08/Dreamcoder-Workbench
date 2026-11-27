@@ -66,7 +66,7 @@ python scripts/verify-theme-health.py      # check theme health
 make theme-check                           # sync, drift, health, theme tests, wallpaper contract
 ```
 
-For Light, edit the primitive and its flat `modes.light` hex together; the health check reports `TIER_DRIFT` when they differ. Sync also writes the Light-only generated files (Alacritty, WezTerm, Nushell, Tmux, Yazi and the Zellij Light block). See [Tooling](../DREAMCODER_DESIGN_SYSTEM.md#tooling) for `make theme-diff`, the specimen board and the wallpaper checker.
+For either mode, edit the primitive and its flat `modes.<mode>` hex together; the health check reports `TIER_DRIFT` when they differ. Sync also writes the per-mode generated files (`MODE_FILES`: Alacritty, WezTerm, Nushell, Tmux and, for Light, Yazi, plus the Zellij theme block). See [Tooling](../DREAMCODER_DESIGN_SYSTEM.md#tooling) for `make theme-diff`, the specimen board and the wallpaper checker.
 
 CI or local drift checks can use:
 
