@@ -139,3 +139,8 @@ Branch `feat/dark-coherence` (stacked on `feat/light-coherence`) in worktree `.l
   under the user's "te autorizo todo"): option C — keep every law; Qt disabled `HighlightedText` on a selected row
   uses `comment` (readable on selection; WCAG 2.2 exempts inactive controls anyway), so `disabled` can drop to about
   L .64 with the ΔL ≥ .04 ramp intact. Rejected: A/B weaken the ramp law (tail ΔL .02 ≈ JND), D drops L12.
+- L14 — T9 second conflict: the existing AAA pin `comment ≥ 7:1 on surface2` (`test_dark_neutral_palette.py:117`)
+  needs comment L ≥ .727 (≈ 8.7:1 on bg), above the new 8.5 ceiling. Decision (parent): option 2 — keep the
+  existing AAA pin; the L12 comment window becomes [7.0, 9.0] on bg (comment L ≈ .73, ≈ 8.8:1). The "7–8" figure
+  was the parent's own approximation; loosening a standing contrast guard to meet it would weaken the system.
+  Comments still drop from 13.3:1 to ≈ 8.8:1 and text from 17.6:1 to ≈ 15:1.
