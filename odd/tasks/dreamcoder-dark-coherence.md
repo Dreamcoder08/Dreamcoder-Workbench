@@ -144,3 +144,8 @@ Branch `feat/dark-coherence` (stacked on `feat/light-coherence`) in worktree `.l
   existing AAA pin; the L12 comment window becomes [7.0, 9.0] on bg (comment L ≈ .73, ≈ 8.8:1). The "7–8" figure
   was the parent's own approximation; loosening a standing contrast guard to meet it would weaken the system.
   Comments still drop from 13.3:1 to ≈ 8.8:1 and text from 17.6:1 to ≈ 15:1.
+- L15 — T9 third conflict: the sync gate keeps `disabled` APCA ≥ 44 on bg (`minimum_apca_quiet`); with the ΔL ≥ .04
+  ramp that puts the lowest comment at `#adadad` ≈ 9.36:1. Decision (parent): option A — keep every standing guard
+  (AAA on surface2, quiet APCA floor, even ramp); the parent's own comment window becomes [7.0, 9.5]. Outcome vs
+  start: text 17.6 → 15.0:1, comment 13.3 → ≈ 9.4:1, text–comment gap 4.3 → 5.7. The Qt disabled-on-selection
+  change (L13) stays necessary (`disabled` ≈ L .663 is under 4.5:1 on selection).
