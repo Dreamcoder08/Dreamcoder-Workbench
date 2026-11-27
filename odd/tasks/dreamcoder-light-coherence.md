@@ -247,3 +247,16 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
   elevation, rhythm, wash rule, wallpaper contract, tooling, embedded specimen); `scripts/WALLPAPER_SETUP.md`
   describes the real adaptive flow; both skills updated (fixed a wrong `guard()` reference); theme-system and
   docs index updated. Revisit the wallpaper paragraph when T6 lands.
+- L27 — User decisions (verbatim): T11 "Sí, aplicar ahora"; CI "Sí, añadir al CI" (`make theme-check`, own commit).
+- L28 — T11 live pass (20:00–20:15): repo-only and live sync from the worktree applied Light to 37 targets; the
+  live bat step wrote through the stow link into the main checkout's tracked `Dreamcoder-Light.tmTheme`
+  (restored with `git checkout`; finding: `sync_bat_theme_variants` follows stow links, unlike Warp). Window
+  variant `~/.config/hypr/conf/windows/dreamcoder.lua` (solid `primary`, `outline` hairline, gaps 4/16) selected in
+  ML4W `window.lua` (backup /tmp) — live and verified via hyprctl. Found and fixed: `lib/waybar.sh` could never
+  install the override on ML4W 2.17 (selector saved without trailing newline → `read` returns 1); T9 had left
+  5 `tests/ml4w/waybar_override.bats` red (oracle) — oracle updated, new no-newline test, all 15 pass; stale
+  `tests/shell/test_pi_theme.bats` #2–3 now read the accent from tokens. Override installed live, Waybar
+  relaunched. At 20:13 a wallpaper change fired wallpaper-hook → theme-auto, which applied Dark per the user's
+  schedule (Light 07:00–18:00); the Light screenshot was not taken at night to avoid fighting the schedule.
+  `t11-desktop-after.png` shows Dark with the mode-agnostic border variant and badge wash live. Light visual
+  check pending for daylight hours.
