@@ -49,8 +49,8 @@ Branch `feat/dark-coherence` (stacked on `feat/light-coherence`) in worktree `.l
 | T3 | S1,S2 | Dark components: tonal elevation (no shadows), radius/rhythm adopted for Dark, renderer literals | worker | dc89418 |
 | T4 | S1 | Generate the stale hand-written Dark files; guard test like `test_light_color_files.py` | worker | 61a0611 |
 | T5 | S1,S3 | Dark wallpaper contract: hue rule follows identity (neutral or indigo), not warm | inline | aad4099 |
-| T6 | S1 | Live verification at night; specimen + DTCG export include Dark primitives | inline | T67 commit |
-| T7 | S1 | Docs, skills, changelog | worker | T67 commit |
+| T6 | S1 | Live verification at night; specimen + DTCG export include Dark primitives | inline | 66243b8 |
+| T7 | S1 | Docs, skills, changelog | worker | 66243b8 |
 | T9 | S1 | Calm the text ramp for OLED halation: text ≈ 15:1, comment ≈ 7–8:1, AAA kept (L12) | worker | — |
 | T8 | S1 | Benchmark vs reference dark themes; close | inline | — |
 
