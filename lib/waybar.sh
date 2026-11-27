@@ -6,9 +6,11 @@
 
 waybar_style_dir() {
   # Print the style theme directory ML4W's selector currently points at.
-  local selector="${HOME}/.config/ml4w/settings/waybar-theme.sh" pair style
+  local selector="${HOME}/.config/ml4w/settings/waybar-theme.sh" pair="" style
   [[ -f "${selector}" ]] || return 1
-  read -r pair <"${selector}" || return 1
+  # ML4W may save the pair without a final newline: `read` then returns 1 at EOF
+  # even though it filled `pair`, so only an empty read is a failure.
+  read -r pair <"${selector}" || [[ -n "${pair}" ]] || return 1
   style="${pair#*;}"
   [[ -n "${style}" ]] || return 1
   printf '%s\n' "${HOME}/.config/waybar/themes${style}"

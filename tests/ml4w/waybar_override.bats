@@ -59,6 +59,20 @@ expected_override() {
 #workspaces button.active {
     color: @primary;
 }
+
+/* Count badges are a pigment wash over paper, never a saturated solid (Light
+ * semantic chrome rule; GTK CSS cannot tell modes apart, so Dark gets it too).
+ * ML4W fills `#custom-updates.red` with @error and `.yellow` with @tertiary;
+ * the wash below uses only the live colour-bridge variables, so no hex is copied.
+ * The count is information, not an error, so every updates state is the same
+ * accent chip. */
+#custom-updates,
+#custom-updates.green,
+#custom-updates.yellow,
+#custom-updates.red {
+    background-color: alpha(@primary, 0.14);
+    color: @primary;
+}
 CSS
 }
 
@@ -77,6 +91,18 @@ CSS
   load_waybar_lib
   run waybar_style_dir
   [ "$status" -ne 0 ]
+}
+
+@test "waybar lib: style dir reads a selector saved without a trailing newline" {
+  # ML4W 2.17 writes the pair with no final newline; `read` then returns 1 at EOF.
+  mkdir -p "${HOME}/.config/ml4w/settings" "${HOME}/.config/waybar/themes/ml4w-glass-center/default"
+  printf '/%s;%s' "ml4w-glass-center" "/ml4w-glass-center/default" \
+    >"${HOME}/.config/ml4w/settings/waybar-theme.sh"
+
+  load_waybar_lib
+  run waybar_style_dir
+  [ "$status" -eq 0 ]
+  [ "${output}" = "${HOME}/.config/waybar/themes/ml4w-glass-center/default" ]
 }
 
 @test "waybar lib: style dir fails when the selector has no style component" {
