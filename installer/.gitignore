@@ -2,3 +2,5 @@ dreamcoder-dots
 dreamcoder-dots-*
 *.exe
 vendor/
+# Default `go build` output in this directory
+/installer
