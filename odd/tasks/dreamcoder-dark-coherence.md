@@ -119,3 +119,8 @@ Branch `feat/dark-coherence` (stacked on `feat/light-coherence`) in worktree `.l
   primitive), Light unchanged at 70° ± 25. RED 3 → GREEN 55: an indigo night passes in dark mode, a warm night fails
   WALLPAPER_HUE. The four existing blue night wallpapers no longer fail hue; they still fail size, lightness,
   safe zone and readability, as they should.
+- L10 — T6 live pass (23:00): live Dark sync from the worktree applied (bridge `primary` #a7b5fd, solid iris
+  window edge via hyprctl); the bat step again wrote through stow links into the main checkout's two `.tmTheme`
+  files — restored with `git checkout`, main status identical to before. The session was locked (hyprlock), so
+  only the lock screen was captured (`t6-lockscreen-after.png`: iris border and clock); the desktop capture waits
+  for the user. Next: Dark specimen board + docs (T6/T7), benchmark (T8).
