@@ -1,12 +1,13 @@
-"""Light-only renderers for tracked colour files that used to be hand-copied.
+"""Renderers for tracked per-mode colour files that used to be hand-copied.
 
-Each file here has a Dark sibling that is *not* generated and still carries an
-older palette, so these renderers are Light-only: Dark output is untouched.
-``LIGHT_FILES`` is the table the sync walks; it sits outside the 36-consumer
-registry on purpose (those IDs are pinned by the coverage contract, the Dark
-byte-parity fixtures and the target manifest, none of which describe Light-only
-files). The guard in ``tests/test_light_color_files.py`` ties both together: a
-tracked Light file is in this table or holds only exact Light tokens.
+``MODE_FILES`` is the table the sync walks for each mode; it sits outside the
+36-consumer registry on purpose (those IDs are pinned by the coverage contract,
+the byte-parity fixtures and the target manifest, none of which describe these
+per-mode files). The renderers take the palette of the mode being written, so
+Light and Dark share one implementation. The guards in
+``tests/test_light_color_files.py`` and ``tests/test_dark_color_files.py`` tie
+both together: a tracked file of a mode is in this table or holds only exact
+tokens of that mode.
 
 Every colour comes from the palette passed in, never from a literal.
 """
@@ -24,7 +25,7 @@ from .renderers_zellij import zellij_content
 Palette = dict[str, str]
 
 
-def alacritty_light_content(c: Palette) -> str:
+def alacritty_content(c: Palette) -> str:
     p = ansi(c)
 
     def table(name: str, colors: list[str]) -> str:
@@ -57,7 +58,7 @@ background = "{c["selection_bg"]}"
 {table("bright", p[8:])}"""
 
 
-def wezterm_light_content(c: Palette) -> str:
+def wezterm_content(c: Palette) -> str:
     p = ansi(c)
     names = ("black", "red", "green", "yellow", "blue", "magenta", "cyan", "white")
 
@@ -106,7 +107,7 @@ return M
 """
 
 
-def nushell_light_content(c: Palette) -> str:
+def nushell_content(c: Palette) -> str:
     text = c["text"]
     return f"""# {c["name"]} theme for Nushell
 # Auto-generated from tokens.json — do not edit manually
@@ -149,7 +150,7 @@ $env.config = {{
 """
 
 
-def tmux_blocks_light_content(c: Palette) -> str:
+def tmux_blocks_content(c: Palette) -> str:
     """The block-style tmux status theme (the text-only one is ``tmux_content``)."""
     return f"""# {c["name"]} theme for Tmux
 # Auto-generated from tokens.json — do not edit manually
@@ -179,8 +180,8 @@ setw -g window-status-bell-style "bg={c["error"]},fg={c["on_error"]}"
 """
 
 
-def tmux_ukiyo_light_content(c: Palette) -> str:
-    """Kanagawa/ukiyo plugin colour options for Light, sourced by apply-theme-mode.sh."""
+def tmux_ukiyo_content(c: Palette) -> str:
+    """Kanagawa/ukiyo plugin colour options, sourced by apply-theme-mode.sh."""
     options = (
         ("text", c["text"]),
         ("bg-bar", c["bg_soft"]),
@@ -295,42 +296,53 @@ footer = {{ fg = "{c["comment"]}" }}
 _THEMES_BLOCK = re.compile(r"^themes \{\n.*?^\}\n", re.MULTILINE | re.DOTALL)
 
 
-def zellij_light_config_content(c: Palette, current: str) -> str:
-    """Replace the ``themes { }`` block of the tracked Light config, keep the rest.
+def zellij_config_content(c: Palette, theme_name: str, current: str) -> str:
+    """Replace the ``themes { }`` block of a tracked mode config, keep the rest.
 
-    The block holds the single ``dreamcoder-light`` theme rendered from the
-    palette; an embedded Dark theme is dropped because this config selects Light
+    The block holds the single ``theme_name`` theme rendered from the palette;
+    any other embedded theme is dropped because the config selects one mode
     only. The splice is idempotent: a config that already holds the generated
     block comes back unchanged.
     """
-    rendered = zellij_content(c, "dreamcoder-light")
+    rendered = zellij_content(c, theme_name)
     block = rendered[rendered.index("themes {") :]
     if not _THEMES_BLOCK.search(current):
-        raise ValueError("Zellij Light config has no top-level themes { } block")
+        raise ValueError(f"Zellij {theme_name} config has no top-level themes {{ }} block")
     return _THEMES_BLOCK.sub(lambda _m: block, current, count=1)
 
 
-class LightFile(NamedTuple):
-    """One Light-only generated file: repository path and its renderer."""
+class ModeFile(NamedTuple):
+    """One generated per-mode file: repository path and its renderer."""
 
     path: str
     renderer: Callable[[Palette], str]
 
 
-LIGHT_FILES: tuple[LightFile, ...] = (
-    LightFile(
-        "DreamcoderAlacritty/.config/alacritty/dreamcoder-light.toml", alacritty_light_content
+MODE_FILES: dict[str, tuple[ModeFile, ...]] = {
+    "light": (
+        ModeFile("DreamcoderAlacritty/.config/alacritty/dreamcoder-light.toml", alacritty_content),
+        ModeFile("DreamcoderWezTerm/.config/wezterm/dreamcoder-light.lua", wezterm_content),
+        ModeFile("DreamcoderNushell/.config/nushell/dreamcoder-light.nu", nushell_content),
+        # dreamcoder-theme.nu (what config.nu sources) is a tracked symlink to this
+        # file, so it follows the generated Light theme; it needs no entry of its own.
+        ModeFile("DreamcoderTmux/.config/tmux/dreamcoder-light.conf", tmux_blocks_content),
+        # .tmux.conf sources the base file for every mode; the active-mode file
+        # (tmux-dreamcoder.conf) overrides it once the mode is applied.
+        ModeFile("DreamcoderTmux/.config/tmux/tmux-dreamcoder-base.conf", tmux_content),
+        ModeFile("DreamcoderThemes/dreamcoder/tmux-ukiyo-light.conf", tmux_ukiyo_content),
+        # Yazi has one theme.toml (flavor and syntect theme name Light).
+        ModeFile("DreamcoderYazi/.config/yazi/theme.toml", yazi_light_content),
     ),
-    LightFile("DreamcoderWezTerm/.config/wezterm/dreamcoder-light.lua", wezterm_light_content),
-    LightFile("DreamcoderNushell/.config/nushell/dreamcoder-light.nu", nushell_light_content),
-    # dreamcoder-theme.nu (what config.nu sources) is a tracked symlink to this
-    # file, so it follows the generated Light theme; it needs no entry of its own.
-    LightFile("DreamcoderTmux/.config/tmux/dreamcoder-light.conf", tmux_blocks_light_content),
-    # .tmux.conf sources the base file for every mode; the active-mode file
-    # (tmux-dreamcoder.conf) overrides it once the mode is applied.
-    LightFile("DreamcoderTmux/.config/tmux/tmux-dreamcoder-base.conf", tmux_content),
-    LightFile("DreamcoderThemes/dreamcoder/tmux-ukiyo-light.conf", tmux_ukiyo_light_content),
-    LightFile("DreamcoderYazi/.config/yazi/theme.toml", yazi_light_content),
-)
+    "dark": (
+        ModeFile("DreamcoderAlacritty/.config/alacritty/dreamcoder-dark.toml", alacritty_content),
+        ModeFile("DreamcoderWezTerm/.config/wezterm/dreamcoder-dark.lua", wezterm_content),
+        ModeFile("DreamcoderNushell/.config/nushell/dreamcoder-dark.nu", nushell_content),
+        ModeFile("DreamcoderTmux/.config/tmux/dreamcoder-dark.conf", tmux_blocks_content),
+        ModeFile("DreamcoderThemes/dreamcoder/tmux-ukiyo-dark.conf", tmux_ukiyo_content),
+    ),
+}
 
-ZELLIJ_LIGHT_CONFIG = "DreamcoderZellij/.config/zellij/config-light.kdl"
+ZELLIJ_CONFIGS: dict[str, str] = {
+    "light": "DreamcoderZellij/.config/zellij/config-light.kdl",
+    "dark": "DreamcoderZellij/.config/zellij/config-dark.kdl",
+}

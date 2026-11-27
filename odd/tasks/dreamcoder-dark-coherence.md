@@ -108,3 +108,10 @@ Branch `feat/dark-coherence` (stacked on `feat/light-coherence`) in worktree `.l
   `#100f0d` fallback → mode canvas, Herdr `#6FA0AF` → `accent` (both modes). Light artifacts unchanged
   (`theme-diff HEAD`: no perceptual change). Tests encoding "Dark unchanged" from the Light feature updated to the
   new intended Dark behaviour (listed in the worker report); no contrast/ΔE assertion weakened.
+- L8 — T4 result: Light-only file renderers generalised into `renderers_mode_files.py` (`MODE_FILES` per mode,
+  `sync_mode_files(mode, palette)`); Dark Alacritty, WezTerm, Nushell, tmux blocks and the Zellij theme block are
+  generated; `apply-theme-mode.sh` Dark branch sources generated `tmux-ukiyo-dark.conf` (no colour literals left
+  in the script). Guard `tests/test_dark_color_files.py` (allowlist: generated `dreamcoder-dark.css`, ARGB
+  `qt6ct-dark.conf`, each pinned to its generator). Light byte-identical. For T6/T7: docs and theme-engine skill
+  still name `renderers_light_files.py`/`sync_light_files`; `DreamcoderNushell/env.nu` prompt literals (both modes)
+  remain; Dark tmux ukiyo notice/highlight now accent_2/focus — check live.

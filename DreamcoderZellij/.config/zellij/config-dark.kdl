@@ -440,58 +440,39 @@ load_plugins {
 //
 
 themes {
-    dreamcoder-light {
-        bg "#f3eadc"
-        fg "#17120d"
-        black "#17120d"
-        red "#8a6040"
-        green "#b8a080"
-        yellow "#c4b090"
-        blue "#8a7a68"
-        magenta "#9a8a78"
-        cyan "#8a7a68"
-        white "#f3eadc"
-        orange "#9a7a50"
-        gray "#c4b8a8"
-        border "#e0d4c4"
-        border_active "#9a7a50"
-        border_unfocused "#f3eadc"
-        tab_bar_bg "#f3eadc"
-        tab_active_bg "#f3eadc"
-        tab_active_fg "#9a7a50"
-        tab_inactive_bg "#f3eadc"
-        tab_inactive_fg "#c4b8a8"
-        pane_frame_bg "#f3eadc"
-        pane_frame_fg "#e0d4c4"
-        selection_bg "#9a7a50"
-        selection_fg "#f3eadc"
-    }
-
     dreamcoder-dark {
-        bg "#100f0d"
-        fg "#e8dfd0"
-        black "#100f0d"
-        red "#8a6a50"
-        green "#8a7a68"
-        yellow "#9a8a70"
-        blue "#7a6a58"
-        magenta "#8a7a68"
-        cyan "#7a6a58"
-        white "#e8dfd0"
-        orange "#7a5a40"
-        gray "#5a4a38"
-        border "#2a2520"
-        border_active "#8a6a50"
-        border_unfocused "#1a1714"
-        tab_bar_bg "#100f0d"
-        tab_active_bg "#1a1714"
-        tab_active_fg "#8a6a50"
-        tab_inactive_bg "#100f0d"
-        tab_inactive_fg "#3a3028"
-        pane_frame_bg "#100f0d"
-        pane_frame_fg "#2a2520"
-        selection_bg "#8a6a50"
-        selection_fg "#100f0d"
+        bg "#000000"
+        fg "#ebebeb"
+        black "#000000"
+        red "#fc9d95"
+        green "#86cf90"
+        yellow "#dcb55e"
+        blue "#76c4f6"
+        magenta "#f59ac5"
+        cyan "#76c4f6"
+        white "#ebebeb"
+        orange "#dcb55e"
+        gray "#dcdcdc"
+
+        // UI elements
+        border "#636363"
+        border_active "#a7b5fd"
+        border_unfocused "#636363"
+
+        // Tab bar
+        tab_bar_bg "#121212"
+        tab_active_bg "#636363"
+        tab_active_fg "#a7b5fd"
+        tab_inactive_bg "#121212"
+        tab_inactive_fg "#dcdcdc"
+
+        // Pane frames
+        pane_frame_bg "#121212"
+        pane_frame_fg "#636363"
+
+        // Selection
+        selection_bg "#a7b5fd"
+        selection_fg "#000000"
     }
 }
 
