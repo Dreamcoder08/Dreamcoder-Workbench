@@ -1,4 +1,9 @@
-.PHONY: install test coverage build clean lint python-lint shell-lint type-check format adr
+.PHONY: install test coverage build clean lint python-lint shell-lint type-check format adr theme-check theme-diff specimen
+
+# Interpreter for the theme regression targets (e.g. make theme-check PYTHON="uv run --quiet python").
+PYTHON ?= python
+# Base of the perceptual diff.
+REF ?= origin/main
 
 install:
 	pip install -e ".[dev]"
@@ -37,3 +42,21 @@ adr:
 		echo "  $$(basename $$f) — $$(head -3 "$$f" | tail -1)"; \
 	done
 	@echo "Total: $$(ls docs/adr/*.md 2>/dev/null | wc -l) ADRs"
+
+# Theme regression gate: regenerate every output from tokens.json, require that it
+# matches the index (stage intentional changes first), then run the theme gates.
+# The wallpaper step checks DreamcoderWallpapers/dreamcoder-*.png and is skipped when
+# the canonical set is absent.
+theme-check:
+	DREAMCODER_WRITE_LIVE=0 DREAMCODER_THEME_MODE=dark PYTHONPATH=src $(PYTHON) scripts/sync-dreamcoder-theme.py
+	DREAMCODER_WRITE_LIVE=0 DREAMCODER_THEME_MODE=light PYTHONPATH=src $(PYTHON) scripts/sync-dreamcoder-theme.py
+	git diff --exit-code
+	PYTHONPATH=src $(PYTHON) scripts/verify-theme-health.py
+	$(PYTHON) -m pytest -q -p no:cacheprovider -o addopts="" tests/test_light_*.py tests/test_token_*.py tests/test_apca_*.py tests/test_wallpaper_contract.py tests/test_theme_*.py
+	set -- DreamcoderWallpapers/dreamcoder-*.png; if [ -e "$$1" ]; then $(PYTHON) scripts/check-wallpaper.py "$$@"; else echo "check-wallpaper: no canonical wallpapers, skipped"; fi
+
+theme-diff:
+	$(PYTHON) scripts/theme-diff.py $(REF)
+
+specimen:
+	$(PYTHON) scripts/generate-specimen.py
