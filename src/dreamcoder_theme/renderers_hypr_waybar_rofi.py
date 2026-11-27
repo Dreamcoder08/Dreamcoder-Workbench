@@ -18,6 +18,8 @@ def _hex_to_rgba_ff(hex_color: str) -> str:
 def _map_dc_to_material(c: dict[str, str]) -> dict[str, str]:
     """Map Dreamcoder palette tokens to Material Design 3 color roles."""
     h = _hex_to_rgba_ff
+    # Light supplies a warm-ink shadow (components tier); other modes stay black.
+    shadow = h(c["shadow_ink"]) if "shadow_ink" in c else "rgba(000000ff)"
     return {
         # Core surfaces
         "background": h(c["bg"]),
@@ -72,8 +74,8 @@ def _map_dc_to_material(c: dict[str, str]) -> dict[str, str]:
         "outline": h(c["border"]),
         "outline_variant": h(c["border_ui"]),
         # Fixed
-        "shadow": "rgba(000000ff)",
-        "scrim": "rgba(000000ff)",
+        "shadow": shadow,
+        "scrim": shadow,
         "source_color": h(c["accent"]),
         # Inverse
         "inverse_on_surface": h(c["surface0"]),
@@ -102,23 +104,117 @@ def _rgba_to_argb(value: str, default_alpha: str = "ff") -> str:
     return f"rgba({r:02x}{g:02x}{b:02x}{a_hex})"
 
 
+def _is_light_chrome(c: dict[str, str]) -> bool:
+    """Light palettes carry the components tier; Dark keeps its previous output."""
+    return "elevation_e1" in c
+
+
+def _px(value: str) -> str:
+    return value.removesuffix("px")
+
+
+def _hypr_rhythm(c: dict[str, str]) -> tuple[str, str]:
+    """Light only: (gap lines, animations block) from the rhythm tier.
+
+    Gaps are s1 inside and s4 outside windows. Hyprland speeds are in deciseconds
+    (1 ds = 100 ms), so the quick/base/slow durations become 1.2/2/3.2.
+    """
+    if not _is_light_chrome(c):
+        return "", ""
+
+    def speed(name: str) -> str:
+        return f"{int(c[f'motion_duration_{name}'].removesuffix('ms')) / 100:g}"
+
+    def curve(name: str) -> str:
+        return c[f"motion_curve_{name}"].removeprefix("cubic-bezier(").removesuffix(")")
+
+    gaps = f"\n    gaps_in = {_px(c['space_s1'])}\n    gaps_out = {_px(c['space_s4'])}"
+    animations = f"""
+animations {{
+    enabled = true
+    bezier = dc_enter, {curve("enter")}
+    bezier = dc_exit, {curve("exit")}
+    bezier = dc_move, {curve("move")}
+    animation = windowsIn, 1, {speed("base")}, dc_enter
+    animation = windowsOut, 1, {speed("quick")}, dc_exit
+    animation = windowsMove, 1, {speed("base")}, dc_move
+    animation = fadeIn, 1, {speed("base")}, dc_enter
+    animation = fadeOut, 1, {speed("quick")}, dc_exit
+    animation = border, 1, {speed("quick")}, dc_move
+    animation = workspaces, 1, {speed("slow")}, dc_move
+}}
+"""
+    return gaps, animations
+
+
 def hypr_content(c: dict[str, str]) -> str:
     inactive = _rgba_to_argb(c.get("inactive_border", "rgba(89, 77, 70, 0.78)"))
+    # Light: one solid accent frame (no gradient); other modes keep the ink gradient.
+    active = (
+        f"rgba({c['accent'][1:]}ff)"
+        if _is_light_chrome(c)
+        else f"rgba({c['text'][1:]}ff) rgba({c['muted'][1:]}ff) 45deg"
+    )
+    gaps, animations = _hypr_rhythm(c)
     return f"""# Dreamcoder color layer for Hyprland.
 # Import after ML4W/Gentleman defaults; this changes colors only.
 
 general {{
-    col.active_border = rgba({c["text"][1:]}ff) rgba({c["muted"][1:]}ff) 45deg
-    col.inactive_border = {inactive}
+    col.active_border = {active}
+    col.inactive_border = {inactive}{gaps}
 }}
 
 misc {{
     background_color = rgba({c["bg"][1:]}ff)
 }}
-"""
+{animations}"""
+
+
+def _waybar_chips(c: dict[str, str]) -> tuple[str, str]:
+    """Light only: (selection colour, chip rules); pigment wash, never a solid fill.
+
+    Count badges are a neutral clay chip with accent text; only the critical state
+    takes the error wash. The ML4W launcher tile is an umber wash.
+    """
+    if not _is_light_chrome(c):
+        return "", ""
+    radius = c["radius_r2"]
+    return (
+        f"@define-color selection {c['selection']};\n",
+        f"""
+/* Count badges and tiles: a pigment wash over paper, never a saturated solid. */
+#custom-updates {{
+  background: @selection;
+  color: @accent;
+  border-radius: {radius};
+  padding: 0 {c["space_s2"]};
+  margin: {c["space_s1"]};
+  font-weight: {c["type_emphasis_weight"]};
+}}
+
+#custom-updates.critical {{
+  background: alpha(@error, 0.14);
+  color: @error;
+}}
+""",
+    )
 
 
 def waybar_content(c: dict[str, str]) -> str:
+    # Light only: modules sit at elevation e1 with the r2 radius (components tier).
+    module_depth = (
+        f"\n  border-radius: {c['radius_r2']};\n  box-shadow: {c['elevation_e1']};"
+        f"\n  padding: 0 {c['space_s3']};\n  margin: {c['space_s1']};"
+        f"\n  font-weight: {c['type_body_weight']};"
+        if _is_light_chrome(c)
+        else ""
+    )
+    button_rhythm, active_weight = (
+        (f"\n  padding: 0 {c['space_s2']};", f"\n  font-weight: {c['type_emphasis_weight']};")
+        if _is_light_chrome(c)
+        else ("", "")
+    )
+    selection_color, chip_rules = _waybar_chips(c)
     return f"""/* Dreamcoder color layer for Waybar. */
 @define-color bg {c["bg"]};
 @define-color bg-soft {c["bg_soft"]};
@@ -142,7 +238,7 @@ def waybar_content(c: dict[str, str]) -> str:
 @define-color warning {c["warning"]};
 @define-color link {c["link"]};
 @define-color link-hover {c["link_hover"]};
-
+{selection_color}
 window#waybar {{
   background: {c["panel_rgba"]};
   color: @text;
@@ -152,13 +248,13 @@ window#waybar {{
 #workspaces button {{
   color: @muted;
   background: transparent;
-  border: 1px solid transparent;
+  border: 1px solid transparent;{button_rhythm}
 }}
 
 #workspaces button.active {{
   color: @accent;
   background: {c["active_rgba"]};
-  border-color: alpha(@focus, 0.82);
+  border-color: alpha(@focus, 0.82);{active_weight}
 }}
 
 #clock,
@@ -170,16 +266,34 @@ window#waybar {{
 #tray {{
   background: {c["module_rgba"]};
   color: @text;
-  border: 1px solid alpha(@border-ui, 0.78);
+  border: 1px solid alpha(@border-ui, 0.78);{module_depth}
 }}
 
 #battery.warning {{ color: @warning; }}
 #battery.critical {{ color: @error; }}
 #network.disconnected {{ color: @error; }}
-"""
+{chip_rules}"""
 
 
 def rofi_content(c: dict[str, str]) -> str:
+    # Light takes the radius scale (window r3, entry r2); other modes keep 18px/12px.
+    window_radius = c.get("radius_r3", "18px")
+    entry_radius = c.get("radius_r2", "12px")
+    entry_padding, rows = (
+        (
+            f"\n  padding: {c['space_s2']} {c['space_s3']};",
+            f"""
+listview {{ spacing: {c["space_s1"]}; }}
+
+element {{
+  padding: {c["space_s2"]} {c["space_s3"]};
+  border-radius: {entry_radius};
+}}
+""",
+        )
+        if _is_light_chrome(c)
+        else ("", "")
+    )
     return f"""/* Dreamcoder color layer for Rofi. */
 * {{
   background: {c["panel_rgba"]};
@@ -198,7 +312,7 @@ window {{
   background-color: @background;
   border: 1px;
   border-color: @border-ui;
-  border-radius: 18px;
+  border-radius: {window_radius};
 }}
 
 entry {{
@@ -206,9 +320,9 @@ entry {{
   text-color: @foreground;
   border: 1px;
   border-color: @focus;
-  border-radius: 12px;
+  border-radius: {entry_radius};{entry_padding}
 }}
-
+{rows}
 element selected {{
   background-color: @selected;
   text-color: @foreground;
@@ -294,6 +408,7 @@ def rofi_matugen_content(c: dict[str, str]) -> str:
 
     r, g, b = _hex_to_rgb_int(c["bg"])
     bg_rgba = _rgb(r, g, b, 0.96)
+    shadow = c.get("shadow_ink", "#000000")
 
     return f"""/* Dreamcoder colors for ML4W Rofi — only replaces Matugen color values. */
 * {{
@@ -331,8 +446,8 @@ def rofi_matugen_content(c: dict[str, str]) -> str:
     on-surface-variant: {c["muted"]};
     outline: {c["border"]};
     outline-variant: {c["border_ui"]};
-    shadow: #000000;
-    scrim: #000000;
+    shadow: {shadow};
+    scrim: {shadow};
     inverse-surface: {c["text"]};
     inverse-on-surface: {c["surface0"]};
     inverse-primary: {c["accent"]};

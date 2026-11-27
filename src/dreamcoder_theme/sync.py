@@ -63,6 +63,11 @@ from .renderers import (
     zellij_content,
     zsh_syntax_content,
 )
+from .renderers_light_files import (
+    LIGHT_FILES,
+    ZELLIJ_LIGHT_CONFIG,
+    zellij_light_config_content,
+)
 from .renderers_orca import sync_orca_theme
 from .settings import (
     ROOT,
@@ -888,6 +893,21 @@ def sync_herdr_repo_variants(
     return changes
 
 
+def sync_light_files(light: dict[str, str]) -> list[bool]:
+    """Write the Light-only files (``renderers_light_files``) from the Light palette.
+
+    The Zellij Light config is spliced in place; without it (a partial
+    checkout) there is nothing to splice and nothing is created.
+    """
+    changes = [write_if_changed(ROOT / item.path, item.renderer(light)) for item in LIGHT_FILES]
+    config = ROOT / ZELLIJ_LIGHT_CONFIG
+    if config.is_file():
+        changes.append(
+            write_if_changed(config, zellij_light_config_content(light, config.read_text()))
+        )
+    return changes
+
+
 def write_active_repo_file(path: Path, content: str) -> bool:
     """write_if_changed for a generated repository "active" mirror.
 
@@ -1116,6 +1136,9 @@ def sync_repo_snippets(variants: dict[str, dict[str, str]], active: dict[str, st
             zellij_content(variants["light"], "dreamcoder-light"),
         )
     )
+
+    # Light-only files: terminals, Nushell, Tmux, Yazi and the Zellij Light config.
+    repo_changes += sync_light_files(variants["light"])
 
     # Herdr repository variants are intentionally separate from live selection.
     repo_changes += sync_herdr_repo_variants(variants)

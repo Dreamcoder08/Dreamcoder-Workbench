@@ -1,34 +1,34 @@
-# Dreamcoder Light Theme for Alacritty
+# Dreamcoder Light theme for Alacritty
 # Auto-generated from tokens.json — do not edit manually
 
 [colors.primary]
-background = "#f3eadc"
-foreground = "#17120d"
+background = "#f9f6f2"
+foreground = "#1e1813"
 
 [colors.cursor]
-text = "#f3eadc"
-cursor = "#824f16"
+text = "#fefdfa"
+cursor = "#874004"
 
 [colors.selection]
-text = "#f3eadc"
-background = "#824f16"
+text = "#1e1813"
+background = "#f1d7c1"
 
 [colors.normal]
-black = "#17120d"
-red = "#b85c2a"
-green = "#5a7a4c"
-yellow = "#824f16"
-blue = "#3a7bc8"
-magenta = "#7a5c85"
-cyan = "#3a7bc8"
-white = "#f3eadc"
+black = "#5e5d5d"
+red = "#9c2024"
+green = "#1b672f"
+yellow = "#6e5201"
+blue = "#0a5b8f"
+magenta = "#81386b"
+cyan = "#574894"
+white = "#2b241e"
 
 [colors.bright]
-black = "#8a7e72"
-red = "#b85c2a"
-green = "#5a7a4c"
-yellow = "#824f16"
-blue = "#3a7bc8"
-magenta = "#7a5c85"
-cyan = "#3a7bc8"
-white = "#f3eadc"
+black = "#4f463e"
+red = "#ad4749"
+green = "#376a43"
+yellow = "#6f5c24"
+blue = "#3577a1"
+magenta = "#975a83"
+cyan = "#266669"
+white = "#1e1813"

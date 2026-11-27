@@ -21,10 +21,9 @@ from dreamcoder_theme.renderers_kitty import kitty_content
 DARK: Palette = dict(VARIANTS["dark"])
 
 
-def test_canonical_modes_are_distinct_from_derived_render_variants() -> None:
-    assert {"light", "dusk", "dark"} == CANONICAL_MODES
+def test_canonical_modes_are_the_render_variants() -> None:
+    assert {"light", "dark"} == CANONICAL_MODES
     assert {"light", "dark"} == ALL_RENDER_VARIANTS
-    assert "dusk" not in ALL_RENDER_VARIANTS
 
 
 class TestFunctionRendererConformance:

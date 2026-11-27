@@ -1,4 +1,4 @@
--- WezTerm configuration for Dreamcoder OS
+-- WezTerm configuration for Dreamcoder Workbench
 -- https://github.com/dreamcoder08/dreamcoder-dots
 
 local wez = require 'wezterm'

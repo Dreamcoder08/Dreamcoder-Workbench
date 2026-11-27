@@ -24,7 +24,7 @@ type NonInteractiveConfig struct {
 func RunNonInteractive(config NonInteractiveConfig) error {
 	platform := system.DetectPlatform()
 
-	fmt.Println("🎨 Dreamcoder OS - Non-Interactive Installer")
+	fmt.Println("🎨 Dreamcoder Workbench - Non-Interactive Installer")
 	fmt.Printf("Platform: %s/%s (%s)\n", platform.OS, platform.Arch, platform.Distro)
 
 	// Resolve dotfiles directory

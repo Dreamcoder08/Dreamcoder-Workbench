@@ -13,14 +13,14 @@ import (
 func DoctorCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "doctor",
-		Short: "Check health of Dreamcoder OS installation",
+		Short: "Check health of Dreamcoder Workbench installation",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			green := color.New(color.FgGreen).SprintFunc()
 			dim := color.New(color.FgHiBlack).SprintFunc()
 
 			platform := system.DetectPlatform()
 
-			fmt.Println("🔍 Dreamcoder OS Doctor")
+			fmt.Println("🔍 Dreamcoder Workbench Doctor")
 			fmt.Println("========================")
 			fmt.Printf("Platform: %s/%s", runtime.GOOS, runtime.GOARCH)
 			if platform.Distro != "" {

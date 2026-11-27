@@ -1,49 +1,49 @@
--- Dreamcoder Light Theme for WezTerm
+-- Dreamcoder Light theme for WezTerm
 -- Auto-generated from tokens.json — do not edit manually
 
 local M = {}
 
 M.colors = {
-    foreground = "#17120d",
-    background = "#f3eadc",
-    cursor_bg = "#824f16",
-    cursor_fg = "#f3eadc",
-    cursor_border = "#824f16",
-    selection_bg = "#824f16",
-    selection_fg = "#f3eadc",
+    foreground = "#1e1813",
+    background = "#f9f6f2",
+    cursor_bg = "#874004",
+    cursor_fg = "#fefdfa",
+    cursor_border = "#874004",
+    selection_bg = "#f1d7c1",
+    selection_fg = "#1e1813",
     ansi = {
-        "#17120d",  -- black
-        "#b85c2a",  -- red
-        "#5a7a4c",  -- green
-        "#824f16",  -- yellow
-        "#3a7bc8",  -- blue
-        "#7a5c85",  -- magenta
-        "#3a7bc8",  -- cyan
-        "#f3eadc",  -- white
+        "#5e5d5d",  -- black
+        "#9c2024",  -- red
+        "#1b672f",  -- green
+        "#6e5201",  -- yellow
+        "#0a5b8f",  -- blue
+        "#81386b",  -- magenta
+        "#574894",  -- cyan
+        "#2b241e",  -- white
     },
     brights = {
-        "#8a7e72",  -- black
-        "#b85c2a",  -- red
-        "#5a7a4c",  -- green
-        "#824f16",  -- yellow
-        "#3a7bc8",  -- blue
-        "#7a5c85",  -- magenta
-        "#3a7bc8",  -- cyan
-        "#f3eadc",  -- white
+        "#4f463e",  -- black
+        "#ad4749",  -- red
+        "#376a43",  -- green
+        "#6f5c24",  -- yellow
+        "#3577a1",  -- blue
+        "#975a83",  -- magenta
+        "#266669",  -- cyan
+        "#1e1813",  -- white
     },
     tab_bar = {
-        background = "#e8dfd0",
+        background = "#f2eee9",
         active_tab = {
-            bg_color = "#d9cfc0",
-            fg_color = "#824f16",
+            bg_color = "#e3ddd5",
+            fg_color = "#874004",
         },
         inactive_tab = {
-            bg_color = "#e8dfd0",
-            fg_color = "#8a7e72",
+            bg_color = "#f2eee9",
+            fg_color = "#5f544c",
         },
         inactive_tab_hover = {
-            bg_color = "#d9cfc0",
-            fg_color = "#824f16",
+            bg_color = "#e3ddd5",
+            fg_color = "#874004",
         },
     },
 }

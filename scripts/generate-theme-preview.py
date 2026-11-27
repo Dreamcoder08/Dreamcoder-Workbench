@@ -192,7 +192,7 @@ def main():
     parts += [
         "## Design notes",
         "",
-        "- Dark mode uses a pure black canvas reserved by `surface_policy`; light and dusk modes avoid pure black and pure white.",
+        "- Dark mode uses a pure black canvas reserved by `surface_policy`; light mode avoids pure black and pure white.",
         "- Main text targets AAA (WCAG 2) and APCA Lc ≥ 75 for long coding sessions.",
         "- Cocoa/Lúcuma accents are identity colors in light; Dreamcoder Dark uses indigo, violet, icy blue, soft rose, and pale gold for dark-mode personality.",
         "- UI affordance tokens (`border_ui`, `border_hi`, `focus`) target at least 3:1 against the main background.",

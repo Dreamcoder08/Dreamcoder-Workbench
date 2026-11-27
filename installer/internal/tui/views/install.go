@@ -216,7 +216,7 @@ func (m InstallProgressModel) View() string {
 		m.height = 24
 	}
 
-	title := styles.TitleStyle.Render("📦 Installing Dreamcoder OS")
+	title := styles.TitleStyle.Render("📦 Installing Dreamcoder Workbench")
 
 	// Count totals
 	total := 0

@@ -21,3 +21,17 @@
 #workspaces button.active {
     color: @primary;
 }
+
+/* Count badges are a pigment wash over paper, never a saturated solid (Light
+ * semantic chrome rule; GTK CSS cannot tell modes apart, so Dark gets it too).
+ * ML4W fills `#custom-updates.red` with @error and `.yellow` with @tertiary;
+ * the wash below uses only the live colour-bridge variables, so no hex is copied.
+ * The count is information, not an error, so every updates state is the same
+ * accent chip. */
+#custom-updates,
+#custom-updates.green,
+#custom-updates.yellow,
+#custom-updates.red {
+    background-color: alpha(@primary, 0.14);
+    color: @primary;
+}

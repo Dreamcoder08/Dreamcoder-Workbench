@@ -4,7 +4,7 @@ import "github.com/spf13/cobra"
 
 var rootCmd = &cobra.Command{
 	Use:   "dreamcoder-dots",
-	Short: "Dreamcoder OS - Token-governed visual operating layer",
+	Short: "Dreamcoder Workbench - Token-governed visual operating layer",
 }
 
 func RootCmd() *cobra.Command {

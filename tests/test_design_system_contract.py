@@ -27,18 +27,18 @@ def tokens():
     return load_tokens(THEME_ROOT / "tokens.json")
 
 
-def test_contract_and_tokens_schemas_require_three_modes(contract, tokens):
+def test_contract_and_tokens_schemas_require_two_modes(contract, tokens):
     contract_schema = json.loads((THEME_ROOT / "design-system.schema.json").read_text())
     token_schema = json.loads((THEME_ROOT / "tokens.schema.json").read_text())
     jsonschema.validate(contract, contract_schema)
     jsonschema.validate(tokens, token_schema)
 
-    assert set(tokens["modes"]) == {"light", "dusk", "dark"}
+    assert set(tokens["modes"]) == {"light", "dark"}
     assert "dark_oled" not in tokens
     assert "avoid_pure_black_white" not in tokens["guardrails"]
 
     incomplete = copy.deepcopy(tokens)
-    del incomplete["modes"]["dusk"]
+    del incomplete["modes"]["light"]
     with pytest.raises(jsonschema.ValidationError):
         jsonschema.validate(incomplete, token_schema)
 
@@ -67,10 +67,10 @@ def test_dark_metadata_is_owned_by_the_canonical_dark_mode(tokens):
 
 
 def test_roles_are_traceable_to_canonical_tokens(contract, tokens):
-    resolved = resolve_role(contract, tokens, "dusk", "selection.text")
+    resolved = resolve_role(contract, tokens, "light", "selection.text")
 
-    assert resolved.value == tokens["modes"]["dusk"]["selection_fg"]
-    assert resolved.source == "modes.dusk.selection_fg"
+    assert resolved.value == tokens["modes"]["light"]["selection_fg"]
+    assert resolved.source == "modes.light.selection_fg"
     assert resolved.chain == ("selection.text", "text", "background")
 
 
@@ -135,7 +135,7 @@ def test_adapter_parity_rejects_semantic_provenance_drift(contract, tokens):
     )
 
 
-def test_missing_dusk_target_role_and_mapping_fail_explicitly(contract, tokens):
+def test_missing_target_mode_role_and_mapping_fail_explicitly(contract, tokens):
     broken = copy.deepcopy(contract)
     del broken["targets"]["opencode"]["modes"][-1]
     del broken["targets"]["kitty"]["fields"]["focus"]
@@ -144,7 +144,7 @@ def test_missing_dusk_target_role_and_mapping_fail_explicitly(contract, tokens):
     findings = evaluate_contract(broken, tokens)
 
     assert any(
-        f.code == "MISSING_TARGET_MODE" and f.target == "opencode" and f.mode == "dusk"
+        f.code == "MISSING_TARGET_MODE" and f.target == "opencode" and f.mode == "light"
         for f in findings
     )
     assert any(
@@ -193,10 +193,10 @@ def _summaries(findings):
 
 def test_missing_canonical_mode_is_reported_once_and_skips_rendering(contract, tokens):
     broken = copy.deepcopy(tokens)
-    del broken["modes"]["dusk"]
+    del broken["modes"]["light"]
 
     assert _summaries(evaluate_contract(contract, broken)) == [
-        ("MISSING_MODE", None, "dusk", None, "canonical mode 'dusk' is missing"),
+        ("MISSING_MODE", None, "light", None, "canonical mode 'light' is missing"),
     ]
 
 
@@ -212,7 +212,7 @@ def test_unresolvable_role_source_is_reported_per_mode(contract, tokens):
             "panel",
             f"missing canonical role source: modes.{mode}.nope",
         )
-        for mode in ("dark", "dusk", "light")
+        for mode in ("dark", "light")
     ]
 
 
@@ -222,7 +222,7 @@ def test_unknown_renderer_is_a_render_failure_per_mode(contract, tokens):
 
     assert _summaries(evaluate_contract(broken, tokens)) == [
         ("RENDER_FAILURE", "kitty", mode, None, "unknown renderer callable: nope")
-        for mode in ("dark", "dusk", "light")
+        for mode in ("dark", "light")
     ]
 
 
@@ -232,7 +232,7 @@ def test_mapping_to_unknown_role_is_invalid_provenance(contract, tokens):
 
     assert _summaries(evaluate_contract(broken, tokens)) == [
         ("SEMANTIC_PROVENANCE_INVALID", "kitty", mode, "text", "unknown role: missing-role")
-        for mode in ("dark", "dusk", "light")
+        for mode in ("dark", "light")
     ]
 
 

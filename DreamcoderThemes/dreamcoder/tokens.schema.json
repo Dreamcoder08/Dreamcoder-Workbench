@@ -1,16 +1,143 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Dreamcoder OS design tokens",
+  "title": "Dreamcoder Workbench design tokens",
   "type": "object",
   "required": ["name", "version", "modes", "guardrails"],
   "properties": {
     "$schema": { "type": "string" },
-    "name": { "const": "Dreamcoder OS" },
+    "name": { "const": "Dreamcoder Workbench" },
     "version": { "type": "integer", "minimum": 1 },
     "description": { "type": "string" },
+    "primitives": {
+      "description": "Tier 1: named OKLCH primitives per mode (family.lightness-per-mille).",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "propertyNames": { "$ref": "#/$defs/primitive_name" },
+        "additionalProperties": { "$ref": "#/$defs/oklch" }
+      }
+    },
+    "bindings": {
+      "description": "Tier 2 provenance: semantic token -> primitive; modes.<mode> must equal the resolved primitive.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": { "$ref": "#/$defs/primitive_name" }
+      }
+    },
+    "components": {
+      "description": "Tier 3: light and elevation geometry; per-mode colour is a primitive name.",
+      "type": "object",
+      "required": ["elevation", "radius", "border", "spacing", "motion", "typography", "wallpaper"],
+      "properties": {
+        "elevation": {
+          "description": "Key (0 z/2 z) plus ambient (0 0 2z) shadow per level; z in px, alphas 0..1.",
+          "type": "object",
+          "required": ["ink", "levels"],
+          "properties": {
+            "ink": {
+              "description": "Shadow colour per mode: a warm-ink primitive, never black.",
+              "type": "object",
+              "additionalProperties": { "$ref": "#/$defs/primitive_name" }
+            },
+            "levels": {
+              "type": "object",
+              "required": ["e1", "e2", "e3", "e4"],
+              "propertyNames": { "enum": ["e1", "e2", "e3", "e4"] },
+              "additionalProperties": { "$ref": "#/$defs/elevation_level" }
+            }
+          },
+          "additionalProperties": false
+        },
+        "radius": {
+          "description": "Radius scale in px.",
+          "type": "object",
+          "required": ["r1", "r2", "r3"],
+          "propertyNames": { "enum": ["r1", "r2", "r3"] },
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "border": {
+          "type": "object",
+          "required": ["hairline"],
+          "properties": {
+            "hairline": {
+              "type": "object",
+              "required": ["width", "color"],
+              "properties": {
+                "width": { "type": "integer", "minimum": 1 },
+                "color": {
+                  "type": "object",
+                  "additionalProperties": { "$ref": "#/$defs/primitive_name" }
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "spacing": {
+          "description": "Spacing scale in px on a 4 px base grid.",
+          "type": "object",
+          "required": ["s1", "s2", "s3", "s4", "s6", "s8"],
+          "propertyNames": { "enum": ["s1", "s2", "s3", "s4", "s6", "s8"] },
+          "additionalProperties": { "type": "integer", "minimum": 4, "multipleOf": 4 }
+        },
+        "motion": {
+          "description": "Durations in ms (monotone, ~1.6x steps) and overshoot-free bezier curves.",
+          "type": "object",
+          "required": ["duration", "curve"],
+          "properties": {
+            "duration": {
+              "type": "object",
+              "required": ["quick", "base", "slow"],
+              "propertyNames": { "enum": ["quick", "base", "slow"] },
+              "additionalProperties": { "type": "integer", "minimum": 1 }
+            },
+            "curve": {
+              "description": "cubic-bezier x1 y1 x2 y2, every control value within [0, 1]: no overshoot.",
+              "type": "object",
+              "required": ["enter", "exit", "move"],
+              "propertyNames": { "enum": ["enter", "exit", "move"] },
+              "additionalProperties": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 4,
+                "items": { "$ref": "#/$defs/unit_range" }
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "typography": {
+          "description": "Font families recorded once for every mode.",
+          "type": "object",
+          "required": ["font_family"],
+          "properties": {
+            "font_family": {
+              "type": "object",
+              "required": ["mono", "ui"],
+              "properties": {
+                "mono": { "type": "string", "minLength": 1 },
+                "ui": { "type": "string", "minLength": 1 }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "wallpaper": {
+          "description": "Wallpaper <-> UI contract per mode, measured in OKLab on a downsample.",
+          "type": "object",
+          "required": ["light", "dark"],
+          "propertyNames": { "enum": ["light", "dark"] },
+          "additionalProperties": { "$ref": "#/$defs/wallpaper_contract" }
+        }
+      },
+      "additionalProperties": false
+    },
     "modes": {
       "type": "object",
-      "required": ["dark", "light", "dusk"],
+      "required": ["dark", "light"],
       "properties": {
         "dark": {
           "allOf": [
@@ -21,13 +148,8 @@
         "light": {
           "allOf": [
             { "$ref": "#/$defs/palette" },
-            { "$ref": "#/$defs/base_palette" }
-          ]
-        },
-        "dusk": {
-          "allOf": [
-            { "$ref": "#/$defs/palette" },
-            { "$ref": "#/$defs/base_palette" }
+            { "$ref": "#/$defs/base_palette" },
+            { "required": ["typography"] }
           ]
         }
       },
@@ -64,7 +186,6 @@
         "minimum_apca_ui_dark": { "type": "number", "minimum": 28 },
         "minimum_apca_on_accent": { "type": "number", "minimum": 60 },
         "light_hours_default": { "type": "string" },
-        "dusk_hours_default": { "type": "string" },
         "minimum_terminal_ansi_contrast": { "type": "number", "minimum": 4.5 },
         "minimum_terminal_cursor_contrast": {
           "type": "number",
@@ -80,6 +201,101 @@
   },
   "$defs": {
     "hex": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+    "oklch": {
+      "type": "string",
+      "pattern": "^oklch\\((0\\.[0-9]{4}|1\\.0000) 0\\.[0-3][0-9]{3} (3[0-5][0-9]|[12][0-9]{2}|[1-9]?[0-9])\\.[0-9]{2}\\)$"
+    },
+    "elevation_level": {
+      "type": "object",
+      "required": ["z", "key_alpha", "ambient_alpha"],
+      "properties": {
+        "z": { "type": "number", "exclusiveMinimum": 0 },
+        "key_alpha": { "type": "number", "minimum": 0, "maximum": 1 },
+        "ambient_alpha": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "unit_range": { "type": "number", "minimum": 0, "maximum": 1 },
+    "wallpaper_contract": {
+      "type": "object",
+      "required": ["size", "lightness", "chroma", "hue", "safe_zone", "readability"],
+      "properties": {
+        "size": {
+          "type": "object",
+          "required": ["min_width", "min_height", "aspect"],
+          "properties": {
+            "min_width": { "type": "integer", "minimum": 1 },
+            "min_height": { "type": "integer", "minimum": 1 },
+            "aspect": {
+              "type": "object",
+              "required": ["width", "height", "tolerance"],
+              "properties": {
+                "width": { "type": "integer", "minimum": 1 },
+                "height": { "type": "integer", "minimum": 1 },
+                "tolerance": { "type": "number", "minimum": 0, "maximum": 0.5 }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "lightness": {
+          "description": "Allowed band of the mean OKLab L.",
+          "type": "object",
+          "required": ["min", "max"],
+          "properties": {
+            "min": { "$ref": "#/$defs/unit_range" },
+            "max": { "$ref": "#/$defs/unit_range" }
+          },
+          "additionalProperties": false
+        },
+        "chroma": {
+          "type": "object",
+          "required": ["p95_max", "mean_max"],
+          "properties": {
+            "p95_max": { "type": "number", "minimum": 0, "maximum": 0.4 },
+            "mean_max": { "type": "number", "minimum": 0, "maximum": 0.4 }
+          },
+          "additionalProperties": false
+        },
+        "hue": {
+          "description": "Chroma-weighted mean hue window in degrees; skipped below min_mean_chroma.",
+          "type": "object",
+          "required": ["center", "tolerance", "min_mean_chroma"],
+          "properties": {
+            "center": { "type": "number", "minimum": 0, "exclusiveMaximum": 360 },
+            "tolerance": { "type": "number", "exclusiveMinimum": 0, "maximum": 180 },
+            "min_mean_chroma": { "type": "number", "minimum": 0, "maximum": 0.4 }
+          },
+          "additionalProperties": false
+        },
+        "safe_zone": {
+          "description": "Top and bottom bar bands: fraction of the height each, lightness spread, optional floor.",
+          "type": "object",
+          "required": ["fraction", "max_std_lightness"],
+          "properties": {
+            "fraction": { "type": "number", "exclusiveMinimum": 0, "maximum": 0.5 },
+            "max_std_lightness": { "type": "number", "minimum": 0, "maximum": 1 },
+            "min_mean_lightness": { "$ref": "#/$defs/unit_range" }
+          },
+          "additionalProperties": false
+        },
+        "readability": {
+          "description": "WCAG ratios of text over bar and panel composited on the worst wallpaper pixels.",
+          "type": "object",
+          "required": ["worst_fraction", "text_min", "muted_min", "panel_text_min"],
+          "properties": {
+            "worst_fraction": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+            "text_min": { "type": "number", "minimum": 1, "maximum": 21 },
+            "muted_min": { "type": "number", "minimum": 1, "maximum": 21 },
+            "panel_text_min": { "type": "number", "minimum": 1, "maximum": 21 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "primitive_name": { "type": "string", "pattern": "^[a-z][a-z_]*\\.[0-9]{3}$" },
     "rgba_color": {
       "type": "string",
       "pattern": "^rgba\\(\\s*\\d{1,3}\\s*,\\s*\\d{1,3}\\s*,\\s*\\d{1,3}\\s*,\\s*(0|1|0?\\.\\d+)\\s*\\)$"
@@ -200,7 +416,7 @@
             "prompt_accent_2": { "$ref": "#/$defs/color_value" },
             "aliases": { "$ref": "#/$defs/dark_aliases" },
             "effects": { "$ref": "#/$defs/dark_effects" },
-            "typography": { "$ref": "#/$defs/dark_typography" },
+            "typography": { "$ref": "#/$defs/typography" },
             "surface_policy": { "$ref": "#/$defs/dark_surface_policy" }
           },
           "additionalProperties": { "$ref": "#/$defs/color_value" }
@@ -210,7 +426,6 @@
             "anyOf": [
               { "required": ["aliases"] },
               { "required": ["effects"] },
-              { "required": ["typography"] },
               { "required": ["surface_policy"] }
             ]
           }
@@ -225,7 +440,7 @@
           "required": ["glow_brand", "glow_focus", "glow_error"],
           "additionalProperties": { "type": "string", "minLength": 1 }
         },
-        "dark_typography": {
+        "typography": {
           "type": "object",
           "required": ["body_weight", "emphasis_weight", "heading_weight", "letter_spacing", "uppercase_letter_spacing"],
           "properties": {

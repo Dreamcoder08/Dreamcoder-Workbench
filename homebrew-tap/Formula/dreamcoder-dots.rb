@@ -1,5 +1,5 @@
 class DreamcoderDots < Formula
-  desc "Dreamcoder OS - Token-governed visual operating layer"
+  desc "Dreamcoder Workbench - Token-governed visual operating layer"
   homepage "https://github.com/dreamcoder08/dreamcoder-dots"
   version "2.0.0"
   license "MIT"

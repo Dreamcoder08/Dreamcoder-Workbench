@@ -34,7 +34,7 @@ def test_manifest_loads_complete_audited_classification_in_stable_order():
     manifest = load_target_manifest(MANIFEST)
 
     assert manifest.ids == tuple(sorted(manifest.ids))
-    assert len(manifest.targets) == 37
+    assert len(manifest.targets) == 36
     assert manifest.require("kitty").classification == "required"
     assert manifest.require("herdr").classification == "excluded"
     assert manifest.require("herdr").reason.startswith("gated:")
@@ -66,8 +66,8 @@ def test_manifest_rejects_missing_or_invalid_input(tmp_path, path, message):
             "duplicate target id",
         ),
         (
-            lambda payload: payload["targets"][0]["render"].update(modes=["dark", "dusk"]),
-            "dusk is not a runtime render mode",
+            lambda payload: payload["targets"][0]["render"].update(modes=["dark", "invalid"]),
+            "render variants must be dark and light",
         ),
     ],
 )

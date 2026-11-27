@@ -4,9 +4,9 @@
   "overrides": {
     "diffAdded": "#dee5db",
     "diffAddedDimmed": "#eeefe8",
-    "diffAddedWord": "#c0d2c0",
-    "diffRemoved": "#eeddd9",
-    "diffRemovedDimmed": "#f5ece8",
-    "diffRemovedWord": "#e2c0bc"
+    "diffAddedWord": "#bfd1bf",
+    "diffRemoved": "#eedcd9",
+    "diffRemovedDimmed": "#f4ebe8",
+    "diffRemovedWord": "#e1bebc"
   }
 }

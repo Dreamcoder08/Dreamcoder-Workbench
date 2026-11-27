@@ -48,7 +48,7 @@ func (m DoctorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m DoctorModel) View() string {
-	title := styles.TitleStyle.Render("🔍 Dreamcoder OS Doctor")
+	title := styles.TitleStyle.Render("🔍 Dreamcoder Workbench Doctor")
 	separator := styles.CommentStyle.Render("========================")
 
 	// Platform info

@@ -26,10 +26,9 @@ TOOLKIT_IDS = frozenset({"gtk3", "gtk4", "qt6ct"})
 EXPECTED_IDS = FROZEN_IDS | TOOLKIT_IDS
 
 # Selector-only / excluded / scheduler / maintenance / unrelated rollout records
-# from the 37-ID manifest that must NEVER appear as renderer registrations.
+# from the 36-ID manifest that must NEVER appear as renderer registrations.
 NON_RENDERER_ROLLOUT_RECORDS = {
     "dreamcoder-doctor-maintenance",
-    "dreamcoder-dusk-runtime",
     "dreamcoder-unrelated-application-settings",
     "dreamcoder-scheduler",
     "dreamcoder-maintenance",

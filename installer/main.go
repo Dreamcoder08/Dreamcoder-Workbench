@@ -25,7 +25,7 @@ func main() {
 
 	rootCmd := &cobra.Command{
 		Use:     "dreamcoder-dots",
-		Short:   "Dreamcoder OS - Token-governed visual operating layer",
+		Short:   "Dreamcoder Workbench - Token-governed visual operating layer",
 		Version: version.Version,
 		RunE: func(c *cobra.Command, args []string) error {
 			if nonInteractive {

@@ -40,9 +40,12 @@ complete desktop or compatibility for every component.
 ## Develop and maintain
 
 - [Contributing](../CONTRIBUTING.md) covers development setup, tests and pull requests.
-- [Design system](DREAMCODER_DESIGN_SYSTEM.md) describes visual identity and
-  color guidelines; [dark theme validation](configuration/dark-theme-validation.md)
+- [Design system](DREAMCODER_DESIGN_SYSTEM.md) is the single source for token
+  tiers, the Light material model, elevation, rhythm, the wallpaper contract and
+  theme tooling; [dark theme validation](configuration/dark-theme-validation.md)
   records validation details.
+- [Wallpaper and palette setup](../scripts/WALLPAPER_SETUP.md) explains how
+  applying a wallpaper re-themes the workbench.
 - [Control Center](DREAMCODER_CONTROL_CENTER.md) describes the control dashboard.
 - [PyPI publishing](pypi-publishing.md) covers package release maintenance.
 - [Operator report](generated/DREAMCODER_OPERATOR_REPORT.md) is a generated

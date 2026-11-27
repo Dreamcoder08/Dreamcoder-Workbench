@@ -58,22 +58,21 @@ def test_adaptive_dark_preserves_black_canvas_and_neutral_surfaces(wallpaper_sch
     assert base == original
 
 
-@pytest.mark.parametrize("mode", ("light", "dusk"))
+@pytest.mark.parametrize("mode", ("light",))
 def test_adaptive_light_modes_remain_unchanged(mode, wallpaper_scheme):
     adaptive = adaptive_palette(VARIANTS[mode], mode, Path("unused-wallpaper.png"), True)
     fingerprint = hashlib.sha256(json.dumps(adaptive, sort_keys=True).encode()).hexdigest()
 
-    # Full-output snapshots captured before the Dark-only policy fix.
+    # Full-output snapshots (light re-pinned for the T3 material model).
     assert (
         fingerprint
         == {
-            "light": "0b065fdfe8dcb9f5c8ea47f9176fddcc0d9b904fde1b9109e20c363294c02273",
-            "dusk": "4489a603fff0e4131bd0379426d288b8ebcc59e3281d864fe8131b5b3556160e",
+            "light": "0f8e448fb478a1ebfa618d38bd163487c633918d7cda80fb47ee900a1cc91a9e",
         }[mode]
     )
 
 
-@pytest.mark.parametrize("mode", ("dark", "light", "dusk"))
+@pytest.mark.parametrize("mode", ("dark", "light"))
 def test_adaptive_palette_without_scheme_preserves_base(mode, monkeypatch):
     monkeypatch.setattr("dreamcoder_theme.palette.matugen_scheme", lambda *args: {})
     base = VARIANTS[mode].copy()

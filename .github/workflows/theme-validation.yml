@@ -71,6 +71,36 @@ jobs:
         run: |
           git diff --exit-code docs/generated/dreamcoder-theme-preview.md || (echo "::error::Theme preview not regenerated" && exit 1)
 
+  theme-check:
+    name: Theme check (make theme-check)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      # ImageMagick runs the wallpaper contract (IM6 convert/identify on the runner).
+      - name: Install ImageMagick and GTK fixtures
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends imagemagick libgtk-3-dev libgtk-4-dev
+
+      - name: Install package
+        run: |
+          pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      # Regenerates every output from tokens.json, fails on drift, then runs the
+      # health gate, the theme tests and the wallpaper contract. HOME points at a
+      # runner temp dir so the repo-only syncs never read runner home state.
+      - name: make theme-check
+        env:
+          HOME: ${{ runner.temp }}/dreamcoder-home
+        run: |
+          mkdir -p "$HOME"
+          make theme-check PYTHON=python
+
   integrity:
     name: Git object store integrity
     runs-on: ubuntu-latest

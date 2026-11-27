@@ -19,7 +19,7 @@ dark | light)
   fi
   ;;
 status)
-  echo "=== Dreamcoder OS Status ==="
+  echo "=== Dreamcoder Workbench Status ==="
   echo "Theme mode: ${DREAMCODER_THEME_MODE:-dark}"
   echo "Dotfiles dir: "
   echo "Git branch: $(cd "${DREAMCODER_DOTS_DIR}" && git branch --show-current 2>/dev/null || echo 'N/A')"

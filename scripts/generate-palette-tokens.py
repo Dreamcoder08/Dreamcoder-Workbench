@@ -5,13 +5,25 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 TOKENS_FILE = ROOT / "DreamcoderThemes" / "dreamcoder" / "tokens.json"
 OUTPUT = ROOT / "src" / "dreamcoder_theme" / "palette_tokens.py"
+if str(ROOT / "src") not in sys.path:
+    sys.path.insert(0, str(ROOT / "src"))
+
+from dreamcoder_theme.color_space import (  # noqa: E402
+    hex_to_oklch,
+    oklch_to_hex,
+)
+from dreamcoder_theme.color_space import (  # noqa: E402
+    hex_to_unit_rgb as hex_to_rgb,
+)
+from dreamcoder_theme.color_space import (  # noqa: E402
+    unit_rgb_to_hex as rgb_to_hex,
+)
 
 ANSI_KEY_NAMES = [
     "surface0",
@@ -31,70 +43,6 @@ ANSI_KEY_NAMES = [
     "focus_bright",
     "text",
 ]
-
-
-def hex_to_rgb(value: str) -> tuple[float, float, float]:
-    value = value.lstrip("#")
-    return (
-        int(value[0:2], 16) / 255,
-        int(value[2:4], 16) / 255,
-        int(value[4:6], 16) / 255,
-    )
-
-
-def rgb_to_hex(rgb: tuple[float, float, float]) -> str:
-    return "#" + "".join(f"{max(0, min(255, round(c * 255))):02x}" for c in rgb)
-
-
-_SRGB_BREAK = 0.04045
-_SRGB_LINEAR_BREAK = 0.0031308
-
-
-def srgb_to_linear(c: float) -> float:
-    return c / 12.92 if c <= _SRGB_BREAK else ((c + 0.055) / 1.055) ** 2.4
-
-
-def linear_to_srgb(c: float) -> float:
-    return 12.92 * c if c <= _SRGB_LINEAR_BREAK else 1.055 * (c ** (1 / 2.4)) - 0.055
-
-
-def hex_to_oklch(value: str) -> tuple[float, float, float]:
-    r, g, b = hex_to_rgb(value)
-    lr, lg, lb = srgb_to_linear(r), srgb_to_linear(g), srgb_to_linear(b)
-    lms_l = 0.4122214708 * lr + 0.5363325363 * lg + 0.0514459929 * lb
-    lms_m = 0.2119034982 * lr + 0.6806995451 * lg + 0.1073969566 * lb
-    lms_s = 0.0883024619 * lr + 0.2817188376 * lg + 0.6299787005 * lb
-    lms_l_ = lms_l ** (1 / 3)
-    lms_m_ = lms_m ** (1 / 3)
-    lms_s_ = lms_s ** (1 / 3)
-    lightness = 0.2104542553 * lms_l_ + 0.7936177850 * lms_m_ - 0.0040720468 * lms_s_
-    a = 1.9779984951 * lms_l_ - 2.4285922050 * lms_m_ + 0.4505937099 * lms_s_
-    b_ = 0.0259040371 * lms_l_ + 0.7827717662 * lms_m_ - 0.8086757660 * lms_s_
-    chroma = math.hypot(a, b_)
-    hue = math.degrees(math.atan2(b_, a)) % 360
-    return lightness, chroma, hue
-
-
-def oklch_to_hex(lightness: float, chroma: float, hue: float) -> str:
-    h_rad = math.radians(hue)
-    a = chroma * math.cos(h_rad)
-    b_ = chroma * math.sin(h_rad)
-    l_ = lightness + 0.3963377774 * a + 0.2158037573 * b_
-    m_ = lightness - 0.1055613458 * a - 0.0638541728 * b_
-    s_ = lightness - 0.0894841775 * a - 1.2914855480 * b_
-    l_c = l_**3
-    m_c = m_**3
-    s_c = s_**3
-    lr = +4.0767416621 * l_c - 3.3077115913 * m_c + 0.2309699292 * s_c
-    lg = -1.2684380046 * l_c + 2.6097574011 * m_c - 0.3413193965 * s_c
-    lb = -0.0041960863 * l_c - 0.7034186147 * m_c + 1.7076147010 * s_c
-    return rgb_to_hex(
-        (
-            linear_to_srgb(max(0, min(1, lr))),
-            linear_to_srgb(max(0, min(1, lg))),
-            linear_to_srgb(max(0, min(1, lb))),
-        )
-    )
 
 
 def mix_hex(left: str, right: str, amount: float) -> str:
@@ -234,15 +182,15 @@ def enrich_tokens(tokens: dict[str, object]) -> dict[str, object]:
 
 
 def render_from_tokens(tokens: dict[str, object]) -> str:
-    """Render deterministic static tokens for the three declared modes."""
+    """Render deterministic static tokens for the two declared modes."""
     enriched = enrich_tokens(tokens)
     modes = enriched["modes"]
     if not isinstance(modes, dict):
         raise ValueError("generated modes must be an object")
-    missing = [name for name in ("dark", "light", "dusk") if name not in modes]
+    missing = [name for name in ("dark", "light") if name not in modes]
     if missing:
         raise ValueError(f"missing required modes: {', '.join(missing)}")
-    return render_palette_tokens({name: modes[name] for name in ("dark", "light", "dusk")})
+    return render_palette_tokens({name: modes[name] for name in ("dark", "light")})
 
 
 def _display_path(path: Path) -> Path:

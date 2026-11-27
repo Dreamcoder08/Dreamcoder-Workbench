@@ -24,7 +24,6 @@ AUDITED_TARGET_IDS = (
     "delta",
     "doctor-maintenance",
     "dunst",
-    "dusk-runtime",
     "firefox",
     "fzf",
     "generated-repository-contract",
@@ -131,8 +130,6 @@ def _validate_records(records: list[Any]) -> None:
         render = record.get("render")
         if isinstance(render, dict):
             modes = set(render["modes"])
-            if "dusk" in modes:
-                raise ManifestError(f"dusk is not a runtime render mode: {target_id}")
             if modes != set(ALL_RENDER_VARIANTS):
                 raise ManifestError(f"render variants must be dark and light: {target_id}")
             for output in render["repository_outputs"].values():

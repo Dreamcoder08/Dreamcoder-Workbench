@@ -3,25 +3,25 @@
 name = "catppuccin"
 
 [theme.custom]
-accent = "#8b440c"
+accent = "#874004"
 panel_bg = "#f9f6f2"
 surface0 = "#fefdfa"
-surface1 = "#eee9e2"
+surface1 = "#ede9e3"
 surface_dim = "#f2eee9"
-overlay0 = "#645c53"
-overlay1 = "#5e574f"
-text = "#1e1814"
-subtext0 = "#352f29"
-mauve = "#853c70"
-green = "#1c6c31"
-yellow = "#795700"
-red = "#a12623"
-blue = "#125f94"
-teal = "#006973"
-peach = "#a73b15"
+overlay0 = "#5f544c"
+overlay1 = "#4f463e"
+text = "#1e1813"
+subtext0 = "#2b241e"
+mauve = "#81386b"
+green = "#1b672f"
+yellow = "#6e5201"
+red = "#9c2024"
+blue = "#0a5b8f"
+teal = "#016367"
+peach = "#753100"
 
 [ui]
-accent = "#8b440c"
+accent = "#874004"
 pane_scrollbars = false
 
 [keys]
