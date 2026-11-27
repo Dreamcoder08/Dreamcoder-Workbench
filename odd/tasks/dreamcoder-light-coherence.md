@@ -265,3 +265,7 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
   checker required IM7 `magick` while CI runners ship IM6 (`convert`/`identify` fallback, tested with PATH
   shims). CI: new `theme-check` job in `.github/workflows/theme-validation.yml` (Python 3.12, ImageMagick +
   GTK fixtures, HOME in runner temp, `make theme-check`), own commit, simulated on a fresh clone first.
+- L30 — CI job committed after a fresh-clone simulation (Python 3.12, HOME in temp): `make theme-check` exit 0,
+  343 theme tests, no drift. T14 benchmark in `odd/evidence/light-coherence/t14-benchmark.md`: leads on weakest
+  accent (6.44:1), muted text (6.82:1) and isoluminance (L spread 0.002); behind Catppuccin Latte / GitHub
+  Primer on min ΔE (15.1 vs 16.4/16.1, umber↔ochre) and GitHub on APCA body (99 vs 103, warm paper by design).
