@@ -17,7 +17,7 @@ Dreamcoder Workbench is a personal developer-experience design system for Arch L
 | [Rhythm](#rhythm) | 4 px grid, type contract, motion |
 | [Semantic chrome](#semantic-chrome) | Badges, tiles, borders and the wash rule |
 | [Wallpaper contract](#wallpaper-contract) | Measurable limits a wallpaper must meet |
-| [Tooling](#tooling) | Commands that verify and report |
+| [Tooling](#tooling) | Commands that verify and report, and the DTCG interoperability export |
 | [Component model](#component-model) | Cross-application primitives |
 | [Accessibility policy](#accessibility-policy) | WCAG and APCA floors |
 | [Governance](#governance) | How changes land |
@@ -157,12 +157,26 @@ Then check the result with `scripts/check-wallpaper.py` (below).
 | `make theme-diff [REF=origin/main]` / `scripts/theme-diff.py [REF]` | Perceptual regression report per semantic role between a git ref and the working tree: ΔE2000, WCAG and APCA deltas. A role at ΔE ≥ 2 is marked as visible; a contrast floor met in the base and missed in the head is reported as crossed (`--fail-on-floor` turns that into exit 1) |
 | `make specimen` / `scripts/generate-specimen.py` | Writes the deterministic Light specimen board below |
 | `scripts/check-wallpaper.py --mode light FILE…` | Checks images against the wallpaper contract; prints `OK FILE` or one finding per violated rule; exit 1 on any finding |
+| `make dtcg` / `scripts/export-dtcg.py [--output PATH]` | Writes the generated DTCG 2025.10 export, [Interoperability](#interoperability-dtcg-202510) below |
 | `scripts/finish-wallpaper.sh INPUT OUTPUT` | Finishing pipeline above |
 | `python scripts/verify-theme-health.py` | Blocking health gate: contract matrix, dual contrast gate, tier drift |
 
 ![Dreamcoder Light specimen: primitive ramps, roles on every surface with contrast numbers, elevation e0–e4 and the pigment ΔE matrix](generated/dreamcoder-light-specimen.svg)
 
 The board is computed from `tokens.json` with no timestamps or randomness, so the same tokens always give the same bytes and `git diff` shows any perceptual change. Regenerate it with `make specimen`.
+
+### Interoperability (DTCG 2025.10)
+
+`docs/generated/dreamcoder.tokens.json` exports the tokens in the stable [Design Tokens Community Group](https://www.designtokens.org/) 2025.10 format (Format and Color modules). Figma, Penpot and Style Dictionary 5 read this format. `tokens.json` stays the only source: the export is generated, deterministic and never edited by hand.
+
+| Group | Content |
+| --- | --- |
+| `primitive.light.<family>.<step>` | The 26 Light OKLCH primitives as `color` tokens (`oklch` components plus the exact sRGB `hex` fallback) |
+| `semantic.light.<role>` | Aliases such as `{primitive.light.ink.215}` following `bindings.light`; translucent roles are sRGB colours with `alpha` |
+| `semantic.dark.<role>` | sRGB colours, because Dark has no primitives yet |
+| `component.*` | Spacing and radius (`dimension`, px), motion durations (`duration`, ms) and curves (`cubicBezier`), Light elevation (`shadow` layers), hairline border and font families |
+
+Regenerate it with `make dtcg`; `make theme-check` and the preview pre-commit hook regenerate it and fail on drift, and `tests/test_dtcg_export.py` validates it against the official JSON Schema vendored in `tests/fixtures/dtcg/` (no network needed).
 
 ## Component model
 
@@ -183,6 +197,8 @@ Every new target must map these primitives explicitly. If a target lacks one, do
 ## Accessibility policy
 
 Dreamcoder Workbench uses a **dual contrast gate**: WCAG 2.2 is the legal accessibility floor, and APCA is an **independently blocking** perceptual gate. A pass on one metric never waives a failure on the other (CI/CD quality gates, [ADR-005](adr/0005-ci-cd-quality-gates.md)). Thresholds are read from the `tokens.json` guardrails, never duplicated as literals.
+
+As of the WCAG 3 Working Draft of 10 September 2026 the contrast algorithm is still undetermined and APCA is not adopted; WCAG 2.2 remains the legal floor and APCA stays a second, blocking check here.
 
 - WCAG AA (4.5:1) for semantic text tokens; AAA (7:1) target for main text where practical.
 - Terminal ANSI colours stay at WCAG AA against each mode background.
