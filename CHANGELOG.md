@@ -4,6 +4,10 @@
 
 ### Added
 
+- Dreamcoder Light material model: OKLCH primitives (paper, ink, clay and eight isoluminant pigments) bound to the semantic tokens, with material laws, CIEDE2000 distinctness and contrast floors pinned by tests.
+- Component tier in `tokens.json`: elevation (one overhead light, warm-ink shadows), radius, hairline border, 4 px spacing grid, typography contract and motion curves without overshoot.
+- Wallpaper contract (`scripts/check-wallpaper.py`) and 4K finishing pipeline (`scripts/finish-wallpaper.sh`).
+- `make theme-check` (also a CI job), `scripts/theme-diff.py` perceptual diff and the generated Light specimen board.
 - Process-local `dreamcoder-nmtui` launcher with terminal-native inverse selection, Fish/Zsh routing, and a Waybar default entry point; explicit Newt style overrides remain supported.
 - Conservative setup integration for the ML4W network launcher, preserving custom scripts, existing backups, and write-free dry runs.
 - PEP 621 packaging: `pyproject.toml` with setuptools build backend, `__version__` in package.
@@ -24,6 +28,9 @@
 
 ### Changed
 
+- Every Light colour file (Alacritty, WezTerm, Nushell, tmux, Yazi, Zellij) is generated from the tokens; Light badges are pigment washes and the window edge is a solid accent.
+- The project is named Dreamcoder Workbench in the installer, templates, release notes and config headers.
+- Removed the `dusk` mode, unused Zellij backups and foreign-theme layouts, mode-less theme mirrors, and the tracked installer binary.
 - Updated the README screenshot to show Dreamcoder Workbench in Light mode with Gentle Shell and its agent workspace.
 - Refreshed the active generated theme snapshot to Dreamcoder Light while retaining the named Dark variants.
 - **Prefix restructure**: 22 directories renamed with the `Dreamcoder*` prefix (Gentleman.Dots style). Config tools (Alacritty → DreamcoderAlacritty, Kitty → DreamcoderKitty, etc.), AI configs (Pi → DreamcoderPi, Codex-*→ DreamcoderCodex*, Antigravity → DreamcoderAntigravity), and assets (themes → DreamcoderThemes, Wallpapers → DreamcoderWallpapers, profiles → DreamcoderProfiles). Infra (src, tests, installer, scripts, docs) keeps standard names.
@@ -42,6 +49,7 @@
 
 ### Fixed
 
+- `lib/waybar.sh` installs the override when ML4W saves the theme selector without a trailing newline.
 - Bat caches rebuild after all theme writes and recover missing or stale compiled themes, including custom theme directories.
 - OpenCode surfaces follow the active mode with readable syntax and interface states.
 - Managed OpenCode agent colors follow the active mode while preserving unrelated configuration.
