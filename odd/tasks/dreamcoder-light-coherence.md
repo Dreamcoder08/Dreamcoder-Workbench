@@ -71,6 +71,7 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
 | T11 | S2,S6 | Live verification on Hyprland: reload, GTK/Qt, screenshots vs T1; close open items of `light-theme-delivery.md` | inline | — |
 | T12 | S2 | Docs: rewrite `docs/DREAMCODER_DESIGN_SYSTEM.md`, fix `WALLPAPER_SETUP.md`, update both skills | inline | eb2081f |
 | T13 | S5 | Cleanup (gated by D2/D3): dusk, duplicate token source, checked-in generated files, old wallpapers, "Dreamcoder OS", archived `docs/superpowers` (Risk 1/3: each deletion proven unused) | inline, own commit | — |
+| T15 | S2,S4 | DTCG 2025.10 interop export: generated `docs/generated/dreamcoder.tokens.json` validated against the vendored official schema | worker | — |
 | T14 | S4 | Benchmark vs reference systems by metrics (contrast margins, ramp uniformity, ΔE spacing, banding); close feature | verify | — |
 
 ## Decisions (human)
@@ -277,3 +278,12 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
 - L32 — Draft PR #85: GitHub CI green except commitlint (subject-case: acronyms/proper nouns in 13 titles).
   Titles rewritten to lower-case with an identical tree; hashes in this document remapped (T1 was
   already stale after an amend). Codex image_gen still 403 on the ChatGPT account (retry 01:35Z).
+- L33 — User request (2026-11-27), verbatim: "usa la funcion hc de herdr app y mas cuestiona con informacion
+  actualizada de la web y mejorate a ti mismo y mas". Findings: (1) `hc` (persistent agent terminals) ran
+  interactive Codex; `/status` shows a single *Monthly limit* (Free-plan signature) and published plan pages say
+  Codex image generation is not available on Free → T6 403 root cause is the plan (`codex doctor`: auth ok, no proxy).
+  `hc send` wraps text as an agent message; slash commands need `hc keys`. (2) WCAG 3 draft (2026-09-10) leaves
+  the contrast algorithm undetermined; APCA stays a second, blocking opinion over the WCAG 2.2 floor — docs
+  already say so; add a dated note. (3) DTCG Format/Color 2025.10 is stable (2025-10-28) with oklch colour
+  objects, dimension/duration/cubicBezier/shadow types; our `oklch(L C H)` strings are not interoperable →
+  T15: generated DTCG export validated against the vendored official schema (`tests/fixtures/dtcg/`).
