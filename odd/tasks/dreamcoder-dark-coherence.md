@@ -44,7 +44,7 @@ Branch `feat/dark-coherence` (stacked on `feat/light-coherence`) in worktree `.l
 
 | ID | Specs | Task | Route | Commit |
 | --- | --- | --- | --- | --- |
-| T1 | S1 | Baseline: live Dark screenshot, Dark specimen, measurements recorded | inline | T1 commit |
+| T1 | S1 | Baseline: live Dark screenshot, Dark specimen, measurements recorded | inline | 96dd168 |
 | T2 | S1-S5 | Dark primitives + bindings (neutral ramp, 8 pigment families at night density, indigo brand), material laws in `tests/test_dark_material.py`, deliberate re-pins | worker | — |
 | T3 | S1,S2 | Dark components: tonal elevation (no shadows), radius/rhythm adopted for Dark, renderer literals | worker | — |
 | T4 | S1 | Generate the stale hand-written Dark files; guard test like `test_light_color_files.py` | worker | — |
@@ -63,3 +63,21 @@ Branch `feat/dark-coherence` (stacked on `feat/light-coherence`) in worktree `.l
   Light branch: Waybar `133` badge is an indigo wash, window edge solid. Still off: teal `ml.` launcher tile, cold
   blue photographic wallpaper unrelated to the system, card/code greys not on a measured ladder. Measurements in
   "Evidence baseline" verified with the repo's `_math` / `color_space` (not the explorer's JS port).
+- L4 — T2 design (laws to pin in `tests/test_dark_material.py`; values are the worker's to tune within them):
+  - graphite (neutral, C < 0.002): bg `#000000` (S2); tonal ladder surface0 < surface1 < surface2 < surface3 <
+    selection with even ΔL ≥ 0.04 (OLED emissive elevation; surface0 stays near-black ≈ L .15 per S5). bg_soft is an
+    explicit alias of surface0; hover/pressed alias selection/surface2.
+  - text ramp strictly ordered by L: text_heading > text > muted > comment > subtle > disabled (comment recedes
+    below muted), each step ΔL ≥ 0.04; muted ≥ 7:1 on bg; comment and subtle ≥ 4.5:1 on bg…surface2 and selection.
+    border < border_ui < border_hi stay ≥ 3:1 on bg where they are UI boundaries (border_ui, border_hi).
+  - pigments at one night density: OKLab L spread ≤ 0.01 across error, warning, success, info, accent, lavender,
+    mauve, focus; every one ≥ 7:1 on bg and ≥ 4.5:1 on selection; chroma ≤ 0.13 (halation on OLED black).
+    Families follow Light's hue order around the wheel: madder (error) < ochre (warning) < malachite (success) <
+    verdigris (focus) < indigo (info) < iris (accent, Dark brand ≈ H 275, S3) < violet (lavender) < cochineal (mauve).
+    Pairwise ΔE2000 ≥ 12 among those eight roles.
+  - hover: accent_2 / link_hover in the iris family (|ΔH| ≤ 6° from accent), lighter than accent (emission), ΔE ≥ 12
+    from lavender and mauve.
+  - explicit aliases: diagnostic = info, sage = success, link = accent, prompt_accent = accent.
+  - focus ring ≥ 3:1 on every surface including selection.
+  - Preserve S5: ANSI slots 6/14 semantic assertions in `test_dark_ansi_semantics.py` keep holding (re-pin only byte
+    baselines, never the semantic checks); `aliases.brand` (filled indigo) and `on_accent` contrast floors still pass.
