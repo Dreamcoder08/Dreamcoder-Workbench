@@ -58,18 +58,18 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
 
 | ID | Specs | Task | Route | Commit |
 | --- | --- | --- | --- | --- |
-| T1 | S2,S6 | Baseline: screenshot every Light target, contrast/ΔE report, full hex-literal inventory (uncapped) | inline | 082cb2e |
-| T2 | S2,S3 | Token v2: DTCG three-tier `tokens.json`, OKLCH primitives; generate `palette_tokens.py` from it; parity test (Risk 3: config format) | inline, own commit | 0979a31 |
-| T3 | S3,S4 | Material model: paper neutrals + pigment accents + ANSI-16 in tokens, all guarded (APCA/WCAG/ΔE) | inline | 971103a |
-| T4 | S3,S6 | Light & elevation: key/ambient shadow tokens, radius, border scale, translucency floor over wallpaper | inline | 16d16e3 |
-| T5 | S2 | Type, spacing (4 pt), motion tokens → Hyprland, Waybar, rofi, Herdr, GTK/Qt | writer A (parallel with T6) | d5b4df0 |
+| T1 | S2,S6 | Baseline: screenshot every Light target, contrast/ΔE report, full hex-literal inventory (uncapped) | inline | 49620af |
+| T2 | S2,S3 | Token v2: DTCG three-tier `tokens.json`, OKLCH primitives; generate `palette_tokens.py` from it; parity test (Risk 3: config format) | inline, own commit | cb62884 |
+| T3 | S3,S4 | Material model: paper neutrals + pigment accents + ANSI-16 in tokens, all guarded (APCA/WCAG/ΔE) | inline | 94ff703 |
+| T4 | S3,S6 | Light & elevation: key/ambient shadow tokens, radius, border scale, translucency floor over wallpaper | inline | 2dc9292 |
+| T5 | S2 | Type, spacing (4 pt), motion tokens → Hyprland, Waybar, rofi, Herdr, GTK/Qt | writer A (parallel with T6) | dd38a84 |
 | T6 | S1,S3,S7 | Wallpapers via Codex CLI image generation from a token-derived brief (paper, pigment washes, single key light, bar safe zones); Light set + paired Dark companions; post-process (≥1920×1080, blue-noise dither) and gate on T7 | inline + Codex CLI | — |
-| T7 | S1,S2 | Wallpaper↔UI contract: OKLab L band, chroma cap, hue window around accent, APCA test of panels over worst wallpaper region; clamp matugen adaptive mode | inline | dae4d5f |
-| T8 | S2 | Migrate offenders: generate nvim `dreamcoder-light.lua`, tmux colors, renderer literals; audit Waybar/Herdr/Pi/ml4w_assets | inline | 010ffa7 |
-| T9 | S6 | Semantic chrome: badges, status icons, focus ring, window borders unified across Herdr/Waybar/Gentle Shell | inline | 775683c |
-| T10 | S4 | Visual regression: specimen board, perceptual diff (ΔE2000), `make theme-check`, CI hook (Risk 5) | inline, own commit | 71bf250 |
+| T7 | S1,S2 | Wallpaper↔UI contract: OKLab L band, chroma cap, hue window around accent, APCA test of panels over worst wallpaper region; clamp matugen adaptive mode | inline | eab3706 |
+| T8 | S2 | Migrate offenders: generate nvim `dreamcoder-light.lua`, tmux colors, renderer literals; audit Waybar/Herdr/Pi/ml4w_assets | inline | 7d5500e |
+| T9 | S6 | Semantic chrome: badges, status icons, focus ring, window borders unified across Herdr/Waybar/Gentle Shell | inline | dff0e7e |
+| T10 | S4 | Visual regression: specimen board, perceptual diff (ΔE2000), `make theme-check`, CI hook (Risk 5) | inline, own commit | 3850a78 |
 | T11 | S2,S6 | Live verification on Hyprland: reload, GTK/Qt, screenshots vs T1; close open items of `light-theme-delivery.md` | inline | — |
-| T12 | S2 | Docs: rewrite `docs/DREAMCODER_DESIGN_SYSTEM.md`, fix `WALLPAPER_SETUP.md`, update both skills | inline | 582e08c |
+| T12 | S2 | Docs: rewrite `docs/DREAMCODER_DESIGN_SYSTEM.md`, fix `WALLPAPER_SETUP.md`, update both skills | inline | eb2081f |
 | T13 | S5 | Cleanup (gated by D2/D3): dusk, duplicate token source, checked-in generated files, old wallpapers, "Dreamcoder OS", archived `docs/superpowers` (Risk 1/3: each deletion proven unused) | inline, own commit | — |
 | T14 | S4 | Benchmark vs reference systems by metrics (contrast margins, ramp uniformity, ΔE spacing, banding); close feature | verify | — |
 
@@ -184,7 +184,7 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
   WezTerm, Nushell, Tmux blocks + base, Yazi, Zellij theme block (spliced in place); `apply-theme-mode.sh` Light
   sources generated `tmux-ukiyo-light.conf`; OpenCode Light shadow is warm ink. Guard `tests/test_light_color_files.py`
   (every non-generated Light file uses only current Light tokens). Dark unchanged. Pre-existing, not T8:
-  `shell-tests/test_doctor.bats` #1 fails and `test_repair.bats` hangs at #4 on base 9d0a471 too. For T13: orphan
+  `shell-tests/test_doctor.bats` #1 fails and `test_repair.bats` hangs at #4 on base 82b1bc2 too. For T13: orphan
   mode-less mirrors (`btop/bat/cava/delta/dunst/firefox/fzf/ls-colors/obsidian-dreamcoder.*`, `tmux-dreamcoder.conf`,
   `zsh-syntax-highlighting-dreamcoder.zsh`) with old-palette hex; hand-written Dark Alacritty/WezTerm/Nushell/Tmux
   still on old `#100f0d` (out of Light scope, report only).
@@ -260,7 +260,7 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
   schedule (Light 07:00–18:00); the Light screenshot was not taken at night to avoid fighting the schedule.
   `t11-desktop-after.png` shows Dark with the mode-agnostic border variant and badge wash live. Light visual
   check pending for daylight hours.
-- L29 — Before CI: two latent T10 defects fixed in 06aed16 — `theme-check` called `check-wallpaper.py` without
+- L29 — Before CI: two latent T10 defects fixed in 3cd98d8 — `theme-check` called `check-wallpaper.py` without
   `--mode` (canonical set renamed `dreamcoder-light-*.png` / `dreamcoder-dark-*.png`, one call per mode) and the
   checker required IM7 `magick` while CI runners ship IM6 (`convert`/`identify` fallback, tested with PATH
   shims). CI: new `theme-check` job in `.github/workflows/theme-validation.yml` (Python 3.12, ImageMagick +
@@ -274,3 +274,6 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
   skipped); added the probe that a failing wallpaper step stops `make` before the next mode (the suggested file
   name missed the glob; corrected). Unverified until CI runs on GitHub: real-IM6 run, drift probe on a
   non-worktree clone (U1–U3).
+- L32 — Draft PR #85: GitHub CI green except commitlint (subject-case: acronyms/proper nouns in 13 titles).
+  Titles rewritten to lower-case with an identical tree; hashes in this document remapped (T1 was
+  already stale after an amend). Codex image_gen still 403 on the ChatGPT account (retry 01:35Z).
