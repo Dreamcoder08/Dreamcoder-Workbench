@@ -134,3 +134,8 @@ Branch `feat/dark-coherence` (stacked on `feat/light-coherence`) in worktree `.l
   13.3:1 barely recedes and near-white 17.6:1 text on OLED black risks halation.
 - L12 — User decision (2026-11-27), verbatim: "Sí, calmar texto y comentarios (Recomendado)" — text about 15:1,
   comments about 7–8:1, keep AAA. New task T9.
+- L13 — T9 conflict (worker, measured): comment 7–8.5:1 (L ≤ .721) and the Qt guard (disabled ≥ 4.5:1 on selection,
+  L ≥ .675) leave .046 of lightness, but comment > subtle > disabled needs ≥ .08 under the L4 law. Decision (parent,
+  under the user's "te autorizo todo"): option C — keep every law; Qt disabled `HighlightedText` on a selected row
+  uses `comment` (readable on selection; WCAG 2.2 exempts inactive controls anyway), so `disabled` can drop to about
+  L .64 with the ΔL ≥ .04 ramp intact. Rejected: A/B weaken the ramp law (tail ΔL .02 ≈ JND), D drops L12.
