@@ -26,7 +26,7 @@ that point outside the dreamcoder-dots repository.`,
 
 			platform := system.DetectPlatform()
 
-			fmt.Println("🔧 Repairing Dreamcoder OS...")
+			fmt.Println("🔧 Repairing Dreamcoder Workbench...")
 			fmt.Printf("Platform: %s/%s (%s)\n", platform.OS, platform.Arch, platform.Distro)
 
 			if !platform.HasStow {

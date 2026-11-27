@@ -18,8 +18,8 @@ func InstallCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "install",
-		Short: "Install Dreamcoder OS components via stow",
-		Long: `Install Dreamcoder OS components using GNU Stow.
+		Short: "Install Dreamcoder Workbench components via stow",
+		Long: `Install Dreamcoder Workbench components using GNU Stow.
 
 Installs symlinks for each specified component from the dotfiles
 repository to your home directory. Uses the shared dotfiles path
@@ -37,7 +37,7 @@ Examples:
 
 			platform := system.DetectPlatform()
 
-			fmt.Println("📦 Dreamcoder OS Installer")
+			fmt.Println("📦 Dreamcoder Workbench Installer")
 			fmt.Printf("Platform: %s/%s (%s)\n", platform.OS, platform.Arch, platform.Distro)
 
 			// Resolve dotfiles directory

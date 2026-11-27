@@ -1,4 +1,4 @@
-# Nushell environment for Dreamcoder OS
+# Nushell environment for Dreamcoder Workbench
 # https://github.com/dreamcoder08/dreamcoder-dots
 
 # Path

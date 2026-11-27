@@ -41,7 +41,7 @@ release:
     owner: Dreamcoder08
     name: Dreamcoder_dots
   header: |
-    ## Dreamcoder OS {{ .Version }}
+    ## Dreamcoder Workbench {{ .Version }}
 
     > Token-governed visual operating layer.
 

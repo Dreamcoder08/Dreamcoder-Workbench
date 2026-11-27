@@ -1,4 +1,4 @@
-# Nushell configuration for Dreamcoder OS
+# Nushell configuration for Dreamcoder Workbench
 # https://github.com/dreamcoder08/dreamcoder-dots
 
 # Source theme
