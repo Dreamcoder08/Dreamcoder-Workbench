@@ -4,10 +4,11 @@ The export is a pure function of the tokens: it reuses the tier resolvers
 (``token_tiers``, ``elevation``, ``rhythm``) and the OKLCH helpers, so no colour
 or shadow arithmetic is repeated here. Layout:
 
-* ``primitive.light.<family>.<step>``: OKLCH colours with an exact sRGB hex fallback;
-* ``semantic.light.<role>``: aliases of the primitive each role is bound to
-  (translucent roles are sRGB colours with alpha);
-* ``semantic.dark.<role>``: sRGB colours, because Dark has no primitives yet;
+* ``primitive.<mode>.<family>.<step>``: OKLCH colours with an exact sRGB hex fallback,
+  for every mode that has primitives (Light and Dark);
+* ``semantic.<mode>.<role>``: aliases of the primitive each role is bound to
+  (translucent roles are sRGB colours with alpha); a mode without bindings
+  falls back to plain sRGB colours;
 * ``component.*``: spacing, radius, motion, elevation, hairline and font families.
 
 Figma, Penpot and Style Dictionary 5 read this format.
@@ -92,22 +93,31 @@ def _group(description: str, children: Doc) -> Doc:
     return {"$description": description, **children}
 
 
-def _primitives(tokens: Doc) -> Doc:
+def _mode_primitives(tokens: Doc, mode: str) -> Doc:
     families: Doc = {}
-    for name, text in tokens["primitives"][PRIMITIVE_MODE].items():
+    for name, text in tokens["primitives"][mode].items():
         family, _, step = name.partition(".")
         try:
             lightness, chroma, hue = parse_oklch(text)
         except ValueError as error:
-            raise ExportError(f"primitive {name}: {error}") from error
+            raise ExportError(f"{mode} primitive {name}: {error}") from error
         value = {
             "colorSpace": "oklch",
             "components": [lightness, chroma, hue],
             "hex": oklch_to_hex(lightness, chroma, hue),
         }
         families.setdefault(family, {})[step] = _token("color", value)
-    light = _group(f"Dreamcoder Light OKLCH primitives from {SOURCE} (primitives.light).", families)
-    return _group(f"Tier 1: raw colours, generated from {SOURCE}.", {PRIMITIVE_MODE: light})
+    return _group(
+        f"Dreamcoder {mode.title()} OKLCH primitives from {SOURCE} (primitives.{mode}).", families
+    )
+
+
+def _primitives(tokens: Doc) -> Doc:
+    # Light first, then Dark, then any further mode in source order.
+    known = [mode for mode in SEMANTIC_MODES if mode in tokens["primitives"]]
+    ordered = [*known, *(mode for mode in tokens["primitives"] if mode not in known)]
+    modes = {mode: _mode_primitives(tokens, mode) for mode in ordered}
+    return _group(f"Tier 1: raw colours, generated from {SOURCE}.", modes)
 
 
 def _semantic_mode(tokens: Doc, mode: str) -> Doc:

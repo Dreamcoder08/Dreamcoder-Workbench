@@ -1,27 +1,27 @@
-# Dreamcoder Dark Theme for Nushell
+# Dreamcoder Dark theme for Nushell
 # Auto-generated from tokens.json — do not edit manually
 
 $env.config = {
     color_config: {
-        separator: "#6b5f52"
-        leading_trailing_space_bg: "#1a1714"
-        header: "#d99555"
-        date: "#e8dfd0"
-        filesize: "#5f95ca"
-        row_index: "#6b5f52"
-        bool: "#d99555"
-        nothing: "#6b5f52"
-        binary: "#e8dfd0"
-        cellpath: "#e8dfd0"
-        int: "#e8dfd0"
-        duration: "#e8dfd0"
-        range: "#e8dfd0"
-        float: "#e8dfd0"
-        string: "#e8dfd0"
-        record: "#e8dfd0"
-        list: "#e8dfd0"
-        closure: "#e8dfd0"
-        custom: "#e8dfd0"
+        separator: "#c5c5c5"
+        leading_trailing_space_bg: "#090909"
+        header: "#a7b5fd"
+        date: "#e0e0e0"
+        filesize: "#76c4f6"
+        row_index: "#c5c5c5"
+        bool: "#a7b5fd"
+        nothing: "#c5c5c5"
+        binary: "#e0e0e0"
+        cellpath: "#e0e0e0"
+        int: "#e0e0e0"
+        duration: "#e0e0e0"
+        range: "#e0e0e0"
+        float: "#e0e0e0"
+        string: "#e0e0e0"
+        record: "#e0e0e0"
+        list: "#e0e0e0"
+        closure: "#e0e0e0"
+        custom: "#e0e0e0"
     }
     completions: {
         case_sensitive: false

@@ -106,9 +106,10 @@ def opencode_content(c: dict[str, str], transparent_background: bool = False) ->
             muted = guard(muted, surface, mode_name)
             subtle = guard(subtle, surface, mode_name)
             placeholder = guard(placeholder, surface, mode_name)
-    # Light shadows fall in warm ink, never black (T4): the Light text ink is the
-    # same primitive (ink.215) as the shadow ink. Dark keeps its black mix.
-    shadow = mix(c["bg"], c["text"] if mode_name == "light" else "#000000", 0.25)
+    # Shadows fall in the elevation ink of the components tier (warm ink on Light,
+    # graphite on Dark). A palette without it keeps the earlier per-mode ink.
+    shadow_ink = c.get("shadow_ink", c["text"] if mode_name == "light" else "#000000")
+    shadow = mix(c["bg"], shadow_ink, 0.25)
     added, removed = c["sage"], c["error"]
     hunk, fold, markdown_code = c["lavender"], c["comment"], c["sage"]
     if mode_name == "light":

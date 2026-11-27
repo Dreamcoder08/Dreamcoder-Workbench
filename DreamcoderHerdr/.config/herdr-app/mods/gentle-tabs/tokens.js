@@ -20,24 +20,24 @@ import { theme, fonts, settings } from "herdr";
 // The artboard palette (01-inspector.html :root, lines 15-31): the dark appearance.
 export const HEX = {
   canvas: "#000000", // --canvas → canvas (behind cards) and background (inside the centre card)
-  chrome: "#0B0B0B", // --chrome → chrome
-  surface: "#1F1F1F", // --surface → surface
-  raised: "#2E2E2E", // --raised → raised
+  chrome: "#090909", // --chrome → chrome
+  surface: "#1C1C1C", // --surface → surface
+  raised: "#262626", // --raised → raised
   user: "#14161E", // --user (no role)
-  selected: "#1E202D", // --selected → selected / hover
-  line: "#2E2E2E", // --line → border
-  lineStrong: "#6B6B6B", // --line-strong → input
-  text: "#E6E6E6", // --text → foreground
-  muted: "#C7C7C7", // --muted → muted
-  faint: "#A7A7A7", // --faint → dim
-  accent: "#A5B4FC", // --accent → accent
-  accentSoft: "#D4B5FD", // --accent-soft (no role)
-  ok: "#34D399", // --ok → done
-  warn: "#FBBF24", // --warn → blocked
-  err: "#FB8585", // --err (no role)
-  info: "#7DD3FC", // --info → working
+  selected: "#1E212E", // --selected → selected / hover
+  line: "#262626", // --line → border
+  lineStrong: "#636363", // --line-strong → input
+  text: "#E0E0E0", // --text → foreground
+  muted: "#D2D2D2", // --muted → muted
+  faint: "#A0A0A0", // --faint → dim
+  accent: "#A7B5FD", // --accent → accent
+  accentSoft: "#C6D0FD", // --accent-soft (no role)
+  ok: "#86CF90", // --ok → done
+  warn: "#DCB55E", // --warn → blocked
+  err: "#FC9D95", // --err (no role)
+  info: "#76C4F6", // --info → working
   onAccent: "#000000", // .btn.primary color → accent_foreground
-  btnLine: "#E6E6E617", // .btn border (no role)
+  btnLine: "#E0E0E017", // .btn border (no role)
 };
 const DARK = HEX;
 

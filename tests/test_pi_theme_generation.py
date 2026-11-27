@@ -221,7 +221,7 @@ class PiThemeGenerationTest(unittest.TestCase):
                 self.assertEqual(themes[0], themes[1])
                 self.assertEqual(
                     themes[0]["vars"]["lucuma"],
-                    "#A5B4FC" if mode == "dark" else VARIANTS["light"]["accent"],
+                    "#a7b5fd" if mode == "dark" else VARIANTS["light"]["accent"],
                 )
                 self.assertEqual(source.read_text(), "do not mutate\n")
 
@@ -238,7 +238,7 @@ class PiThemeGenerationTest(unittest.TestCase):
             self.assertEqual(theme["name"], "dreamcoder")
             self.assertEqual(set(theme["colors"].keys()), REQUIRED_PI_TOKENS)
             self.assertEqual(theme["colors"]["accent"], "lucuma")
-            self.assertEqual(theme["vars"]["lucuma"], "#A5B4FC")
+            self.assertEqual(theme["vars"]["lucuma"], "#a7b5fd")
 
     def test_tool_card_backgrounds_stay_on_the_neutral_surface_ladder(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -251,8 +251,8 @@ class PiThemeGenerationTest(unittest.TestCase):
             # Gentle Shell paints floating cards and the prompt frame with
             # toolSuccessBg/toolPendingBg, so those roles must stay neutral
             # instead of borrowing the success hue.
-            self.assertEqual(theme["colors"]["toolSuccessBg"], "#0D0D0F")
-            self.assertEqual(theme["colors"]["toolPendingBg"], "#0B0B0B")
+            self.assertEqual(theme["colors"]["toolSuccessBg"], "#121212")
+            self.assertEqual(theme["colors"]["toolPendingBg"], "#090909")
 
     def test_light_shell_chrome_uses_cream_surfaces_and_brown_focus(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -289,9 +289,9 @@ class PiThemeGenerationTest(unittest.TestCase):
 
             self.assertEqual(theme["background"], "none")
             self.assertEqual(theme["backgroundPanel"], "none")
-            self.assertEqual(theme["backgroundElement"], "#0B0B0B")
-            self.assertEqual(theme["primary"], "#A5B4FC")
-            self.assertEqual(theme["secondary"], "#D4B5FD")
+            self.assertEqual(theme["backgroundElement"], "#090909")
+            self.assertEqual(theme["primary"], "#a7b5fd")
+            self.assertEqual(theme["secondary"], "#c6d0fd")
 
     def test_selects_dreamcoder_theme_without_overwriting_existing_pi_settings(self):
         with tempfile.TemporaryDirectory() as tmpdir:

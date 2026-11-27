@@ -163,8 +163,10 @@ def test_non_increasing_depth_is_a_tier_error() -> None:
 
 
 def test_modes_without_a_component_colour_resolve_to_nothing() -> None:
-    assert resolve_components(_tokens(), "dark") == {}
-    assert palette_keys(_tokens(), "dark") == {}
+    tokens = copy.deepcopy(_tokens())
+    del tokens["components"]["elevation"]["ink"]["dark"]
+    assert resolve_components(tokens, "dark") == {}
+    assert palette_keys(tokens, "dark") == {}
 
 
 def test_palette_keys_flatten_for_the_renderers() -> None:
@@ -176,10 +178,11 @@ def test_palette_keys_flatten_for_the_renderers() -> None:
     assert all(isinstance(v, str) for v in keys.values())
 
 
-def test_load_variants_adds_elevation_to_light_only() -> None:
+def test_load_variants_adds_elevation_to_both_modes() -> None:
     merged = load_variants(VARIANTS, TOKENS)
     assert merged["light"]["shadow_ink"] == "#1e1813"
-    assert not [k for k in merged["dark"] if k.startswith(("elevation_", "radius_", "shadow_"))]
+    assert merged["dark"]["shadow_ink"] == "#000000"
+    assert merged["dark"]["radius_r2"] == merged["light"]["radius_r2"]
 
 
 def _light() -> dict[str, str]:
@@ -210,9 +213,12 @@ def test_light_shadow_and_scrim_are_warm_ink_not_black() -> None:
     assert "000000" not in conf
 
 
-def test_dark_renderers_keep_their_legacy_literals() -> None:
+def test_dark_renderers_take_the_components_tier() -> None:
     dark = _dark()
-    assert "box-shadow" not in waybar_content(dark)
-    assert "border-radius: 18px;" in rofi_content(dark)
+    assert f"box-shadow: {dark['elevation_e1']};" in waybar_content(dark)
+    assert "border-radius: 12px;" in rofi_content(dark)
+    assert "18px" not in rofi_content(dark)
+    # The elevation ink is graphite.000: the same bytes as before, now derived.
+    assert f"shadow: {dark['shadow_ink']};" in rofi_matugen_content(dark)
     assert "shadow: #000000;" in rofi_matugen_content(dark)
-    assert "$shadow = rgba(000000ff)" in hypr_colors_conf_content(dark)
+    assert f"$shadow = rgba({dark['shadow_ink'][1:]}ff)" in hypr_colors_conf_content(dark)

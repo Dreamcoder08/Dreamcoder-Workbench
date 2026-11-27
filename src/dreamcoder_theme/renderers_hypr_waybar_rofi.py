@@ -18,7 +18,7 @@ def _hex_to_rgba_ff(hex_color: str) -> str:
 def _map_dc_to_material(c: dict[str, str]) -> dict[str, str]:
     """Map Dreamcoder palette tokens to Material Design 3 color roles."""
     h = _hex_to_rgba_ff
-    # Light supplies a warm-ink shadow (components tier); other modes stay black.
+    # The components tier supplies the shadow ink (warm on Light, graphite on Dark).
     shadow = h(c["shadow_ink"]) if "shadow_ink" in c else "rgba(000000ff)"
     return {
         # Core surfaces
@@ -104,9 +104,14 @@ def _rgba_to_argb(value: str, default_alpha: str = "ff") -> str:
     return f"rgba({r:02x}{g:02x}{b:02x}{a_hex})"
 
 
-def _is_light_chrome(c: dict[str, str]) -> bool:
-    """Light palettes carry the components tier; Dark keeps its previous output."""
+def _has_components(c: dict[str, str]) -> bool:
+    """Palettes carry the components tier (geometry, elevation, rhythm) in both modes."""
     return "elevation_e1" in c
+
+
+def _is_light_chrome(c: dict[str, str]) -> bool:
+    """Light-only semantic chrome (solid frame, pigment chips); geometry is shared."""
+    return _has_components(c) and c.get("details") == "lighter"
 
 
 def _px(value: str) -> str:
@@ -114,12 +119,12 @@ def _px(value: str) -> str:
 
 
 def _hypr_rhythm(c: dict[str, str]) -> tuple[str, str]:
-    """Light only: (gap lines, animations block) from the rhythm tier.
+    """Modes with components: (gap lines, animations block) from the rhythm tier.
 
     Gaps are s1 inside and s4 outside windows. Hyprland speeds are in deciseconds
     (1 ds = 100 ms), so the quick/base/slow durations become 1.2/2/3.2.
     """
-    if not _is_light_chrome(c):
+    if not _has_components(c):
         return "", ""
 
     def speed(name: str) -> str:
@@ -201,17 +206,17 @@ def _waybar_chips(c: dict[str, str]) -> tuple[str, str]:
 
 
 def waybar_content(c: dict[str, str]) -> str:
-    # Light only: modules sit at elevation e1 with the r2 radius (components tier).
+    # Modules sit at elevation e1 with the r2 radius (components tier, both modes).
     module_depth = (
         f"\n  border-radius: {c['radius_r2']};\n  box-shadow: {c['elevation_e1']};"
         f"\n  padding: 0 {c['space_s3']};\n  margin: {c['space_s1']};"
         f"\n  font-weight: {c['type_body_weight']};"
-        if _is_light_chrome(c)
+        if _has_components(c)
         else ""
     )
     button_rhythm, active_weight = (
         (f"\n  padding: 0 {c['space_s2']};", f"\n  font-weight: {c['type_emphasis_weight']};")
-        if _is_light_chrome(c)
+        if _has_components(c)
         else ("", "")
     )
     selection_color, chip_rules = _waybar_chips(c)
@@ -276,7 +281,7 @@ window#waybar {{
 
 
 def rofi_content(c: dict[str, str]) -> str:
-    # Light takes the radius scale (window r3, entry r2); other modes keep 18px/12px.
+    # Palettes with components take the radius scale (window r3, entry r2).
     window_radius = c.get("radius_r3", "18px")
     entry_radius = c.get("radius_r2", "12px")
     entry_padding, rows = (
@@ -291,8 +296,15 @@ element {{
 }}
 """,
         )
-        if _is_light_chrome(c)
+        if _has_components(c)
         else ("", "")
+    )
+    # A tonal mode lights the top edge of the floating window (the overhead key, e3).
+    window_edge = (
+        f"\n  border-color: {c['elevation_edge_e3']} {c['border_ui']} {c['border_ui']}"
+        f" {c['border_ui']};"
+        if "elevation_edge_e3" in c
+        else ""
     )
     return f"""/* Dreamcoder color layer for Rofi. */
 * {{
@@ -312,7 +324,7 @@ window {{
   background-color: @background;
   border: 1px;
   border-color: @border-ui;
-  border-radius: {window_radius};
+  border-radius: {window_radius};{window_edge}
 }}
 
 entry {{

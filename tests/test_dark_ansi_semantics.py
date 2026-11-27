@@ -19,22 +19,22 @@ MODES = json.loads((ROOT / "DreamcoderThemes/dreamcoder/tokens.json").read_text(
 # Captured from the pending-state baseline before this Dark-only change.
 BASELINE = {
     "dark": (
-        "#797979",
-        "#FB8585",
-        "#34D399",
-        "#FBBF24",
-        "#7DD3FC",
-        "#D8B4FE",
-        "#D4B5FD",
-        "#C7C7C7",
-        "#A7A7A7",
-        "#f79696",
-        "#54d6a7",
-        "#f7c647",
-        "#90d6f8",
-        "#dbbdfa",
-        "#5a94f3",
-        "#E6E6E6",
+        "#777777",
+        "#fc9d95",
+        "#86cf90",
+        "#dcb55e",
+        "#76c4f6",
+        "#f59ac5",
+        "#7ecac3",
+        "#d2d2d2",
+        "#a0a0a0",
+        "#f7a9a2",
+        "#96d29e",
+        "#ddbd75",
+        "#89c9f2",
+        "#f1a7ca",
+        "#8dcdc7",
+        "#e0e0e0",
     ),
     "light": (
         "#5e5d5d",
@@ -66,8 +66,8 @@ def test_dark_cyan_roles_are_distinct_and_readable() -> None:
     palette = MODES["dark"]
     slots = ansi(palette)
 
-    assert slots[6] == "#58d3ca"
-    assert slots[14] == "#6dd6ce"
+    assert slots[6] == "#7ecac3"
+    assert slots[14] == "#8dcdc7"
     for index in (6, 14):
         red, green, blue = (int(slots[index][i : i + 2], 16) for i in (1, 3, 5))
         assert green > red and blue > red
@@ -115,8 +115,8 @@ def test_dark_terminal_variants_render_the_same_cyan_slots(path, renderer, patte
     assert (ROOT / path).read_text() == rendered
     matches = re.findall(pattern, rendered)
     if "Warp" in path:
-        assert matches == ["#58d3ca", "#6dd6ce"]
+        assert matches == ["#7ecac3", "#8dcdc7"]
     else:
         indexed = {int(index): color for index, color in matches}
-        assert indexed[6] == "#58d3ca"
-        assert indexed[14] == "#6dd6ce"
+        assert indexed[6] == "#7ecac3"
+        assert indexed[14] == "#8dcdc7"

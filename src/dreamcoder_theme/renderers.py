@@ -32,14 +32,14 @@ from .renderers_hypr_waybar_rofi import (
 )
 from .renderers_kitty import kitty_content, kitty_ui_content
 from .renderers_lazygit import lazygit_content
-from .renderers_light_files import (
-    alacritty_light_content,
-    nushell_light_content,
-    tmux_blocks_light_content,
-    tmux_ukiyo_light_content,
-    wezterm_light_content,
+from .renderers_mode_files import (
+    alacritty_content,
+    nushell_content,
+    tmux_blocks_content,
+    tmux_ukiyo_content,
+    wezterm_content,
     yazi_light_content,
-    zellij_light_config_content,
+    zellij_config_content,
 )
 from .renderers_opencode import opencode_content, opencode_tokens
 from .renderers_pi import pi_theme_content
@@ -49,7 +49,7 @@ from .renderers_tmux import tmux_content
 from .renderers_zellij import zellij_content
 
 __all__ = [
-    "alacritty_light_content",
+    "alacritty_content",
     "antigravity_content",
     "bat_content",
     "btop_content",
@@ -73,7 +73,7 @@ __all__ = [
     "kitty_ui_content",
     "lazygit_content",
     "ls_colors_content",
-    "nushell_light_content",
+    "nushell_content",
     "nvim_content",
     "nvim_dispatcher_content",
     "obsidian_content",
@@ -85,15 +85,15 @@ __all__ = [
     "rofi_content",
     "rofi_matugen_content",
     "starship_content",
-    "tmux_blocks_light_content",
+    "tmux_blocks_content",
     "tmux_content",
-    "tmux_ukiyo_light_content",
+    "tmux_ukiyo_content",
     "warp_content",
     "waybar_content",
     "waybar_matugen_content",
-    "wezterm_light_content",
+    "wezterm_content",
     "yazi_light_content",
+    "zellij_config_content",
     "zellij_content",
-    "zellij_light_config_content",
     "zsh_syntax_content",
 ]

@@ -4,7 +4,7 @@
 
 Dreamcoder Workbench is a personal developer-experience design system for Arch Linux workstations. It is a token-governed visual layer for terminals, editors, shell tools, desktop chrome, notes, browser chrome and AI coding CLIs. This page is the single source for how that system is built and checked; operational how-tos live in the pages it links.
 
-**Short version:** every colour comes from `DreamcoderThemes/dreamcoder/tokens.json`. Dreamcoder Light is modelled as one physical material (paper, ink, clay and mineral pigments) under one overhead light, and each rule below has a measurable check. Run `make theme-check` to verify all of it.
+**Short version:** every colour comes from `DreamcoderThemes/dreamcoder/tokens.json`. Dreamcoder Light is modelled as one physical material (paper, ink, clay and mineral pigments) under one overhead light; Dreamcoder Dark is its emissive counterpart (graphite and night pigments lit from within on an OLED canvas). Each rule below has a measurable check. Run `make theme-check` to verify all of it.
 
 ## Contents
 
@@ -13,7 +13,8 @@ Dreamcoder Workbench is a personal developer-experience design system for Arch L
 | [Product definition](#product-definition) | What the system optimizes for |
 | [Token contract](#token-contract) | Where values live, the three tiers, the single-source rule |
 | [Light material model](#light-material-model) | Paper, ink, clay, pigments and the laws they obey |
-| [Elevation](#elevation) | One light, key plus ambient shadows |
+| [Dark material model](#dark-material-model) | Graphite, night pigments and the laws they obey |
+| [Elevation](#elevation) | Light: key plus ambient shadows. Dark: tonal surfaces |
 | [Rhythm](#rhythm) | 4 px grid, type contract, motion |
 | [Semantic chrome](#semantic-chrome) | Badges, tiles, borders and the wash rule |
 | [Wallpaper contract](#wallpaper-contract) | Measurable limits a wallpaper must meet |
@@ -40,20 +41,20 @@ The user-facing modes are `dark` and `light`. The system is a developer-OS desig
 
 | Tier | Key in `tokens.json` | Holds | Example |
 | --- | --- | --- | --- |
-| 1 Primitives | `primitives.light` | Named OKLCH colours | `"paper.974": "oklch(…)"` |
-| 2 Semantic | `bindings.light` → `modes.<mode>` | A role bound to a primitive; `modes.*` stays flat hex so every consumer reads it unchanged | `bg` → `paper.974` |
+| 1 Primitives | `primitives.<mode>` | Named OKLCH colours | `"paper.974"` (Light), `"graphite.184"` (Dark) |
+| 2 Semantic | `bindings.<mode>` → `modes.<mode>` | A role bound to a primitive; `modes.*` stays flat hex so every consumer reads it unchanged | `bg` → `paper.974` |
 | 3 Components | `components` | Non-colour geometry and behaviour, plus the colour name of a component | `elevation`, `radius`, `border`, `spacing`, `motion`, `typography`, `wallpaper` |
 
 - Primitives are authored in OKLCH so lightness, chroma and hue are controlled independently; `src/dreamcoder_theme/color_space.py` converts to sRGB hex and holds the CIEDE2000 (ΔE2000) implementation.
-- `src/dreamcoder_theme/token_tiers.py` resolves bindings; `elevation.py` and `rhythm.py` resolve the component tier. `scripts/verify-theme-health.py` reports `TIER_DRIFT` (a `modes.light` hex that differs from its binding) and `TIER_UNBOUND` (a binding naming a missing primitive).
-- Tiers 1 and 2 are populated for Light. Dark keeps flat hex; its dark bindings are not authored.
+- `src/dreamcoder_theme/token_tiers.py` resolves bindings; `elevation.py`, `rhythm.py` and `effects.py` resolve the component tier. `scripts/verify-theme-health.py` reports `TIER_DRIFT` (a `modes.<mode>` hex that differs from its binding) and `TIER_UNBOUND` (a binding naming a missing primitive).
+- Tiers 1 and 2 are populated for both modes, and both adopt the component tier. Glow effects are derived, not authored: `components.glow` holds the geometry and each glow takes its colour from the semantic token it decorates (`effects.py`; `EFFECTS_DRIFT` fails the health check when a stored effect disagrees).
 
 ### Single-source rule
 
 - **Versioned token schema**: `DreamcoderThemes/dreamcoder/tokens.schema.json` defines the public token shape.
 - **Mode parity**: `light` and `dark` expose equivalent semantic roles.
 - **Semantic separation**: `accent`, `accent_2`, `diagnostic`, `warning`, `error`, `comment`, `subtle`, `focus`, `border_ui` and `border_hi` remain distinct.
-- **No hand-copied Light hex**: `sync_light_files` generates the Light-only colour files listed in `LIGHT_FILES` (`src/dreamcoder_theme/renderers_light_files.py`: Alacritty, WezTerm, Nushell, three Tmux files, Yazi) and splices the Zellij Light theme block in place. `tests/test_light_color_files.py` fails when any other tracked Light colour file uses a hex that is not a current Light token.
+- **No hand-copied mode hex**: `sync_mode_files` generates the per-mode colour files listed in `MODE_FILES` (`src/dreamcoder_theme/renderers_mode_files.py`) for each mode (Light: Alacritty, WezTerm, Nushell, three Tmux files, Yazi; Dark: Alacritty, WezTerm, Nushell, Tmux and the Tmux ukiyo file) and splices the Zellij theme block in place. `tests/test_light_color_files.py` and `tests/test_dark_color_files.py` fail when any other tracked colour file of a mode uses a hex that is not a current token of that mode.
 - **No silent drift**: mode variants are checked in; active-mode mirrors are generated by sync and gitignored (see [Generated active mirrors](configuration/theme-system.md#generated-active-mirrors)).
 - **Derived values**: ANSI-16 is derived from semantic roles in `palette.py`; tokens carry no ANSI copy.
 
@@ -83,6 +84,36 @@ Pigment roles:
 
 Readability is part of the model: every pigment role, `accent_2`, `subtle` and `comment` reaches WCAG 4.5:1 on each text surface (`bg`, `bg_soft`, `surface0`–`surface2`) and APCA Lc ≥ 75 on `bg`; `accent_2` stays at least ΔE2000 12 from `error` so a hovered link never reads as an error. Measured when the model landed: minimum pigment-pair ΔE2000 15.1, minimum WCAG 5.14 on the text surfaces.
 
+## Dark material model
+
+Dark is the emissive counterpart of Light: graphite and night pigments lit from within, on an OLED canvas. The laws below are pinned by `tests/test_dark_material.py`.
+
+| Family | Primitives | Law | Why |
+| --- | --- | --- | --- |
+| Canvas | `bg` = `#000000` | Pure black stays the canvas; functional and scrollable surfaces stay near-black (`surface_policy`) | Keeps the OLED decision |
+| Graphite | `graphite.*` (surfaces, text, borders) | Chroma 0 (neutral); the surface ladder (`surface0` < `surface1` < `surface2` < `surface3` < `selection`) steps up by an even OKLab ΔL of 0.042 | A neutral grey keeps indigo for meaning; even steps make each elevation level read as one step |
+| Text ramp | `text_heading` > `text` > `muted` > `comment` > `subtle` > `disabled` | Strictly ordered by lightness, each step at least 0.04 apart; `muted` ≥ 7:1 on `bg`; `comment` and `subtle` ≥ 4.5:1 on every quiet surface and `selection` | Text recedes in a fixed order, so `comment` is never louder than `muted` |
+| Night pigments | `madder`, `ochre`, `malachite`, `verdigris`, `indigo`, `iris`, `violet`, `cochineal` | One density (OKLab L 0.790, spread ≤ 0.01); chroma ≤ 0.13 (halation cap); every pair at least ΔE2000 12 apart; every pigment ≥ 7:1 on `bg` and ≥ 4.5:1 on `selection` | Isoluminant pigments are told apart by hue alone; bright saturated text blooms on OLED black, so chroma is capped |
+
+Pigments follow Light's hue order around the wheel (madder, ochre, malachite, verdigris, indigo, **iris**, violet, cochineal). Iris is the Dark brand (hue 275) and the accent family, where Light uses umber.
+
+| Role | Pigment |
+| --- | --- |
+| `error` | madder |
+| `warning` | ochre |
+| `success`, `sage` | malachite |
+| `focus` | verdigris (≥ 7:1 on every surface, including `selection`) |
+| `info`, `diagnostic` | indigo (one shared primitive) |
+| `accent`, `link`, `prompt_accent` | iris; hover (`accent_2`, `link_hover`) is a lighter iris within 6° hue, because a hovered surface emits more light |
+| `lavender` | violet |
+| `mauve` | cochineal |
+
+Measured when the model landed: pigment lightness spread 0.000, minimum pigment-pair ΔE2000 14.24 (it was 1.0), pigments ≥ 10.31:1 on `bg` and ≥ 6.48:1 on `selection`, focus ≥ 7.05:1 on every surface. The filled indigo `aliases.brand` and `on_accent` keep their contrast floors, and the Dark ANSI slot 6/14 semantics are unchanged.
+
+The text ramp is tuned against OLED halation: `text` `#e0e0e0` (15.91:1 on `bg`, it was 17.62:1) and `text_heading` `#eeeeee` (18.10:1, was 20.12:1) pull back from near-white, while `muted` `#d2d2d2` (13.89:1), `comment` `#c5c5c5` (12.17:1), `subtle` `#a0a0a0` (8.03:1) and `disabled` `#939393` (6.84:1) keep every step at least 0.04 OKLab lightness apart. `comment` cannot recede further: `disabled` is held by the quiet APCA floor, and the editor readability guards need `comment` distinct from `subtle` (contrast ≥ 1.5) and from the string colour. In the disabled Qt group, `HighlightedText` uses `comment` because the recessed `disabled` grey cannot hold 4.5:1 on a selected row.
+
+Wallpapers follow the identity too: the Dark hue window is 275° ± 30° ([Wallpaper contract](#wallpaper-contract)).
+
 ## Elevation
 
 Light uses one overhead light, slightly in front of the screen with no lateral offset, so every shadow falls straight down. Each level is a key term plus an ambient (sky) term, tinted with warm ink (`ink.215`), never black: light bouncing off warm paper keeps the umbra warm.
@@ -99,6 +130,20 @@ Geometry: radius `r1` 4 px, `r2` 8 px, `r3` 12 px (windows use `r3`); hairline b
 
 Wired in the renderers today: Hyprland shadow and scrim (warm ink instead of black), Waybar modules (`r2` + e1), rofi radii (`r3`/`r2`) and the OpenCode Light shadow.
 
+### Dark elevation
+
+A shadow is invisible on OLED black, so Dark elevation is luminance: each level resolves to a lighter graphite surface, and `e3`/`e4` add a top-edge hairline one ladder step lighter (the overhead key catching the edge). The shadow keeps Light's geometry and uses black ink (`graphite.000`); it shows only where a window floats over the lit wallpaper.
+
+| Level | Surface | Top-edge hairline |
+| --- | --- | --- |
+| e0 | `bg` | none |
+| e1 | `graphite.184` | none |
+| e2 | `graphite.226` | none |
+| e3 | `graphite.268` | `graphite.310` |
+| e4 | `graphite.310` | `graphite.352` |
+
+Radius, hairline, spacing grid, motion and type are shared with Light: the geometry is mode-independent, so Hyprland gaps and animations, Waybar module rhythm and rofi radii match in both modes (`tests/test_dark_components.py`).
+
 ## Rhythm
 
 | Aspect | Contract |
@@ -107,7 +152,7 @@ Wired in the renderers today: Hyprland shadow and scrim (warm ink instead of bla
 | Type | Light shares Dark's `typography` contract: body weight 400, emphasis 500, heading 600, letter-spacing 0 (uppercase 0.04 em). Mono and UI families are recorded once as `JetBrainsMono Nerd Font` and are not emitted, because ML4W owns fonts |
 | Motion | Durations `quick` 120 ms, `base` 200 ms, `slow` 320 ms (monotone, ≈ 1.6× steps). Curves are critically damped approximations with no overshoot or bounce: enter `cubic-bezier(0.22, 1, 0.36, 1)`, exit `cubic-bezier(0.4, 0, 1, 1)`, move `cubic-bezier(0.33, 0, 0.2, 1)`; the resolver rejects an overshooting curve |
 
-Wired in Light artifacts: Hyprland gaps 4/16 and `dc_enter`/`dc_exit`/`dc_move` animations, Waybar module padding, margin and weights, rofi entry, element and listview rhythm. Dark artifacts carry no rhythm tokens; Dark adoption is a follow-up. Checks: `tests/test_light_rhythm.py`.
+Wired in Light artifacts: Hyprland gaps 4/16 and `dc_enter`/`dc_exit`/`dc_move` animations, Waybar module padding, margin and weights, rofi entry, element and listview rhythm. Dark artifacts carry the same rhythm. Checks: `tests/test_light_rhythm.py`.
 
 ## Semantic chrome
 
@@ -129,7 +174,7 @@ Colour in chrome means something, and it is applied the way a thin pigment layer
 | Size | ≥ 3840×2160, 16:9 ±1% | same | Native 4K, never an upscaled blur |
 | Mean lightness (OKLab L) | 0.86–0.97 | 0.08–0.22 | Sits in the paper band of the UI |
 | Chroma | p95 ≤ 0.060, mean ≤ 0.035 | same | A saturated wallpaper overpowers the UI paper |
-| Hue | chroma-weighted mean within ±25° of 70° when mean chroma ≥ 0.01 | same | Stays on the paper, clay and umber axis |
+| Hue | chroma-weighted mean within ±25° of 70° when mean chroma ≥ 0.01 | within ±30° of 275° (the iris accent hue) | Light stays on the paper, clay and umber axis; a tinted Dark wallpaper leans to the indigo identity |
 | Bar safe zone (top and bottom 6%) | lightness std ≤ 0.035, mean ≥ 0.88 | lightness std ≤ 0.035 | Quiet bands under Waybar |
 | Bar readability | `module_rgba` over the darkest 1% of the top band keeps `text` ≥ 7:1 and `muted` ≥ 4.5:1 (WCAG) | same | Text stays legible on the worst pixels |
 | Panel readability | `panel_rgba` over the darkest 1% of the image keeps `text` ≥ 7:1 | same | Same, for panels |
@@ -155,7 +200,7 @@ Then check the result with `scripts/check-wallpaper.py` (below).
 | --- | --- |
 | `make theme-check` | Regenerates every output from `tokens.json` for dark and light (repo-only sync), fails on `git diff` against the index (stage intentional changes first), runs `verify-theme-health.py`, the theme tests, and the wallpaper contract on `DreamcoderWallpapers/dreamcoder-light-*.png` and `dreamcoder-dark-*.png` (skipped when none exist). Set `PYTHON` to choose the interpreter, for example `make theme-check PYTHON="uv run --quiet python"` |
 | `make theme-diff [REF=origin/main]` / `scripts/theme-diff.py [REF]` | Perceptual regression report per semantic role between a git ref and the working tree: ΔE2000, WCAG and APCA deltas. A role at ΔE ≥ 2 is marked as visible; a contrast floor met in the base and missed in the head is reported as crossed (`--fail-on-floor` turns that into exit 1) |
-| `make specimen` / `scripts/generate-specimen.py` | Writes the deterministic Light specimen board below |
+| `make specimen` / `scripts/generate-specimen.py [--mode light\|dark]` | Writes the deterministic specimen boards below (`make specimen` writes both; the default mode is Light) |
 | `scripts/check-wallpaper.py --mode light FILE…` | Checks images against the wallpaper contract; prints `OK FILE` or one finding per violated rule; exit 1 on any finding |
 | `make dtcg` / `scripts/export-dtcg.py [--output PATH]` | Writes the generated DTCG 2025.10 export, [Interoperability](#interoperability-dtcg-202510) below |
 | `scripts/finish-wallpaper.sh INPUT OUTPUT` | Finishing pipeline above |
@@ -163,7 +208,9 @@ Then check the result with `scripts/check-wallpaper.py` (below).
 
 ![Dreamcoder Light specimen: primitive ramps, roles on every surface with contrast numbers, elevation e0–e4 and the pigment ΔE matrix](generated/dreamcoder-light-specimen.svg)
 
-The board is computed from `tokens.json` with no timestamps or randomness, so the same tokens always give the same bytes and `git diff` shows any perceptual change. Regenerate it with `make specimen`.
+![Dreamcoder Dark specimen: graphite text ramp and surface ladder, night pigments, roles on every surface with contrast numbers, tonal elevation e0–e4 and the pigment ΔE matrix](generated/dreamcoder-dark-specimen.svg)
+
+The boards are computed from `tokens.json` with no timestamps or randomness, so the same tokens always give the same bytes and `git diff` shows any perceptual change. The Dark board shows APCA as a magnitude (light text on black is negative polarity) and draws no shadow on black. Regenerate both with `make specimen`; `tests/test_theme_regression_tools.py` compares each checked-in board with a fresh render, and the preview pre-commit hook regenerates them.
 
 ### Interoperability (DTCG 2025.10)
 
@@ -171,9 +218,8 @@ The board is computed from `tokens.json` with no timestamps or randomness, so th
 
 | Group | Content |
 | --- | --- |
-| `primitive.light.<family>.<step>` | The 26 Light OKLCH primitives as `color` tokens (`oklch` components plus the exact sRGB `hex` fallback) |
-| `semantic.light.<role>` | Aliases such as `{primitive.light.ink.215}` following `bindings.light`; translucent roles are sRGB colours with `alpha` |
-| `semantic.dark.<role>` | sRGB colours, because Dark has no primitives yet |
+| `primitive.<mode>.<family>.<step>` | The OKLCH primitives of each mode as `color` tokens (`oklch` components plus the exact sRGB `hex` fallback) |
+| `semantic.<mode>.<role>` | Aliases such as `{primitive.dark.graphite.000}` following `bindings.<mode>`; translucent roles are sRGB colours with `alpha` |
 | `component.*` | Spacing and radius (`dimension`, px), motion durations (`duration`, ms) and curves (`cubicBezier`), Light elevation (`shadow` layers), hairline border and font families |
 
 Regenerate it with `make dtcg`; `make theme-check` and the preview pre-commit hook regenerate it and fail on drift, and `tests/test_dtcg_export.py` validates it against the official JSON Schema vendored in `tests/fixtures/dtcg/` (no network needed).

@@ -1,29 +1,29 @@
 /* Dreamcoder color layer for Waybar. */
 @define-color bg #000000;
-@define-color bg-soft #0B0B0B;
-@define-color surface #0B0B0B;
-@define-color surface-2 #1F1F1F;
-@define-color surface-3 #2E2E2E;
-@define-color text #E6E6E6;
-@define-color text-heading #F5F5F5;
-@define-color muted #C7C7C7;
-@define-color subtle #A7A7A7;
-@define-color comment #D0D0D0;
-@define-color border #6B6B6B;
-@define-color border-ui #767676;
-@define-color focus #3B82F6;
-@define-color accent #A5B4FC;
-@define-color accent-2 #D4B5FD;
-@define-color diagnostic #7DD3FC;
-@define-color lavender #D4B5FD;
-@define-color error #FB8585;
-@define-color success #34D399;
-@define-color warning #FBBF24;
-@define-color link #A5B4FC;
-@define-color link-hover #D4B5FD;
+@define-color bg-soft #090909;
+@define-color surface #090909;
+@define-color surface-2 #1c1c1c;
+@define-color surface-3 #262626;
+@define-color text #e0e0e0;
+@define-color text-heading #eeeeee;
+@define-color muted #d2d2d2;
+@define-color subtle #a0a0a0;
+@define-color comment #c5c5c5;
+@define-color border #636363;
+@define-color border-ui #777777;
+@define-color focus #6eccd1;
+@define-color accent #a7b5fd;
+@define-color accent-2 #c6d0fd;
+@define-color diagnostic #76c4f6;
+@define-color lavender #d6a2f6;
+@define-color error #fc9d95;
+@define-color success #86cf90;
+@define-color warning #dcb55e;
+@define-color link #a7b5fd;
+@define-color link-hover #c6d0fd;
 
 window#waybar {
-  background: rgba(13, 13, 15, 0.92);
+  background: rgba(18, 18, 18, 0.92);
   color: @text;
   border-bottom: 1px solid alpha(@accent, 0.26);
 }
@@ -32,12 +32,14 @@ window#waybar {
   color: @muted;
   background: transparent;
   border: 1px solid transparent;
+  padding: 0 8px;
 }
 
 #workspaces button.active {
   color: @accent;
   background: rgba(99, 102, 241, 0.28);
   border-color: alpha(@focus, 0.82);
+  font-weight: 500;
 }
 
 #clock,
@@ -47,9 +49,14 @@ window#waybar {
 #cpu,
 #memory,
 #tray {
-  background: rgba(230, 230, 230, 0.08);
+  background: rgba(224, 224, 224, 0.08);
   color: @text;
   border: 1px solid alpha(@border-ui, 0.78);
+  border-radius: 8px;
+  box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.1), 0 0 2px rgba(0, 0, 0, 0.05);
+  padding: 0 12px;
+  margin: 4px;
+  font-weight: 400;
 }
 
 #battery.warning { color: @warning; }

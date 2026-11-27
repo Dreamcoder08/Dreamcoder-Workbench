@@ -24,14 +24,16 @@ from dreamcoder_theme._math import mix
 from dreamcoder_theme.palette import load_variants
 from dreamcoder_theme.palette_tokens import VARIANTS
 from dreamcoder_theme.renderers_herdr import herdr_content
-from dreamcoder_theme.renderers_light_files import (
-    LIGHT_FILES,
-    ZELLIJ_LIGHT_CONFIG,
-    tmux_ukiyo_light_content,
-    zellij_light_config_content,
+from dreamcoder_theme.renderers_mode_files import (
+    MODE_FILES,
+    ZELLIJ_CONFIGS,
+    tmux_ukiyo_content,
+    zellij_config_content,
 )
 from dreamcoder_theme.renderers_opencode import opencode_content
 
+LIGHT_FILES = MODE_FILES["light"]
+ZELLIJ_LIGHT_CONFIG = ZELLIJ_CONFIGS["light"]
 ROOT = Path(__file__).resolve().parents[1]
 TOKENS = ROOT / "DreamcoderThemes/dreamcoder/tokens.json"
 HEX = re.compile(r"#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6})(?![0-9a-zA-Z])")
@@ -43,6 +45,10 @@ LIGHT_ONLY_BY_CONTENT = (
     "DreamcoderNushell/.config/nushell/dreamcoder-theme.nu",
     "DreamcoderTmux/.config/tmux/tmux-dreamcoder-base.conf",
     "DreamcoderYazi/.config/yazi/theme.toml",
+)
+ZELLIJ_CONFIG_PATHS = (
+    "DreamcoderZellij/.config/zellij/config-light.kdl",
+    "DreamcoderZellij/.config/zellij/config-dark.kdl",
 )
 # Written reasons are mandatory; an entry that is generated or untracked fails.
 ALLOWLIST: dict[str, str] = {}
@@ -84,10 +90,10 @@ def _generated_by_sync(tmp_root: Path) -> set[str]:
         seen.update(rel(base / name) for name in names.values())
         return [False] * len(names)
 
-    # The Zellij Light config is spliced in place, so its source must exist.
-    config = "DreamcoderZellij/.config/zellij/config-light.kdl"
-    (tmp_root / config).parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy(ROOT / config, tmp_root / config)
+    # The Zellij mode configs are spliced in place, so their sources must exist.
+    for config in ZELLIJ_CONFIG_PATHS:
+        (tmp_root / config).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(ROOT / config, tmp_root / config)
 
     variants = {name: dict(palette) for name, palette in VARIANTS.items()}
     with (
@@ -166,19 +172,20 @@ def test_opencode_light_shadow_is_warm_ink_not_black() -> None:
     assert shadow.group(1) == expected
 
 
-def test_opencode_dark_shadow_is_unchanged() -> None:
+def test_opencode_dark_shadow_is_the_graphite_elevation_ink() -> None:
     dark = load_variants(VARIANTS, TOKENS)["dark"]
-    assert "shadow_ink" not in dark
+    assert dark["shadow_ink"] == "#000000"
     shadow = re.search(r'"shadow": "(#[0-9a-fA-F]{6})"', opencode_content(dark))
     assert shadow
-    expected = [round(int(dark["bg"][i : i + 2], 16) * 0.75) for i in (1, 3, 5)]
-    assert [int(shadow.group(1)[i : i + 2], 16) for i in (1, 3, 5)] == expected
+    assert shadow.group(1) == mix(dark["bg"], dark["shadow_ink"], 0.25)
 
 
-def test_herdr_light_never_emits_the_dark_only_upstream_accent() -> None:
+def test_herdr_never_emits_the_upstream_accent_in_either_mode() -> None:
     profile = next(p for p in sync.SUPPORTED_PROFILES if p.is_complete)
-    assert "#6fa0af" not in herdr_content(profile, "light", VARIANTS["light"]).lower()
-    assert "#6fa0af" in herdr_content(profile, "dark", VARIANTS["dark"]).lower()
+    for mode in ("light", "dark"):
+        content = herdr_content(profile, mode, VARIANTS[mode])
+        assert "#6fa0af" not in content.lower()
+        assert f'accent = "{VARIANTS[mode]["accent"]}"' in content
 
 
 def _light_palette() -> dict[str, str]:
@@ -200,9 +207,11 @@ def test_light_only_files_never_target_dark_artifacts() -> None:
 def test_zellij_light_config_splice_keeps_everything_but_the_theme_block() -> None:
     light = _light_palette()
     current = (ROOT / ZELLIJ_LIGHT_CONFIG).read_text(encoding="utf-8")
-    assert zellij_light_config_content(light, current) == current, "the splice is idempotent"
+    assert zellij_config_content(light, "dreamcoder-light", current) == current, (
+        "the splice is idempotent"
+    )
     foreign = current.replace("#874004", "#123456")
-    spliced = zellij_light_config_content(light, foreign)
+    spliced = zellij_config_content(light, "dreamcoder-light", foreign)
     assert "#123456" not in spliced and light["accent"] in spliced
     assert spliced.count("\nthemes {\n") == 1 and "dreamcoder-dark" not in spliced
     assert spliced.startswith(current.split("\nthemes {\n")[0])
@@ -213,24 +222,26 @@ def test_zellij_light_config_splice_keeps_everything_but_the_theme_block() -> No
 
 def test_zellij_light_config_splice_rejects_a_config_without_a_themes_block() -> None:
     with pytest.raises(ValueError, match=r"themes \{ \}"):
-        zellij_light_config_content(_light_palette(), 'theme "dreamcoder-light"\n')
+        zellij_config_content(_light_palette(), "dreamcoder-light", 'theme "dreamcoder-light"\n')
 
 
-def test_sync_light_files_writes_every_file_and_skips_a_missing_zellij_config(
+def test_sync_mode_files_light_writes_every_file_and_skips_a_missing_zellij_config(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(sync, "ROOT", tmp_path)
     light = _light_palette()
 
-    assert sync.sync_light_files(light) == [True] * len(LIGHT_FILES)
+    assert sync.sync_mode_files("light", light) == [True] * len(LIGHT_FILES)
     assert not (tmp_path / ZELLIJ_LIGHT_CONFIG).exists()
     for item in LIGHT_FILES:
         assert (tmp_path / item.path).read_text() == item.renderer(light).rstrip("\n") + "\n"
 
-    assert sync.sync_light_files(light) == [False] * len(LIGHT_FILES), "a second run is a no-op"
+    assert sync.sync_mode_files("light", light) == [False] * len(LIGHT_FILES), (
+        "a second run is a no-op"
+    )
 
 
-def test_sync_light_files_splices_an_existing_zellij_config(
+def test_sync_mode_files_light_splices_an_existing_zellij_config(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(sync, "ROOT", tmp_path)
@@ -238,7 +249,7 @@ def test_sync_light_files_splices_an_existing_zellij_config(
     config.parent.mkdir(parents=True)
     config.write_text('themes {\n    old {\n        bg "#123456"\n    }\n}\n\ntheme "old"\n')
 
-    changes = sync.sync_light_files(_light_palette())
+    changes = sync.sync_mode_files("light", _light_palette())
 
     assert changes[-1] is True
     text = config.read_text()
@@ -247,6 +258,6 @@ def test_sync_light_files_splices_an_existing_zellij_config(
 
 
 def test_tmux_ukiyo_light_file_uses_exact_light_tokens() -> None:
-    out = tmux_ukiyo_light_content(_light_palette())
+    out = tmux_ukiyo_content(_light_palette())
     assert not _stale(out, _light_tokens())
     assert out.count("@ukiyo-color-") == 11

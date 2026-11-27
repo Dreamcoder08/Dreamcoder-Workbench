@@ -63,11 +63,7 @@ from .renderers import (
     zellij_content,
     zsh_syntax_content,
 )
-from .renderers_light_files import (
-    LIGHT_FILES,
-    ZELLIJ_LIGHT_CONFIG,
-    zellij_light_config_content,
-)
+from .renderers_mode_files import MODE_FILES, ZELLIJ_CONFIGS, zellij_config_content
 from .renderers_orca import sync_orca_theme
 from .settings import (
     ROOT,
@@ -893,17 +889,21 @@ def sync_herdr_repo_variants(
     return changes
 
 
-def sync_light_files(light: dict[str, str]) -> list[bool]:
-    """Write the Light-only files (``renderers_light_files``) from the Light palette.
+def sync_mode_files(mode: str, palette: dict[str, str]) -> list[bool]:
+    """Write one mode's generated files (``renderers_mode_files``) from its palette.
 
-    The Zellij Light config is spliced in place; without it (a partial
+    The Zellij mode config is spliced in place; without it (a partial
     checkout) there is nothing to splice and nothing is created.
     """
-    changes = [write_if_changed(ROOT / item.path, item.renderer(light)) for item in LIGHT_FILES]
-    config = ROOT / ZELLIJ_LIGHT_CONFIG
+    changes = [
+        write_if_changed(ROOT / item.path, item.renderer(palette)) for item in MODE_FILES[mode]
+    ]
+    config = ROOT / ZELLIJ_CONFIGS[mode]
     if config.is_file():
         changes.append(
-            write_if_changed(config, zellij_light_config_content(light, config.read_text()))
+            write_if_changed(
+                config, zellij_config_content(palette, f"dreamcoder-{mode}", config.read_text())
+            )
         )
     return changes
 
@@ -1137,8 +1137,9 @@ def sync_repo_snippets(variants: dict[str, dict[str, str]], active: dict[str, st
         )
     )
 
-    # Light-only files: terminals, Nushell, Tmux, Yazi and the Zellij Light config.
-    repo_changes += sync_light_files(variants["light"])
+    # Per-mode files: terminals, Nushell, Tmux, Yazi (Light) and the Zellij config.
+    for mode_name in ("light", "dark"):
+        repo_changes += sync_mode_files(mode_name, variants[mode_name])
 
     # Herdr repository variants are intentionally separate from live selection.
     repo_changes += sync_herdr_repo_variants(variants)

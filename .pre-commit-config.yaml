@@ -52,7 +52,7 @@ repos:
         pass_filenames: false
       - id: dreamcoder-preview-regenerate
         name: Regenerate theme preview
-        entry: bash -c 'python scripts/generate-theme-preview.py && python scripts/generate-specimen.py >/dev/null && python scripts/export-dtcg.py >/dev/null && git diff --quiet --exit-code docs/generated/dreamcoder-theme-preview.md docs/generated/dreamcoder-light-specimen.svg docs/generated/dreamcoder.tokens.json'
+        entry: bash -c 'python scripts/generate-theme-preview.py && python scripts/generate-specimen.py >/dev/null && python scripts/generate-specimen.py --mode dark >/dev/null && python scripts/export-dtcg.py >/dev/null && git diff --quiet --exit-code docs/generated/dreamcoder-theme-preview.md docs/generated/dreamcoder-light-specimen.svg docs/generated/dreamcoder-dark-specimen.svg docs/generated/dreamcoder.tokens.json'
         language: system
         files: ^(DreamcoderThemes/dreamcoder/.*\.json|src/dreamcoder_theme/.*|scripts/(generate-(theme-preview|specimen)|export-dtcg)\.py)$
         pass_filenames: false

@@ -18,16 +18,16 @@ class DreamcoderDarkIdentityTest(unittest.TestCase):
         self.assertEqual(self.dark["bg"], "#000000")
         self.assertEqual(
             [self.dark[f"surface{index}"] for index in range(4)],
-            ["#0B0B0B", "#0D0D0F", "#1F1F1F", "#2E2E2E"],
+            ["#090909", "#121212", "#1c1c1c", "#262626"],
         )
-        self.assertEqual(self.dark["hover"], "#3A3A3A")
+        self.assertEqual(self.dark["hover"], "#303030")
 
     def test_dark_mode_has_accessible_runtime_semantics(self):
-        self.assertEqual(self.dark["accent"], "#A5B4FC")
-        self.assertEqual(self.dark["focus"], "#3B82F6")
-        self.assertEqual(self.dark["error"], "#FB8585")
-        self.assertEqual(self.dark["warning"], "#FBBF24")
-        self.assertEqual(self.dark["success"], "#34D399")
+        self.assertEqual(self.dark["accent"], "#a7b5fd")
+        self.assertEqual(self.dark["focus"], "#6eccd1")
+        self.assertEqual(self.dark["error"], "#fc9d95")
+        self.assertEqual(self.dark["warning"], "#dcb55e")
+        self.assertEqual(self.dark["success"], "#86cf90")
 
     def test_dark_mode_keeps_requested_oled_aliases(self):
         aliases = self.dark["aliases"]

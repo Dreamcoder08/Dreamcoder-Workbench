@@ -51,7 +51,7 @@ assert_themes() {
 @test "pi-theme.sh generates canonical dark in both homes" {
     run bash "${SCRIPT}"
     [[ "${status}" -eq 0 ]]
-    assert_themes '#A5B4FC'
+    assert_themes "$(token_accent dark)"
 }
 
 @test "pi-theme.sh generates canonical light in both homes" {
@@ -77,7 +77,7 @@ assert_themes() {
         [[ ! -e "${MATUGEN_CALLS}" ]]
         [[ "${status}" -eq 0 ]]
         if [[ "${mode}" == dark ]]; then
-            assert_themes '#A5B4FC'
+            assert_themes "$(token_accent dark)"
         else
             assert_themes "$(token_accent light)"
         fi
@@ -87,7 +87,7 @@ assert_themes() {
 @test "pi-theme.sh ignores a stale DREAMCODER_THEME_PROFILE" {
     run env DREAMCODER_THEME_PROFILE=night bash "${SCRIPT}"
     [[ "${status}" -eq 0 ]]
-    assert_themes '#A5B4FC'
+    assert_themes "$(token_accent dark)"
 }
 
 @test "pi-theme.sh fails closed for invalid mode before modifying themes" {
@@ -105,5 +105,5 @@ assert_themes() {
     [[ "${status}" -eq 0 ]]
     [[ -f "${PI_THEME}" && ! -L "${PI_THEME}" ]]
     grep -q '"theme": "dreamcoder-light/dreamcoder-dark"' "${PI_SETTINGS}"
-    grep -q '#A5B4FC' "${GENTLE_SHELL_HOME}/themes/dreamcoder.json"
+    grep -q "$(token_accent dark)" "${GENTLE_SHELL_HOME}/themes/dreamcoder.json"
 }

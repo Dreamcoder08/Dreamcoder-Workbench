@@ -103,7 +103,10 @@ def test_contract_values_match_the_spec() -> None:
         }
         assert (contract["lightness"]["min"], contract["lightness"]["max"]) == band
         assert contract["chroma"] == {"p95_max": 0.06, "mean_max": 0.035}
-        assert contract["hue"] == {"center": 70, "tolerance": 25, "min_mean_chroma": 0.01}
+        hue = {"light": {"center": 70, "tolerance": 25}, "dark": {"center": 275, "tolerance": 30}}[
+            mode
+        ]
+        assert contract["hue"] == {**hue, "min_mean_chroma": 0.01}
         safe = contract["safe_zone"]
         assert (safe["fraction"], safe["max_std_lightness"]) == (0.06, 0.035)
         assert contract["readability"] == {
@@ -451,3 +454,21 @@ def test_checker_without_any_imagemagick_exits_2(tmp_path: Path) -> None:
     assert result.stderr.strip() == (
         "check-wallpaper: ImageMagick is required (`magick`, or `convert` and `identify`)"
     )
+
+
+def test_dark_hue_window_follows_the_iris_accent() -> None:
+    # S3 of the Dark feature: Dark keeps the indigo identity, so a tinted night wallpaper must lean to
+    # the iris brand hue, not to Light's warm paper axis.
+    tokens = _tokens()
+    iris = [v for k, v in tokens["primitives"]["dark"].items() if k.startswith("iris.")]
+    accent_hue = float(iris[0].split()[-1].rstrip(")"))
+    center = tokens["components"]["wallpaper"]["dark"]["hue"]["center"]
+    assert abs((center - accent_hue + 180) % 360 - 180) <= 10
+
+
+@needs_magick
+def test_cli_indigo_night_passes_and_warm_night_fails_in_dark(tmp_path: Path) -> None:
+    indigo = _image(tmp_path / "indigo.png", UHD, "#0c0e1c", "#050611")
+    warm = _image(tmp_path / "warm.png", UHD, "#190c03", "#0e0501")
+    assert _run("dark", indigo).stdout.strip() == f"OK {indigo}"
+    assert "WALLPAPER_HUE" in _codes(_run("dark", warm))

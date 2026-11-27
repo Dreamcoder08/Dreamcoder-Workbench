@@ -8,13 +8,13 @@ Nushell config for Dreamcoder Dots, adapted from [Gentleman.Dots](https://github
 
 | Token   | Color     |
 | ------- | --------- |
-| BG      | `#100f0d` |
-| Text    | `#e8dfd0` |
-| Accent  | `#d99555` |
-| Success | `#4db35f` |
-| Warning | `#e8b866` |
-| Error   | `#ed8a7a` |
-| Info    | `#5f95ca` |
+| BG      | `#000000` |
+| Text    | `#e0e0e0` |
+| Accent  | `#a7b5fd` |
+| Success | `#86cf90` |
+| Warning | `#dcb55e` |
+| Error   | `#fc9d95` |
+| Info    | `#76c4f6` |
 
 ## Usage
 

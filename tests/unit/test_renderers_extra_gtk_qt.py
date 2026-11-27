@@ -193,6 +193,26 @@ def test_qt_text_is_readable_in_every_group(group):
 
 
 @pytest.mark.parametrize("mode", ["dark", "light"])
+def test_qt_disabled_selection_text_is_the_readable_comment_role(mode):
+    """Disabled HighlightedText sits on selection: use comment (>= 4.5:1), not disabled."""
+    p = VARIANTS[mode]
+    colors = qt_colors(p)["disabled_colors"]
+    assert colors["HighlightedText"] == p["comment"].lower()
+    assert colors["Highlight"] == p["selection_bg"].lower()
+    assert contrast(colors["HighlightedText"], colors["Highlight"]) >= 4.5
+    # Every other disabled text role keeps the canonical disabled token.
+    for role in (
+        "Text",
+        "WindowText",
+        "ButtonText",
+        "ToolTipText",
+        "BrightText",
+        "PlaceholderText",
+    ):
+        assert colors[role] == p["disabled"].lower(), role
+
+
+@pytest.mark.parametrize("mode", ["dark", "light"])
 def test_renderers_are_pure_deterministic_and_palette_driven(mode):
     p = dict(VARIANTS[mode])
     before = dict(p)
@@ -274,6 +294,6 @@ def test_native_gtk_import_cascade_survives_matugen_overwrite(tmp_path, major):
         )
         assert not probe.stderr, probe.stderr
         assert "@define-color view_bg_color rgb(0,0,0);" in probe.stdout
-        assert "@define-color view_fg_color rgb(230,230,230);" in probe.stdout
+        assert "@define-color view_fg_color rgb(224,224,224);" in probe.stdout
         assert probe.stdout.count("@define-color view_bg_color ") == 1
         assert "background-color: @view_bg_color;" in probe.stdout

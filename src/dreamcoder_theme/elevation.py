@@ -2,10 +2,15 @@
 
 One key light, overhead and slightly in front of the screen, so every shadow
 falls straight down. Each level is two terms: a Lambert key
-(``0 {z/2}px {z}px``) and a sky ambient (``0 0 {2z}px``). The shadow colour is a
-warm-ink primitive, never black, because interreflection off warm paper keeps
-the umbra warm. A mode without a component colour resolves to nothing, so its
-output stays untouched.
+(``0 {z/2}px {z}px``) and a sky ambient (``0 0 {2z}px``). The shadow colour is
+the mode's ink primitive: warm ink on Light, because interreflection off warm
+paper keeps the umbra warm, and graphite.000 on Dark, where the black canvas
+swallows it and only a window floating over the lit wallpaper shows it.
+
+A mode may also name tonal elevation: on an emissive OLED canvas each level
+rises to a lighter neutral surface (``surface``), and the top two levels catch
+the overhead key on a lighter top edge (``edge``). A mode without a component
+colour resolves to nothing, so its output stays untouched.
 """
 
 from __future__ import annotations
@@ -40,6 +45,13 @@ def _shadow(ink: str, z: float, key_alpha: float, ambient_alpha: float) -> str:
     return f"{key}, {ambient}"
 
 
+def _tonal(group: dict[str, Any], primitives: dict[str, str], mode: str) -> dict[str, str] | None:
+    names: dict[str, str] | None = group.get(mode)
+    if names is None:
+        return None
+    return {level: _hex(primitives, mode, name) for level, name in names.items()}
+
+
 def adopts_components(tokens: dict[str, Any], mode: str) -> bool:
     """A mode adopts the component tier when it names a shadow ink; others are untouched."""
     ink: dict[str, Any] = tokens.get("components", {}).get("elevation", {}).get("ink", {})
@@ -70,12 +82,17 @@ def resolve_components(tokens: dict[str, Any], mode: str) -> dict[str, Any]:
     if border_name is not None:
         border["hairline_color"] = _hex(primitives, mode, border_name)
 
-    return {
+    resolved: dict[str, Any] = {
         "shadow_ink": ink,
         "elevation": shadows,
         "radius": {k: f"{_number(v)}px" for k, v in components.get("radius", {}).items()},
         "border": border,
     }
+    for key in ("surface", "edge"):
+        tonal = _tonal(elevation.get(key, {}), primitives, mode)
+        if tonal is not None:
+            resolved[key] = tonal
+    return resolved
 
 
 def palette_keys(tokens: dict[str, Any], mode: str) -> dict[str, str]:
@@ -87,4 +104,6 @@ def palette_keys(tokens: dict[str, Any], mode: str) -> dict[str, str]:
     keys.update({f"elevation_{k}": v for k, v in resolved["elevation"].items()})
     keys.update({f"radius_{k}": v for k, v in resolved["radius"].items()})
     keys.update({f"border_{k}": v for k, v in resolved["border"].items()})
+    for tonal in ("surface", "edge"):
+        keys.update({f"elevation_{tonal}_{k}": v for k, v in resolved.get(tonal, {}).items()})
     return keys

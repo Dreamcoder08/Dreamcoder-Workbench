@@ -116,12 +116,20 @@ def test_validator_rejects_a_color_with_two_components(
     assert list(validator.iter_errors(broken)), "the schema must reject a 2-component colour"
 
 
-def test_light_primitives_are_oklch_with_exact_hex(
+def test_every_mode_with_primitives_is_exported(
     exported: dict[str, Any], source: dict[str, Any]
 ) -> None:
-    tokens = walk(exported["primitive"]["light"])
-    primitives = source["primitives"]["light"]
-    assert len(tokens) == len(primitives) == 26
+    assert set(exported["primitive"]) - {"$description"} == set(source["primitives"])
+    assert {"light", "dark"} <= set(source["primitives"])
+
+
+@pytest.mark.parametrize("mode", ["light", "dark"])
+def test_primitives_are_oklch_with_exact_hex(
+    exported: dict[str, Any], source: dict[str, Any], mode: str
+) -> None:
+    tokens = walk(exported["primitive"][mode])
+    primitives = source["primitives"][mode]
+    assert len(tokens) == len(primitives) > 0
     for name, text in primitives.items():
         family, step = name.split(".")
         token = tokens[(family, step)]
@@ -134,33 +142,41 @@ def test_light_primitives_are_oklch_with_exact_hex(
         }
 
 
-def test_light_semantic_hex_roles_alias_their_primitive(
-    exported: dict[str, Any], source: dict[str, Any]
+@pytest.mark.parametrize("mode", ["light", "dark"])
+def test_semantic_hex_roles_alias_their_primitive(
+    exported: dict[str, Any], source: dict[str, Any], mode: str
 ) -> None:
-    tokens = walk(exported["semantic"]["light"])
-    for role, name in source["bindings"]["light"].items():
+    tokens = walk(exported["semantic"][mode])
+    bindings = source["bindings"][mode]
+    assert len(bindings) >= 40
+    for role, name in bindings.items():
         token = tokens[(role,)]
         assert token["$type"] == "color"
-        assert token["$value"] == f"{{primitive.light.{name}}}"
+        assert token["$value"] == f"{{primitive.{mode}.{name}}}"
         concrete = resolve(exported, token)
-        assert concrete["$value"]["hex"] == source["modes"]["light"][role].lower()
+        assert concrete["$value"]["hex"] == source["modes"][mode][role].lower()
 
 
-def test_every_alias_resolves_to_an_existing_token(exported: dict[str, Any]) -> None:
+def test_every_alias_resolves_to_an_existing_token(
+    exported: dict[str, Any], source: dict[str, Any]
+) -> None:
     aliases = 0
     for token in walk(exported).values():
         value = token["$value"]
         if isinstance(value, str) and value.startswith("{"):
             aliases += 1
             assert "$value" in resolve(exported, token)
-    assert aliases >= 40
+    bound = sum(len(roles) for roles in source["bindings"].values())
+    assert aliases >= bound
 
 
-def test_light_translucent_roles_are_srgb_with_alpha(
-    exported: dict[str, Any], source: dict[str, Any]
+@pytest.mark.parametrize("mode", ["light", "dark"])
+def test_translucent_roles_are_srgb_with_alpha(
+    exported: dict[str, Any], source: dict[str, Any], mode: str
 ) -> None:
-    tokens = walk(exported["semantic"]["light"])
-    for role, raw in source["modes"]["light"].items():
+    tokens = walk(exported["semantic"][mode])
+    translucent = 0
+    for role, raw in source["modes"][mode].items():
         match = RGBA.match(str(raw))
         if match is None:
             continue
@@ -172,9 +188,11 @@ def test_light_translucent_roles_are_srgb_with_alpha(
             "alpha": alpha,
             "hex": base,
         }
+        translucent += 1
+    assert translucent > 0
 
 
-def test_dark_semantic_roles_are_srgb_colours(
+def test_dark_semantic_roles_resolve_to_their_colour(
     exported: dict[str, Any], source: dict[str, Any]
 ) -> None:
     tokens = walk(exported["semantic"]["dark"])
@@ -184,14 +202,14 @@ def test_dark_semantic_roles_are_srgb_colours(
             continue
         token = tokens[(role,)]
         assert token["$type"] == "color"
-        value = token["$value"]
-        assert value["colorSpace"] == "srgb"
+        value = resolve(exported, token)["$value"]
         assert HEX.match(value["hex"])
-        assert value["components"] == srgb(value["hex"])
         if raw.startswith("#"):
             assert value["hex"] == raw.lower()
             assert "alpha" not in value
         else:
+            assert value["colorSpace"] == "srgb"
+            assert value["components"] == srgb(value["hex"])
             match = RGBA.match(raw)
             assert match is not None
             assert value["alpha"] == float(match[4])
