@@ -255,3 +255,11 @@ def test_existing_make_targets_are_untouched() -> None:
     assert result.returncode == 0, result.stderr
     assert "ruff check src/ tests/" in result.stdout
     assert "ruff format --check src/ tests/" in result.stdout
+
+
+def test_theme_check_checks_each_wallpaper_mode_with_its_own_mode_flag() -> None:
+    dry = _run("make", "-n", "theme-check", cwd=ROOT)
+    assert dry.returncode == 0, dry.stderr
+    for mode in ("light", "dark"):
+        assert f"DreamcoderWallpapers/dreamcoder-{mode}-*.png" in dry.stdout
+        assert f"--mode {mode}" in dry.stdout

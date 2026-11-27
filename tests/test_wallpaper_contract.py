@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import copy
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -403,3 +404,47 @@ def test_cli_requires_a_mode_and_a_file() -> None:
         )
         assert result.returncode == 2
         assert result.stdout == ""
+
+
+def _im6_only_path(tmp_path: Path) -> str:
+    """A PATH with ImageMagick 6 style `convert`/`identify` and no `magick`."""
+    magick = shutil.which("magick")
+    assert magick is not None
+    shims = tmp_path / "im6-bin"
+    shims.mkdir()
+    for name, prefix in (("convert", f'"{magick}"'), ("identify", f'"{magick}" identify')):
+        shim = shims / name
+        shim.write_text(f'#!/bin/sh\nexec {prefix} "$@"\n', encoding="utf-8")
+        shim.chmod(0o755)
+    return str(shims)
+
+
+@needs_magick
+def test_checker_falls_back_to_imagemagick_6_commands(tmp_path: Path) -> None:
+    # CI runners ship ImageMagick 6 (`convert`/`identify`), not the IM7 `magick` entry point.
+    image = _calm_light(tmp_path / "calm.png")
+    result = subprocess.run(
+        [sys.executable, str(CHECKER), "--mode", "light", str(image)],
+        capture_output=True,
+        text=True,
+        check=False,
+        env={**os.environ, "PATH": _im6_only_path(tmp_path)},
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert result.stdout.strip() == f"OK {image}"
+
+
+def test_checker_without_any_imagemagick_exits_2(tmp_path: Path) -> None:
+    empty = tmp_path / "empty-bin"
+    empty.mkdir()
+    result = subprocess.run(
+        [sys.executable, str(CHECKER), "--mode", "light", str(tmp_path / "x.png")],
+        capture_output=True,
+        text=True,
+        check=False,
+        env={**os.environ, "PATH": str(empty)},
+    )
+    assert result.returncode == 2
+    assert result.stderr.strip() == (
+        "check-wallpaper: ImageMagick is required (`magick`, or `convert` and `identify`)"
+    )

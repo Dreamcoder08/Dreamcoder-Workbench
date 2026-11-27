@@ -45,15 +45,19 @@ adr:
 
 # Theme regression gate: regenerate every output from tokens.json, require that it
 # matches the index (stage intentional changes first), then run the theme gates.
-# The wallpaper step checks DreamcoderWallpapers/dreamcoder-*.png and is skipped when
+# The wallpaper step checks DreamcoderWallpapers/dreamcoder-{light,dark}-*.png per mode, skipped when
 # the canonical set is absent.
+# One mode per call: the mode is part of the canonical file name.
+check_wallpapers = set -- DreamcoderWallpapers/dreamcoder-$(1)-*.png; if [ -e "$$1" ]; then $(PYTHON) scripts/check-wallpaper.py --mode $(1) "$$@"; else echo "check-wallpaper: no canonical $(1) wallpapers, skipped"; fi
+
 theme-check:
 	DREAMCODER_WRITE_LIVE=0 DREAMCODER_THEME_MODE=dark PYTHONPATH=src $(PYTHON) scripts/sync-dreamcoder-theme.py
 	DREAMCODER_WRITE_LIVE=0 DREAMCODER_THEME_MODE=light PYTHONPATH=src $(PYTHON) scripts/sync-dreamcoder-theme.py
 	git diff --exit-code
 	PYTHONPATH=src $(PYTHON) scripts/verify-theme-health.py
 	$(PYTHON) -m pytest -q -p no:cacheprovider -o addopts="" tests/test_light_*.py tests/test_token_*.py tests/test_apca_*.py tests/test_wallpaper_contract.py tests/test_theme_*.py
-	set -- DreamcoderWallpapers/dreamcoder-*.png; if [ -e "$$1" ]; then $(PYTHON) scripts/check-wallpaper.py "$$@"; else echo "check-wallpaper: no canonical wallpapers, skipped"; fi
+	$(call check_wallpapers,light)
+	$(call check_wallpapers,dark)
 
 theme-diff:
 	$(PYTHON) scripts/theme-diff.py $(REF)

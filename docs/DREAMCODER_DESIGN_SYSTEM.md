@@ -136,7 +136,7 @@ Colour in chrome means something, and it is applied the way a thin pigment layer
 
 The contract checks images; it does not change the adaptive palette that Matugen derives from a wallpaper.
 
-**Status:** the canonical set is `DreamcoderWallpapers/dreamcoder-*.png`. The earlier exports in that directory do not meet the contract (size, chroma, safe zone, and for the dark ones lightness and readability); they are replaced when the canonical set lands. For applying a wallpaper, see [Wallpaper and palette setup](../scripts/WALLPAPER_SETUP.md).
+**Status:** the canonical set is `DreamcoderWallpapers/dreamcoder-light-*.png` and `dreamcoder-dark-*.png`. The earlier exports in that directory do not meet the contract (size, chroma, safe zone, and for the dark ones lightness and readability); they are replaced when the canonical set lands. For applying a wallpaper, see [Wallpaper and palette setup](../scripts/WALLPAPER_SETUP.md).
 
 ### Finishing pipeline
 
@@ -153,7 +153,7 @@ Then check the result with `scripts/check-wallpaper.py` (below).
 
 | Command | What it does |
 | --- | --- |
-| `make theme-check` | Regenerates every output from `tokens.json` for dark and light (repo-only sync), fails on `git diff` against the index (stage intentional changes first), runs `verify-theme-health.py`, the theme tests, and the wallpaper contract on `DreamcoderWallpapers/dreamcoder-*.png` (skipped when none exist). Set `PYTHON` to choose the interpreter, for example `make theme-check PYTHON="uv run --quiet python"` |
+| `make theme-check` | Regenerates every output from `tokens.json` for dark and light (repo-only sync), fails on `git diff` against the index (stage intentional changes first), runs `verify-theme-health.py`, the theme tests, and the wallpaper contract on `DreamcoderWallpapers/dreamcoder-light-*.png` and `dreamcoder-dark-*.png` (skipped when none exist). Set `PYTHON` to choose the interpreter, for example `make theme-check PYTHON="uv run --quiet python"` |
 | `make theme-diff [REF=origin/main]` / `scripts/theme-diff.py [REF]` | Perceptual regression report per semantic role between a git ref and the working tree: ΔE2000, WCAG and APCA deltas. A role at ΔE ≥ 2 is marked as visible; a contrast floor met in the base and missed in the head is reported as crossed (`--fail-on-floor` turns that into exit 1) |
 | `make specimen` / `scripts/generate-specimen.py` | Writes the deterministic Light specimen board below |
 | `scripts/check-wallpaper.py --mode light FILE…` | Checks images against the wallpaper contract; prints `OK FILE` or one finding per violated rule; exit 1 on any finding |

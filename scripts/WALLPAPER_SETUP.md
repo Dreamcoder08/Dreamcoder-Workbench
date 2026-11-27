@@ -8,7 +8,7 @@ Applying a wallpaper re-themes Dreamcoder Workbench from it. The palette is **ad
 ./scripts/set-wallpaper.sh /path/to/wallpaper.png
 ```
 
-The canonical set lives in `DreamcoderWallpapers/dreamcoder-*.png`. Its limits and finishing pipeline are defined in the [wallpaper contract](../docs/DREAMCODER_DESIGN_SYSTEM.md#wallpaper-contract) of the design-system page; this file does not repeat them.
+The canonical set lives in `DreamcoderWallpapers/dreamcoder-light-*.png` and `dreamcoder-dark-*.png`. Its limits and finishing pipeline are defined in the [wallpaper contract](../docs/DREAMCODER_DESIGN_SYSTEM.md#wallpaper-contract) of the design-system page; this file does not repeat them.
 
 ## What happens
 
@@ -42,4 +42,4 @@ Kitty reloads with `pkill -SIGUSR1 kitty`. Ghostty has no signal reload: use `re
 scripts/check-wallpaper.py --mode light FILE.png
 ```
 
-`make theme-check` runs the same check over `DreamcoderWallpapers/dreamcoder-*.png`.
+`make theme-check` runs the same check over `DreamcoderWallpapers/dreamcoder-light-*.png` and `dreamcoder-dark-*.png`.
