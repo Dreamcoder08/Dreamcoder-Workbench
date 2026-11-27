@@ -149,3 +149,13 @@ Branch `feat/dark-coherence` (stacked on `feat/light-coherence`) in worktree `.l
   (AAA on surface2, quiet APCA floor, even ramp); the parent's own comment window becomes [7.0, 9.5]. Outcome vs
   start: text 17.6 → 15.0:1, comment 13.3 → ≈ 9.4:1, text–comment gap 4.3 → 5.7. The Qt disabled-on-selection
   change (L13) stays necessary (`disabled` ≈ L .663 is under 4.5:1 on selection).
+- L16 — T9 fourth conflict (worker): with comment ≈ 9.4:1 two standing nvim readability guards fail —
+  comment vs subtle contrast ≥ 1.5 (measured 1.165) and string (sage) vs comment distance ≥ 80 (59.3) — plus the
+  Claude Code dark `diffAddedWord` band at 6.89:1 (< 7.0). Root cause (parent, measured): with `disabled` held by
+  the quiet APCA floor (≈ L .663) and subtle one step above (L .706), the comment/subtle ≥ 1.5 guard needs comment
+  ≥ L ≈ .825 (≈ 12.2:1). The earlier bright comment was forced by legitimate guards, not an oversight. Decision:
+  keep every standing guard; correct only the parent's own new targets. Ramp: heading L .945, text .905
+  (≈ 15.9:1), muted .865, comment .825, subtle .706, disabled .663; own windows: text [14, 16], heading ≤ 18.0,
+  comment [7.0, 12.5]. Outcome: halation reduced (text 17.6 → ≈ 15.9:1, heading 20.1 → ≈ 17.9:1); comment
+  recession NOT achievable under the distinctness guards (comment/text ratio ≈ unchanged). The Claude Code dark word
+  tint is a derived value: tune it (approved). Keep the Qt disabled-on-selection change (still needed).
