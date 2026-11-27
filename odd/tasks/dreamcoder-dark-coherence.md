@@ -115,3 +115,7 @@ Branch `feat/dark-coherence` (stacked on `feat/light-coherence`) in worktree `.l
   `qt6ct-dark.conf`, each pinned to its generator). Light byte-identical. For T6/T7: docs and theme-engine skill
   still name `renderers_light_files.py`/`sync_light_files`; `DreamcoderNushell/env.nu` prompt literals (both modes)
   remain; Dark tmux ukiyo notice/highlight now accent_2/focus — check live.
+- L9 — T5 result: Dark wallpaper hue window 275° ± 30 (iris accent hue; law test keeps it within 10° of the iris
+  primitive), Light unchanged at 70° ± 25. RED 3 → GREEN 55: an indigo night passes in dark mode, a warm night fails
+  WALLPAPER_HUE. The four existing blue night wallpapers no longer fail hue; they still fail size, lightness,
+  safe zone and readability, as they should.

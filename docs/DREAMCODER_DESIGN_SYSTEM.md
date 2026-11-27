@@ -129,7 +129,7 @@ Colour in chrome means something, and it is applied the way a thin pigment layer
 | Size | ≥ 3840×2160, 16:9 ±1% | same | Native 4K, never an upscaled blur |
 | Mean lightness (OKLab L) | 0.86–0.97 | 0.08–0.22 | Sits in the paper band of the UI |
 | Chroma | p95 ≤ 0.060, mean ≤ 0.035 | same | A saturated wallpaper overpowers the UI paper |
-| Hue | chroma-weighted mean within ±25° of 70° when mean chroma ≥ 0.01 | same | Stays on the paper, clay and umber axis |
+| Hue | chroma-weighted mean within ±25° of 70° when mean chroma ≥ 0.01 | within ±30° of 275° (the iris accent hue) | Light stays on the paper, clay and umber axis; a tinted Dark wallpaper leans to the indigo identity |
 | Bar safe zone (top and bottom 6%) | lightness std ≤ 0.035, mean ≥ 0.88 | lightness std ≤ 0.035 | Quiet bands under Waybar |
 | Bar readability | `module_rgba` over the darkest 1% of the top band keeps `text` ≥ 7:1 and `muted` ≥ 4.5:1 (WCAG) | same | Text stays legible on the worst pixels |
 | Panel readability | `panel_rgba` over the darkest 1% of the image keeps `text` ≥ 7:1 | same | Same, for panels |
