@@ -263,3 +263,22 @@ def test_theme_check_checks_each_wallpaper_mode_with_its_own_mode_flag() -> None
     for mode in ("light", "dark"):
         assert f"DreamcoderWallpapers/dreamcoder-{mode}-*.png" in dry.stdout
         assert f"--mode {mode}" in dry.stdout
+
+
+@pytest.mark.skipif(shutil.which("make") is None, reason="make not installed")
+def test_failing_wallpaper_check_stops_make_before_the_next_mode(tmp_path: Path) -> None:
+    (tmp_path / "DreamcoderWallpapers").mkdir()
+    for mode in ("light", "dark"):
+        (tmp_path / "DreamcoderWallpapers" / f"dreamcoder-{mode}-a b.png").write_bytes(b"x")
+    probe = tmp_path / "probe.mk"
+    probe.write_text(
+        "probe:\n\t$(call check_wallpapers,light)\n\t$(call check_wallpapers,dark)\n\techo END\n",
+        encoding="utf-8",
+    )
+    result = _run(
+        "make", "-f", ROOT / "Makefile", "-f", probe, "probe", "PYTHON=false", cwd=tmp_path
+    )
+    assert result.returncode != 0
+    assert "--mode light" in result.stdout
+    assert "--mode dark" not in result.stdout
+    assert "END" not in result.stdout

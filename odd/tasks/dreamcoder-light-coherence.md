@@ -269,3 +269,8 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
   343 theme tests, no drift. T14 benchmark in `odd/evidence/light-coherence/t14-benchmark.md`: leads on weakest
   accent (6.44:1), muted text (6.82:1) and isoluminance (L spread 0.002); behind Catppuccin Latte / GitHub
   Primer on min ΔE (15.1 vs 16.4/16.1, umber↔ochre) and GitHub on APCA body (99 vs 103, warm paper by design).
+- L31 — CI independent verify: PASS (S4) with advisories. Fixed A1: wallpaper tests build images with IM6
+  `convert` when `magick` is absent, so CI exercises the checker's IM6 path (IM6-only PATH: 52 passed, 1
+  skipped); added the probe that a failing wallpaper step stops `make` before the next mode (the suggested file
+  name missed the glob; corrected). Unverified until CI runs on GitHub: real-IM6 run, drift probe on a
+  non-worktree clone (U1–U3).
