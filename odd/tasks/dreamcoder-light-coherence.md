@@ -260,3 +260,8 @@ Branch `feat/light-coherence` off `origin/main` in worktree `.local-backups/work
   schedule (Light 07:00–18:00); the Light screenshot was not taken at night to avoid fighting the schedule.
   `t11-desktop-after.png` shows Dark with the mode-agnostic border variant and badge wash live. Light visual
   check pending for daylight hours.
+- L29 — Before CI: two latent T10 defects fixed in 06aed16 — `theme-check` called `check-wallpaper.py` without
+  `--mode` (canonical set renamed `dreamcoder-light-*.png` / `dreamcoder-dark-*.png`, one call per mode) and the
+  checker required IM7 `magick` while CI runners ship IM6 (`convert`/`identify` fallback, tested with PATH
+  shims). CI: new `theme-check` job in `.github/workflows/theme-validation.yml` (Python 3.12, ImageMagick +
+  GTK fixtures, HOME in runner temp, `make theme-check`), own commit, simulated on a fresh clone first.
