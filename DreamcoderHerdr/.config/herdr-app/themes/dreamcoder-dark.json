@@ -1,25 +1,25 @@
 {
   "background": "#000000",
-  "foreground": "#E6E6E6",
-  "selection": "#3A3A3A",
-  "cursor": "#A5B4FC",
+  "foreground": "#EBEBEB",
+  "selection": "#303030",
+  "cursor": "#A7B5FD",
   "ansi": [
-    "#797979", "#FB8585", "#34D399", "#FBBF24", "#7DD3FC", "#D8B4FE", "#58D3CA", "#C7C7C7",
-    "#A7A7A7", "#F79696", "#54D6A7", "#F7C647", "#90D6F8", "#DBBDFA", "#6DD6CE", "#E6E6E6"
+    "#777777", "#FC9D95", "#86CF90", "#DCB55E", "#76C4F6", "#F59AC5", "#7ECAC3", "#DCDCDC",
+    "#A4A4A4", "#F9ABA4", "#98D4A0", "#DFBF77", "#8BCBF4", "#F3A9CC", "#8ECFC9", "#EBEBEB"
   ],
   "colors": {
     "canvas": "#000000",
     "chrome": "#000000",
-    "surface": "#0B0B0B",
-    "raised": "#0D0D0F",
-    "selected": "#0B0B0B",
-    "selection": "#3A3A3A",
-    "foreground": "#E6E6E6",
-    "muted": "#C7C7C7",
-    "dim": "#767676",
-    "accent": "#A5B4FC",
-    "blocked": "#FB8585",
-    "done": "#34D399",
-    "working": "#FBBF24"
+    "surface": "#090909",
+    "raised": "#121212",
+    "selected": "#090909",
+    "selection": "#303030",
+    "foreground": "#EBEBEB",
+    "muted": "#DCDCDC",
+    "dim": "#777777",
+    "accent": "#A7B5FD",
+    "blocked": "#FC9D95",
+    "done": "#86CF90",
+    "working": "#DCB55E"
   }
 }

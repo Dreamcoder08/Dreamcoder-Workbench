@@ -274,6 +274,6 @@ def test_native_gtk_import_cascade_survives_matugen_overwrite(tmp_path, major):
         )
         assert not probe.stderr, probe.stderr
         assert "@define-color view_bg_color rgb(0,0,0);" in probe.stdout
-        assert "@define-color view_fg_color rgb(230,230,230);" in probe.stdout
+        assert "@define-color view_fg_color rgb(235,235,235);" in probe.stdout
         assert probe.stdout.count("@define-color view_bg_color ") == 1
         assert "background-color: @view_bg_color;" in probe.stdout

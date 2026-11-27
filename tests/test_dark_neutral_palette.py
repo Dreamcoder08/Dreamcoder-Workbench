@@ -87,23 +87,24 @@ def test_dark_uses_the_authorized_neutral_surface_ladder():
         key: dark[key] for key in ("bg", "bg_soft", "surface0", "surface1", "surface2", "surface3")
     } == {
         "bg": "#000000",
-        "bg_soft": "#0B0B0B",
-        "surface0": "#0B0B0B",
-        "surface1": "#0D0D0F",
-        "surface2": "#1F1F1F",
-        "surface3": "#2E2E2E",
+        "bg_soft": "#090909",
+        "surface0": "#090909",
+        "surface1": "#121212",
+        "surface2": "#1c1c1c",
+        "surface3": "#262626",
     }
-    assert dark["selection"] == dark["selection_bg"] == dark["hover"] == "#3A3A3A"
+    assert dark["selection"] == dark["selection_bg"] == dark["hover"] == "#303030"
     assert dark["pressed"] == dark["surface2"]
 
 
 def test_dark_neutral_text_mirrors_remain_legible_on_raised_roles():
     dark = _dark()
 
-    assert dark["text"] == dark["prompt_text"] == dark["on_surface"] == "#E6E6E6"
-    assert dark["muted"] == dark["prompt_muted"] == "#C7C7C7"
-    assert dark["subtle"] == dark["disabled"] == "#A7A7A7"
-    assert dark["comment"] == "#D0D0D0"
+    assert dark["text"] == dark["prompt_text"] == dark["on_surface"] == "#ebebeb"
+    assert dark["muted"] == dark["prompt_muted"] == "#dcdcdc"
+    assert dark["subtle"] == "#a4a4a4"
+    assert dark["disabled"] == "#979797"
+    assert dark["comment"] == "#cecece"
     assert contrast(dark["text"], dark["surface3"]) >= 10
     assert contrast(dark["selection_fg"], dark["selection_bg"]) >= 7
 

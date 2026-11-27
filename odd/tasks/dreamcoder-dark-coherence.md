@@ -45,7 +45,7 @@ Branch `feat/dark-coherence` (stacked on `feat/light-coherence`) in worktree `.l
 | ID | Specs | Task | Route | Commit |
 | --- | --- | --- | --- | --- |
 | T1 | S1 | Baseline: live Dark screenshot, Dark specimen, measurements recorded | inline | 96dd168 |
-| T2 | S1-S5 | Dark primitives + bindings (neutral ramp, 8 pigment families at night density, indigo brand), material laws in `tests/test_dark_material.py`, deliberate re-pins | worker | — |
+| T2 | S1-S5 | Dark primitives + bindings (neutral ramp, 8 pigment families at night density, indigo brand), material laws in `tests/test_dark_material.py`, deliberate re-pins | worker | f971a41 |
 | T3 | S1,S2 | Dark components: tonal elevation (no shadows), radius/rhythm adopted for Dark, renderer literals | worker | — |
 | T4 | S1 | Generate the stale hand-written Dark files; guard test like `test_light_color_files.py` | worker | — |
 | T5 | S1,S3 | Dark wallpaper contract: hue rule follows identity (neutral or indigo), not warm | inline | — |
@@ -81,3 +81,11 @@ Branch `feat/dark-coherence` (stacked on `feat/light-coherence`) in worktree `.l
   - focus ring ≥ 3:1 on every surface including selection.
   - Preserve S5: ANSI slots 6/14 semantic assertions in `test_dark_ansi_semantics.py` keep holding (re-pin only byte
     baselines, never the semantic checks); `aliases.brand` (filled indigo) and `on_accent` contrast floors still pass.
+- L5 — T2 result: `primitives.dark` (graphite chroma 0 + madder, ochre, malachite, verdigris, indigo, iris, violet,
+  cochineal at L .790; iris.865 hover) and `bindings.dark` for all 46 hex roles; `tests/test_dark_material.py`
+  (29 laws, RED 16/29 before). Metrics: pigment L spread 0.000, min ΔE 14.24 (was 1.0), pigments ≥ 10.31:1 on bg
+  and ≥ 6.48:1 on selection, focus ≥ 7.05:1 everywhere, ladder ΔL 0.042, strict text ramp. Deviations forced by
+  existing guards: surface0 L .142, subtle L .720, border_ui L .570, pigment L .790. Focus moved blue → verdigris
+  (ΔE 32.7, S3). DTCG export emits `primitive.dark`; pi-theme bats reads the dark accent from tokens. Light
+  byte-identical (tokens light/primitives/components equal HEAD; theme-diff: 40 roles changed, all dark, 0 floors
+  crossed). `effects.glow_focus` still blue → T3.

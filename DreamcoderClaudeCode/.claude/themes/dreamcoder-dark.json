@@ -2,11 +2,11 @@
   "name": "Dreamcoder",
   "base": "dark",
   "overrides": {
-    "diffAdded": "#0a2a1f",
-    "diffAddedDimmed": "#05150f",
-    "diffAddedWord": "#134c37",
-    "diffRemoved": "#321b1b",
-    "diffRemovedDimmed": "#190d0d",
-    "diffRemovedWord": "#5a3030"
+    "diffAdded": "#1b291d",
+    "diffAddedDimmed": "#0d150e",
+    "diffAddedWord": "#304b34",
+    "diffRemoved": "#321f1e",
+    "diffRemovedDimmed": "#19100f",
+    "diffRemovedWord": "#5b3936"
   }
 }

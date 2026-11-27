@@ -3,47 +3,47 @@
   "type": "dark",
   "colors": {
     "editor.background": "#000000",
-    "editor.foreground": "#E6E6E6",
-    "activityBar.background": "#0B0B0B",
-    "activityBar.foreground": "#A5B4FC",
-    "activityBar.inactiveForeground": "#D0D0D0",
-    "activityBar.border": "#767676",
-    "sideBar.background": "#0B0B0B",
-    "sideBar.foreground": "#E6E6E6",
-    "sideBar.border": "#767676",
+    "editor.foreground": "#ebebeb",
+    "activityBar.background": "#090909",
+    "activityBar.foreground": "#a7b5fd",
+    "activityBar.inactiveForeground": "#cecece",
+    "activityBar.border": "#777777",
+    "sideBar.background": "#090909",
+    "sideBar.foreground": "#ebebeb",
+    "sideBar.border": "#777777",
     "statusBar.background": "#000000",
-    "statusBar.foreground": "#E6E6E6",
-    "statusBar.border": "#767676",
-    "editorGroupHeader.tabsBackground": "#0B0B0B",
+    "statusBar.foreground": "#ebebeb",
+    "statusBar.border": "#777777",
+    "editorGroupHeader.tabsBackground": "#090909",
     "tab.activeBackground": "#000000",
-    "tab.activeForeground": "#A5B4FC",
-    "tab.inactiveBackground": "#0B0B0B",
-    "tab.inactiveForeground": "#D0D0D0",
-    "tab.border": "#767676",
-    "editor.lineHighlightBackground": "#0B0B0B",
-    "editorLineNumber.foreground": "#D0D0D0",
-    "editorLineNumber.activeForeground": "#A5B4FC",
-    "editorWidget.background": "#0D0D0F",
-    "editorWidget.border": "#767676",
-    "input.background": "#0D0D0F",
-    "input.foreground": "#E6E6E6",
-    "input.border": "#3B82F6",
-    "button.background": "#D4B5FD",
+    "tab.activeForeground": "#a7b5fd",
+    "tab.inactiveBackground": "#090909",
+    "tab.inactiveForeground": "#cecece",
+    "tab.border": "#777777",
+    "editor.lineHighlightBackground": "#090909",
+    "editorLineNumber.foreground": "#cecece",
+    "editorLineNumber.activeForeground": "#a7b5fd",
+    "editorWidget.background": "#121212",
+    "editorWidget.border": "#777777",
+    "input.background": "#121212",
+    "input.foreground": "#ebebeb",
+    "input.border": "#6eccd1",
+    "button.background": "#c6d0fd",
     "button.foreground": "#000000",
-    "list.activeSelectionBackground": "#0D0D0F",
-    "list.activeSelectionForeground": "#E6E6E6",
-    "list.hoverBackground": "#0B0B0B",
-    "editor.selectionBackground": "#0D0D0F",
+    "list.activeSelectionBackground": "#121212",
+    "list.activeSelectionForeground": "#ebebeb",
+    "list.hoverBackground": "#090909",
+    "editor.selectionBackground": "#121212",
     "terminal.background": "#000000",
-    "terminal.foreground": "#E6E6E6",
-    "terminal.ansiBlack": "#0B0B0B",
-    "terminal.ansiRed": "#FB8585",
-    "terminal.ansiGreen": "#34D399",
-    "terminal.ansiYellow": "#FBBF24",
-    "terminal.ansiBlue": "#A5B4FC",
-    "terminal.ansiMagenta": "#D8B4FE",
-    "terminal.ansiCyan": "#7DD3FC",
-    "terminal.ansiWhite": "#E6E6E6"
+    "terminal.foreground": "#ebebeb",
+    "terminal.ansiBlack": "#090909",
+    "terminal.ansiRed": "#fc9d95",
+    "terminal.ansiGreen": "#86cf90",
+    "terminal.ansiYellow": "#dcb55e",
+    "terminal.ansiBlue": "#a7b5fd",
+    "terminal.ansiMagenta": "#f59ac5",
+    "terminal.ansiCyan": "#76c4f6",
+    "terminal.ansiWhite": "#ebebeb"
   },
   "tokenColors": [
     {
@@ -52,7 +52,7 @@
         "punctuation.definition.comment"
       ],
       "settings": {
-        "foreground": "#D0D0D0",
+        "foreground": "#cecece",
         "fontStyle": "italic"
       }
     },
@@ -64,7 +64,7 @@
         "keyword.operator"
       ],
       "settings": {
-        "foreground": "#A5B4FC",
+        "foreground": "#a7b5fd",
         "fontStyle": "bold"
       }
     },
@@ -75,7 +75,7 @@
         "entity.name.method"
       ],
       "settings": {
-        "foreground": "#7DD3FC"
+        "foreground": "#76c4f6"
       }
     },
     {
@@ -84,7 +84,7 @@
         "punctuation.definition.string"
       ],
       "settings": {
-        "foreground": "#34D399"
+        "foreground": "#86cf90"
       }
     },
     {
@@ -93,7 +93,7 @@
         "constant.language"
       ],
       "settings": {
-        "foreground": "#D4B5FD"
+        "foreground": "#c6d0fd"
       }
     },
     {
@@ -103,7 +103,7 @@
         "entity.name.class"
       ],
       "settings": {
-        "foreground": "#D4B5FD"
+        "foreground": "#d6a2f6"
       }
     },
     {
@@ -112,7 +112,7 @@
         "meta.definition.variable"
       ],
       "settings": {
-        "foreground": "#E6E6E6"
+        "foreground": "#ebebeb"
       }
     }
   ]

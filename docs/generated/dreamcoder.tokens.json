@@ -339,6 +339,303 @@
           }
         }
       }
+    },
+    "dark": {
+      "$description": "Dreamcoder Dark OKLCH primitives from DreamcoderThemes/dreamcoder/tokens.json (primitives.dark).",
+      "cochineal": {
+        "790": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.79,
+              0.12,
+              350.0
+            ],
+            "hex": "#f59ac5"
+          }
+        }
+      },
+      "graphite": {
+        "985": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.985,
+              0.0,
+              0.0
+            ],
+            "hex": "#fafafa"
+          }
+        },
+        "940": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.94,
+              0.0,
+              0.0
+            ],
+            "hex": "#ebebeb"
+          }
+        },
+        "895": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.895,
+              0.0,
+              0.0
+            ],
+            "hex": "#dcdcdc"
+          }
+        },
+        "850": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.85,
+              0.0,
+              0.0
+            ],
+            "hex": "#cecece"
+          }
+        },
+        "720": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.72,
+              0.0,
+              0.0
+            ],
+            "hex": "#a4a4a4"
+          }
+        },
+        "675": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.675,
+              0.0,
+              0.0
+            ],
+            "hex": "#979797"
+          }
+        },
+        "570": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.57,
+              0.0,
+              0.0
+            ],
+            "hex": "#777777"
+          }
+        },
+        "500": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.5,
+              0.0,
+              0.0
+            ],
+            "hex": "#636363"
+          }
+        },
+        "310": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.31,
+              0.0,
+              0.0
+            ],
+            "hex": "#303030"
+          }
+        },
+        "268": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.268,
+              0.0,
+              0.0
+            ],
+            "hex": "#262626"
+          }
+        },
+        "226": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.226,
+              0.0,
+              0.0
+            ],
+            "hex": "#1c1c1c"
+          }
+        },
+        "184": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.184,
+              0.0,
+              0.0
+            ],
+            "hex": "#121212"
+          }
+        },
+        "142": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.142,
+              0.0,
+              0.0
+            ],
+            "hex": "#090909"
+          }
+        },
+        "000": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "hex": "#000000"
+          }
+        }
+      },
+      "indigo": {
+        "790": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.79,
+              0.105,
+              238.0
+            ],
+            "hex": "#76c4f6"
+          }
+        }
+      },
+      "iris": {
+        "865": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.865,
+              0.0634,
+              275.0
+            ],
+            "hex": "#c6d0fd"
+          }
+        },
+        "790": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.79,
+              0.1034,
+              275.0
+            ],
+            "hex": "#a7b5fd"
+          }
+        }
+      },
+      "madder": {
+        "790": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.79,
+              0.115,
+              25.0
+            ],
+            "hex": "#fc9d95"
+          }
+        }
+      },
+      "malachite": {
+        "790": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.79,
+              0.115,
+              148.0
+            ],
+            "hex": "#86cf90"
+          }
+        }
+      },
+      "ochre": {
+        "790": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.79,
+              0.115,
+              85.0
+            ],
+            "hex": "#dcb55e"
+          }
+        }
+      },
+      "verdigris": {
+        "790": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.79,
+              0.09,
+              200.0
+            ],
+            "hex": "#6eccd1"
+          }
+        }
+      },
+      "violet": {
+        "790": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "oklch",
+            "components": [
+              0.79,
+              0.128,
+              312.0
+            ],
+            "hex": "#d6a2f6"
+          }
+        }
+      }
     }
   },
   "semantic": {
@@ -605,246 +902,94 @@
       }
     },
     "dark": {
-      "$description": "Dreamcoder Dark semantic roles from DreamcoderThemes/dreamcoder/tokens.json (modes.dark): sRGB colours.",
+      "$description": "Dreamcoder Dark semantic roles from DreamcoderThemes/dreamcoder/tokens.json (modes.dark): aliases of the primitive each role is bound to.",
       "bg": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "hex": "#000000"
-        }
+        "$value": "{primitive.dark.graphite.000}"
       },
       "bg_soft": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.043137,
-            0.043137,
-            0.043137
-          ],
-          "hex": "#0b0b0b"
-        }
+        "$value": "{primitive.dark.graphite.142}"
       },
       "surface0": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.043137,
-            0.043137,
-            0.043137
-          ],
-          "hex": "#0b0b0b"
-        }
+        "$value": "{primitive.dark.graphite.142}"
       },
       "surface1": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.05098,
-            0.05098,
-            0.058824
-          ],
-          "hex": "#0d0d0f"
-        }
+        "$value": "{primitive.dark.graphite.184}"
       },
       "surface2": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.121569,
-            0.121569,
-            0.121569
-          ],
-          "hex": "#1f1f1f"
-        }
+        "$value": "{primitive.dark.graphite.226}"
       },
       "surface3": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.180392,
-            0.180392,
-            0.180392
-          ],
-          "hex": "#2e2e2e"
-        }
+        "$value": "{primitive.dark.graphite.268}"
       },
       "text": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.901961,
-            0.901961,
-            0.901961
-          ],
-          "hex": "#e6e6e6"
-        }
+        "$value": "{primitive.dark.graphite.940}"
       },
       "text_heading": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.960784,
-            0.960784,
-            0.960784
-          ],
-          "hex": "#f5f5f5"
-        }
+        "$value": "{primitive.dark.graphite.985}"
       },
       "muted": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.780392,
-            0.780392,
-            0.780392
-          ],
-          "hex": "#c7c7c7"
-        }
+        "$value": "{primitive.dark.graphite.895}"
       },
       "subtle": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.654902,
-            0.654902,
-            0.654902
-          ],
-          "hex": "#a7a7a7"
-        }
+        "$value": "{primitive.dark.graphite.720}"
       },
       "comment": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.815686,
-            0.815686,
-            0.815686
-          ],
-          "hex": "#d0d0d0"
-        }
+        "$value": "{primitive.dark.graphite.850}"
       },
       "border": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.419608,
-            0.419608,
-            0.419608
-          ],
-          "hex": "#6b6b6b"
-        }
+        "$value": "{primitive.dark.graphite.500}"
       },
       "border_ui": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.462745,
-            0.462745,
-            0.462745
-          ],
-          "hex": "#767676"
-        }
+        "$value": "{primitive.dark.graphite.570}"
       },
       "border_hi": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.654902,
-            0.654902,
-            0.654902
-          ],
-          "hex": "#a7a7a7"
-        }
+        "$value": "{primitive.dark.graphite.720}"
       },
       "focus": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.231373,
-            0.509804,
-            0.964706
-          ],
-          "hex": "#3b82f6"
-        }
+        "$value": "{primitive.dark.verdigris.790}"
       },
       "accent": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.647059,
-            0.705882,
-            0.988235
-          ],
-          "hex": "#a5b4fc"
-        }
+        "$value": "{primitive.dark.iris.790}"
       },
       "accent_2": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.831373,
-            0.709804,
-            0.992157
-          ],
-          "hex": "#d4b5fd"
-        }
+        "$value": "{primitive.dark.iris.865}"
       },
       "diagnostic": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.490196,
-            0.827451,
-            0.988235
-          ],
-          "hex": "#7dd3fc"
-        }
+        "$value": "{primitive.dark.indigo.790}"
       },
       "selection": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.227451,
-            0.227451,
-            0.227451
-          ],
-          "hex": "#3a3a3a"
-        }
+        "$value": "{primitive.dark.graphite.310}"
       },
       "panel_rgba": {
         "$type": "color",
         "$value": {
           "colorSpace": "srgb",
           "components": [
-            0.05098,
-            0.05098,
-            0.058824
+            0.070588,
+            0.070588,
+            0.070588
           ],
           "alpha": 0.92,
-          "hex": "#0d0d0f"
+          "hex": "#121212"
         }
       },
       "module_rgba": {
@@ -852,12 +997,12 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [
-            0.901961,
-            0.901961,
-            0.901961
+            0.921569,
+            0.921569,
+            0.921569
           ],
           "alpha": 0.08,
-          "hex": "#e6e6e6"
+          "hex": "#ebebeb"
         }
       },
       "active_rgba": {
@@ -878,325 +1023,117 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [
-            0.180392,
-            0.180392,
-            0.180392
+            0.14902,
+            0.14902,
+            0.14902
           ],
           "alpha": 0.84,
-          "hex": "#2e2e2e"
+          "hex": "#262626"
         }
       },
       "prompt_bg": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "hex": "#000000"
-        }
+        "$value": "{primitive.dark.graphite.000}"
       },
       "prompt_surface0": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.043137,
-            0.043137,
-            0.043137
-          ],
-          "hex": "#0b0b0b"
-        }
+        "$value": "{primitive.dark.graphite.142}"
       },
       "prompt_surface1": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.05098,
-            0.05098,
-            0.058824
-          ],
-          "hex": "#0d0d0f"
-        }
+        "$value": "{primitive.dark.graphite.184}"
       },
       "prompt_surface2": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.121569,
-            0.121569,
-            0.121569
-          ],
-          "hex": "#1f1f1f"
-        }
+        "$value": "{primitive.dark.graphite.226}"
       },
       "prompt_text": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.901961,
-            0.901961,
-            0.901961
-          ],
-          "hex": "#e6e6e6"
-        }
+        "$value": "{primitive.dark.graphite.940}"
       },
       "prompt_muted": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.780392,
-            0.780392,
-            0.780392
-          ],
-          "hex": "#c7c7c7"
-        }
+        "$value": "{primitive.dark.graphite.895}"
       },
       "prompt_accent": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.647059,
-            0.705882,
-            0.988235
-          ],
-          "hex": "#a5b4fc"
-        }
+        "$value": "{primitive.dark.iris.790}"
       },
       "prompt_accent_2": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.831373,
-            0.709804,
-            0.992157
-          ],
-          "hex": "#d4b5fd"
-        }
+        "$value": "{primitive.dark.iris.865}"
       },
       "sage": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.203922,
-            0.827451,
-            0.6
-          ],
-          "hex": "#34d399"
-        }
+        "$value": "{primitive.dark.malachite.790}"
       },
       "lavender": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.831373,
-            0.709804,
-            0.992157
-          ],
-          "hex": "#d4b5fd"
-        }
+        "$value": "{primitive.dark.violet.790}"
       },
       "mauve": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.847059,
-            0.705882,
-            0.996078
-          ],
-          "hex": "#d8b4fe"
-        }
+        "$value": "{primitive.dark.cochineal.790}"
       },
       "error": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.984314,
-            0.521569,
-            0.521569
-          ],
-          "hex": "#fb8585"
-        }
+        "$value": "{primitive.dark.madder.790}"
       },
       "warning": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.984314,
-            0.74902,
-            0.141176
-          ],
-          "hex": "#fbbf24"
-        }
+        "$value": "{primitive.dark.ochre.790}"
       },
       "success": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.203922,
-            0.827451,
-            0.6
-          ],
-          "hex": "#34d399"
-        }
+        "$value": "{primitive.dark.malachite.790}"
       },
       "info": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.490196,
-            0.827451,
-            0.988235
-          ],
-          "hex": "#7dd3fc"
-        }
+        "$value": "{primitive.dark.indigo.790}"
       },
       "selection_bg": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.227451,
-            0.227451,
-            0.227451
-          ],
-          "hex": "#3a3a3a"
-        }
+        "$value": "{primitive.dark.graphite.310}"
       },
       "selection_fg": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.901961,
-            0.901961,
-            0.901961
-          ],
-          "hex": "#e6e6e6"
-        }
+        "$value": "{primitive.dark.graphite.940}"
       },
       "on_surface": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.901961,
-            0.901961,
-            0.901961
-          ],
-          "hex": "#e6e6e6"
-        }
+        "$value": "{primitive.dark.graphite.940}"
       },
       "on_accent": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "hex": "#000000"
-        }
+        "$value": "{primitive.dark.graphite.000}"
       },
       "on_error": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "hex": "#000000"
-        }
+        "$value": "{primitive.dark.graphite.000}"
       },
       "on_focus": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.0,
-            0.0,
-            0.0
-          ],
-          "hex": "#000000"
-        }
+        "$value": "{primitive.dark.graphite.000}"
       },
       "link": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.647059,
-            0.705882,
-            0.988235
-          ],
-          "hex": "#a5b4fc"
-        }
+        "$value": "{primitive.dark.iris.790}"
       },
       "link_hover": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.831373,
-            0.709804,
-            0.992157
-          ],
-          "hex": "#d4b5fd"
-        }
+        "$value": "{primitive.dark.iris.865}"
       },
       "disabled": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.654902,
-            0.654902,
-            0.654902
-          ],
-          "hex": "#a7a7a7"
-        }
+        "$value": "{primitive.dark.graphite.675}"
       },
       "hover": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.227451,
-            0.227451,
-            0.227451
-          ],
-          "hex": "#3a3a3a"
-        }
+        "$value": "{primitive.dark.graphite.310}"
       },
       "pressed": {
         "$type": "color",
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.121569,
-            0.121569,
-            0.121569
-          ],
-          "hex": "#1f1f1f"
-        }
+        "$value": "{primitive.dark.graphite.226}"
       },
       "overlay": {
         "$type": "color",

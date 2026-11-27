@@ -32,11 +32,11 @@ class DreamcoderThemeQualityTest(unittest.TestCase):
         dark = self.modes["dark"]
         self.assertEqual(dark["name"], "Dreamcoder Dark")
         self.assertEqual(dark["bg"], "#000000")
-        self.assertEqual(dark["surface0"], "#0B0B0B")
-        self.assertEqual(dark["surface1"], "#0D0D0F")
-        self.assertEqual(dark["surface2"], "#1F1F1F")
-        self.assertEqual(dark["surface3"], "#2E2E2E")
-        self.assertEqual(dark["focus"], "#3B82F6")
+        self.assertEqual(dark["surface0"], "#090909")
+        self.assertEqual(dark["surface1"], "#121212")
+        self.assertEqual(dark["surface2"], "#1c1c1c")
+        self.assertEqual(dark["surface3"], "#262626")
+        self.assertEqual(dark["focus"], "#6eccd1")
 
     def test_light_has_stronger_editor_readability_tiers(self):
         light = self.modes["light"]
